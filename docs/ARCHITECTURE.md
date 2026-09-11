@@ -1,3 +1,5 @@
+Current release: see [Phase 1.3 additions and boundaries](PHASE-1.3.md). The sections below document the inherited foundation.
+
 # Architecture and release boundary
 
 ## Runtime
@@ -51,7 +53,7 @@ Server MIME/size restrictions and client magic-byte checks are not malware scann
 
 ## Subsequent foundation work
 
-Server-side directory pagination beyond pilot caps, database-generated client types, configurable geography levels/import, finer POEM staff permissions and project-specific consent/data policies remain open. All POEM Admins can access volunteer documents in this release; separated Registry/Volunteer/Auditor roles are future work. Organization invitations may follow registered-account membership assignment.
+Phase 1.3 delivers directory pagination, generated public-schema types and Volunteer Manager / NGO Manager / Auditor roles. Configurable geography levels/import, pagination of supporting lists, Registry Manager and project-specific consent/data policies remain open. Legacy POEM Admins retain broad access. Organization invitations may follow registered-account membership assignment.
 
 ## Survey/registry pilot after volunteer foundation
 

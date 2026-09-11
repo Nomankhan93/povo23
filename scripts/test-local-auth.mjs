@@ -14,6 +14,10 @@ try{
  const save=await a.client.rpc('save_my_profile',{p_details:{full_name:'Local test',phone:'03000000000',area:'Kunri'},p_submit:false,p_version:1,p_geography:null});assert.ifError(save.error);
  const hidden=await b.client.from('volunteer_profiles').select('*').eq('user_id',a.id);assert.ifError(hidden.error);assert.equal(hidden.data.length,0);
  const forged=await b.client.rpc('review_profile',{p_user_id:a.id,p_status:'verified',p_note:'Forged review',p_version:2,p_checks:{}});assert(forged.error);
+ const promoted=await service.from('accounts').update({platform_role:'volunteer_manager'}).eq('id',a.id);assert.ifError(promoted.error);
+ const directory=await a.client.rpc('search_volunteers',{p_query:'Local test'});assert.ifError(directory.error);assert(directory.data.rows.some(r=>r.user_id===a.id));assert(directory.data.rows.length<=50);
+ const directoryDenied=await b.client.rpc('search_volunteers',{});assert(directoryDenied.error);
+ const demoted=await service.from('accounts').update({platform_role:'volunteer'}).eq('id',a.id);assert.ifError(demoted.error);
  const bytes=new TextEncoder().encode('%PDF-1.4\n% POEM local fixture\n%%EOF');
  const reserve=await a.client.rpc('begin_document_upload',{p_name:'fixture.pdf',p_type:'application/pdf',p_bytes:bytes.length,p_kind:'cv'});assert.ifError(reserve.error);const doc=reserve.data;
  const uploaded=await a.client.storage.from('poem-private-documents').upload(doc.object_path,bytes,{contentType:'application/pdf',upsert:false});assert.ifError(uploaded.error);

@@ -18,6 +18,7 @@ for(const [name,id] of Object.entries(ids))await db.query('insert into auth.user
 await db.query("update public.accounts set platform_role='super_admin' where id=$1",[ids.admin]);
 await as('a');await call('save_my_profile',[details,true,1]);await as('admin');await call('review_profile',[ids.a,'verified','Original review',2]);await db.exec('RESET ROLE');
 await db.exec(readFileSync('supabase/migrations/20260912000100_phase12_geography_documents.sql','utf8'));
+await db.exec(readFileSync('supabase/migrations/20260913000100_phase13_directory_operations.sql','utf8'));
 await ok('upgrade preserves existing profile and verification',async()=>{const p=(await rows('select * from public.volunteer_profiles where user_id=$1',[ids.a]))[0];assert.equal(p.status,'verified');assert.equal(p.details.full_name,'Test Volunteer');assert.equal(p.geography_id,null)});
 await ok('storage bucket is private with size/type restrictions',async()=>{const b=(await rows('select * from storage.buckets'))[0];assert.equal(b.public,false);assert.equal(Number(b.file_size_limit),5242880);assert.deepEqual(b.allowed_mime_types,['application/pdf','image/jpeg','image/png'])});
 await as('a');await ok('volunteer cannot edit geography or bypass new RPC',async()=>{await deny(()=>call('save_geography',[null,null,'province','Fake','F','source',true]),/admin/);await deny(()=>call('save_my_profile',[details,true,3]),/does not exist/);await deny(()=>db.query('select app_private.save_profile_v11($1,true,3)',[details]),/permission denied/)});

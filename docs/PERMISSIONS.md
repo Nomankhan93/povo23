@@ -1,3 +1,5 @@
+Current release: [Phase 1.3 staff permission matrix](PHASE-1.3.md). Legacy roles below retain their prior permissions; Volunteer Manager now also reviews documents, NGO Manager manages geography/NGOs and Auditor reads audit events.
+
 # POEM Phase 1.2 permission matrix
 
 Permissions are enforced in PostgreSQL, not by hidden navigation alone. All public mutation RPCs verify the current `auth.uid()` and account status. Browser users have SELECT grants only on tables; all business changes use guarded functions.

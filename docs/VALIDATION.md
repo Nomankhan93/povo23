@@ -1,15 +1,7 @@
-# Validation — Phase 1.2
+# Validation — Phase 1.3
 
-Executed in the build environment:
+Executed: database-generated type drift check, TypeScript strict check, production build and 67 PostgreSQL workflow/security assertions (26 foundation, 19 document/geography regression under the current migration, 22 Phase 1.3). All passed. The directory pagination fixture contained 61 matching profiles and verified 50 + 11 unique results. Tests cover simultaneous membership in two NGOs, grants/revocation, shortlist note isolation and version conflict, staff role boundaries, active-area constraints and suspension.
 
-- TypeScript strict check and Vite production build: passed.
-- 26 original PostgreSQL foundation/RLS/workflow/bootstrap tests: passed.
-- 19 upgrade/geography/private-document/review/notification tests: passed.
-- Local smoke-test JavaScript syntax: passed.
-- Patch baseline/updated hashes, clean application, repeat application, conflict refusal and path traversal refusal: passed during packaging.
+The tests run actual SQL migrations and RLS in PGlite, with simulated Auth JWT subjects and Storage metadata. `npm run test:local` is supplied for actual Auth/PostgREST/Storage on the local Docker stack and now includes the directory RPC. It was not executed here. Browser/mobile QA, Docker startup and deployment were not executed.
 
-The upgrade tests execute the original migration, create a verified legacy record, then apply the new migration in PGlite. They prove legacy data preservation, inactive geography blocking, stale review rejection, NGO file isolation, immutable object policy, document lifecycle and notification recipient boundaries. Auth JWT subjects and Storage tables are simulated. They do not upload actual bytes through Storage HTTP.
-
-Not executed: Supabase Docker startup (daemon access unavailable), real local Auth and Storage HTTP smoke test, email confirmation/recovery, browser/mobile interaction or deployment. `npm run test:local` provides temporary-fixture Auth and Storage byte tests for your running local stack. Complete the manual checklist before treating this as an accepted operational pilot.
-
-No claim of production readiness, malware scanning, identity verification or complete fine-grained POEM staff authorization is made.
+Packaging validation: old migrations/config unchanged; patch applies to a clean Phase 1.2 baseline; repeat apply is idempotent; local-edit conflicts, corrupted payload, traversal and symlinks are refused. ZIP entries exclude environment secrets, dependencies and Git metadata. Complete the manual acceptance checklist before using real operational records.

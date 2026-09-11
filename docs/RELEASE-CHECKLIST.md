@@ -1,3 +1,5 @@
+For the current Phase 1.3 release, use [upgrade commands](UPGRADE-1.3.md) and [acceptance checklist](PHASE-1.3.md). The following checklist covers inherited functionality.
+
 # Release checklist
 
 Both a full standalone package and a safe upgrade patch are supplied. Use UPGRADE-1.2.md for the Phase 1.2 standalone project. Neither archive migrates the older Sites source.

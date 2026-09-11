@@ -1,10 +1,12 @@
-# POEM Phase 1.2
+# POEM Phase 1.3
 
 Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL. Designed for local WSL development with a local Supabase Docker stack. Independent of the earlier Sites-backed source snapshot.
 
 **Start here:** [WSL setup](docs/SETUP-WSL.md).
 
-**Existing Phase 1.1 users:** follow [safe upgrade instructions](docs/UPGRADE-1.2.md). Keep your existing project folder and database.
+**Existing Phase 1.2 users:** follow [safe upgrade instructions](docs/UPGRADE-1.3.md). Keep your existing project folder and database.
+
+**New in this release:** [Phase 1.3 scope, permissions and checklist](docs/PHASE-1.3.md). Search/filter volunteers in 50-record pages, manage NGO operating areas/programs, maintain private shortlists and assign separate staff roles.
 
 ## Included
 
@@ -33,7 +35,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - Geography is admin-maintained with fixed province/division/district/taluka/UC/village-or-ward levels. No authoritative geographic data is bundled; create a sourced hierarchy before new submissions. Existing approvals survive upgrade until edited/reviewed.
 - No survey builder, beneficiary registry, assistance ledger, payments, automatic performance scoring, PWA/offline collection, SMS or email notifications beyond Auth.
 - No migration/import from the older Cloudflare/Sites database is included.
-- Pilot UI fetches at most 500 profiles/accounts/organizations, 1,000 memberships/shares and 100 events. These are not complete district statistics or a scalable paginated directory. Keep the pilot below these caps; add server-side pagination before scaling.
+- Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.
 - Never put service-role keys or server secrets into any `VITE_*` variable. The build includes a check for common secret-key mistakes.
 
@@ -58,7 +60,7 @@ npm run build
 npm run test:local
 ```
 
-The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests and 19 upgrade tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
+The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests and 22 Phase 1.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 
 ## Documentation
 

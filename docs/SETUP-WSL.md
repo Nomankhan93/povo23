@@ -1,6 +1,6 @@
-# POEM Phase 1.2 — WSL setup
+# POEM Phase 1.3 — WSL setup
 
-Fresh installation instructions. Existing Phase 1.1 users must use UPGRADE-1.2.md instead. This is a standalone project. It does not depend on ChatGPT Sites, Cloudflare D1, or the old `poem-release-a` folder. It does not automatically migrate records from the previous Sites build.
+Fresh installation instructions. Existing Phase 1.2 users must use UPGRADE-1.3.md instead. This is a standalone project. It does not depend on ChatGPT Sites, Cloudflare D1, or the old `poem-release-a` folder. It does not automatically migrate records from the previous Sites build.
 
 ## 1. Prerequisites
 
@@ -13,22 +13,22 @@ Use WSL (not PowerShell):
 
 ```bash
 mkdir -p ~/projects
-unzip -n "/mnt/c/Users/noman/Downloads/poem-phase1.2.zip" -d ~/projects
-cd ~/projects/poem-phase1.2
+unzip -n "/mnt/c/Users/noman/Downloads/poem-phase1.3.zip" -d ~/projects
+cd ~/projects/poem-phase1.3
 nvm install 24
 nvm use 24
 npm ci
 docker version
 ```
 
-The archive contains its own `poem-phase1.2/` folder. `-n` does not overwrite existing files. Extract a new release into a fresh directory if that folder already contains changes; this ZIP is not an overwrite patch.
+The archive contains its own `poem-phase1.3/` folder. `-n` does not overwrite existing files. Extract a new release into a fresh directory if that folder already contains changes; this ZIP is not an overwrite patch.
 
 ## 2. Start the local database/auth services
 
 The project already includes `supabase/config.toml`. Do not run `npx supabase init` again.
 
 ```bash
-cd ~/projects/poem-phase1.2
+cd ~/projects/poem-phase1.3
 npx supabase start
 npx supabase migration up --local
 npm run env:local
@@ -62,7 +62,7 @@ The internal Supabase project ID remains `poem-phase11` for upgrade compatibilit
 3. In a second WSL terminal, run the command below with that same email.
 
 ```bash
-cd ~/projects/poem-phase1.2
+cd ~/projects/poem-phase1.3
 npm run admin:bootstrap -- --email "YOUR_REGISTERED_EMAIL"
 ```
 
@@ -111,7 +111,7 @@ Also manually test login/logout, email confirmation, forgot-password/reset, corr
 ## 7. Daily use
 
 ```bash
-cd ~/projects/poem-phase1.2
+cd ~/projects/poem-phase1.3
 nvm use
 npx supabase start
 npm run dev
