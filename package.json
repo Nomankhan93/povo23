@@ -1,0 +1,36 @@
+{
+  "name": "poem-phase1-1",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node scripts/check-env.mjs && vite --host 127.0.0.1 --port 5173 --strictPort",
+    "check": "tsc --noEmit",
+    "build": "node scripts/check-env.mjs && npm run check && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs",
+    "env:local": "node scripts/local-env.mjs",
+    "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
+    "preflight": "npm run check && npm test && npm run build",
+    "test:local": "node scripts/test-local-auth.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.106.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "lucide-react": "1.31.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/node": "22.19.19",
+    "@vitejs/plugin-react": "6.0.2",
+    "typescript": "5.9.3",
+    "vite": "8.0.13",
+    "supabase": "2.100.0"
+  }
+}
