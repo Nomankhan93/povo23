@@ -6,10 +6,12 @@ README.md
 docs/ARCHITECTURE.md
 docs/PERMISSIONS.md
 docs/PHASE-1.3.md
+docs/PHASE-1.4.md
 docs/RELEASE-CHECKLIST.md
 docs/SETUP-WSL.md
 docs/UPGRADE-1.2.md
 docs/UPGRADE-1.3.md
+docs/UPGRADE-1.4.md
 docs/VALIDATION.md
 index.html
 package-lock.json
@@ -24,9 +26,11 @@ scripts/test-database.mjs
 scripts/test-local-auth.mjs
 scripts/test-phase12.mjs
 scripts/test-phase13.mjs
+scripts/test-phase14.mjs
 src/App.tsx
 src/Phase12.tsx
 src/Phase13.tsx
+src/Phase14.tsx
 src/client.ts
 src/database.types.ts
 src/main.tsx
@@ -35,5 +39,6 @@ supabase/config.toml
 supabase/migrations/20260911000100_poem_foundation.sql
 supabase/migrations/20260912000100_phase12_geography_documents.sql
 supabase/migrations/20260913000100_phase13_directory_operations.sql
+supabase/migrations/20260914000100_phase14_experience_invitations.sql
 tsconfig.json
 vite.config.ts

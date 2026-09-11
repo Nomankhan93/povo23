@@ -1,12 +1,14 @@
-# POEM Phase 1.3
+# POEM Phase 1.4
 
 Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL. Designed for local WSL development with a local Supabase Docker stack. Independent of the earlier Sites-backed source snapshot.
 
 **Start here:** [WSL setup](docs/SETUP-WSL.md).
 
-**Existing Phase 1.2 users:** follow [safe upgrade instructions](docs/UPGRADE-1.3.md). Keep your existing project folder and database.
+**Existing Phase 1.3 users:** follow [safe upgrade instructions](docs/UPGRADE-1.4.md). Keep your existing project folder and database.
 
-**New in this release:** [Phase 1.3 scope, permissions and checklist](docs/PHASE-1.3.md). Search/filter volunteers in 50-record pages, manage NGO operating areas/programs, maintain private shortlists and assign separate staff roles.
+**Phase 1.4:** [Verified experience, NGO opportunities and invitations](docs/PHASE-1.4.md).
+
+**Inherited Phase 1.3:** [Phase 1.3 scope, permissions and checklist](docs/PHASE-1.3.md). Search/filter volunteers in 50-record pages, manage NGO operating areas/programs, maintain private shortlists and assign separate staff roles.
 
 ## Included
 
@@ -60,7 +62,7 @@ npm run build
 npm run test:local
 ```
 
-The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests and 22 Phase 1.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
+The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests and 28 Phase 1.4 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 
 ## Documentation
 

@@ -1,3 +1,5 @@
+Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+
 Current release: see [Phase 1.3 additions and boundaries](PHASE-1.3.md). The sections below document the inherited foundation.
 
 # Architecture and release boundary

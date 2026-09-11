@@ -1,3 +1,5 @@
+Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+
 For the current Phase 1.3 release, use [upgrade commands](UPGRADE-1.3.md) and [acceptance checklist](PHASE-1.3.md). The following checklist covers inherited functionality.
 
 # Release checklist

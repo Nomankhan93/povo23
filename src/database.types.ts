@@ -286,6 +286,60 @@ version?: number;
 };
 Relationships: [];
 };
+volunteer_experiences: {
+Row: {
+id: string;
+user_id: string;
+organization_id: string;
+volunteer_name: string;
+role_title: string;
+start_date: string;
+end_date: string | null;
+description: string;
+status: string;
+version: number;
+reviewed_by: string | null;
+reviewed_at: string | null;
+review_note: string;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+user_id: string;
+organization_id: string;
+volunteer_name: string;
+role_title: string;
+start_date: string;
+end_date?: string | null;
+description: string;
+status?: string;
+version?: number;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+user_id?: string;
+organization_id?: string;
+volunteer_name?: string;
+role_title?: string;
+start_date?: string;
+end_date?: string | null;
+description?: string;
+status?: string;
+version?: number;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 volunteer_profiles: {
 Row: {
 user_id: string;
@@ -355,6 +409,93 @@ updated_at?: string;
 };
 Relationships: [];
 };
+work_invitations: {
+Row: {
+id: string;
+opportunity_id: string;
+organization_id: string;
+user_id: string;
+volunteer_name: string;
+status: string;
+version: number;
+created_by: string;
+created_at: string;
+responded_at: string | null;
+};
+Insert: {
+id?: string;
+opportunity_id: string;
+organization_id: string;
+user_id: string;
+volunteer_name: string;
+status?: string;
+version?: number;
+created_by: string;
+created_at?: string;
+responded_at?: string | null;
+};
+Update: {
+id?: string;
+opportunity_id?: string;
+organization_id?: string;
+user_id?: string;
+volunteer_name?: string;
+status?: string;
+version?: number;
+created_by?: string;
+created_at?: string;
+responded_at?: string | null;
+};
+Relationships: [];
+};
+work_opportunities: {
+Row: {
+id: string;
+organization_id: string;
+title: string;
+description: string;
+geography_id: string;
+start_date: string;
+end_date: string;
+reply_by: string;
+payment_type: string;
+payment_note: string;
+status: string;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+title: string;
+description: string;
+geography_id: string;
+start_date: string;
+end_date: string;
+reply_by: string;
+payment_type: string;
+payment_note?: string;
+status?: string;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+title?: string;
+description?: string;
+geography_id?: string;
+start_date?: string;
+end_date?: string;
+reply_by?: string;
+payment_type?: string;
+payment_note?: string;
+status?: string;
+created_by?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 }; Views: { [_ in never]: never }; Functions: {
 begin_document_delete: { Args: {
 p_id: string | null;
@@ -365,6 +506,24 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+cancel_work_invitation: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: undefined };
+close_opportunity: { Args: {
+p_id: string | null;
+}; Returns: undefined };
+create_opportunity: { Args: {
+p_org: string | null;
+p_title: string | null;
+p_description: string | null;
+p_geography: string | null;
+p_start: string | null;
+p_end: string | null;
+p_reply_by: string | null;
+p_payment: string | null;
+p_payment_note: string | null;
+}; Returns: string };
 document_download_path: { Args: {
 p_id: string | null;
 }; Returns: string };
@@ -377,7 +536,18 @@ p_id: string | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+respond_work_invitation: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_version: number | null;
+}; Returns: undefined };
 review_document: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
+review_experience: { Args: {
 p_id: string | null;
 p_status: string | null;
 p_note: string | null;
@@ -390,6 +560,16 @@ p_note: string | null;
 p_version: number | null;
 p_checks: Json | null;
 }; Returns: undefined };
+save_experience: { Args: {
+p_id: string | null;
+p_org: string | null;
+p_role: string | null;
+p_start: string | null;
+p_end: string | null;
+p_description: string | null;
+p_request: boolean | null;
+p_version: number | null;
+}; Returns: string };
 save_geography: { Args: {
 p_id: string | null;
 p_parent: string | null;
@@ -433,6 +613,10 @@ p_status?: string | null;
 p_shortlist?: string | null;
 p_page?: number | null;
 }; Returns: Json };
+send_work_invitation: { Args: {
+p_opportunity: string | null;
+p_user: string | null;
+}; Returns: string };
 set_account_access: { Args: {
 p_user: string | null;
 p_role: string | null;

@@ -1,3 +1,5 @@
+Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+
 Current release: [Phase 1.3 staff permission matrix](PHASE-1.3.md). Legacy roles below retain their prior permissions; Volunteer Manager now also reviews documents, NGO Manager manages geography/NGOs and Auditor reads audit events.
 
 # POEM Phase 1.2 permission matrix
