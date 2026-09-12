@@ -1,0 +1,17 @@
+import { type Database } from "../../lib/supabase/database.types";
+export type Tables = Database["public"]["Tables"];
+export type Project = Tables["survey_projects"]["Row"];
+export type Template = Tables["survey_templates"]["Row"];
+export type Response = Tables["survey_responses"]["Row"];
+export type Person = Tables["registry_persons"]["Row"];
+export type Household = Tables["registry_households"]["Row"];
+export type Question = {
+  id: string;
+  label: string;
+  type: "text" | "number" | "date" | "choice" | "yesno";
+  required: boolean;
+  options?: string[];
+};
+export type Org = { id: string; name: string; status: string };
+export const get = (f: FormData, k: string) => String(f.get(k) || "");
+export const title = (v: string) => v.replaceAll("_", " ");

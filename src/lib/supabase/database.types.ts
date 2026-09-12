@@ -238,6 +238,8 @@ version: number;
 reason: string;
 updated_by: string;
 updated_at: string;
+project_id: string;
+person_id: string;
 };
 Insert: {
 need_id: string;
@@ -247,6 +249,8 @@ version?: number;
 reason: string;
 updated_by: string;
 updated_at?: string;
+project_id: string;
+person_id: string;
 };
 Update: {
 need_id?: string;
@@ -256,6 +260,8 @@ version?: number;
 reason?: string;
 updated_by?: string;
 updated_at?: string;
+project_id?: string;
+person_id?: string;
 };
 Relationships: [];
 };
@@ -748,6 +754,36 @@ identity_snapshot?: Json | null;
 };
 Relationships: [];
 };
+survey_save_receipts: {
+Row: {
+actor_id: string;
+request_id: string;
+project_id: string;
+response_id: string;
+payload_hash: string;
+response_version: number;
+created_at: string;
+};
+Insert: {
+actor_id: string;
+request_id: string;
+project_id: string;
+response_id: string;
+payload_hash: string;
+response_version: number;
+created_at?: string;
+};
+Update: {
+actor_id?: string;
+request_id?: string;
+project_id?: string;
+response_id?: string;
+payload_hash?: string;
+response_version?: number;
+created_at?: string;
+};
+Relationships: [];
+};
 survey_templates: {
 Row: {
 id: string;
@@ -1227,6 +1263,7 @@ p_answers: Json | null;
 p_consent: Json | null;
 p_submit: boolean | null;
 p_version: number | null;
+p_request_id: string | null;
 }; Returns: string };
 search_volunteers: { Args: {
 p_org?: string | null;

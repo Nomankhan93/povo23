@@ -1,6 +1,6 @@
 {
   "name": "poem-phase1-1",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,13 +11,14 @@
     "check": "tsc --noEmit",
     "build": "node scripts/check-env.mjs && npm run check && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs",
+    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs && node scripts/test-stabilization.mjs",
     "env:local": "node scripts/local-env.mjs",
     "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
     "preflight": "npm run types:check && npm run check && npm test && npm run build",
     "test:local": "node scripts/test-local-auth.mjs",
     "types:generate": "node scripts/generate-types.mjs",
-    "types:check": "node scripts/generate-types.mjs --check"
+    "types:check": "node scripts/generate-types.mjs --check",
+    "test:operations": "node scripts/test-local-operations.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

@@ -1,3 +1,11 @@
+# POEM 2.3.1 — stabilization
+
+Current upgrade: [WSL instructions](docs/UPGRADE-2.3.1.md).
+
+[Changes and remaining work](docs/STABILIZATION-2.3.1.md) · [Validation](docs/VALIDATION-2.3.1.md).
+
+The phase notes below describe the existing product baseline; membership authorization now requires POEM Admin/Super Admin.
+
 # POEM Phase 2.3
 
 Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL. Designed for local WSL development with a local Supabase Docker stack. Independent of the earlier Sites-backed source snapshot.

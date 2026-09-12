@@ -16,5 +16,5 @@ try{
  const typenames=new Map((await db.query('select oid,typname from pg_type')).rows.map(t=>[t.oid,t.typname]));
  for(const f of funcs){out+=`${f.proname}: { Args: {\n`;for(let i=0;i<f.types.length;i++)out+=`${f.proargnames[i]}${i>=f.types.length-f.pronargdefaults?'?':''}: ${type(typenames.get(f.types[i]))} | null;\n`;out+=`}; Returns: ${type(f.result)} };\n`}
  out+='}; Enums: { [_ in never]: never }; CompositeTypes: { [_ in never]: never } } };\n';
- const file='src/database.types.ts';if(process.argv.includes('--check')){if(readFileSync(file,'utf8')!==out)throw Error('Database types are stale. Run npm run types:generate');console.log('Database-generated types match all migrations.')}else{writeFileSync(file,out);console.log('Generated '+file)}
+ const file='src/lib/supabase/database.types.ts';if(process.argv.includes('--check')){if(readFileSync(file,'utf8')!==out)throw Error('Database types are stale. Run npm run types:generate');console.log('Database-generated types match all migrations.')}else{writeFileSync(file,out);console.log('Generated '+file)}
 }finally{await db.close()}

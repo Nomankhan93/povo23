@@ -1,3 +1,5 @@
+> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.
 
 > Phase 2.2: [Registry Review & Assistance Ledger](PHASE-2.2.md) adds identity corrections, project-scoped match decisions and recorded deliveries. See [upgrade instructions](UPGRADE-2.2.md). Earlier-phase sections retain their historical scope.

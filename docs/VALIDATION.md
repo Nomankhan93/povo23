@@ -1,3 +1,5 @@
+> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+
 # Phase 2.3 validation
 
 Passed: database-generated type drift check, TypeScript, Vite 8.0.16 production build and 163 SQL workflow/security checks (26 foundation, 19 geography/documents, 22 directory/roles, 28 experience/invitations, 20 survey/registry, 23 registry/assistance and 25 needs/follow-up).
