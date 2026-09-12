@@ -84,3 +84,17 @@ Do not point this new project at the earlier `Volunteer` or JAS repository unles
 - Viewing the summary creates a `data_access_events.summary_viewed` record.
 - Source NGO or POEM revocation blocks the next summary call.
 - Canonical identity/version/link change blocks an old grant and requires new authorization.
+
+
+## Phase 2.6 field reliability checks
+
+- Survey form restores its encrypted device draft after close/reopen.
+- Device persistence uses IndexedDB + AES-GCM and never `localStorage` for survey payloads.
+- Save/Submit writes the exact request payload to the device queue before the network RPC.
+- Offline Save/Submit returns control to the collector and remains queued across reloads.
+- Reconnect triggers automatic sync with the original request UUID; no duplicate server response is created.
+- Transient failures back off; SQL validation/version conflicts move to “needs attention” and never overwrite newer server state.
+- Queue sync verifies the current authenticated user; another user cannot sync or see another user's queue counts.
+- Project response list refreshes after a queued save is confirmed.
+- Device-storage failure is surfaced; the UI must not falsely report an offline save as durable.
+- Cold-start full offline workspace and offline file/photo upload remain explicitly out of scope.

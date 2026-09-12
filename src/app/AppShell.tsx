@@ -37,6 +37,7 @@ const SurveyTemplates = lazy(() =>
     default: m.SurveyTemplates,
   })),
 );
+import { SurveySyncStatus } from "../features/surveys/SurveySyncStatus";
 
 import { Directory } from "../features/volunteers/Directory";
 import { Documents } from "../features/volunteers/Documents";
@@ -364,7 +365,10 @@ export function Workspace({ session }: { session: Session }) {
           <span>
             Workspace <b>/</b> {page}
           </span>
-          <span className="release">POEM {APP_VERSION}</span>
+          <div className="header-tools">
+            <SurveySyncStatus userId={session.user.id} />
+            <span className="release">POEM {APP_VERSION}</span>
+          </div>
         </header>
         <div className="content">
           <div className="heading">

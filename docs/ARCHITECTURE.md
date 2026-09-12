@@ -84,3 +84,12 @@ The canonical identity layer remains POEM-controlled. Partner organizations coor
 `get_shared_beneficiary_summary` is the only partner-facing cross-NGO beneficiary read path. It rechecks the grantee membership, source/grantee organization status, grant expiry/revocation, requesting-person canonical link, source canonical link and canonical version on every call. It builds a new JSON summary from source-NGO records and omits fields outside the grant. Existing RLS on source survey, registry, need and assistance tables remains unchanged.
 
 This is intentionally a modular-monolith collaboration layer. No external sharing service, data warehouse, message broker or payment subsystem is introduced.
+
+
+## Phase 2.6 field-reliability boundary
+
+The server remains authoritative. The browser now adds a local write-ahead layer for survey saves only. `save_survey_response` and `survey_save_receipts` remain unchanged; the client persists the exact RPC payload and request UUID before attempting the network call. A confirmed server success removes the device copy. Transient/unknown failures stay pending with backoff. Definitive SQL validation, permission and optimistic-version failures become `needs_attention` and are never auto-overwritten.
+
+Sensitive draft/queue payloads are encrypted with AES-GCM before IndexedDB persistence. Queue metadata intentionally excludes person names, answers and consent content. Device encryption reduces accidental at-rest exposure but is not a security boundary against same-origin script execution or an unlocked endpoint.
+
+This release does not cache the complete authenticated workspace, project/template snapshots or registry indexes for a cold offline boot. Full offline-first PWA behavior needs an explicit cache freshness/revocation model before service-worker caching is introduced.

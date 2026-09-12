@@ -65,6 +65,14 @@ export function SurveyProjectDetail({
       Tables["survey_response_revisions"]["Row"][]
     >([]);
   useEffect(() => {
+    const synced = (event: Event) => {
+      const detail = (event as CustomEvent<{ projectId?: string }>).detail;
+      if (detail?.projectId === project.id) setRev((n) => n + 1);
+    };
+    window.addEventListener("poem:survey-synced", synced);
+    return () => window.removeEventListener("poem:survey-synced", synced);
+  }, [project.id]);
+  useEffect(() => {
     let live = true;
     setBusy(true);
     setError("");
@@ -303,6 +311,7 @@ export function SurveyProjectDetail({
           response={editing}
           people={people}
           households={houses}
+          userId={userId}
           busy={busy}
           cancel={() => {
             setCollect(false);
@@ -311,8 +320,13 @@ export function SurveyProjectDetail({
           onSaved={() => {
             setCollect(false);
             setEditing(null);
-            setMessage("Survey saved.");
+            setMessage("Survey saved and confirmed by the server.");
             setRev((n) => n + 1);
+          }}
+          onQueued={() => {
+            setCollect(false);
+            setEditing(null);
+            setMessage("Survey protected on this device and queued for sync.");
           }}
         />
       )}
