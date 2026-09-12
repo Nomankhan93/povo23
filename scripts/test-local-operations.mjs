@@ -36,14 +36,75 @@ try{
  console.log('PASS real HTTP: concurrent retry, review, scoped needs/assistance/void follow-up, NGO isolation, membership restriction and closed-project revocation.');
 }finally{
  // Only IDs created by this run. Report failures and fail the gate; never reset the database.
- const failures=[];async function clean(table,column,ids){if(!ids?.length)return;const r=await service.from(table).delete().in(column,ids);if(r.error)failures.push(`${table}: ${r.error.message}`);}
+ // Phase 2.4+ automatically creates canonical identities for registry persons, so fixture cleanup
+ // must remove canonical dependencies before deleting the project-scoped registry rows.
+ const failures=[];
+ const unique=values=>[...new Set((values||[]).filter(Boolean))];
+ async function clean(table,column,ids){if(!ids?.length)return;const r=await service.from(table).delete().in(column,ids);if(r.error)failures.push(`${table}: ${r.error.message}`);}
+ async function lookup(table,columns,column,ids){if(!ids?.length)return[];const r=await service.from(table).select(columns).in(column,ids);if(r.error){failures.push(`${table} lookup: ${r.error.message}`);return[];}return r.data||[];}
  if(project){
   const ids=async table=>{const r=await service.from(table).select('id').eq('project_id',project);if(r.error){failures.push(`${table} lookup: ${r.error.message}`);return [];}return r.data.map(x=>x.id);};
   const needs=await ids('beneficiary_needs'),responses=await ids('survey_responses'),people=await ids('registry_persons');
-  await clean('need_link_revisions','need_id',needs);await clean('need_assistance_links','need_id',needs);await clean('need_revisions','need_id',needs);await clean('beneficiary_needs','id',needs);await clean('assistance_entries','project_id',[project]);await clean('survey_save_receipts','project_id',[project]);await clean('survey_response_revisions','response_id',responses);await clean('survey_responses','id',responses);await clean('registry_person_revisions','person_id',people);await clean('registry_persons','id',people);await clean('registry_households','project_id',[project]);await clean('survey_assignments','project_id',[project]);await clean('survey_projects','id',[project]);
+  const canonicalLinks=await lookup('canonical_person_links','project_person_id,canonical_person_id','project_person_id',people);
+  const canonicalIds=unique(canonicalLinks.map(x=>x.canonical_person_id));
+
+  await clean('need_link_revisions','need_id',needs);
+  await clean('need_assistance_links','need_id',needs);
+  await clean('need_revisions','need_id',needs);
+  await clean('beneficiary_needs','id',needs);
+  await clean('assistance_entries','project_id',[project]);
+  await clean('survey_save_receipts','project_id',[project]);
+  await clean('survey_response_revisions','response_id',responses);
+  await clean('survey_responses','id',responses);
+
+  // Canonical review rows reference registry_persons and merge events; revisions must go first.
+  await clean('canonical_match_revisions','person_a',people);
+  await clean('canonical_match_revisions','person_b',people);
+  await clean('canonical_match_decisions','person_a',people);
+  await clean('canonical_match_decisions','person_b',people);
+  await clean('canonical_person_links','project_person_id',people);
+
+  await clean('registry_person_revisions','person_id',people);
+  await clean('registry_persons','id',people);
+  await clean('registry_households','project_id',[project]);
+  await clean('survey_assignments','project_id',[project]);
+  await clean('survey_projects','id',[project]);
+
+  // Delete only canonical identities that became orphaned after this fixture's links were removed.
+  // This avoids touching a canonical identity if a non-fixture project unexpectedly still links to it.
+  if(canonicalIds.length){
+   const remaining=await lookup('canonical_person_links','canonical_person_id','canonical_person_id',canonicalIds);
+   const retained=new Set(remaining.map(x=>x.canonical_person_id));
+   const orphanCanonicalIds=canonicalIds.filter(id=>!retained.has(id));
+   if(orphanCanonicalIds.length){
+    const orphanSet=new Set(orphanCanonicalIds);
+    const primaryEvents=await lookup('canonical_merge_events','id,primary_canonical_id,secondary_canonical_id','primary_canonical_id',orphanCanonicalIds);
+    const secondaryEvents=await lookup('canonical_merge_events','id,primary_canonical_id,secondary_canonical_id','secondary_canonical_id',orphanCanonicalIds);
+    const events=new Map([...primaryEvents,...secondaryEvents].map(x=>[x.id,x]));
+    const mixedHistoryIds=new Set();
+    const removableEventIds=[];
+    for(const event of events.values()){
+     const primaryOrphan=orphanSet.has(event.primary_canonical_id),secondaryOrphan=orphanSet.has(event.secondary_canonical_id);
+     if(primaryOrphan&&secondaryOrphan)removableEventIds.push(event.id);
+     else{if(primaryOrphan)mixedHistoryIds.add(event.primary_canonical_id);if(secondaryOrphan)mixedHistoryIds.add(event.secondary_canonical_id);}
+    }
+    const deletableCanonicalIds=orphanCanonicalIds.filter(id=>!mixedHistoryIds.has(id));
+    await clean('canonical_merge_events','id',unique(removableEventIds));
+    await clean('canonical_person_revisions','canonical_person_id',deletableCanonicalIds);
+    await clean('canonical_persons','id',deletableCanonicalIds);
+    if(mixedHistoryIds.size)failures.push(`canonical fixture identities retained because non-fixture merge history still references them: ${[...mixedHistoryIds].join(', ')}`);
+   }
+  }
  }
- await clean('survey_templates','id',template?[template]:[]);await clean('geographies','id',geo?[geo]:[]);
- const uids=users.map(u=>u.id);await clean('notifications','user_id',uids);await clean('audit_events','actor_id',uids);await clean('audit_events','subject_id',uids);await clean('audit_events','organization_id',orgs);await clean('organizations','id',orgs);
+ await clean('survey_templates','id',template?[template]:[]);
+ await clean('geographies','id',geo?[geo]:[]);
+ const uids=users.map(u=>u.id);
+ await clean('notifications','user_id',uids);
+ await clean('audit_events','actor_id',uids);
+ await clean('audit_events','subject_id',uids);
+ await clean('audit_events','organization_id',orgs);
+ await clean('organizations','id',orgs);
  for(const u of users){const r=await service.auth.admin.deleteUser(u.id);if(r.error)failures.push(`fixture user ${u.id}: ${r.error.message}`);}
  if(failures.length){console.error('Fixture cleanup incomplete:',failures.join('\n'));process.exitCode=1;}
+ else console.log('PASS fixture cleanup: canonical links, orphan identities and local operation fixtures removed.');
 }

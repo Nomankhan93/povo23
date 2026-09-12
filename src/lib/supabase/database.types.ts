@@ -196,6 +196,204 @@ updated_at?: string;
 };
 Relationships: [];
 };
+canonical_match_decisions: {
+Row: {
+person_a: string;
+person_b: string;
+status: string;
+reason: string;
+person_a_version: number;
+person_b_version: number;
+merge_event_id: string | null;
+version: number;
+reviewed_by: string;
+reviewed_at: string;
+};
+Insert: {
+person_a: string;
+person_b: string;
+status: string;
+reason: string;
+person_a_version: number;
+person_b_version: number;
+merge_event_id?: string | null;
+version?: number;
+reviewed_by: string;
+reviewed_at?: string;
+};
+Update: {
+person_a?: string;
+person_b?: string;
+status?: string;
+reason?: string;
+person_a_version?: number;
+person_b_version?: number;
+merge_event_id?: string | null;
+version?: number;
+reviewed_by?: string;
+reviewed_at?: string;
+};
+Relationships: [];
+};
+canonical_match_revisions: {
+Row: {
+person_a: string;
+person_b: string;
+version: number;
+snapshot: Json;
+recorded_at: string;
+};
+Insert: {
+person_a: string;
+person_b: string;
+version: number;
+snapshot: Json;
+recorded_at?: string;
+};
+Update: {
+person_a?: string;
+person_b?: string;
+version?: number;
+snapshot?: Json;
+recorded_at?: string;
+};
+Relationships: [];
+};
+canonical_merge_events: {
+Row: {
+id: string;
+primary_canonical_id: string;
+secondary_canonical_id: string;
+moved_project_person_ids: Json;
+reason: string;
+merged_by: string;
+merged_at: string;
+reverted: boolean;
+revert_reason: string | null;
+reverted_by: string | null;
+reverted_at: string | null;
+};
+Insert: {
+id?: string;
+primary_canonical_id: string;
+secondary_canonical_id: string;
+moved_project_person_ids: Json;
+reason: string;
+merged_by: string;
+merged_at?: string;
+reverted?: boolean;
+revert_reason?: string | null;
+reverted_by?: string | null;
+reverted_at?: string | null;
+};
+Update: {
+id?: string;
+primary_canonical_id?: string;
+secondary_canonical_id?: string;
+moved_project_person_ids?: Json;
+reason?: string;
+merged_by?: string;
+merged_at?: string;
+reverted?: boolean;
+revert_reason?: string | null;
+reverted_by?: string | null;
+reverted_at?: string | null;
+};
+Relationships: [];
+};
+canonical_person_links: {
+Row: {
+project_person_id: string;
+project_id: string;
+canonical_person_id: string;
+linked_by: string;
+link_reason: string;
+linked_at: string;
+};
+Insert: {
+project_person_id: string;
+project_id: string;
+canonical_person_id: string;
+linked_by: string;
+link_reason?: string;
+linked_at?: string;
+};
+Update: {
+project_person_id?: string;
+project_id?: string;
+canonical_person_id?: string;
+linked_by?: string;
+link_reason?: string;
+linked_at?: string;
+};
+Relationships: [];
+};
+canonical_person_revisions: {
+Row: {
+canonical_person_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+canonical_person_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+canonical_person_id?: string;
+version?: number;
+snapshot?: Json;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
+canonical_persons: {
+Row: {
+id: string;
+beneficiary_no: number;
+display_name: string;
+birth_date: string | null;
+identity_status: string;
+merged_into: string | null;
+version: number;
+created_by: string;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+beneficiary_no?: number;
+display_name: string;
+birth_date?: string | null;
+identity_status?: string;
+merged_into?: string | null;
+version?: number;
+created_by: string;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+beneficiary_no?: number;
+display_name?: string;
+birth_date?: string | null;
+identity_status?: string;
+merged_into?: string | null;
+version?: number;
+created_by?: string;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 geographies: {
 Row: {
 id: string;
@@ -1086,6 +1284,20 @@ cancel_work_invitation: { Args: {
 p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
+canonical_assistance_timeline: { Args: {
+p_person: string | null;
+}; Returns: Json };
+canonical_match_candidates: { Args: {
+p_person: string | null;
+}; Returns: Json };
+canonical_person_summary: { Args: {
+p_person: string | null;
+}; Returns: Json };
+check_existing_identity: { Args: {
+p_project: string | null;
+p_name: string | null;
+p_birth: string | null;
+}; Returns: Json };
 close_opportunity: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -1175,6 +1387,21 @@ p_id: string | null;
 p_status: string | null;
 p_version: number | null;
 }; Returns: undefined };
+revert_canonical_merge: { Args: {
+p_event: string | null;
+p_reason: string | null;
+p_primary_version: number | null;
+p_secondary_version: number | null;
+}; Returns: undefined };
+review_canonical_match: { Args: {
+p_person: string | null;
+p_other: string | null;
+p_status: string | null;
+p_reason: string | null;
+p_person_version: number | null;
+p_other_version: number | null;
+p_version: number | null;
+}; Returns: string };
 review_document: { Args: {
 p_id: string | null;
 p_status: string | null;

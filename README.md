@@ -1,8 +1,8 @@
-# POEM 2.3.1 — stabilization
+# POEM 2.4.2 — canonical test cleanup compatibility
 
-Current upgrade: [WSL instructions](docs/UPGRADE-2.3.1.md).
+Current upgrade: [WSL instructions](docs/UPGRADE-2.4.2.md).
 
-[Changes and remaining work](docs/STABILIZATION-2.3.1.md) · [Validation](docs/VALIDATION-2.3.1.md).
+[Phase 2.4 design and boundaries](docs/PHASE-2.4.md) · [2.4.1 stabilization](docs/PHASE-2.4.1.md) · [2.4.2 cleanup compatibility](docs/PHASE-2.4.2.md) · [Validation](docs/VALIDATION-2.4.2.md).
 
 The phase notes below describe the existing product baseline; membership authorization now requires POEM Admin/Super Admin.
 
@@ -49,7 +49,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - NGO “active” is operational approval, not document verification. Registration documents are not uploaded in this release.
 - NGO sharing covers the full volunteer profile; field-level beneficiary sharing is a later module. Sharing is optional and independent of POEM review. Past viewed/copied data cannot be recalled.
 - Geography is admin-maintained with fixed province/division/district/taluka/UC/village-or-ward levels. No authoritative geographic data is bundled; create a sourced hierarchy before new submissions. Existing approvals survive upgrade until edited/reviewed.
-- Online survey builder and project-scoped provisional person/household registry are included. Project-scoped identity corrections, match decisions and a basic assistance ledger are included. No cross-project identity matching/merge, payments, automatic performance scoring, PWA/offline collection, SMS or email notifications beyond Auth.
+- Online survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review, reversible merges and POEM-only aggregated assistance history. Partner-NGO beneficiary sharing, payments, automatic performance scoring, PWA/offline collection, SMS or email notifications beyond Auth are not included.
 - No migration/import from the older Cloudflare/Sites database is included.
 - Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.
@@ -75,6 +75,8 @@ npm test
 npm run build
 npm run test:local
 ```
+
+POEM 2.4.2 also makes `npm run test:operations` fixture teardown canonical-registry-aware; a successful local operations run now prints an explicit cleanup PASS and leaves no current-run canonical/project/Auth fixtures behind.
 
 The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests 28 Phase 1.4 tests 20 Phase 2.1 tests 23 Phase 2.2 tests and 25 Phase 2.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 
