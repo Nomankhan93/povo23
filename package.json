@@ -1,6 +1,6 @@
 {
   "name": "poem-phase1-1",
-  "version": "2.4.2",
+  "version": "2.5.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,7 +11,7 @@
     "check": "tsc --noEmit",
     "build": "node scripts/check-env.mjs && npm run check && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs && node scripts/test-stabilization.mjs && node scripts/test-phase24.mjs",
+    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs && node scripts/test-stabilization.mjs && node scripts/test-phase24.mjs && node scripts/test-phase25.mjs",
     "env:local": "node scripts/local-env.mjs",
     "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
     "preflight": "npm run types:check && npm run check && npm test && npm run build",

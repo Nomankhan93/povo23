@@ -72,3 +72,15 @@ Versioned templates and projects, person/household schema, consent/versioned pro
 ## Before cloud rollout
 
 Apply migrations to a dedicated cloud project, configure exact redirect URLs and production SMTP, and align password and confirmation settings in hosted Auth. Local config does not automatically configure hosted Auth. Set only the project public key and URL in the frontend environment. Choose a host with SPA fallback for `/auth/callback` and `/reset`. Rebuild after environment changes. Add monitoring, backups/recovery validation, rate-limiting/CAPTCHA appropriate to exposure, upload protection, retention/consent policy and production security review before onboarding real sensitive cases.
+
+## Phase 2.5 collaboration boundary
+
+The canonical identity layer remains POEM-controlled. Partner organizations coordinate through three new relational records rather than receiving cross-project table permissions:
+
+- `data_access_requests`: requesting NGO, source NGO, canonical person, purpose, requested field allowlist and two-step review state.
+- `data_access_grants`: source-specific approved field allowlist, canonical version snapshot, validity window and revocation state.
+- `data_access_events`: request/review/view/revocation trace.
+
+`get_shared_beneficiary_summary` is the only partner-facing cross-NGO beneficiary read path. It rechecks the grantee membership, source/grantee organization status, grant expiry/revocation, requesting-person canonical link, source canonical link and canonical version on every call. It builds a new JSON summary from source-NGO records and omits fields outside the grant. Existing RLS on source survey, registry, need and assistance tables remains unchanged.
+
+This is intentionally a modular-monolith collaboration layer. No external sharing service, data warehouse, message broker or payment subsystem is introduced.

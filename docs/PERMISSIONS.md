@@ -39,7 +39,7 @@ POEM Admin and Super Admin are platform roles. NGO Admin is a membership of a sp
 - Profile grant revoked: that NGO's administrators lose future access to the profile.
 - Volunteer profile suspended: NGOs cannot view it and the owner cannot edit it; POEM admins can review it.
 
-These controls cannot erase information a viewer already saw or copied. Refresh/reload to discard previously rendered data. Cross-NGO beneficiary sharing and fine-grained export controls are not implemented here.
+These controls cannot erase information a viewer already saw or copied. Refresh/reload to discard previously rendered data. The original Phase 1.2 section did not include cross-NGO beneficiary sharing; current Phase 2.5 adds a separate controlled grant workflow. Fine-grained bulk export controls remain future work.
 
 ## First-admin bootstrap
 
@@ -65,3 +65,21 @@ A draft cannot be approved. Every review requires a note and exact current versi
 | Read/mark notifications | Own only | Own only | Own only |
 
 Storage object writes are the exception to the public-table SELECT-only rule: Storage API INSERT/DELETE are authorized by RLS against reserved document metadata. There is no object UPDATE policy. Profile suspension blocks new uploads/finalization, while owner removal and reading remain available to an active account. Account suspension blocks all document access. Public URLs and NGO grants do not grant file access. Application download requests are audited, but direct authorized Storage reads require separate infrastructure logging.
+
+## Phase 2.5 controlled beneficiary sharing
+
+Cross-NGO beneficiary access now uses a separate grant workflow; it does not modify the existing project RLS on surveys, registry persons, needs or assistance rows.
+
+| Action | Requesting NGO Admin | Source NGO Admin | POEM Survey Manager/Admin/Super Admin | Unrelated NGO |
+| --- | --- | --- | --- | --- |
+| Discover source NGO for own canonically-linked person | Yes | N/A | Canonical tools separately | No |
+| Create purpose-bound request | Yes | No | No | No |
+| Approve/reject source request | No | Yes | No | No |
+| Final authorize/reject | No | No | Yes | No |
+| Reduce requested/approved fields | Request selects initial fields | Yes | Yes | No |
+| Read raw other-NGO survey/need/assistance tables | No | Own project only | Existing POEM scope | No |
+| Read approved shared summary | Active grantee only | No | Use POEM canonical tools instead | No |
+| Revoke active grant | No | Yes | Yes | No |
+| Read visible request/grant event trail | Involved NGO | Involved NGO | Yes | No |
+
+A grant is invalid if revoked, expired, either NGO becomes inactive, or the canonical identity/version/linkage changes. Revocation is prospective; information already viewed or copied cannot be recalled.

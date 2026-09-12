@@ -394,6 +394,168 @@ updated_at?: string;
 };
 Relationships: [];
 };
+data_access_events: {
+Row: {
+id: number;
+request_id: string | null;
+grant_id: string | null;
+actor_id: string;
+actor_organization_id: string | null;
+event_type: string;
+detail: Json;
+created_at: string;
+};
+Insert: {
+id?: number;
+request_id?: string | null;
+grant_id?: string | null;
+actor_id: string;
+actor_organization_id?: string | null;
+event_type: string;
+detail?: Json;
+created_at?: string;
+};
+Update: {
+id?: number;
+request_id?: string | null;
+grant_id?: string | null;
+actor_id?: string;
+actor_organization_id?: string | null;
+event_type?: string;
+detail?: Json;
+created_at?: string;
+};
+Relationships: [];
+};
+data_access_grants: {
+Row: {
+id: string;
+request_id: string;
+canonical_person_id: string;
+canonical_version: number;
+grantee_organization_id: string;
+source_organization_id: string;
+fields: (string)[];
+purpose: string;
+valid_from: string;
+expires_at: string;
+status: string;
+version: number;
+granted_by: string;
+granted_at: string;
+revoked_by: string | null;
+revoked_at: string | null;
+revoke_reason: string | null;
+};
+Insert: {
+id?: string;
+request_id: string;
+canonical_person_id: string;
+canonical_version: number;
+grantee_organization_id: string;
+source_organization_id: string;
+fields: (string)[];
+purpose: string;
+valid_from?: string;
+expires_at: string;
+status?: string;
+version?: number;
+granted_by: string;
+granted_at?: string;
+revoked_by?: string | null;
+revoked_at?: string | null;
+revoke_reason?: string | null;
+};
+Update: {
+id?: string;
+request_id?: string;
+canonical_person_id?: string;
+canonical_version?: number;
+grantee_organization_id?: string;
+source_organization_id?: string;
+fields?: (string)[];
+purpose?: string;
+valid_from?: string;
+expires_at?: string;
+status?: string;
+version?: number;
+granted_by?: string;
+granted_at?: string;
+revoked_by?: string | null;
+revoked_at?: string | null;
+revoke_reason?: string | null;
+};
+Relationships: [];
+};
+data_access_requests: {
+Row: {
+id: string;
+canonical_person_id: string;
+requesting_project_person_id: string;
+requesting_organization_id: string;
+source_organization_id: string;
+purpose: string;
+requested_fields: (string)[];
+source_approved_fields: (string)[] | null;
+requested_expires_at: string;
+status: string;
+source_note: string | null;
+source_reviewed_by: string | null;
+source_reviewed_at: string | null;
+poem_note: string | null;
+poem_reviewed_by: string | null;
+poem_reviewed_at: string | null;
+version: number;
+created_by: string;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+canonical_person_id: string;
+requesting_project_person_id: string;
+requesting_organization_id: string;
+source_organization_id: string;
+purpose: string;
+requested_fields: (string)[];
+source_approved_fields?: (string)[] | null;
+requested_expires_at: string;
+status?: string;
+source_note?: string | null;
+source_reviewed_by?: string | null;
+source_reviewed_at?: string | null;
+poem_note?: string | null;
+poem_reviewed_by?: string | null;
+poem_reviewed_at?: string | null;
+version?: number;
+created_by: string;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+canonical_person_id?: string;
+requesting_project_person_id?: string;
+requesting_organization_id?: string;
+source_organization_id?: string;
+purpose?: string;
+requested_fields?: (string)[];
+source_approved_fields?: (string)[] | null;
+requested_expires_at?: string;
+status?: string;
+source_note?: string | null;
+source_reviewed_by?: string | null;
+source_reviewed_at?: string | null;
+poem_note?: string | null;
+poem_reviewed_by?: string | null;
+poem_reviewed_at?: string | null;
+version?: number;
+created_by?: string;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 geographies: {
 Row: {
 id: string;
@@ -1271,6 +1433,14 @@ created_at?: string;
 Relationships: [];
 };
 }; Views: { [_ in never]: never }; Functions: {
+authorize_data_access_request: { Args: {
+p_request: string | null;
+p_decision: string | null;
+p_fields: (string)[] | null;
+p_expires_at: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: string };
 begin_document_delete: { Args: {
 p_id: string | null;
 }; Returns: string };
@@ -1321,6 +1491,13 @@ p_priority: string | null;
 p_follow_up: string | null;
 p_reason: string | null;
 }; Returns: string };
+create_data_access_request: { Args: {
+p_person: string | null;
+p_source_org: string | null;
+p_purpose: string | null;
+p_fields: (string)[] | null;
+p_expires_at: string | null;
+}; Returns: string };
 create_opportunity: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -1344,6 +1521,12 @@ p_purpose: string | null;
 p_consent_version: string | null;
 p_consent_notice: string | null;
 }; Returns: string };
+data_access_request_context: { Args: {
+p_request: string | null;
+}; Returns: Json };
+data_sharing_sources: { Args: {
+p_person: string | null;
+}; Returns: Json };
 document_download_path: { Args: {
 p_id: string | null;
 }; Returns: string };
@@ -1353,6 +1536,9 @@ p_id: string | null;
 finish_document_upload: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+get_shared_beneficiary_summary: { Args: {
+p_grant: string | null;
+}; Returns: Json };
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
@@ -1402,6 +1588,13 @@ p_person_version: number | null;
 p_other_version: number | null;
 p_version: number | null;
 }; Returns: string };
+review_data_access_request: { Args: {
+p_request: string | null;
+p_decision: string | null;
+p_fields: (string)[] | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
 review_document: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -1434,6 +1627,11 @@ review_survey_response: { Args: {
 p_id: string | null;
 p_status: string | null;
 p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
+revoke_data_access_grant: { Args: {
+p_grant: string | null;
+p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
 save_experience: { Args: {

@@ -73,3 +73,14 @@ git push -u origin main
 ```
 
 Do not point this new project at the earlier `Volunteer` or JAS repository unless you intentionally choose to replace/merge that project's source.
+
+## Phase 2.5 controlled data-sharing checks
+
+- NGO B can request only for its own canonically-linked beneficiary record.
+- NGO A sees the incoming request and can approve a strict subset or reject it.
+- POEM can approve only a subset of NGO A's approved fields and cannot extend expiry.
+- NGO B sees no NGO A raw survey, needs, assistance rows, documents or evidence through normal project access.
+- Approved summary omits all fields outside the grant.
+- Viewing the summary creates a `data_access_events.summary_viewed` record.
+- Source NGO or POEM revocation blocks the next summary call.
+- Canonical identity/version/link change blocks an old grant and requires new authorization.

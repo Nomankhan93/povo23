@@ -12,6 +12,7 @@ import {
   Menu,
   Plus,
   ShieldCheck,
+  Share2,
   UserRound,
   Users,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import { AccountAccess } from "../features/auth/AccountAccess";
 import { GeographyManager } from "../features/geography/GeographyManager";
 import { type Geo } from "../features/geography/model";
 import { Notifications } from "../features/notifications/Notifications";
+import { DataSharingWorkspace } from "../features/sharing/DataSharingWorkspace";
 import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
@@ -235,6 +237,7 @@ export function Workspace({ session }: { session: Session }) {
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ...(surveyManage ? [["Survey templates", ShieldCheck]] : []),
+    ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(!poem
       ? [
           ["Work experience", Users],
@@ -842,6 +845,14 @@ export function Workspace({ session }: { session: Session }) {
                 geographies={geographies}
               />
             </Suspense>
+          )}
+          {page === "Data sharing" && validScope && (surveyManage || (!poem && scope !== "personal")) && (
+            <DataSharingWorkspace
+              key={scope}
+              organization={poem || scope === "personal" ? null : scope}
+              manage={surveyManage}
+              orgs={orgs as any}
+            />
           )}
           {page === "Notifications" && (
             <Notifications rows={notifications} refresh={load} />
