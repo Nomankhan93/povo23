@@ -1,12 +1,18 @@
-# POEM Phase 1.4
+# POEM Phase 2.3
 
 Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL. Designed for local WSL development with a local Supabase Docker stack. Independent of the earlier Sites-backed source snapshot.
 
 **Start here:** [WSL setup](docs/SETUP-WSL.md).
 
-**Existing Phase 1.3 users:** follow [safe upgrade instructions](docs/UPGRADE-1.4.md). Keep your existing project folder and database.
+**Existing Phase 2.2 users:** follow [safe upgrade instructions](docs/UPGRADE-2.3.md). Keep your existing project folder and database.
 
-**Phase 1.4:** [Verified experience, NGO opportunities and invitations](docs/PHASE-1.4.md).
+**Phase 2.3:** [Needs Assessment & Assistance Follow-up](docs/PHASE-2.3.md).
+
+**Inherited Phase 2.2:** [Registry Review & Assistance Ledger](docs/PHASE-2.2.md).
+
+**Inherited Phase 2.1:** [Survey & Registry Pilot](docs/PHASE-2.1.md).
+
+**Inherited Phase 1.4:** [Verified experience, NGO opportunities and invitations](docs/PHASE-1.4.md).
 
 **Inherited Phase 1.3:** [Phase 1.3 scope, permissions and checklist](docs/PHASE-1.3.md). Search/filter volunteers in 50-record pages, manage NGO operating areas/programs, maintain private shortlists and assign separate staff roles.
 
@@ -35,7 +41,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - NGO “active” is operational approval, not document verification. Registration documents are not uploaded in this release.
 - NGO sharing covers the full volunteer profile; field-level beneficiary sharing is a later module. Sharing is optional and independent of POEM review. Past viewed/copied data cannot be recalled.
 - Geography is admin-maintained with fixed province/division/district/taluka/UC/village-or-ward levels. No authoritative geographic data is bundled; create a sourced hierarchy before new submissions. Existing approvals survive upgrade until edited/reviewed.
-- No survey builder, beneficiary registry, assistance ledger, payments, automatic performance scoring, PWA/offline collection, SMS or email notifications beyond Auth.
+- Online survey builder and project-scoped provisional person/household registry are included. Project-scoped identity corrections, match decisions and a basic assistance ledger are included. No cross-project identity matching/merge, payments, automatic performance scoring, PWA/offline collection, SMS or email notifications beyond Auth.
 - No migration/import from the older Cloudflare/Sites database is included.
 - Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.
@@ -62,7 +68,7 @@ npm run build
 npm run test:local
 ```
 
-The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests and 28 Phase 1.4 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
+The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests 28 Phase 1.4 tests 20 Phase 2.1 tests 23 Phase 2.2 tests and 25 Phase 2.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 
 ## Documentation
 

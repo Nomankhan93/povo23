@@ -28,6 +28,81 @@ created_at?: string;
 };
 Relationships: [];
 };
+assistance_entries: {
+Row: {
+id: string;
+project_id: string;
+person_id: string;
+kind: string;
+category: string;
+program: string;
+description: string;
+amount_pkr: number | null;
+quantity: number | null;
+unit: string | null;
+delivered_on: string;
+funding_source: string;
+evidence_reference: string;
+next_eligible_on: string | null;
+identity_snapshot: Json;
+created_by: string;
+created_at: string;
+status: string;
+version: number;
+void_reason: string | null;
+voided_by: string | null;
+voided_at: string | null;
+};
+Insert: {
+id: string;
+project_id: string;
+person_id: string;
+kind: string;
+category: string;
+program: string;
+description: string;
+amount_pkr?: number | null;
+quantity?: number | null;
+unit?: string | null;
+delivered_on: string;
+funding_source: string;
+evidence_reference: string;
+next_eligible_on?: string | null;
+identity_snapshot: Json;
+created_by: string;
+created_at?: string;
+status?: string;
+version?: number;
+void_reason?: string | null;
+voided_by?: string | null;
+voided_at?: string | null;
+};
+Update: {
+id?: string;
+project_id?: string;
+person_id?: string;
+kind?: string;
+category?: string;
+program?: string;
+description?: string;
+amount_pkr?: number | null;
+quantity?: number | null;
+unit?: string | null;
+delivered_on?: string;
+funding_source?: string;
+evidence_reference?: string;
+next_eligible_on?: string | null;
+identity_snapshot?: Json;
+created_by?: string;
+created_at?: string;
+status?: string;
+version?: number;
+void_reason?: string | null;
+voided_by?: string | null;
+voided_at?: string | null;
+};
+Relationships: [];
+};
 audit_events: {
 Row: {
 id: number;
@@ -55,6 +130,69 @@ organization_id?: string | null;
 action?: string;
 detail?: Json;
 created_at?: string;
+};
+Relationships: [];
+};
+beneficiary_needs: {
+Row: {
+id: string;
+project_id: string;
+person_id: string;
+source_response_id: string;
+source_response_version: number;
+category: string;
+description: string;
+priority: string;
+status: string;
+follow_up_on: string | null;
+version: number;
+last_reason: string;
+identity_snapshot: Json;
+creation_request: Json;
+created_by: string;
+created_at: string;
+updated_by: string;
+updated_at: string;
+};
+Insert: {
+id: string;
+project_id: string;
+person_id: string;
+source_response_id: string;
+source_response_version: number;
+category: string;
+description: string;
+priority: string;
+status?: string;
+follow_up_on?: string | null;
+version?: number;
+last_reason: string;
+identity_snapshot: Json;
+creation_request: Json;
+created_by: string;
+created_at?: string;
+updated_by: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+project_id?: string;
+person_id?: string;
+source_response_id?: string;
+source_response_version?: number;
+category?: string;
+description?: string;
+priority?: string;
+status?: string;
+follow_up_on?: string | null;
+version?: number;
+last_reason?: string;
+identity_snapshot?: Json;
+creation_request?: Json;
+created_by?: string;
+created_at?: string;
+updated_by?: string;
+updated_at?: string;
 };
 Relationships: [];
 };
@@ -88,6 +226,81 @@ code?: string;
 source_note?: string;
 active?: boolean;
 created_at?: string;
+};
+Relationships: [];
+};
+need_assistance_links: {
+Row: {
+need_id: string;
+assistance_id: string;
+active: boolean;
+version: number;
+reason: string;
+updated_by: string;
+updated_at: string;
+};
+Insert: {
+need_id: string;
+assistance_id: string;
+active?: boolean;
+version?: number;
+reason: string;
+updated_by: string;
+updated_at?: string;
+};
+Update: {
+need_id?: string;
+assistance_id?: string;
+active?: boolean;
+version?: number;
+reason?: string;
+updated_by?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+need_link_revisions: {
+Row: {
+need_id: string;
+assistance_id: string;
+version: number;
+snapshot: Json;
+recorded_at: string;
+};
+Insert: {
+need_id: string;
+assistance_id: string;
+version: number;
+snapshot: Json;
+recorded_at?: string;
+};
+Update: {
+need_id?: string;
+assistance_id?: string;
+version?: number;
+snapshot?: Json;
+recorded_at?: string;
+};
+Relationships: [];
+};
+need_revisions: {
+Row: {
+need_id: string;
+version: number;
+snapshot: Json;
+recorded_at: string;
+};
+Insert: {
+need_id: string;
+version: number;
+snapshot: Json;
+recorded_at?: string;
+};
+Update: {
+need_id?: string;
+version?: number;
+snapshot?: Json;
+recorded_at?: string;
 };
 Relationships: [];
 };
@@ -232,6 +445,333 @@ user_id?: string;
 organization_id?: string;
 consent_version?: string;
 granted_at?: string;
+};
+Relationships: [];
+};
+registry_households: {
+Row: {
+id: string;
+project_id: string;
+label: string;
+geography_id: string;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+project_id: string;
+label: string;
+geography_id: string;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+project_id?: string;
+label?: string;
+geography_id?: string;
+created_by?: string;
+created_at?: string;
+};
+Relationships: [];
+};
+registry_match_decisions: {
+Row: {
+project_id: string;
+person_a: string;
+person_b: string;
+status: string;
+reason: string;
+person_a_version: number;
+person_b_version: number;
+version: number;
+reviewed_by: string;
+reviewed_at: string;
+};
+Insert: {
+project_id: string;
+person_a: string;
+person_b: string;
+status: string;
+reason: string;
+person_a_version: number;
+person_b_version: number;
+version?: number;
+reviewed_by: string;
+reviewed_at?: string;
+};
+Update: {
+project_id?: string;
+person_a?: string;
+person_b?: string;
+status?: string;
+reason?: string;
+person_a_version?: number;
+person_b_version?: number;
+version?: number;
+reviewed_by?: string;
+reviewed_at?: string;
+};
+Relationships: [];
+};
+registry_match_revisions: {
+Row: {
+person_a: string;
+person_b: string;
+version: number;
+snapshot: Json;
+recorded_at: string;
+};
+Insert: {
+person_a: string;
+person_b: string;
+version: number;
+snapshot: Json;
+recorded_at?: string;
+};
+Update: {
+person_a?: string;
+person_b?: string;
+version?: number;
+snapshot?: Json;
+recorded_at?: string;
+};
+Relationships: [];
+};
+registry_person_revisions: {
+Row: {
+person_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+person_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+person_id?: string;
+version?: number;
+snapshot?: Json;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
+registry_persons: {
+Row: {
+id: string;
+registry_no: number;
+project_id: string;
+household_id: string;
+full_name: string;
+birth_date: string | null;
+identity_status: string;
+created_by: string;
+created_at: string;
+version: number;
+};
+Insert: {
+id?: string;
+registry_no?: number;
+project_id: string;
+household_id: string;
+full_name: string;
+birth_date?: string | null;
+identity_status?: string;
+created_by: string;
+created_at?: string;
+version?: number;
+};
+Update: {
+id?: string;
+registry_no?: number;
+project_id?: string;
+household_id?: string;
+full_name?: string;
+birth_date?: string | null;
+identity_status?: string;
+created_by?: string;
+created_at?: string;
+version?: number;
+};
+Relationships: [];
+};
+survey_assignments: {
+Row: {
+project_id: string;
+user_id: string;
+active: boolean;
+};
+Insert: {
+project_id: string;
+user_id: string;
+active?: boolean;
+};
+Update: {
+project_id?: string;
+user_id?: string;
+active?: boolean;
+};
+Relationships: [];
+};
+survey_projects: {
+Row: {
+id: string;
+organization_id: string;
+title: string;
+template_id: string;
+geography_id: string;
+target: number;
+start_date: string;
+end_date: string;
+purpose: string;
+consent_version: string;
+consent_notice: string;
+status: string;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+title: string;
+template_id: string;
+geography_id: string;
+target: number;
+start_date: string;
+end_date: string;
+purpose: string;
+consent_version: string;
+consent_notice: string;
+status?: string;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+title?: string;
+template_id?: string;
+geography_id?: string;
+target?: number;
+start_date?: string;
+end_date?: string;
+purpose?: string;
+consent_version?: string;
+consent_notice?: string;
+status?: string;
+created_by?: string;
+created_at?: string;
+};
+Relationships: [];
+};
+survey_response_revisions: {
+Row: {
+response_id: string;
+version: number;
+snapshot: Json;
+actor_id: string;
+recorded_at: string;
+};
+Insert: {
+response_id: string;
+version: number;
+snapshot: Json;
+actor_id: string;
+recorded_at?: string;
+};
+Update: {
+response_id?: string;
+version?: number;
+snapshot?: Json;
+actor_id?: string;
+recorded_at?: string;
+};
+Relationships: [];
+};
+survey_responses: {
+Row: {
+id: string;
+project_id: string;
+person_id: string;
+collector_id: string;
+answers: Json;
+consent: Json;
+status: string;
+version: number;
+review_note: string;
+reviewed_by: string | null;
+reviewed_at: string | null;
+created_at: string;
+updated_at: string;
+identity_snapshot: Json | null;
+};
+Insert: {
+id?: string;
+project_id: string;
+person_id: string;
+collector_id: string;
+answers: Json;
+consent: Json;
+status?: string;
+version?: number;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+created_at?: string;
+updated_at?: string;
+identity_snapshot?: Json | null;
+};
+Update: {
+id?: string;
+project_id?: string;
+person_id?: string;
+collector_id?: string;
+answers?: Json;
+consent?: Json;
+status?: string;
+version?: number;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+created_at?: string;
+updated_at?: string;
+identity_snapshot?: Json | null;
+};
+Relationships: [];
+};
+survey_templates: {
+Row: {
+id: string;
+name: string;
+version: number;
+questions: Json;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+name: string;
+version: number;
+questions: Json;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+name?: string;
+version?: number;
+questions?: Json;
+created_by?: string;
+created_at?: string;
 };
 Relationships: [];
 };
@@ -513,6 +1053,26 @@ p_version: number | null;
 close_opportunity: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+close_survey_project: { Args: {
+p_id: string | null;
+}; Returns: undefined };
+correct_registry_person: { Args: {
+p_id: string | null;
+p_name: string | null;
+p_birth: string | null;
+p_household: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+create_beneficiary_need: { Args: {
+p_id: string | null;
+p_response: string | null;
+p_category: string | null;
+p_description: string | null;
+p_priority: string | null;
+p_follow_up: string | null;
+p_reason: string | null;
+}; Returns: string };
 create_opportunity: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -523,6 +1083,18 @@ p_end: string | null;
 p_reply_by: string | null;
 p_payment: string | null;
 p_payment_note: string | null;
+}; Returns: string };
+create_survey_project: { Args: {
+p_org: string | null;
+p_title: string | null;
+p_template: string | null;
+p_geography: string | null;
+p_target: number | null;
+p_start: string | null;
+p_end: string | null;
+p_purpose: string | null;
+p_consent_version: string | null;
+p_consent_notice: string | null;
 }; Returns: string };
 document_download_path: { Args: {
 p_id: string | null;
@@ -536,6 +1108,32 @@ p_id: string | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+project_needs_summary: { Args: {
+p_project: string | null;
+p_person?: string | null;
+}; Returns: Json };
+publish_survey_template: { Args: {
+p_name: string | null;
+p_questions: Json | null;
+}; Returns: string };
+record_assistance: { Args: {
+p_id: string | null;
+p_person: string | null;
+p_kind: string | null;
+p_category: string | null;
+p_program: string | null;
+p_description: string | null;
+p_amount: number | null;
+p_quantity: number | null;
+p_unit: string | null;
+p_delivered: string | null;
+p_funding: string | null;
+p_evidence: string | null;
+p_next: string | null;
+}; Returns: string };
+registry_match_candidates: { Args: {
+p_person: string | null;
+}; Returns: Json };
 respond_work_invitation: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -559,6 +1157,21 @@ p_status: string | null;
 p_note: string | null;
 p_version: number | null;
 p_checks: Json | null;
+}; Returns: undefined };
+review_registry_match: { Args: {
+p_person: string | null;
+p_other: string | null;
+p_status: string | null;
+p_reason: string | null;
+p_person_version: number | null;
+p_other_version: number | null;
+p_version: number | null;
+}; Returns: undefined };
+review_survey_response: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_note: string | null;
+p_version: number | null;
 }; Returns: undefined };
 save_experience: { Args: {
 p_id: string | null;
@@ -602,6 +1215,19 @@ p_status: string | null;
 p_note: string | null;
 p_version: number | null;
 }; Returns: undefined };
+save_survey_response: { Args: {
+p_id: string | null;
+p_project: string | null;
+p_person: string | null;
+p_household: string | null;
+p_name: string | null;
+p_birth: string | null;
+p_household_label: string | null;
+p_answers: Json | null;
+p_consent: Json | null;
+p_submit: boolean | null;
+p_version: number | null;
+}; Returns: string };
 search_volunteers: { Args: {
 p_org?: string | null;
 p_query?: string | null;
@@ -628,8 +1254,39 @@ p_user: string | null;
 p_role: string | null;
 p_status: string | null;
 }; Returns: undefined };
+set_need_assistance_link: { Args: {
+p_need: string | null;
+p_assistance: string | null;
+p_active: boolean | null;
+p_reason: string | null;
+p_need_version: number | null;
+p_link_version: number | null;
+}; Returns: undefined };
 set_profile_sharing: { Args: {
 p_org: string | null;
 p_allowed: boolean | null;
+}; Returns: undefined };
+set_survey_assignment: { Args: {
+p_project: string | null;
+p_user: string | null;
+p_active: boolean | null;
+}; Returns: undefined };
+survey_assignment_candidates: { Args: {
+p_project: string | null;
+p_query: string | null;
+}; Returns: Json };
+update_beneficiary_need: { Args: {
+p_id: string | null;
+p_description: string | null;
+p_priority: string | null;
+p_status: string | null;
+p_follow_up: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+void_assistance: { Args: {
+p_id: string | null;
+p_reason: string | null;
+p_version: number | null;
 }; Returns: undefined };
 }; Enums: { [_ in never]: never }; CompositeTypes: { [_ in never]: never } } };

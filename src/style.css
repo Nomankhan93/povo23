@@ -4,3 +4,9 @@
 .operations{margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0}.operations h3{font-size:16px}.area-options{max-height:220px;overflow:auto}.area-options .checklabel{display:flex;align-items:flex-start;padding:6px 0}.operations fieldset{border:1px solid #dbe3ee;border-radius:8px;padding:10px;margin-bottom:12px}.preserve-lines{white-space:pre-line}
 
 .invite-inline{min-width:240px;max-width:360px;padding:12px;background:#f1f5f9;border-radius:10px}.invite-inline .actions{flex-wrap:wrap}
+
+.survey-question{border:1px solid #cbd5e1;border-radius:12px;padding:20px;margin:18px 0}.survey-question legend{font-weight:700}.survey-question summary{cursor:pointer;font-weight:600}.consent-notice{padding:16px;background:#eef4ff;border-left:4px solid #2458b8;margin-bottom:20px}.survey-json{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.875rem;max-height:400px;overflow:auto}
+
+.registry-operations{border:2px solid var(--accent,#2656b8);border-radius:12px;padding:1.25rem;margin:1.5rem 0;scroll-margin-top:1rem}.registry-operations fieldset{border:0;padding:0;min-width:0}.registry-operations summary{cursor:pointer;padding:.65rem 0;font-weight:600}.registry-operations h4{margin:.4rem 0}.registry-operations p{overflow-wrap:anywhere}
+
+.needs-panel{border-top:1px solid #cbd5e1;margin:1.5rem 0;padding-top:1rem}.needs-panel fieldset{border:0;padding:0;min-width:0}.needs-panel summary{cursor:pointer;padding:.65rem 0;font-weight:600}.needs-panel p{overflow-wrap:anywhere}
