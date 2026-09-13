@@ -1,3 +1,7 @@
+# Current release: POEM 2.7.6
+
+Correctness and recovery stabilization. Start with [release notes](docs/PHASE-2.7.6.md), [WSL upgrade](docs/UPGRADE-2.7.6.md) and [validation](docs/VALIDATION-2.7.6.md). Historical sections below describe earlier releases; current profile publication is self-service.
+
 # POEM 2.7.5 — Sidebar Profile Grouping
 
 Current upgrade: [Phase 2.7.5 instructions](docs/UPGRADE-2.7.5.md).

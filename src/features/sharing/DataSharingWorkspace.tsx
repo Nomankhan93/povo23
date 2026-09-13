@@ -1,3 +1,4 @@
+import { SharingRecoveryPanel } from "./SharingRecoveryPanel";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database, Json } from "../../lib/supabase/database.types";
@@ -11,8 +12,6 @@ type Org = Tables["organizations"]["Row"];
 type Source = {
   organization_id: string;
   organization_name: string;
-  has_assistance: boolean;
-  has_needs: boolean;
   active_request: string | null;
 };
 type RequestContext = {
@@ -156,7 +155,8 @@ export function DataSharingWorkspace({
 
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const f = new FormData(e.currentTarget),
+    const form = e.currentTarget;
+    const f = new FormData(form),
       fields = fieldOptions.map(([value]) => value).filter((value) => f.get(value) === "on");
     const source = text(f, "source"), expiry = text(f, "expiry");
     if (!personId || !source || !expiry) return setError("Beneficiary, source NGO and expiry are required.");
@@ -167,7 +167,7 @@ export function DataSharingWorkspace({
       p_fields: fields,
       p_expires_at: isoEnd(expiry),
     }), "Data access request sent to the source NGO.")) {
-      e.currentTarget.reset();
+      form.reset();
       setPersonId("");
       setSources([]);
     }
@@ -229,6 +229,7 @@ export function DataSharingWorkspace({
   }
 
   return <>
+    {manage && <SharingRecoveryPanel />}
     {error && <div className="notice error" role="alert">{error}<button onClick={load}>Reload</button></div>}
     {message && <div className="notice success" role="status">{message}<button onClick={() => setMessage("")}>×</button></div>}
 
@@ -247,7 +248,7 @@ export function DataSharingWorkspace({
             <label className="field">Source NGO
               <select name="source" required disabled={!personId}>
                 <option value="">Select source NGO</option>
-                {sources.map((s) => <option key={s.organization_id} value={s.organization_id} disabled={Boolean(s.active_request)}>{s.organization_name}{s.active_request ? " · request active" : s.has_assistance ? " · assistance recorded" : ""}</option>)}
+                {sources.map((s) => <option key={s.organization_id} value={s.organization_id} disabled={Boolean(s.active_request)}>{s.organization_name}{s.active_request ? " · request active" : ""}</option>)}
               </select>
             </label>
           </div>
@@ -324,8 +325,8 @@ export function DataSharingWorkspace({
       <h2>Active and historical grants</h2>
       {!grants.length && <p>No grants visible in this workspace.</p>}
       {grants.map((g) => <article className="document-row" key={g.id}>
-        <div className="panel-title"><strong>{orgName(g.grantee_organization_id)} ← {orgName(g.source_organization_id)}</strong><Badge value={g.status} /></div>
-        <p>{g.fields.map(label).join(" · ")}</p><p>Expires {new Date(g.expires_at).toLocaleString()}</p>
+        <div className="panel-title"><strong>{orgName(g.grantee_organization_id)} ← {orgName(g.source_organization_id)}</strong><Badge value={g.status === "active" && new Date(g.expires_at).getTime() <= Date.now() ? "expired" : g.status} /></div>
+        <p>{g.revoke_reason}</p><p>{g.fields.map(label).join(" · ")}</p><p>Expires {new Date(g.expires_at).toLocaleString()}</p>
         {(manage || g.source_organization_id===organization) && g.status==="active" && <details><summary>Revoke access</summary><form onSubmit={(e)=>revoke(e,g)}><label className="field">Reason<textarea name="reason" required minLength={5} maxLength={1000}/></label><button className="secondary" disabled={busy}>Revoke immediately</button></form></details>}
       </article>)}
     </section>}

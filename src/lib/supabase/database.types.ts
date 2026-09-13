@@ -367,6 +367,7 @@ version: number;
 created_by: string;
 created_at: string;
 updated_at: string;
+review_required: boolean;
 };
 Insert: {
 id?: string;
@@ -379,6 +380,7 @@ version?: number;
 created_by: string;
 created_at?: string;
 updated_at?: string;
+review_required?: boolean;
 };
 Update: {
 id?: string;
@@ -391,6 +393,7 @@ version?: number;
 created_by?: string;
 created_at?: string;
 updated_at?: string;
+review_required?: boolean;
 };
 Relationships: [];
 };
@@ -1004,6 +1007,7 @@ consent_notice: string;
 status: string;
 created_by: string;
 created_at: string;
+sharing_discoverable: boolean;
 };
 Insert: {
 id?: string;
@@ -1020,6 +1024,7 @@ consent_notice: string;
 status?: string;
 created_by: string;
 created_at?: string;
+sharing_discoverable?: boolean;
 };
 Update: {
 id?: string;
@@ -1036,6 +1041,7 @@ consent_notice?: string;
 status?: string;
 created_by?: string;
 created_at?: string;
+sharing_discoverable?: boolean;
 };
 Relationships: [];
 };
@@ -1792,6 +1798,12 @@ publish_survey_template: { Args: {
 p_name: string | null;
 p_questions: Json | null;
 }; Returns: string };
+reconcile_canonical_identity: { Args: {
+p_person: string | null;
+p_source_version: number | null;
+p_canonical_version: number | null;
+p_reason: string | null;
+}; Returns: undefined };
 record_assistance: { Args: {
 p_id: string | null;
 p_person: string | null;
@@ -1983,6 +1995,11 @@ p_present: boolean | null;
 set_profile_sharing: { Args: {
 p_org: string | null;
 p_allowed: boolean | null;
+}; Returns: undefined };
+set_project_sharing_discovery: { Args: {
+p_project: string | null;
+p_enabled: boolean | null;
+p_reason: string | null;
 }; Returns: undefined };
 set_survey_assignment: { Args: {
 p_project: string | null;

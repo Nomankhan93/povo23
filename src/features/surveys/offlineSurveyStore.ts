@@ -31,6 +31,8 @@ type StoredQueue = {
   nextAttemptAt: number;
   state: QueueState;
   error: string;
+  recoveredAt?: number;
+  failureKind?: "rejected" | "unreadable";
   cipher: Cipher;
 };
 type StoredDraft = {
@@ -112,9 +114,14 @@ async function deviceKey() {
   if (found?.key) return found.key;
   const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
   const writeTx = value.transaction("keys", "readwrite");
-  writeTx.objectStore("keys").put({ id: KEY_ID, key });
-  await transactionDone(writeTx);
-  return key;
+  // IDB serializes readwrite transactions across tabs. Recheck inside the
+  // same transaction as insertion; never overwrite another writer's key.
+  const done = transactionDone(writeTx);
+  const keys = writeTx.objectStore("keys");
+  const winner = await request(keys.get(KEY_ID)) as { key: CryptoKey } | undefined;
+  if (!winner?.key) keys.add({ id: KEY_ID, key });
+  await done;
+  return winner?.key || key;
 }
 
 async function encrypt(value: unknown): Promise<Cipher> {
@@ -218,8 +225,10 @@ export async function enqueueSurveySave(ownerId: string, args: SaveArgs) {
     cipher,
   };
   const tx = value.transaction("queue", "readwrite");
-  tx.objectStore("queue").put(row);
-  await transactionDone(tx);
+  const done = transactionDone(tx);
+  const store = tx.objectStore("queue");
+  if (!(await request(store.get(id)))) store.add(row);
+  await done;
   changed();
 }
 
@@ -233,9 +242,12 @@ async function queueRows(ownerId: string) {
 
 async function putQueue(row: StoredQueue) {
   const value = await openDatabase();
-  const tx = value.transaction("queue", "readwrite");
-  tx.objectStore("queue").put(row);
-  await transactionDone(tx);
+  const tx = value.transaction("queue", "readwrite"), done = transactionDone(tx);
+  const store = tx.objectStore("queue");
+  // A slower tab must never resurrect a copy another tab already acknowledged.
+  const current = await request(store.get(row.id)) as StoredQueue | undefined;
+  if (current && !current.recoveredAt) store.put(row);
+  await done;
   changed();
 }
 
@@ -253,14 +265,74 @@ export async function surveyQueueSummary(ownerId: string): Promise<SurveyQueueSu
   return { total: rows.length, pending: rows.length - attention, attention };
 }
 
-export async function clearAttentionSurveyCopies(ownerId: string) {
+async function assertOwner(ownerId: string) {
+  if (!db) throw new Error("Supabase is not configured");
+  const { data, error } = await db.auth.getSession();
+  if (error || data.session?.user.id !== ownerId) throw new Error("Sign in with the survey owner's account first");
+}
+
+export async function attentionSurveyCopies(ownerId: string) {
+  await assertOwner(ownerId);
   const rows = await queueRows(ownerId);
-  const ids = rows.filter((row) => row.state === "needs_attention").map((row) => row.id);
-  if (!ids.length) return;
+  return rows.filter(row => row.state === "needs_attention").map(({cipher: _cipher, ...row}) => row);
+}
+
+export async function inspectAttentionSurvey(ownerId: string, id: string) {
+  await assertOwner(ownerId);
+  const row = (await queueRows(ownerId)).find(item => item.id === id && item.state === "needs_attention");
+  if (!row) throw new Error("Failed survey copy is no longer available");
+  const args = await decrypt<SaveArgs>(row.cipher);
+  await assertOwner(ownerId);
+  return args;
+}
+
+export async function recoverAttentionSurvey(ownerId: string, id: string) {
+  await assertOwner(ownerId);
+  const row = (await queueRows(ownerId)).find(item => item.id === id && item.state === "needs_attention");
+  // Old queue rows do not prove whether the server committed. Retry those
+  // with their original request ID instead of creating a replacement.
+  if (!row || row.failureKind !== "rejected") throw new Error("Only a confirmed server rejection can be recovered for editing. Retry the original request first.");
+  const args = await inspectAttentionSurvey(ownerId, id);
+  const consent = args.p_consent as SurveyDeviceDraft["consent"];
+  const draft: SurveyDeviceDraft = {
+    person: args.p_person || "", household: args.p_household || "",
+    name: args.p_name || "", birth: args.p_birth || "", householdLabel: args.p_household_label || "",
+    answers: args.p_answers as Record<string, Json>, consent,
+  };
+  const cipher = await encrypt(draft);
+  await assertOwner(ownerId);
   const value = await openDatabase();
-  const tx = value.transaction("queue", "readwrite");
-  for (const id of ids) tx.objectStore("queue").delete(id);
-  await transactionDone(tx);
+  const tx = value.transaction(["drafts", "queue"], "readwrite"), done = transactionDone(tx);
+  const queue = tx.objectStore("queue");
+  const current = await request(queue.get(id)) as StoredQueue | undefined;
+  if (!current || current.state !== "needs_attention" || current.recoveredAt) { await done; throw new Error("This copy has already been recovered or changed. Open its recovery draft instead."); }
+  const store = tx.objectStore("drafts"), target = draftId(ownerId,row.projectId,row.responseId);
+  const existing = await request(store.get(target));
+  if (existing) { await done; throw new Error("An existing device draft must be reviewed or discarded in the survey form first. The failed copy is retained."); }
+  store.add({id:target,ownerId,projectId:row.projectId,responseId:row.responseId,updatedAt:Date.now(),cipher});
+  queue.put({...current,recoveredAt:Date.now()});
+  await done;
+  // Keep the rejected source until its owner explicitly discards it.
+  changed();
+  return { projectId:row.projectId, responseId:row.responseId };
+}
+
+export async function retryAttentionSurvey(ownerId: string, id: string) {
+  await assertOwner(ownerId);
+  const row = (await queueRows(ownerId)).find(item => item.id === id && item.state === "needs_attention");
+  if (!row) throw new Error("Failed survey copy is no longer available");
+  if (row.recoveredAt) throw new Error("This copy was recovered for editing. Review its draft instead of retrying the old request.");
+  await assertOwner(ownerId);
+  row.state="pending"; row.nextAttemptAt=0; row.error=""; delete row.failureKind;
+  await putQueue(row); // Exact encrypted args and request UUID retained.
+}
+
+export async function discardAttentionSurvey(ownerId: string, id: string) {
+  await assertOwner(ownerId);
+  const value=await openDatabase(), tx=value.transaction("queue","readwrite"), done=transactionDone(tx);
+  const store=tx.objectStore("queue"), row=await request(store.get(id)) as StoredQueue | undefined;
+  if (row?.ownerId === ownerId && row.state === "needs_attention") store.delete(id);
+  await done;
   changed();
 }
 
@@ -281,6 +353,7 @@ export async function markQueuedSurveyAttention(
   const row = rows.find((item) => item.id === queueId(ownerId, requestId));
   if (!row) return;
   row.state = "needs_attention";
+  row.failureKind = "rejected";
   row.error = message.slice(0, 1000);
   row.updatedAt = Date.now();
   await putQueue(row);
@@ -310,11 +383,19 @@ export async function syncSurveyQueue(ownerId: string) {
   for (const row of rows) {
     if (row.state !== "pending" || row.nextAttemptAt > Date.now()) continue;
     try {
-      const args = await decrypt<SaveArgs>(row.cipher);
-      const result = await db.rpc("save_survey_response", args);
+      await assertOwner(ownerId);
+      let args: SaveArgs;
+      try { args = await decrypt<SaveArgs>(row.cipher); }
+      catch { row.state="needs_attention"; row.failureKind="unreadable"; row.error="This device copy cannot be decrypted. It has been retained; automatic retry is paused."; await putQueue(row); continue; }
+      await assertOwner(ownerId);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 20_000);
+      const result = await Promise.resolve(db.rpc("save_survey_response", args).abortSignal(controller.signal)).finally(() => clearTimeout(timer));
+      await assertOwner(ownerId);
       if (result.error) {
         if (definitiveSurveySaveError(result.error)) {
           row.state = "needs_attention";
+          row.failureKind = "rejected";
           row.error = result.error.message.slice(0, 1000);
           row.updatedAt = Date.now();
           await putQueue(row);
@@ -335,6 +416,7 @@ export async function syncSurveyQueue(ownerId: string) {
         }),
       );
     } catch (error) {
+      await assertOwner(ownerId);
       row.error = ((error as Error).message || "Sync failed").slice(0, 1000);
       row.attempts += 1;
       row.nextAttemptAt = Date.now() + retryDelay(row.attempts);

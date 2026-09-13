@@ -1,0 +1,444 @@
+.
+├── .env
+├── .env.example
+├── .env.local
+├── .gitignore
+├── .nvmrc
+├── .poem-patch-backups
+│   ├── canonical-registry-2.4.0
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── src
+│   │       └── lib
+│   │           └── supabase
+│   │               └── database.types.ts
+│   ├── canonical-unmerge-fix-2.4.1-20260912T021511Z
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── scripts
+│   │       └── test-phase24.mjs
+│   ├── geography-stabilization-2.7.2-20260913T113555Z
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── scripts
+│   │       ├── test-geography-reference.mjs
+│   │       └── test-phase13.mjs
+│   ├── pakistan-geography-2.7.1-20260913T104211Z
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   └── test-phase26.mjs
+│   │   └── src
+│   │       └── features
+│   │           ├── geography
+│   │           │   └── GeographyPicker.tsx
+│   │           └── volunteers
+│   │               └── ProfileForm.tsx
+│   ├── phase-2.5-controlled-sharing-2.5.0
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   └── RELEASE-CHECKLIST.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── app
+│   │       │   └── AppShell.tsx
+│   │       └── lib
+│   │           └── supabase
+│   │               └── database.types.ts
+│   ├── phase-2.6-field-reliability-2.6.0
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   └── RELEASE-CHECKLIST.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── app
+│   │       │   └── AppShell.tsx
+│   │       ├── features
+│   │       │   └── surveys
+│   │       │       ├── SurveyForm.tsx
+│   │       │       ├── SurveyProjectDetail.tsx
+│   │       │       └── useSurveySave.ts
+│   │       └── style.css
+│   ├── phase-2.7-workforce-marketplace-2.7.0-20260912T053954Z
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   └── RELEASE-CHECKLIST.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── app
+│   │       │   └── AppShell.tsx
+│   │       ├── features
+│   │       │   ├── surveys
+│   │       │   │   └── SurveyProjectDetail.tsx
+│   │       │   └── workforce
+│   │       │       ├── InvitationsPanel.tsx
+│   │       │       ├── InviteVolunteer.tsx
+│   │       │       └── model.tsx
+│   │       └── lib
+│   │           └── supabase
+│   │               └── database.types.ts
+│   ├── phase12-o3fojd20
+│   │   ├── .gitignore
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   ├── test-database.mjs
+│   │   │   └── test-local-auth.mjs
+│   │   └── src
+│   │       ├── App.tsx
+│   │       └── style.css
+│   ├── phase13-mvtfvwik
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   ├── test-local-auth.mjs
+│   │   │   └── test-phase12.mjs
+│   │   └── src
+│   │       ├── App.tsx
+│   │       ├── Phase12.tsx
+│   │       ├── client.ts
+│   │       └── style.css
+│   ├── phase14-j6svokkr
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── App.tsx
+│   │       ├── Phase13.tsx
+│   │       ├── database.types.ts
+│   │       └── style.css
+│   ├── phase21-m49843qt
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── App.tsx
+│   │       ├── database.types.ts
+│   │       └── style.css
+│   ├── phase22-o30s02he
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── PHASE-2.1.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   └── schema-test-db.mjs
+│   │   └── src
+│   │       ├── App.tsx
+│   │       ├── Phase21.tsx
+│   │       ├── database.types.ts
+│   │       └── style.css
+│   ├── phase23-x5mt1zh0
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── PHASE-2.2.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   ├── SETUP-WSL.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── App.tsx
+│   │       ├── Phase21.tsx
+│   │       ├── Phase22.tsx
+│   │       ├── database.types.ts
+│   │       └── style.css
+│   ├── profile-independence-photo-2.7.4-20260913T133553Z
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   └── RELEASE-CHECKLIST.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   ├── test-phase12.mjs
+│   │   │   └── test-profile-structured-ui.mjs
+│   │   └── src
+│   │       ├── app
+│   │       │   └── AppShell.tsx
+│   │       ├── features
+│   │       │   ├── auth
+│   │       │   │   └── Auth.tsx
+│   │       │   └── volunteers
+│   │       │       ├── Directory.tsx
+│   │       │       ├── Documents.tsx
+│   │       │       └── ProfileForm.tsx
+│   │       ├── lib
+│   │       │   └── supabase
+│   │       │       └── database.types.ts
+│   │       └── style.css
+│   ├── readme-hkz6vh6g
+│   │   └── README.md
+│   ├── sidebar-profile-grouping-2.7.5-20260913T143913Z
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── src
+│   │       └── app
+│   │           └── AppShell.tsx
+│   ├── stabilization231-3foy17rd
+│   │   ├── FILES.txt
+│   │   ├── README.md
+│   │   ├── docs
+│   │   │   ├── ARCHITECTURE.md
+│   │   │   ├── PERMISSIONS.md
+│   │   │   ├── RELEASE-CHECKLIST.md
+│   │   │   └── VALIDATION.md
+│   │   ├── package.json
+│   │   ├── scripts
+│   │   │   ├── generate-types.mjs
+│   │   │   ├── test-phase13.mjs
+│   │   │   └── test-phase21.mjs
+│   │   ├── src
+│   │   │   ├── App.tsx
+│   │   │   ├── Phase12.tsx
+│   │   │   ├── Phase13.tsx
+│   │   │   ├── Phase14.tsx
+│   │   │   ├── Phase21.tsx
+│   │   │   ├── Phase22.tsx
+│   │   │   ├── Phase23.tsx
+│   │   │   ├── client.ts
+│   │   │   ├── database.types.ts
+│   │   │   └── main.tsx
+│   │   └── tsconfig.json
+│   ├── structured-volunteer-profile-2.7.3-20260913T124647Z
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── app
+│   │       │   └── AppShell.tsx
+│   │       ├── features
+│   │       │   └── volunteers
+│   │       │       ├── ExperiencePanel.tsx
+│   │       │       └── ProfileForm.tsx
+│   │       └── style.css
+│   └── test-cleanup-2.4.2-20260912T022602Z
+│       ├── README.md
+│       ├── package.json
+│       └── scripts
+│           └── test-local-operations.mjs
+├── FILES.txt
+├── PROJECT_ANALYSIS_CONTEXT.txt
+├── README.md
+├── docs
+│   ├── ARCHITECTURE.md
+│   ├── PERMISSIONS.md
+│   ├── PHASE-1.3.md
+│   ├── PHASE-1.4.md
+│   ├── PHASE-2.1.md
+│   ├── PHASE-2.2.md
+│   ├── PHASE-2.3.md
+│   ├── PHASE-2.4.1.md
+│   ├── PHASE-2.4.2.md
+│   ├── PHASE-2.4.md
+│   ├── PHASE-2.5.md
+│   ├── PHASE-2.6.md
+│   ├── PHASE-2.7.1.md
+│   ├── PHASE-2.7.2.md
+│   ├── PHASE-2.7.3.md
+│   ├── PHASE-2.7.4.md
+│   ├── PHASE-2.7.5.md
+│   ├── PHASE-2.7.md
+│   ├── RELEASE-CHECKLIST.md
+│   ├── SETUP-WSL.md
+│   ├── STABILIZATION-2.3.1.md
+│   ├── STABILIZATION-SCOPE-CHECK.sql
+│   ├── UPGRADE-1.2.md
+│   ├── UPGRADE-1.3.md
+│   ├── UPGRADE-1.4.md
+│   ├── UPGRADE-2.1.md
+│   ├── UPGRADE-2.2.md
+│   ├── UPGRADE-2.3.1.md
+│   ├── UPGRADE-2.3.md
+│   ├── UPGRADE-2.4.1.md
+│   ├── UPGRADE-2.4.2.md
+│   ├── UPGRADE-2.4.md
+│   ├── UPGRADE-2.5.md
+│   ├── UPGRADE-2.6.md
+│   ├── UPGRADE-2.7.1.md
+│   ├── UPGRADE-2.7.2.md
+│   ├── UPGRADE-2.7.3.md
+│   ├── UPGRADE-2.7.4.md
+│   ├── UPGRADE-2.7.5.md
+│   ├── UPGRADE-2.7.md
+│   ├── VALIDATION-2.3.1.md
+│   ├── VALIDATION-2.4.1.md
+│   ├── VALIDATION-2.4.2.md
+│   ├── VALIDATION-2.4.md
+│   ├── VALIDATION-2.5.md
+│   ├── VALIDATION-2.6.md
+│   ├── VALIDATION-2.7.1.md
+│   ├── VALIDATION-2.7.2.md
+│   ├── VALIDATION-2.7.3.md
+│   ├── VALIDATION-2.7.4.md
+│   ├── VALIDATION-2.7.5.md
+│   ├── VALIDATION-2.7.md
+│   └── VALIDATION.md
+├── index.html
+├── package.json
+├── project-tree.txt
+├── public
+│   └── favicon.svg
+├── scripts
+│   ├── bootstrap-admin.mjs
+│   ├── check-env.mjs
+│   ├── generate-types.mjs
+│   ├── local-env.mjs
+│   ├── schema-test-db.mjs
+│   ├── test-database.mjs
+│   ├── test-geography-reference.mjs
+│   ├── test-local-auth.mjs
+│   ├── test-local-operations.mjs
+│   ├── test-phase12.mjs
+│   ├── test-phase13.mjs
+│   ├── test-phase14.mjs
+│   ├── test-phase21.mjs
+│   ├── test-phase22.mjs
+│   ├── test-phase23.mjs
+│   ├── test-phase24.mjs
+│   ├── test-phase25.mjs
+│   ├── test-phase26.mjs
+│   ├── test-phase27.mjs
+│   ├── test-profile-independence-photo.mjs
+│   ├── test-profile-structured-ui.mjs
+│   ├── test-sidebar-profile-grouping.mjs
+│   └── test-stabilization.mjs
+├── src
+│   ├── app
+│   │   ├── App.tsx
+│   │   ├── AppShell.tsx
+│   │   └── version.ts
+│   ├── features
+│   │   ├── assistance
+│   │   │   └── AssistancePanel.tsx
+│   │   ├── audit
+│   │   │   └── EventList.tsx
+│   │   ├── auth
+│   │   │   ├── AccountAccess.tsx
+│   │   │   └── Auth.tsx
+│   │   ├── geography
+│   │   │   ├── GeographyManager.tsx
+│   │   │   ├── GeographyPicker.tsx
+│   │   │   └── model.tsx
+│   │   ├── needs
+│   │   │   ├── NeedDetail.tsx
+│   │   │   ├── NeedsPanel.tsx
+│   │   │   ├── Pager.tsx
+│   │   │   └── model.tsx
+│   │   ├── notifications
+│   │   │   └── Notifications.tsx
+│   │   ├── organizations
+│   │   │   ├── MembershipForm.tsx
+│   │   │   ├── NgoOperations.tsx
+│   │   │   └── OrgForm.tsx
+│   │   ├── registry
+│   │   │   └── RegistryOperations.tsx
+│   │   ├── sharing
+│   │   │   └── DataSharingWorkspace.tsx
+│   │   ├── surveys
+│   │   │   ├── Pager.tsx
+│   │   │   ├── SurveyForm.tsx
+│   │   │   ├── SurveyProjectDetail.tsx
+│   │   │   ├── SurveyProjects.tsx
+│   │   │   ├── SurveySyncStatus.tsx
+│   │   │   ├── SurveyTemplates.tsx
+│   │   │   ├── model.tsx
+│   │   │   ├── offlineSurveyStore.ts
+│   │   │   └── useSurveySave.ts
+│   │   ├── volunteers
+│   │   │   ├── Directory.tsx
+│   │   │   ├── Documents.tsx
+│   │   │   ├── ExperiencePanel.tsx
+│   │   │   ├── ProfileDetailsView.tsx
+│   │   │   ├── ProfileForm.tsx
+│   │   │   ├── ProfilePhoto.tsx
+│   │   │   ├── ReviewForm.tsx
+│   │   │   ├── StructuredProfileFields.tsx
+│   │   │   └── profileStructure.ts
+│   │   └── workforce
+│   │       ├── InvitationsPanel.tsx
+│   │       ├── InviteVolunteer.tsx
+│   │       ├── WorkforceMarketplace.tsx
+│   │       └── model.tsx
+│   ├── lib
+│   │   └── supabase
+│   │       ├── client.ts
+│   │       └── database.types.ts
+│   ├── main.tsx
+│   ├── shared
+│   │   ├── legacyTypes.tsx
+│   │   └── ui
+│   │       └── FormFields.tsx
+│   └── style.css
+├── supabase
+│   ├── .branches
+│   │   └── _current_branch
+│   ├── .temp
+│   │   ├── cli-latest
+│   │   ├── gotrue-version
+│   │   ├── linked-project.json
+│   │   ├── pooler-url
+│   │   ├── postgres-version
+│   │   ├── project-ref
+│   │   ├── rest-version
+│   │   ├── storage-migration
+│   │   └── storage-version
+│   ├── config.toml
+│   ├── migrations
+│   │   ├── 20260911000100_poem_foundation.sql
+│   │   ├── 20260912000100_phase12_geography_documents.sql
+│   │   ├── 20260913000100_phase13_directory_operations.sql
+│   │   ├── 20260914000100_phase14_experience_invitations.sql
+│   │   ├── 20260915000100_phase21_survey_pilot.sql
+│   │   ├── 20260916000100_phase22_registry_assistance.sql
+│   │   ├── 20260917000100_phase23_needs_followup.sql
+│   │   ├── 20260918000100_stabilization.sql
+│   │   ├── 20260919000100_canonical_registry.sql
+│   │   ├── 20260919000200_canonical_unmerge_fix.sql
+│   │   ├── 20260920000100_phase25_controlled_sharing.sql
+│   │   ├── 20260921000100_phase27_workforce_marketplace.sql
+│   │   ├── 20260922000100_pakistan_geography_reference.sql
+│   │   ├── 20260922000200_geography_regression_stabilization.sql
+│   │   └── 20260923000100_profile_independence_photo.sql
+│   └── snippets
+├── tsconfig.json
+└── vite.config.ts
+
+110 directories, 332 files

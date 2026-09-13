@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  clearAttentionSurveyCopies,
+  attentionSurveyCopies, inspectAttentionSurvey, recoverAttentionSurvey, retryAttentionSurvey, discardAttentionSurvey,
   surveyQueueSummary,
   syncSurveyQueue,
   type SurveyQueueSummary,
@@ -13,11 +13,15 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
     [online, setOnline] = useState(navigator.onLine),
     [syncing, setSyncing] = useState(false),
     [error, setError] = useState("");
+  const [copies, setCopies] = useState<Awaited<ReturnType<typeof attentionSurveyCopies>>>([]);
+  const [preview, setPreview] = useState<Record<string, string>>({});
+  const [notice, setNotice] = useState("");
   const syncingRef = useRef(false);
 
   const refresh = useCallback(async () => {
     try {
       setSummary(await surveyQueueSummary(userId));
+      setCopies(await attentionSurveyCopies(userId));
       setError("");
     } catch (e) {
       setError((e as Error).message);
@@ -40,6 +44,7 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
   }, [userId]);
 
   useEffect(() => {
+    setCopies([]); setPreview({}); setNotice("");
     void refresh();
     const queue = () => void refresh();
     const onOnline = () => {
@@ -85,21 +90,30 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
           <button className="secondary" disabled={!online || syncing || !summary.pending} onClick={() => void sync()}>
             Sync now
           </button>
-          {summary.attention > 0 && (
-            <button
-              className="secondary"
-              onClick={() => {
-                if (!window.confirm("Discard failed device copies only after you have corrected or re-entered those surveys. Continue?")) return;
-                void clearAttentionSurveyCopies(userId).then(refresh);
-              }}
-            >
-              Discard failed copies
-            </button>
-          )}
+
         </div>
-        <small>
-          A server validation or version conflict is never auto-overwritten. Reopen the live record, reconcile it, then discard the failed device copy.
-        </small>
+        {notice && <p role="status">{notice}</p>}
+        {copies.map(copy => <article key={copy.id} className="document-row">
+          <strong>Project {copy.projectId}</strong>
+          <p>{copy.responseId ? `Response ${copy.responseId}` : "New survey"} · {new Date(copy.createdAt).toLocaleString()}</p>
+          <p>{copy.error}</p>
+          {copy.recoveredAt && <p>Recovered for editing. Review the saved draft; original retry is disabled.</p>}
+          <button className="secondary" disabled={syncing} onClick={() => {
+            void inspectAttentionSurvey(userId,copy.id).then(args => setPreview(p=>({...p,[copy.id]:JSON.stringify(args,null,2)}))).catch(e=>setError(e.message));
+          }}>View saved answers</button>
+          {preview[copy.id] && <pre className="survey-json">{preview[copy.id]}</pre>}
+          <button className="secondary" disabled={syncing || Boolean(copy.recoveredAt)} onClick={() => {
+            void retryAttentionSurvey(userId,copy.id).then(refresh).catch(e=>setError(e.message));
+          }}>Retry original request</button>
+          {copy.failureKind === "rejected" && !copy.recoveredAt && <button className="secondary" disabled={syncing} onClick={() => {
+            void recoverAttentionSurvey(userId,copy.id).then(result => setNotice(`Recovery draft saved. Close any open survey form, then open project ${result.projectId} and ${result.responseId ? `response ${result.responseId}` : "Start survey"}. Review the recovered answers against the current record before saving. The failed copy remains here.`)).then(refresh).catch(e=>setError(e.message));
+          }}>Recover for editing</button>}
+          <button className="secondary" disabled={syncing} onClick={() => {
+            if (!window.confirm("Permanently discard this failed device copy? Check that its answers have been recovered first.")) return;
+            void discardAttentionSurvey(userId,copy.id).then(()=>{setPreview(p=>{const next={...p};delete next[copy.id];return next;});return refresh();}).catch(e=>setError(e.message));
+          }}>Discard this copy</button>
+        </article>)}
+        <small>Pending saves retain their original request ID. Only confirmed rejections can be recovered for editing. Recovery never overwrites an existing draft.</small>
       </div>
     </details>
   );

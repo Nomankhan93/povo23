@@ -209,7 +209,7 @@ export function WorkforceMarketplace({
             {mode === "personal"
               ? "Apply for local survey work and accept formal assignment terms before field access starts."
               : mode === "ngo"
-                ? "Recruit verified local volunteers, review applications and manage formal project assignments."
+                ? "Recruit active local volunteers, review applications and manage formal project assignments."
                 : "Read-only oversight of applications and project assignments across partner NGOs."}
           </p>
         </div>
@@ -237,7 +237,7 @@ export function WorkforceMarketplace({
               )}
             </article>
           ))}
-          {!busy && !available.length && <p className="empty">No matching open opportunities. Your verified location, skills/languages and profile-sharing choices control what appears here.</p>}
+          {!busy && !available.length && <p className="empty">No matching open opportunities. Your profile location, skills/languages and profile-sharing choices control what appears here.</p>}
 
           <h3>My applications</h3>
           {applications.map((a) => (
@@ -293,7 +293,7 @@ export function WorkforceMarketplace({
       {mode !== "personal" && (
         <>
           {mode === "ngo" && <>
-            <h3>Find verified local volunteers</h3>
+            <h3>Find active local volunteers</h3>
             <form onSubmit={findCandidates}>
               <div className="form-grid">
                 <label className="field">Survey project<select value={projectId} onChange={(e) => { setProjectId(e.target.value); setCandidates([]); setOffer(null); }} required><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>
@@ -304,7 +304,7 @@ export function WorkforceMarketplace({
             {candidates.map((c) => {
               const d = c.details || {};
               return <article className="document-row" key={c.user_id}>
-                <strong>{d.full_name || c.user_id} · {human(c.match_label)}</strong>
+                <strong>{d.full_name || c.user_id} · {human(c.match_label === "local_verified" ? "local_active" : c.match_label)}</strong>
                 <p>{d.skills || "Skills not listed"} · {d.languages || "Languages not listed"}</p>
                 <p>Approved surveys: {c.approved_surveys} · Reviewed: {c.reviewed_surveys} · Approval rate: {c.approval_rate === null ? "Insufficient data" : `${c.approval_rate}%`} · Completed assignments: {c.completed_assignments} · Verified experience entries: {c.verified_experiences}</p>
                 <p>Selection source: {c.source_kind ? human(c.source_kind) : "No accepted application/invitation or selected shortlist yet"}</p>
