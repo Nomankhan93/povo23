@@ -3,10 +3,12 @@ import { Row } from "../../shared/legacyTypes";
 import { Badge, Field, Select, human } from "../../shared/ui/FormFields";
 import { GeographyPicker } from "../geography/GeographyPicker";
 import { type Geo } from "../geography/model";
+
 export const fields = [
   ["full_name", "Full name"],
   ["phone", "Phone"],
-  ["area", "Current town / area"],
+  ["union_council", "Union Council (optional)"],
+  ["address", "Full address"],
   ["education", "Education"],
   ["skills", "Skills (comma separated)"],
   ["languages", "Languages"],
@@ -32,7 +34,13 @@ export function ProfileForm({
   geographies: Geo[];
   save: (d: Row, s: boolean, g: string | null) => Promise<boolean>;
 }) {
-  const [d, setD] = useState<Row>(profile.details),
+  const [d, setD] = useState<Row>(() => {
+      const initial = { ...(profile.details || {}) };
+      initial.address = initial.address || initial.area || "";
+      initial.union_council = initial.union_council || "";
+      delete initial.area;
+      return initial;
+    }),
     [geo, setGeo] = useState<string | null>(profile.geography_id || null);
   return (
     <section className="panel detail">
@@ -44,8 +52,8 @@ export function ProfileForm({
         <div className="notice">POEM review: {profile.review_note}</div>
       )}
       <p>
-        Save a draft at any time. Submit once your full name, phone and location
-        are complete. Editing a verified profile requires a new review.
+        Save a draft at any time. Submit once your full name, phone, Taluka / Tehsil / Subdivision
+        and full address are complete. Union Council is optional and entered manually.
       </p>
       <form
         onSubmit={(e) => {
@@ -60,18 +68,18 @@ export function ProfileForm({
               key={k}
               label={
                 l +
-                (k === "full_name" || k === "phone" || k === "area" ? " *" : "")
+                (k === "full_name" || k === "phone" || k === "address" ? " *" : "")
               }
             >
-              {["experience", "references", "bio"].includes(k) ? (
+              {["address", "experience", "references", "bio"].includes(k) ? (
                 <textarea
-                  maxLength={4000}
+                  maxLength={k === "address" ? 2000 : 4000}
                   value={d[k] || ""}
                   onChange={(e) => setD({ ...d, [k]: e.target.value })}
                 />
               ) : (
                 <input
-                  maxLength={k === "full_name" ? 200 : 1000}
+                  maxLength={k === "full_name" ? 200 : k === "union_council" ? 200 : 1000}
                   value={d[k] || ""}
                   onChange={(e) => setD({ ...d, [k]: e.target.value })}
                 />

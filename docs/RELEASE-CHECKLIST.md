@@ -98,3 +98,17 @@ Do not point this new project at the earlier `Volunteer` or JAS repository unles
 - Project response list refreshes after a queued save is confirmed.
 - Device-storage failure is surfaced; the UI must not falsely report an offline save as durable.
 - Cold-start full offline workspace and offline file/photo upload remain explicitly out of scope.
+
+## Phase 2.7 volunteer marketplace checks
+
+- NGO publishes an opportunity only against its own active survey project and a project/sub-area geography.
+- Unverified, unshared or out-of-area volunteers cannot discover/apply to that opportunity.
+- Other NGOs cannot read an application or assignment through normal table access.
+- NGO can shortlist/select/reject an application; stale review versions are rejected.
+- Candidate finder uses location and aggregate work history without exposing another NGO's raw survey/case records.
+- Formal assignment requires selected application, accepted invitation or selected shortlist source.
+- Paid assignment terms include compensation basis/currency/rate; volunteer assignment uses `none` and no rate.
+- Survey assignment remains inactive until the volunteer accepts formal terms.
+- Completion/cancellation deactivates survey access and preserves auditable assignment history.
+- Structured completion feedback stores five 1–5 categories but does not automatically change volunteer level/score.
+- Closing a survey project cancels unresolved workforce operations and active field access.

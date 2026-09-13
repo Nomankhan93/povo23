@@ -134,15 +134,12 @@ export function InvitationsPanel({
           {organization ? "NGO opportunities & invitations" : "My invitations"}
         </h2>
         {organization && (
-          <button className="primary" onClick={() => setCreate(!create)}>
-            Create opportunity
-          </button>
+          <span>Project-linked opportunities are created in Workforce marketplace.</span>
         )}
       </div>
       <p>
-        Accepting indicates interest in this opportunity. It does not create a
-        paid contract, payment approval, assignment or additional document
-        access.
+        Invitations remain an interest/response channel. Formal survey-project
+        assignment terms and field access are managed in Workforce marketplace.
       </p>
       {error && (
         <p className="notice error" role="alert">

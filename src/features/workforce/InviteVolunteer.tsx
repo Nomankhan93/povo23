@@ -27,6 +27,7 @@ export function InviteVolunteer({
       .select("*")
       .eq("organization_id", organization)
       .eq("status", "open")
+      .not("survey_project_id", "is", null)
       .gt("reply_by", new Date().toISOString())
       .order("created_at", { ascending: false })
       .order("id")
@@ -89,7 +90,7 @@ export function InviteVolunteer({
             </button>
           </form>
           {!busy && !rows.length && (
-            <p>Create an open opportunity in Invitations first.</p>
+            <p>Create a survey-project opportunity in Workforce marketplace first.</p>
           )}
           <div className="actions">
             <button

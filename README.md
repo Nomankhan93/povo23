@@ -1,10 +1,10 @@
-# POEM 2.6.0 — field reliability / offline survey foundation
+# POEM 2.7.1 — Pakistan geography reference & volunteer address
 
-Current upgrade: [Phase 2.6 instructions](docs/UPGRADE-2.6.md).
+Current upgrade: [Phase 2.7.1 instructions](docs/UPGRADE-2.7.1.md).
 
-[Phase 2.6 scope](docs/PHASE-2.6.md) · [Validation](docs/VALIDATION-2.6.md) · [Phase 2.5 sharing](docs/PHASE-2.5.md) · [Canonical registry](docs/PHASE-2.4.md).
+[Phase 2.7.1 scope](docs/PHASE-2.7.1.md) · [Validation](docs/VALIDATION-2.7.1.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
 
-Phase 2.6 adds encrypted device drafts, a durable write-ahead survey queue, stable idempotent request IDs across reloads, reconnect sync/backoff and explicit conflict handling. It does **not** claim complete cold-start offline/PWA support. Phase 2.5 controlled NGO sharing remains unchanged.
+Phase 2.7.1 seeds the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy for volunteer profiles. Union Council is manual and optional; full address is mandatory. Islamabad Capital Territory correctly skips the Division level.
 
 # POEM Phase 2.3
 
@@ -48,7 +48,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - UI terminology “verified” means profile review only, not verified identity, completed training, or reliable survey performance.
 - NGO “active” is operational approval, not document verification. Registration documents are not uploaded in this release.
 - Volunteer-profile sharing remains separate. Beneficiary coordination now uses explicit source-NGO approval plus POEM authorization, a field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
-- Geography is admin-maintained with fixed province/division/district/taluka/UC/village-or-ward levels. No authoritative geographic data is bundled; create a sourced hierarchy before new submissions. Existing approvals survive upgrade until edited/reviewed.
+- Volunteer profiles now use the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy. Islamabad skips Division. Union Council is manual/optional and full address is mandatory. Admin geography tools remain available for controlled maintenance; existing approvals survive upgrade until edited/reviewed.
 - Survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Payments, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
 - No migration/import from the older Cloudflare/Sites database is included.
 - Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
@@ -76,7 +76,7 @@ npm run build
 npm run test:local
 ```
 
-POEM 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. POEM 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. POEM 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring.
+POEM 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. POEM 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. POEM 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring. POEM 2.7 adds an embedded PostgreSQL marketplace/assignment lifecycle suite. POEM 2.7.1 adds seeded Pakistan geography and profile-location regression checks.
 
 The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests 28 Phase 1.4 tests 20 Phase 2.1 tests 23 Phase 2.2 tests and 25 Phase 2.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 

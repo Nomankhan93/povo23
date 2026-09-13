@@ -1345,6 +1345,174 @@ updated_at?: string;
 };
 Relationships: [];
 };
+work_applications: {
+Row: {
+id: string;
+opportunity_id: string;
+organization_id: string;
+survey_project_id: string;
+user_id: string;
+volunteer_name: string;
+organization_name: string;
+project_title: string;
+opportunity_title: string;
+note: string;
+status: string;
+review_note: string;
+reviewed_by: string | null;
+reviewed_at: string | null;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+opportunity_id: string;
+organization_id: string;
+survey_project_id: string;
+user_id: string;
+volunteer_name: string;
+organization_name: string;
+project_title: string;
+opportunity_title: string;
+note?: string;
+status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+opportunity_id?: string;
+organization_id?: string;
+survey_project_id?: string;
+user_id?: string;
+volunteer_name?: string;
+organization_name?: string;
+project_title?: string;
+opportunity_title?: string;
+note?: string;
+status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+work_assignments: {
+Row: {
+id: string;
+survey_project_id: string;
+opportunity_id: string | null;
+organization_id: string;
+user_id: string;
+volunteer_name: string;
+organization_name: string;
+project_title: string;
+opportunity_title: string;
+source_kind: string;
+source_application_id: string | null;
+source_invitation_id: string | null;
+work_mode: string;
+compensation_type: string;
+currency: string;
+rate: number | null;
+target_surveys: number;
+start_date: string;
+end_date: string;
+terms_note: string;
+status: string;
+version: number;
+offered_by: string;
+offered_at: string;
+responded_at: string | null;
+completed_at: string | null;
+completed_by: string | null;
+completion_feedback: Json;
+completion_note: string;
+cancelled_at: string | null;
+cancelled_by: string | null;
+cancellation_note: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+survey_project_id: string;
+opportunity_id?: string | null;
+organization_id: string;
+user_id: string;
+volunteer_name: string;
+organization_name: string;
+project_title: string;
+opportunity_title?: string;
+source_kind: string;
+source_application_id?: string | null;
+source_invitation_id?: string | null;
+work_mode: string;
+compensation_type: string;
+currency?: string;
+rate?: number | null;
+target_surveys: number;
+start_date: string;
+end_date: string;
+terms_note?: string;
+status?: string;
+version?: number;
+offered_by: string;
+offered_at?: string;
+responded_at?: string | null;
+completed_at?: string | null;
+completed_by?: string | null;
+completion_feedback?: Json;
+completion_note?: string;
+cancelled_at?: string | null;
+cancelled_by?: string | null;
+cancellation_note?: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+survey_project_id?: string;
+opportunity_id?: string | null;
+organization_id?: string;
+user_id?: string;
+volunteer_name?: string;
+organization_name?: string;
+project_title?: string;
+opportunity_title?: string;
+source_kind?: string;
+source_application_id?: string | null;
+source_invitation_id?: string | null;
+work_mode?: string;
+compensation_type?: string;
+currency?: string;
+rate?: number | null;
+target_surveys?: number;
+start_date?: string;
+end_date?: string;
+terms_note?: string;
+status?: string;
+version?: number;
+offered_by?: string;
+offered_at?: string;
+responded_at?: string | null;
+completed_at?: string | null;
+completed_by?: string | null;
+completion_feedback?: Json;
+completion_note?: string;
+cancelled_at?: string | null;
+cancelled_by?: string | null;
+cancellation_note?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 work_invitations: {
 Row: {
 id: string;
@@ -1399,6 +1567,10 @@ payment_note: string;
 status: string;
 created_by: string;
 created_at: string;
+survey_project_id: string | null;
+required_volunteers: number;
+required_skill: string;
+required_language: string;
 };
 Insert: {
 id?: string;
@@ -1414,6 +1586,10 @@ payment_note?: string;
 status?: string;
 created_by: string;
 created_at?: string;
+survey_project_id?: string | null;
+required_volunteers?: number;
+required_skill?: string;
+required_language?: string;
 };
 Update: {
 id?: string;
@@ -1429,10 +1605,18 @@ payment_note?: string;
 status?: string;
 created_by?: string;
 created_at?: string;
+survey_project_id?: string | null;
+required_volunteers?: number;
+required_skill?: string;
+required_language?: string;
 };
 Relationships: [];
 };
 }; Views: { [_ in never]: never }; Functions: {
+apply_work_opportunity: { Args: {
+p_opportunity: string | null;
+p_note: string | null;
+}; Returns: string };
 authorize_data_access_request: { Args: {
 p_request: string | null;
 p_decision: string | null;
@@ -1441,6 +1625,9 @@ p_expires_at: string | null;
 p_note: string | null;
 p_version: number | null;
 }; Returns: string };
+available_work_opportunities: { Args: {
+p_page?: number | null;
+}; Returns: Json };
 begin_document_delete: { Args: {
 p_id: string | null;
 }; Returns: string };
@@ -1450,6 +1637,11 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+cancel_work_assignment: { Args: {
+p_id: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
 cancel_work_invitation: { Args: {
 p_id: string | null;
 p_version: number | null;
@@ -1473,6 +1665,12 @@ p_id: string | null;
 }; Returns: undefined };
 close_survey_project: { Args: {
 p_id: string | null;
+}; Returns: undefined };
+complete_work_assignment: { Args: {
+p_id: string | null;
+p_feedback: Json | null;
+p_note: string | null;
+p_version: number | null;
 }; Returns: undefined };
 correct_registry_person: { Args: {
 p_id: string | null;
@@ -1509,6 +1707,20 @@ p_reply_by: string | null;
 p_payment: string | null;
 p_payment_note: string | null;
 }; Returns: string };
+create_project_opportunity: { Args: {
+p_project: string | null;
+p_title: string | null;
+p_description: string | null;
+p_geography: string | null;
+p_start: string | null;
+p_end: string | null;
+p_reply_by: string | null;
+p_payment: string | null;
+p_payment_note: string | null;
+p_required_volunteers: number | null;
+p_required_skill: string | null;
+p_required_language: string | null;
+}; Returns: string };
 create_survey_project: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -1520,6 +1732,20 @@ p_end: string | null;
 p_purpose: string | null;
 p_consent_version: string | null;
 p_consent_notice: string | null;
+}; Returns: string };
+create_work_assignment: { Args: {
+p_project: string | null;
+p_user: string | null;
+p_source_kind: string | null;
+p_source_id: string | null;
+p_work_mode: string | null;
+p_compensation_type: string | null;
+p_currency: string | null;
+p_rate: number | null;
+p_target_surveys: number | null;
+p_start: string | null;
+p_end: string | null;
+p_terms_note: string | null;
 }; Returns: string };
 data_access_request_context: { Args: {
 p_request: string | null;
@@ -1546,6 +1772,11 @@ project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
 }; Returns: Json };
+project_workforce_candidates: { Args: {
+p_project: string | null;
+p_query?: string | null;
+p_page?: number | null;
+}; Returns: Json };
 publish_survey_template: { Args: {
 p_name: string | null;
 p_questions: Json | null;
@@ -1568,6 +1799,11 @@ p_next: string | null;
 registry_match_candidates: { Args: {
 p_person: string | null;
 }; Returns: Json };
+respond_work_assignment: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_version: number | null;
+}; Returns: undefined };
 respond_work_invitation: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -1624,6 +1860,12 @@ p_other_version: number | null;
 p_version: number | null;
 }; Returns: undefined };
 review_survey_response: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
+review_work_application: { Args: {
 p_id: string | null;
 p_status: string | null;
 p_note: string | null;
@@ -1749,6 +1991,10 @@ p_version: number | null;
 void_assistance: { Args: {
 p_id: string | null;
 p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+withdraw_work_application: { Args: {
+p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
 }; Enums: { [_ in never]: never }; CompositeTypes: { [_ in never]: never } } };

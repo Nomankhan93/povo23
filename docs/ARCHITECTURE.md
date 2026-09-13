@@ -93,3 +93,16 @@ The server remains authoritative. The browser now adds a local write-ahead layer
 Sensitive draft/queue payloads are encrypted with AES-GCM before IndexedDB persistence. Queue metadata intentionally excludes person names, answers and consent content. Device encryption reduces accidental at-rest exposure but is not a security boundary against same-origin script execution or an unlocked endpoint.
 
 This release does not cache the complete authenticated workspace, project/template snapshots or registry indexes for a cold offline boot. Full offline-first PWA behavior needs an explicit cache freshness/revocation model before service-worker caching is introduced.
+
+## Phase 2.7 workforce boundary
+
+The existing generic recruitment objects remain intact, but operational survey recruitment now has an explicit chain:
+
+- `work_opportunities.survey_project_id` binds recruitment to a survey project.
+- `work_applications` records volunteer-initiated interest and NGO review state.
+- `work_assignments` stores the immutable accepted-work terms and lifecycle independently of a generic profile shortlist.
+- `survey_assignments` remains the low-level survey authorization record. A formal work assignment activates/deactivates it; server collection checks also enforce the assignment date window when a workforce assignment exists.
+
+A volunteer continues to use one account across organizations. Applications and assignments reference that global account plus the relevant organization/project. No duplicate NGO-specific volunteer account is created.
+
+The workforce candidate RPC returns aggregate history only. It does not disclose which other NGO produced an approved survey or verified experience. Match labels are coarse discovery aids, not an employment ranking, and no automatic level promotion occurs in this phase.

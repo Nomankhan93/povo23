@@ -228,10 +228,10 @@ export function SurveyProjectDetail({
       )}
       {review && (
         <details className="survey-question">
-          <summary>Manage surveyor assignments</summary>
+          <summary>Direct survey access / operational override</summary>
           <form onSubmit={findVolunteers}>
             <label className="field">
-              Find a verified volunteer sharing with this NGO
+              Find a verified volunteer sharing with this NGO (use Workforce marketplace for formal terms/work history)
               <input
                 value={query}
                 maxLength={100}

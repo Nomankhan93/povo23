@@ -45,6 +45,7 @@ import { ExperiencePanel } from "../features/volunteers/ExperiencePanel";
 import { ProfileForm } from "../features/volunteers/ProfileForm";
 import { ReviewForm } from "../features/volunteers/ReviewForm";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
+import { WorkforceMarketplace } from "../features/workforce/WorkforceMarketplace";
 import { db, rpc } from "../lib/supabase/client";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
@@ -239,6 +240,7 @@ export function Workspace({ session }: { session: Session }) {
     ["Survey projects", ShieldCheck],
     ...(surveyManage ? [["Survey templates", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
+    ...(surveyManage || !poem ? [["Workforce marketplace", Users]] : []),
     ...(!poem
       ? [
           ["Work experience", Users],
@@ -814,6 +816,16 @@ export function Workspace({ session }: { session: Session }) {
           )}
           {page === "Geography" && ngos && (
             <GeographyManager rows={geographies} refresh={load} />
+          )}
+          {page === "Workforce marketplace" && validScope && (surveyManage || !poem) && (
+            <WorkforceMarketplace
+              key={scope}
+              userId={session.user.id}
+              organization={poem || scope === "personal" ? null : scope}
+              mode={poem ? "poem" : scope === "personal" ? "personal" : "ngo"}
+              geographies={geographies}
+              orgs={orgs as any}
+            />
           )}
           {page === "Work experience" && !poem && validScope && (
             <ExperiencePanel

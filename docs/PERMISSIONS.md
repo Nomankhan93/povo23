@@ -83,3 +83,20 @@ Cross-NGO beneficiary access now uses a separate grant workflow; it does not mod
 | Read visible request/grant event trail | Involved NGO | Involved NGO | Yes | No |
 
 A grant is invalid if revoked, expired, either NGO becomes inactive, or the canonical identity/version/linkage changes. Revocation is prospective; information already viewed or copied cannot be recalled.
+
+## Phase 2.7 workforce marketplace
+
+| Action | Volunteer | NGO Admin | POEM Survey Manager/Admin |
+| --- | --- | --- | --- |
+| Discover matching open opportunity | Own verified/shared local profile only | N/A | N/A |
+| Submit/withdraw application | Own | No | No |
+| Read application | Own | Own organization | Oversight |
+| Review application | No | Own organization | No |
+| Search project candidates | No | Own project/organization | Oversight search |
+| Create formal assignment offer | No | Own active project | No |
+| Accept/decline assignment | Own offered assignment | No | No |
+| Read assignment | Own | Own organization | Oversight |
+| Complete assignment | No | Own organization | No |
+| Cancel assignment | No | Own organization | Survey management emergency/oversight |
+
+Candidate search returns profile information only where the NGO already has profile-sharing access. Aggregate experience counters do not disclose another NGO's raw survey or case records.

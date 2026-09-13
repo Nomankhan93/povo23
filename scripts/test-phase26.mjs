@@ -12,7 +12,10 @@ function ok(name, fn) {
   console.log(`PASS ${name}`);
 }
 
-ok("release is Phase 2.6", () => assert.equal(pkg.version, "2.6.0"));
+ok("release includes Phase 2.6 or later", () => {
+  const [major, minor] = pkg.version.split(".").map(Number);
+  assert(major > 2 || (major === 2 && minor >= 6), `Expected package version >= 2.6.0, got ${pkg.version}`);
+});
 ok("device queue uses IndexedDB rather than localStorage", () => {
   assert.match(store, /indexedDB\.open/);
   assert.doesNotMatch(store, /localStorage/);
