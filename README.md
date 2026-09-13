@@ -1,10 +1,10 @@
-# POEM 2.7.2 — Geography & regression stabilization
+# POEM 2.7.3 — Structured volunteer profile UI
 
-Current upgrade: [Phase 2.7.2 instructions](docs/UPGRADE-2.7.2.md).
+Current upgrade: [Phase 2.7.3 instructions](docs/UPGRADE-2.7.3.md).
 
-[Phase 2.7.2 scope](docs/PHASE-2.7.2.md) · [Validation](docs/VALIDATION-2.7.2.md) · [Phase 2.7.1 geography reference](docs/PHASE-2.7.1.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
+[Phase 2.7.3 scope](docs/PHASE-2.7.3.md) · [Validation](docs/VALIDATION-2.7.3.md) · [Phase 2.7.2 stabilization](docs/PHASE-2.7.2.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
 
-Phase 2.7.2 stabilizes the 2.7.1 geography release: historical regression fixtures now satisfy the mandatory address/taluka contract, runtime tests exercise the real profile RPC, and new District creation requires a Division everywhere except Islamabad Capital Territory. Existing legacy geography rows are preserved.
+Phase 2.7.3 replaces free-text volunteer CV fields with controlled education, searchable skills/languages, structured preferred geographies and references, while reusing the NGO-confirmable Work experience workflow.
 
 # POEM Phase 2.3
 

@@ -3,18 +3,13 @@ import { Row } from "../../shared/legacyTypes";
 import { Badge, Field, Select, human } from "../../shared/ui/FormFields";
 import { GeographyPicker } from "../geography/GeographyPicker";
 import { type Geo } from "../geography/model";
+import { StructuredProfileFields } from "./StructuredProfileFields";
 
 export const fields = [
   ["full_name", "Full name"],
   ["phone", "Phone"],
   ["union_council", "Union Council (optional)"],
   ["address", "Full address"],
-  ["education", "Education"],
-  ["skills", "Skills (comma separated)"],
-  ["languages", "Languages"],
-  ["experience", "Work and survey experience"],
-  ["preferred_areas", "Preferred work areas"],
-  ["references", "References"],
   ["bio", "About you"],
 ];
 export const options: Record<string, string[]> = {
@@ -42,6 +37,7 @@ export function ProfileForm({
       return initial;
     }),
     [geo, setGeo] = useState<string | null>(profile.geography_id || null);
+  const update = (key: string, value: string) => setD((current: Row) => ({ ...current, [key]: value }));
   return (
     <section className="panel detail">
       <div className="panel-title">
@@ -66,22 +62,19 @@ export function ProfileForm({
           {fields.map(([k, l]) => (
             <Field
               key={k}
-              label={
-                l +
-                (k === "full_name" || k === "phone" || k === "address" ? " *" : "")
-              }
+              label={l + (k === "full_name" || k === "phone" || k === "address" ? " *" : "")}
             >
-              {["address", "experience", "references", "bio"].includes(k) ? (
+              {["address", "bio"].includes(k) ? (
                 <textarea
                   maxLength={k === "address" ? 2000 : 4000}
                   value={d[k] || ""}
-                  onChange={(e) => setD({ ...d, [k]: e.target.value })}
+                  onChange={(e) => update(k, e.target.value)}
                 />
               ) : (
                 <input
                   maxLength={k === "full_name" ? 200 : k === "union_council" ? 200 : 1000}
                   value={d[k] || ""}
-                  onChange={(e) => setD({ ...d, [k]: e.target.value })}
+                  onChange={(e) => update(k, e.target.value)}
                 />
               )}
             </Field>
@@ -92,10 +85,18 @@ export function ProfileForm({
               label={human(k)}
               value={d[k] || ""}
               values={["", ...vals]}
-              onChange={(v) => setD({ ...d, [k]: v })}
+              onChange={(v) => update(k, v)}
             />
           ))}
         </div>
+
+        <StructuredProfileFields details={d as Record<string, string>} geographies={geographies} update={update} />
+
+        {d.experience && (
+          <div className="notice">
+            Your legacy work-experience note is preserved. Use the structured Work experience section below to add or verify individual NGO/project entries.
+          </div>
+        )}
         <div className="actions">
           <button
             type="button"
@@ -105,10 +106,7 @@ export function ProfileForm({
           >
             Save draft
           </button>
-          <button
-            className="primary"
-            disabled={busy || profile.status === "suspended"}
-          >
+          <button className="primary" disabled={busy || profile.status === "suspended"}>
             {busy ? "Saving…" : "Submit for verification"}
           </button>
         </div>

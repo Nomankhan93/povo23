@@ -14,6 +14,7 @@ export function ExperiencePanel({
 }) {
   const [rows, setRows] = useState<Experience[]>([]),
     [editing, setEditing] = useState<Experience | null>(null),
+    [roleChoice, setRoleChoice] = useState(""),
     [create, setCreate] = useState(false),
     [page, setPage] = useState(0),
     [more, setMore] = useState(false),
@@ -67,12 +68,13 @@ export function ExperiencePanel({
   function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    const role = roleChoice === "Other" ? text(f, "role_other") : roleChoice;
     act(
       () =>
         rpc("save_experience", {
           p_id: editing?.id || null,
           p_org: editing?.organization_id || text(f, "org"),
-          p_role: text(f, "role"),
+          p_role: role,
           p_start: text(f, "start"),
           p_end: text(f, "end") || null,
           p_description: text(f, "description"),
@@ -97,6 +99,7 @@ export function ExperiencePanel({
             className="primary"
             onClick={() => {
               setEditing(null);
+              setRoleChoice("");
               setCreate(true);
             }}
           >
@@ -144,14 +147,23 @@ export function ExperiencePanel({
             </label>
             <label className="field">
               Role
-              <input
-                name="role"
-                minLength={2}
-                maxLength={120}
+              <select
+                name="role_choice"
                 required
-                defaultValue={editing?.role_title}
-              />
+                value={roleChoice || ((editing?.role_title && ["Field Surveyor", "Volunteer", "Enumerator", "Supervisor", "Team Lead", "Data Entry Operator", "Community Mobilizer", "Monitoring & Evaluation", "Distribution Volunteer"].includes(editing.role_title)) ? editing.role_title : editing?.role_title ? "Other" : "")}
+                onChange={(e) => setRoleChoice(e.target.value)}
+              >
+                <option value="">Choose role</option>
+                {["Field Surveyor", "Volunteer", "Enumerator", "Supervisor", "Team Lead", "Data Entry Operator", "Community Mobilizer", "Monitoring & Evaluation", "Distribution Volunteer"].map((role) => <option key={role} value={role}>{role}</option>)}
+                <option value="Other">Other</option>
+              </select>
             </label>
+            {(roleChoice === "Other" || (!roleChoice && editing?.role_title && !["Field Surveyor", "Volunteer", "Enumerator", "Supervisor", "Team Lead", "Data Entry Operator", "Community Mobilizer", "Monitoring & Evaluation", "Distribution Volunteer"].includes(editing.role_title))) && (
+              <label className="field">
+                Other role
+                <input name="role_other" minLength={2} maxLength={120} required defaultValue={editing?.role_title || ""} />
+              </label>
+            )}
             <label className="field">
               Start date
               <input
@@ -236,6 +248,7 @@ export function ExperiencePanel({
               className="secondary"
               onClick={() => {
                 setEditing(e);
+                setRoleChoice(["Field Surveyor", "Volunteer", "Enumerator", "Supervisor", "Team Lead", "Data Entry Operator", "Community Mobilizer", "Monitoring & Evaluation", "Distribution Volunteer"].includes(e.role_title) ? e.role_title : "Other");
                 setCreate(false);
               }}
             >

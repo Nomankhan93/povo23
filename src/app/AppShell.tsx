@@ -42,6 +42,7 @@ import { SurveySyncStatus } from "../features/surveys/SurveySyncStatus";
 import { Directory } from "../features/volunteers/Directory";
 import { Documents } from "../features/volunteers/Documents";
 import { ExperiencePanel } from "../features/volunteers/ExperiencePanel";
+import { ProfileDetailsView } from "../features/volunteers/ProfileDetailsView";
 import { ProfileForm } from "../features/volunteers/ProfileForm";
 import { ReviewForm } from "../features/volunteers/ReviewForm";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
@@ -523,6 +524,11 @@ export function Workspace({ session }: { session: Session }) {
                   )
                 }
               />
+              <ExperiencePanel
+                userId={session.user.id}
+                organization={null}
+                orgs={orgs as any}
+              />
               <Documents
                 userId={session.user.id}
                 owner={true}
@@ -534,7 +540,7 @@ export function Workspace({ session }: { session: Session }) {
                 <p>
                   Documents remain private to you and POEM. Allow an active
                   NGO’s administrators to view your full volunteer profile,
-                  including phone, education, experience and references. This is
+                  including phone, education, structured skills/languages, references and preferred work areas. NGO-confirmed work experience is shown separately. This is
                   optional and does not affect POEM verification. Revocation
                   stops future platform access; it cannot recall information
                   already viewed.
@@ -610,14 +616,10 @@ export function Workspace({ session }: { session: Session }) {
                         Close ×
                       </button>
                     </div>
-                    <div className="detail-fields">
-                      {Object.entries(selected.details).map(([k, v]) => (
-                        <div key={k}>
-                          <small>{human(k)}</small>
-                          <p>{String(v) || "—"}</p>
-                        </div>
-                      ))}
-                    </div>
+                    <ProfileDetailsView
+                      details={selected.details as Record<string, unknown>}
+                      geographies={geographies}
+                    />
                     <ExperiencePanel
                       key={selected.user_id}
                       userId={selected.user_id}
