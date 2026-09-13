@@ -1,10 +1,10 @@
-# POEM 2.7.1 — Pakistan geography reference & volunteer address
+# POEM 2.7.2 — Geography & regression stabilization
 
-Current upgrade: [Phase 2.7.1 instructions](docs/UPGRADE-2.7.1.md).
+Current upgrade: [Phase 2.7.2 instructions](docs/UPGRADE-2.7.2.md).
 
-[Phase 2.7.1 scope](docs/PHASE-2.7.1.md) · [Validation](docs/VALIDATION-2.7.1.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
+[Phase 2.7.2 scope](docs/PHASE-2.7.2.md) · [Validation](docs/VALIDATION-2.7.2.md) · [Phase 2.7.1 geography reference](docs/PHASE-2.7.1.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
 
-Phase 2.7.1 seeds the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy for volunteer profiles. Union Council is manual and optional; full address is mandatory. Islamabad Capital Territory correctly skips the Division level.
+Phase 2.7.2 stabilizes the 2.7.1 geography release: historical regression fixtures now satisfy the mandatory address/taluka contract, runtime tests exercise the real profile RPC, and new District creation requires a Division everywhere except Islamabad Capital Territory. Existing legacy geography rows are preserved.
 
 # POEM Phase 2.3
 
@@ -76,7 +76,7 @@ npm run build
 npm run test:local
 ```
 
-POEM 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. POEM 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. POEM 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring. POEM 2.7 adds an embedded PostgreSQL marketplace/assignment lifecycle suite. POEM 2.7.1 adds seeded Pakistan geography and profile-location regression checks.
+POEM 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. POEM 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. POEM 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring. POEM 2.7 adds an embedded PostgreSQL marketplace/assignment lifecycle suite. POEM 2.7.1 adds seeded Pakistan geography and profile-location regression checks. POEM 2.7.2 adds runtime profile/geography regression coverage and strict non-ICT district-parent validation.
 
 The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests 28 Phase 1.4 tests 20 Phase 2.1 tests 23 Phase 2.2 tests and 25 Phase 2.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 
