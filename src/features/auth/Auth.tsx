@@ -238,8 +238,8 @@ export function Auth({
             </button>
           )}
           <p className="fine">
-            Volunteer signup does not grant admin access. Profile verification
-            is completed separately by POEM.
+            Volunteer signup does not grant admin access. Your volunteer profile can be published directly;
+            private documents and work-experience confirmations are reviewed separately.
           </p>
         </div>
       </section>

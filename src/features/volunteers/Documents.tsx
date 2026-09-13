@@ -119,7 +119,7 @@ export function Documents({
       if (uploaded.error) throw uploaded.error;
       await rpc("finish_document_upload", { p_id: d.id });
       form.reset();
-    }, "Document uploaded for POEM review. Profile verification has been refreshed.");
+    }, "Document uploaded for POEM review.");
   }
   async function download(d: Row) {
     await action(async () => {
@@ -139,7 +139,7 @@ export function Documents({
   async function remove(d: Row) {
     if (
       !window.confirm(
-        `Remove ${d.file_name}? The file bytes will be deleted and profile approval will be reset. Document history remains.`,
+        `Remove ${d.file_name}? The file bytes will be deleted. Document history remains.`,
       )
     )
       return;
@@ -148,7 +148,7 @@ export function Documents({
       const r = await db!.storage.from("poem-private-documents").remove([path]);
       if (r.error) throw r.error;
       await rpc("finish_document_delete", { p_id: d.id });
-    }, "Document removed. Relevant profile approval has been reset.");
+    }, "Document removed.");
   }
   return (
     <section className="panel detail">

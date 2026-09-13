@@ -30,13 +30,13 @@ Both a full standalone package and a safe upgrade patch are supplied. Use UPGRAD
 - Sign up and confirm an email from the local inbox.
 - Login/logout and reset password with a fresh email link.
 - Bootstrap the first admin; sign in to the admin workspace.
-- Volunteer saves a draft, submits, gets correction feedback, resubmits and receives verification.
-- Editing after verification removes the previous approval.
+- Volunteer saves a draft, publishes directly without admin approval, edits again and remains active.
+- Profile photo upload/change/remove works and displays only to authorized profile viewers.
 - Another volunteer cannot read the profile by direct API request.
 - NGO Admin sees only explicitly shared profiles; NGO B cannot see NGO A grants.
 - Membership, organization, account and profile suspension revoke their relevant access.
 - Revoked profile access no longer appears after reload.
-- Admin cannot approve themselves or assign platform roles; only Super Admin can manage another account's platform role.
+- Profile publication does not depend on an admin approval queue; only Super Admin can manage another account's platform role.
 - Validate mobile navigation, long names, form error preservation and email recovery redirects in your browser.
 
 ## Phase 1.2 manual acceptance
@@ -47,8 +47,8 @@ Both a full standalone package and a safe upgrade patch are supplied. Use UPGRAD
 - Incomplete upload can be finalized or removed; failed removal can be retried.
 - Other volunteer and NGO (even with profile grant) cannot download or list private files.
 - POEM admin rejects an evidence document, volunteer sees feedback and notification.
-- Approval fails until every current document is accepted and checklist completed.
-- Changing/removing evidence invalidates approval and stale review versions are rejected.
+- Document review remains separate from profile publication.
+- Changing/removing evidence does not unpublish the volunteer profile; stale document review versions are still rejected.
 - Removal confirmation is shown; bytes disappear while document history remains.
 - Own notifications can be marked read; other recipients cannot read/modify them.
 - Test file input, long file names and geography controls on a narrow mobile screen.

@@ -1288,6 +1288,8 @@ version: number;
 updated_at: string;
 geography_id: string | null;
 review_checks: Json;
+photo_path: string | null;
+photo_updated_at: string | null;
 };
 Insert: {
 user_id: string;
@@ -1300,6 +1302,8 @@ version?: number;
 updated_at?: string;
 geography_id?: string | null;
 review_checks?: Json;
+photo_path?: string | null;
+photo_updated_at?: string | null;
 };
 Update: {
 user_id?: string;
@@ -1312,6 +1316,8 @@ version?: number;
 updated_at?: string;
 geography_id?: string | null;
 review_checks?: Json;
+photo_path?: string | null;
+photo_updated_at?: string | null;
 };
 Relationships: [];
 };
@@ -1777,6 +1783,11 @@ p_project: string | null;
 p_query?: string | null;
 p_page?: number | null;
 }; Returns: Json };
+publish_my_profile: { Args: {
+p_details: Json | null;
+p_version: number | null;
+p_geography: string | null;
+}; Returns: undefined };
 publish_survey_template: { Args: {
 p_name: string | null;
 p_questions: Json | null;
@@ -1965,6 +1976,9 @@ p_active: boolean | null;
 p_reason: string | null;
 p_need_version: number | null;
 p_link_version: number | null;
+}; Returns: undefined };
+set_profile_photo: { Args: {
+p_present: boolean | null;
 }; Returns: undefined };
 set_profile_sharing: { Args: {
 p_org: string | null;

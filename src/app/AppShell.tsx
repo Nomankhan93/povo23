@@ -44,7 +44,7 @@ import { Documents } from "../features/volunteers/Documents";
 import { ExperiencePanel } from "../features/volunteers/ExperiencePanel";
 import { ProfileDetailsView } from "../features/volunteers/ProfileDetailsView";
 import { ProfileForm } from "../features/volunteers/ProfileForm";
-import { ReviewForm } from "../features/volunteers/ReviewForm";
+import { ProfilePhoto } from "../features/volunteers/ProfilePhoto";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
 import { WorkforceMarketplace } from "../features/workforce/WorkforceMarketplace";
 import { db, rpc } from "../lib/supabase/client";
@@ -236,7 +236,6 @@ export function Workspace({ session }: { session: Session }) {
     ...(volunteers || (!poem && scope !== "personal")
       ? [["Volunteers", Users]]
       : []),
-    ...(volunteers ? [["Verification", ShieldCheck]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ...(surveyManage ? [["Survey templates", ShieldCheck]] : []),
@@ -245,6 +244,7 @@ export function Workspace({ session }: { session: Session }) {
     ...(!poem
       ? [
           ["Work experience", Users],
+          ["Private documents", ShieldCheck],
           ["Invitations", Bell],
         ]
       : []),
@@ -462,28 +462,20 @@ export function Workspace({ session }: { session: Session }) {
                 </section>
                 <section className="panel attention">
                   <ShieldCheck size={32} />
-                  <h2>
-                    {volunteers
-                      ? "Profile verification"
-                      : "Your verification status"}
-                  </h2>
+                  <h2>{volunteers ? "Volunteer network" : "Your profile status"}</h2>
                   {volunteers ? (
                     <>
-                      <p>
-                        Open the review queue to see the current authorized
-                        count and submitted profiles.
-                      </p>
-                      <button onClick={() => change("Verification")}>
-                        Open review queue <ArrowRight size={16} />
+                      <p>Profiles publish directly. Use the volunteer directory to support volunteers and review private documents when needed.</p>
+                      <button onClick={() => change("Volunteers")}>
+                        Open volunteer directory <ArrowRight size={16} />
                       </button>
                     </>
                   ) : (
                     <>
-                      <Badge value={my?.status || "draft"} />
-                      <p>
-                        {my?.review_note ||
-                          "Save your profile and submit it to POEM for review."}
-                      </p>
+                      <span className={"badge " + (my?.status || "draft")}>
+                        {my?.status === "verified" ? "Active" : human(my?.status || "draft")}
+                      </span>
+                      <p>Published profile changes go live immediately. Admin approval is not required.</p>
                       <button onClick={() => change("My profile")}>
                         View my profile <ArrowRight size={16} />
                       </button>
@@ -509,31 +501,30 @@ export function Workspace({ session }: { session: Session }) {
                 profile={my}
                 geographies={geographies}
                 busy={busy}
-                save={(details, submit, geography) =>
+                saveDraft={(details, geography) =>
                   act(
                     () =>
                       rpc("save_my_profile", {
                         p_details: details,
-                        p_submit: submit,
+                        p_submit: false,
                         p_version: my.version,
                         p_geography: geography,
                       }),
-                    submit
-                      ? "Profile submitted to POEM."
-                      : "Draft saved. Submit when ready.",
+                    "Draft saved.",
                   )
                 }
-              />
-              <ExperiencePanel
-                userId={session.user.id}
-                organization={null}
-                orgs={orgs as any}
-              />
-              <Documents
-                userId={session.user.id}
-                owner={true}
-                reviewer={false}
-                onChanged={load}
+                publish={(details, geography) =>
+                  act(
+                    () =>
+                      rpc("publish_my_profile", {
+                        p_details: details,
+                        p_version: my.version,
+                        p_geography: geography,
+                      }),
+                    my.status === "draft" ? "Profile published." : "Profile changes saved.",
+                  )
+                }
+                onPhotoChanged={load}
               />
               <section className="panel sharing">
                 <h2>NGO profile access</h2>
@@ -541,7 +532,7 @@ export function Workspace({ session }: { session: Session }) {
                   Documents remain private to you and POEM. Allow an active
                   NGO’s administrators to view your full volunteer profile,
                   including phone, education, structured skills/languages, references and preferred work areas. NGO-confirmed work experience is shown separately. This is
-                  optional and does not affect POEM verification. Revocation
+                  optional and does not require POEM profile approval. Revocation
                   stops future platform access; it cannot recall information
                   already viewed.
                 </p>
@@ -591,7 +582,7 @@ export function Workspace({ session }: { session: Session }) {
               </section>
             </>
           )}
-          {(page === "Volunteers" || page === "Verification") &&
+          {page === "Volunteers" &&
             validScope &&
             (volunteers || (!poem && scope !== "personal")) && (
               <>
@@ -599,7 +590,7 @@ export function Workspace({ session }: { session: Session }) {
                   key={scope + page}
                   organization={poem ? null : scope}
                   geographies={geographies}
-                  reviewQueue={page === "Verification"}
+                  reviewQueue={false}
                   onSelect={setSelected}
                   revision={revision}
                 />
@@ -616,6 +607,12 @@ export function Workspace({ session }: { session: Session }) {
                         Close ×
                       </button>
                     </div>
+                    <ProfilePhoto
+                      userId={selected.user_id}
+                      name={(selected.details as Record<string, string>).full_name || "Volunteer"}
+                      photoPath={selected.photo_path || null}
+                      photoUpdatedAt={selected.photo_updated_at || null}
+                    />
                     <ProfileDetailsView
                       details={selected.details as Record<string, unknown>}
                       geographies={geographies}
@@ -642,24 +639,6 @@ export function Workspace({ session }: { session: Session }) {
                               .single();
                             if (r.error) throw r.error;
                             setSelected(r.data);
-                          }}
-                        />
-                        <ReviewForm
-                          key={selected.user_id + selected.version}
-                          busy={busy}
-                          submit={async (status, note, checks) => {
-                            const ok = await act(
-                              () =>
-                                rpc("review_profile", {
-                                  p_user_id: selected.user_id,
-                                  p_status: status,
-                                  p_note: note,
-                                  p_version: selected.version,
-                                  p_checks: checks,
-                                }),
-                              "Review decision saved.",
-                            );
-                            if (ok) setSelected(null);
                           }}
                         />
                       </>
@@ -827,6 +806,14 @@ export function Workspace({ session }: { session: Session }) {
               mode={poem ? "poem" : scope === "personal" ? "personal" : "ngo"}
               geographies={geographies}
               orgs={orgs as any}
+            />
+          )}
+          {page === "Private documents" && !poem && validScope && (
+            <Documents
+              userId={session.user.id}
+              owner={true}
+              reviewer={false}
+              onChanged={load}
             />
           )}
           {page === "Work experience" && !poem && validScope && (

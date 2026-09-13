@@ -200,7 +200,7 @@ export function Directory({
                   "suspended",
                 ].map((s) => (
                   <option key={s} value={s}>
-                    {human(s) || "All statuses"}
+                    {s === "verified" ? "Active profile" : human(s) || "All statuses"}
                   </option>
                 ))}
               </select>
@@ -306,7 +306,7 @@ export function Directory({
                       </td>
                       <td>
                         <span className={"badge " + p.status}>
-                          {human(p.status)}
+                          {p.status === "verified" ? "active" : human(p.status)}
                         </span>
                       </td>
                       {organization && (

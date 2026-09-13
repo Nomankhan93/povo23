@@ -1,10 +1,10 @@
-# POEM 2.7.3 — Structured volunteer profile UI
+# POEM 2.7.4 — Volunteer Profile Independence & Photo
 
-Current upgrade: [Phase 2.7.3 instructions](docs/UPGRADE-2.7.3.md).
+Current upgrade: [Phase 2.7.4 instructions](docs/UPGRADE-2.7.4.md).
 
-[Phase 2.7.3 scope](docs/PHASE-2.7.3.md) · [Validation](docs/VALIDATION-2.7.3.md) · [Phase 2.7.2 stabilization](docs/PHASE-2.7.2.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
+[Phase 2.7.4 scope](docs/PHASE-2.7.4.md) · [Validation](docs/VALIDATION-2.7.4.md) · [Phase 2.7.3 structured profile UI](docs/PHASE-2.7.3.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
 
-Phase 2.7.3 replaces free-text volunteer CV fields with controlled education, searchable skills/languages, structured preferred geographies and references, while reusing the NGO-confirmable Work experience workflow.
+Phase 2.7.4 makes the volunteer profile self-published and editable without an admin approval gate, adds a private profile photo, and keeps Work experience and Private documents on separate sidebar pages.
 
 # POEM Phase 2.3
 
@@ -99,3 +99,4 @@ Document controls and release limits: [Phase 1.2 architecture](docs/ARCHITECTURE
 
 [Supabase Storage access controls](https://supabase.com/docs/guides/storage/security/access-control) and [bucket restrictions](https://supabase.com/docs/guides/storage/buckets/creating-buckets) informed the private upload workflow.
 # povo23
+

@@ -17,10 +17,9 @@ Permissions are enforced in PostgreSQL, not by hidden navigation alone. All publ
 | Action | Volunteer | NGO Admin | POEM Admin | POEM Super Admin |
 | --- | --- | --- | --- | --- |
 | Read/edit own CV profile | Yes, if not profile-suspended | Yes | Yes | Yes |
-| Submit own profile | Yes | Yes | Yes | Yes |
+| Publish/edit own profile | Yes, after server validation | Yes | Yes | Yes |
 | Read another volunteer | No | Only explicit grant to active NGO with active membership | Yes | Yes |
-| Review another profile | No | No | Yes | Yes |
-| Review own profile | No | No | No | No |
+| Approve another profile | Not required | Not required | Not required for publication | Not required for publication |
 | Create/edit NGOs | No | No | Yes | Yes |
 | Assign registered users to NGOs | No | No | Yes | Yes |
 | Change platform role / account suspension | No | No | No | Yes, other accounts only |
@@ -47,11 +46,11 @@ Signup metadata is untrusted. The Auth trigger copies only a bounded display nam
 
 The local bootstrap script requires direct access to the project's named PostgreSQL Docker container. It only promotes a confirmed account when no active Super Admin exists, acquires a transaction lock, and appends an audit event. It is not exposed as an anonymous/public RPC.
 
-## Verification workflow
+## Profile publication workflow
 
-Draft → submitted (`pending`) → verified / correction required / suspended.
+Draft → Active (self-published after server validation).
 
-A draft cannot be approved. Every review requires a note and exact current version. Every profile save increments version and clears old approval; saving as draft returns to draft, submission returns to pending. A suspended profile must first be released by a POEM reviewer. Verified means reviewed CV information, not identity-document or field-performance certification.
+Admin approval is not required for normal profile publication or later edits. The database keeps the historical `verified` value as the Active/marketplace-ready state so existing survey/workforce permissions remain compatible. Private-document reviews and NGO work-experience confirmations are independent from profile publication. Account/profile suspension still removes protected access.
 
 ## Phase 1.2 additions
 
@@ -88,7 +87,7 @@ A grant is invalid if revoked, expired, either NGO becomes inactive, or the cano
 
 | Action | Volunteer | NGO Admin | POEM Survey Manager/Admin |
 | --- | --- | --- | --- |
-| Discover matching open opportunity | Own verified/shared local profile only | N/A | N/A |
+| Discover matching open opportunity | Own active/shared local profile only | N/A | N/A |
 | Submit/withdraw application | Own | No | No |
 | Read application | Own | Own organization | Oversight |
 | Review application | No | Own organization | No |

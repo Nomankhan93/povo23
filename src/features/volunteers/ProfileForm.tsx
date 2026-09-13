@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Row } from "../../shared/legacyTypes";
-import { Badge, Field, Select, human } from "../../shared/ui/FormFields";
+import { Field, Select, human } from "../../shared/ui/FormFields";
 import { GeographyPicker } from "../geography/GeographyPicker";
 import { type Geo } from "../geography/model";
 import { StructuredProfileFields } from "./StructuredProfileFields";
+import { ProfilePhoto } from "./ProfilePhoto";
 
 export const fields = [
   ["full_name", "Full name"],
@@ -21,13 +22,17 @@ export const options: Record<string, string[]> = {
 export function ProfileForm({
   profile,
   busy,
-  save,
+  saveDraft,
+  publish,
   geographies,
+  onPhotoChanged,
 }: {
   profile: Row;
   busy: boolean;
   geographies: Geo[];
-  save: (d: Row, s: boolean, g: string | null) => Promise<boolean>;
+  saveDraft: (d: Row, g: string | null) => Promise<boolean>;
+  publish: (d: Row, g: string | null) => Promise<boolean>;
+  onPhotoChanged: () => Promise<void>;
 }) {
   const [d, setD] = useState<Row>(() => {
       const initial = { ...(profile.details || {}) };
@@ -40,21 +45,33 @@ export function ProfileForm({
   const update = (key: string, value: string) => setD((current: Row) => ({ ...current, [key]: value }));
   return (
     <section className="panel detail">
-      <div className="panel-title">
-        <h2>My volunteer profile</h2>
-        <Badge value={profile.status} />
+      <div className="profile-editor-header">
+        <ProfilePhoto
+          userId={profile.user_id}
+          name={d.full_name || "Volunteer"}
+          photoPath={profile.photo_path || null}
+          photoUpdatedAt={profile.photo_updated_at || null}
+          owner
+          onChanged={onPhotoChanged}
+        />
+        <div className="profile-editor-heading">
+          <div className="panel-title">
+            <h2>My volunteer profile</h2>
+            <span className={"badge " + profile.status}>
+              {profile.status === "verified" ? "Active" : human(profile.status)}
+            </span>
+          </div>
+          <p>
+            Your profile is editable. Save a draft before publishing, or publish when your full name, phone,
+            Taluka / Tehsil / Subdivision and full address are complete. Published changes go live immediately
+            and do not require admin approval. Union Council is optional.
+          </p>
+        </div>
       </div>
-      {profile.review_note && (
-        <div className="notice">POEM review: {profile.review_note}</div>
-      )}
-      <p>
-        Save a draft at any time. Submit once your full name, phone, Taluka / Tehsil / Subdivision
-        and full address are complete. Union Council is optional and entered manually.
-      </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          save(d, true, geo);
+          publish(d, geo);
         }}
       >
         <GeographyPicker rows={geographies} value={geo} onChange={setGeo} />
@@ -94,25 +111,27 @@ export function ProfileForm({
 
         {d.experience && (
           <div className="notice">
-            Your legacy work-experience note is preserved. Use the structured Work experience section below to add or verify individual NGO/project entries.
+            Your legacy work-experience note is preserved. Use the separate Work experience section in the sidebar to add or verify individual NGO/project entries.
           </div>
         )}
         <div className="actions">
-          <button
-            type="button"
-            className="secondary"
-            disabled={busy || profile.status === "suspended"}
-            onClick={() => save(d, false, geo)}
-          >
-            Save draft
-          </button>
+          {profile.status === "draft" && (
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy || profile.status === "suspended"}
+              onClick={() => saveDraft(d, geo)}
+            >
+              Save draft
+            </button>
+          )}
           <button className="primary" disabled={busy || profile.status === "suspended"}>
-            {busy ? "Saving…" : "Submit for verification"}
+            {busy ? "Saving…" : profile.status === "draft" ? "Publish profile" : "Save changes"}
           </button>
         </div>
         <p className="fine">
-          Provide only information and references you are authorized to share.
-          Upload supporting evidence in the Private documents section below.
+          Provide only information and references you are authorized to share. Work experience and Private documents
+          are managed from their separate sidebar sections.
         </p>
       </form>
     </section>

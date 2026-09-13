@@ -14,7 +14,10 @@ function ok(name, fn) {
   console.log(`PASS ${name}`);
 }
 
-ok("release is Phase 2.7.3", () => assert.equal(pkg.version, "2.7.3"));
+ok("release includes Phase 2.7.3 structured-profile capability", () => {
+  const [major, minor, patch] = pkg.version.split(".").map(Number);
+  assert(major > 2 || (major === 2 && (minor > 7 || (minor === 7 && patch >= 3))));
+});
 ok("profile replaces free-text CV fields with structured editors", () => {
   assert.match(profile, /StructuredProfileFields/);
   assert.doesNotMatch(profile, /\["education", "Education"\]/);
@@ -46,9 +49,10 @@ ok("references are repeatable structured records with bounded JSON compatibility
   assert.match(helpers, /encodeReferences/);
   assert.match(helpers, /Legacy reference/);
 });
-ok("work experience reuses the NGO-confirmable structured experience workflow", () => {
+ok("work experience reuses the NGO-confirmable workflow from its separate sidebar page", () => {
   const myProfile = shell.slice(shell.indexOf('page === "My profile"'), shell.indexOf('page === "Volunteers"'));
-  assert.match(myProfile, /<ExperiencePanel/);
+  assert.doesNotMatch(myProfile, /<ExperiencePanel/);
+  assert.match(shell, /\["Work experience", Users\]/);
   assert.match(experience, /Choose role/);
   assert.match(experience, /Other role/);
   assert.match(experience, /Work performed/);
