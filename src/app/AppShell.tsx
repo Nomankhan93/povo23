@@ -233,6 +233,12 @@ export function Workspace({ session }: { session: Session }) {
   const nav = [
     ["Overview", LayoutDashboard],
     ["My profile", UserRound],
+    ...(!poem
+      ? [
+          ["Work experience", Users],
+          ["Private documents", ShieldCheck],
+        ]
+      : []),
     ...(volunteers || (!poem && scope !== "personal")
       ? [["Volunteers", Users]]
       : []),
@@ -241,13 +247,7 @@ export function Workspace({ session }: { session: Session }) {
     ...(surveyManage ? [["Survey templates", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || !poem ? [["Workforce marketplace", Users]] : []),
-    ...(!poem
-      ? [
-          ["Work experience", Users],
-          ["Private documents", ShieldCheck],
-          ["Invitations", Bell],
-        ]
-      : []),
+    ...(!poem ? [["Invitations", Bell]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role)
       ? [["Memberships", Users]]
       : []),

@@ -1,10 +1,10 @@
-# POEM 2.7.4 — Volunteer Profile Independence & Photo
+# POEM 2.7.5 — Sidebar Profile Grouping
 
-Current upgrade: [Phase 2.7.4 instructions](docs/UPGRADE-2.7.4.md).
+Current upgrade: [Phase 2.7.5 instructions](docs/UPGRADE-2.7.5.md).
 
-[Phase 2.7.4 scope](docs/PHASE-2.7.4.md) · [Validation](docs/VALIDATION-2.7.4.md) · [Phase 2.7.3 structured profile UI](docs/PHASE-2.7.3.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
+[Phase 2.7.5 scope](docs/PHASE-2.7.5.md) · [Validation](docs/VALIDATION-2.7.5.md) · [Phase 2.7.4 profile independence/photo](docs/PHASE-2.7.4.md) · [Phase 2.7.3 structured profile UI](docs/PHASE-2.7.3.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
 
-Phase 2.7.4 makes the volunteer profile self-published and editable without an admin approval gate, adds a private profile photo, and keeps Work experience and Private documents on separate sidebar pages.
+Phase 2.7.5 keeps Work experience and Private documents as separate pages and places both immediately below My profile in the volunteer sidebar. No database or workflow behavior changes.
 
 # POEM Phase 2.3
 
