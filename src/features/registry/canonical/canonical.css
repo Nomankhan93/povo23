@@ -1,0 +1,13 @@
+.canonical-workbench { display: grid; gap: 1rem; min-width: 0; }
+.canonical-search { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; }
+.canonical-search .field { flex: 1 1 15rem; }
+.canonical-results { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,18rem),1fr)); gap: .65rem; margin: 1rem 0; }
+.canonical-result { display: grid; gap: .3rem; text-align: left; white-space: normal; }
+.canonical-result[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: 2px; }
+.canonical-comparison { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.canonical-comparison article { padding: .75rem; border: 1px solid #cbd5e1; border-radius: .5rem; }
+.canonical-comparison dt { font-weight: 600; margin-top: .6rem; }
+.canonical-comparison dd { margin: .25rem 0; }
+.canonical-workbench code,.canonical-workbench dd,.canonical-workbench p { overflow-wrap: anywhere; }
+.canonical-workbench button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+@media(max-width:640px) { .canonical-comparison { grid-template-columns: 1fr; } }

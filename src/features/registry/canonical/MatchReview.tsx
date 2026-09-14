@@ -1,0 +1,23 @@
+import { useEffect, useState, type FormEvent } from "react";
+import { rpc } from "../../../lib/supabase/client";
+import type { Json } from "../../../lib/supabase/database.types";
+import { beneficiary, type Candidate, type Preview } from "./model";
+export function MatchReview({personId,changed}:{personId:string;changed:()=>void}) {
+ const [candidates,setCandidates]=useState<Candidate[]>([]),[preview,setPreview]=useState<Preview|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ useEffect(()=>{let live=true;void rpc("canonical_match_candidates",{p_person:personId}).then(r=>{if(live)setCandidates(r as unknown as Candidate[])}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[personId]);
+ async function compare(other:string){setBusy(true);setError("");setPreview(null);try{setPreview(await rpc("preview_canonical_review",{p_person:personId,p_other:other}) as unknown as Preview)}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+ async function decide(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!preview||busy)return;const f=new FormData(e.currentTarget);if(f.get("ack")!=="on")return;setBusy(true);setError("");try{await rpc("apply_canonical_review",{p_preview:preview as unknown as Json,p_status:String(f.get("status")),p_reason:String(f.get("reason"))});setPreview(null);changed()}catch(e){setError((e as Error).message+" Reopen the comparison before trying again.");setPreview(null)}finally{setBusy(false)}}
+ return <section aria-label="Canonical match review"><h3>Compare project source records</h3><p>Source record: <code>{personId}</code>. Candidates are explainable hints, not verified matches. Up to 100 matching, previously reviewed or linked records appear here.</p>
+ {error&&<p role="alert" className="error-text">{error}</p>}
+ <form onSubmit={e=>{e.preventDefault();void compare(String(new FormData(e.currentTarget).get("other")))}}><label className="field">Other source record UUID<input name="other" required placeholder="Copy the source ID from another identity"/></label><button className="secondary" disabled={busy}>Load comparison</button></form>
+ {!candidates.length&&<p>No suggested matches. You can compare a known source record from another project using its ID.</p>}
+ {candidates.map(c=><article className="document-row" key={c.id}><strong>{c.full_name}</strong><p>{c.birth_date||"DOB unknown"} · {c.organization_name} · {c.project_title}</p><p>{c.signals.join(" · ")}</p><p>{c.status?.replaceAll("_"," ")||"Not reviewed"}{c.stale?" · source changed since decision":""}{c.same_canonical?" · already linked":""}</p><button className="secondary" disabled={busy} onClick={()=>void compare(c.id)}>Compare records</button></article>)}
+ {preview&&<form key={preview.source_b.id} onSubmit={decide} className="panel detail"><h3>Review comparison</h3><div className="canonical-comparison">
+ {[{s:preview.source_a,c:preview.canonical_a},{s:preview.source_b,c:preview.canonical_b}].map(({s,c})=><article key={s.id}><h4>{s.full_name}</h4><dl><dt>Date of birth</dt><dd>{s.birth_date||"Unknown"}</dd><dt>Organization / project</dt><dd>{s.organization_name} / {s.project_title}</dd><dt>Household reference</dt><dd>{s.household_id}</dd><dt>Project source</dt><dd><code>{s.id}</code> · revision {s.version}</dd><dt>Canonical identity</dt><dd>{beneficiary(c.beneficiary_no)} · {c.display_name} · revision {c.version}</dd></dl></article>)}
+ </div><p>Previous decision: {preview.decision?.status.replaceAll("_"," ")||"Not reviewed"}. {preview.decision?.reason}</p>
+ <p><strong>If merged:</strong> {preview.moved_records} source records move to the older beneficiary identity; {preview.active_grants} active grants and {preview.pending_requests} pending requests will be invalidated. All existing records, assistance and history are retained. Display identity will require review.</p>
+ {preview.canonical_a.id===preview.canonical_b.id&&<p>These sources already share one identity. A different-people decision requires reversing the relevant merge first.</p>}
+ <label className="field">Decision<select name="status" defaultValue="needs_review"><option value="needs_review">Needs review</option><option value="different_people" disabled={preview.canonical_a.id===preview.canonical_b.id}>Different people</option><option value="same_person">Same person — merge if separate</option></select></label>
+ <label className="field">Evidence and reason<textarea name="reason" required minLength={5} maxLength={1000}/></label><label><input type="checkbox" name="ack" required/> I reviewed both sources and the effects of this decision.</label><p><button disabled={busy}>Save reviewed decision</button></p></form>}
+ </section>;
+}

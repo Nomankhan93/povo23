@@ -21,6 +21,8 @@ docs/PHASE-2.7.4.md
 docs/PHASE-2.7.5.md
 docs/PHASE-2.7.6.md
 docs/PHASE-2.7.md
+docs/PHASE-2.8.md
+docs/PHASE-2.9.md
 docs/RELEASE-CHECKLIST.md
 docs/SETUP-WSL.md
 docs/STABILIZATION-2.3.1.md
@@ -44,6 +46,8 @@ docs/UPGRADE-2.7.4.md
 docs/UPGRADE-2.7.5.md
 docs/UPGRADE-2.7.6.md
 docs/UPGRADE-2.7.md
+docs/UPGRADE-2.8.md
+docs/UPGRADE-2.9.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -57,6 +61,8 @@ docs/VALIDATION-2.7.4.md
 docs/VALIDATION-2.7.5.md
 docs/VALIDATION-2.7.6.md
 docs/VALIDATION-2.7.md
+docs/VALIDATION-2.8.md
+docs/VALIDATION-2.9.md
 docs/VALIDATION.md
 index.html
 package-lock.json
@@ -83,6 +89,8 @@ scripts/test-phase24.mjs
 scripts/test-phase25.mjs
 scripts/test-phase26.mjs
 scripts/test-phase27.mjs
+scripts/test-phase28.mjs
+scripts/test-phase29.mjs
 scripts/test-profile-independence-photo.mjs
 scripts/test-profile-structured-ui.mjs
 scripts/test-sidebar-profile-grouping.mjs
@@ -98,6 +106,7 @@ src/features/auth/Auth.tsx
 src/features/geography/GeographyManager.tsx
 src/features/geography/GeographyPicker.tsx
 src/features/geography/model.tsx
+src/features/governance/ProjectGovernance.tsx
 src/features/needs/NeedDetail.tsx
 src/features/needs/NeedsPanel.tsx
 src/features/needs/Pager.tsx
@@ -107,6 +116,11 @@ src/features/organizations/MembershipForm.tsx
 src/features/organizations/NgoOperations.tsx
 src/features/organizations/OrgForm.tsx
 src/features/registry/RegistryOperations.tsx
+src/features/registry/canonical/CanonicalDetail.tsx
+src/features/registry/canonical/CanonicalWorkbench.tsx
+src/features/registry/canonical/MatchReview.tsx
+src/features/registry/canonical/canonical.css
+src/features/registry/canonical/model.ts
 src/features/sharing/DataSharingWorkspace.tsx
 src/features/sharing/SharingRecoveryPanel.tsx
 src/features/surveys/Pager.tsx
@@ -118,6 +132,7 @@ src/features/surveys/SurveyTemplates.tsx
 src/features/surveys/model.tsx
 src/features/surveys/offlineSurveyStore.ts
 src/features/surveys/useSurveySave.ts
+src/features/verification/VerificationWorkspace.tsx
 src/features/volunteers/Directory.tsx
 src/features/volunteers/Documents.tsx
 src/features/volunteers/ExperiencePanel.tsx
@@ -154,5 +169,7 @@ supabase/migrations/20260922000100_pakistan_geography_reference.sql
 supabase/migrations/20260922000200_geography_regression_stabilization.sql
 supabase/migrations/20260923000100_profile_independence_photo.sql
 supabase/migrations/20260924000100_correctness_recovery.sql
+supabase/migrations/20260925000100_canonical_workbench.sql
+supabase/migrations/20260926000100_governance_verification.sql
 tsconfig.json
 vite.config.ts

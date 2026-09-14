@@ -27,6 +27,9 @@ import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
 import { APP_VERSION } from "./version";
+const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
+const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
+const CanonicalWorkbench = lazy(() => import("../features/registry/canonical/CanonicalWorkbench").then(m => ({ default: m.CanonicalWorkbench })));
 const SurveyProjects = lazy(() =>
   import("../features/surveys/SurveyProjects").then((m) => ({
     default: m.SurveyProjects,
@@ -244,7 +247,9 @@ export function Workspace({ session }: { session: Session }) {
       : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
-    ...(surveyManage ? [["Survey templates", ShieldCheck]] : []),
+    ["Verification", ShieldCheck],
+    ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
+    ...(surveyManage ? [["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || !poem ? [["Workforce marketplace", Users]] : []),
     ...(!poem ? [["Invitations", Bell]] : []),
@@ -850,6 +855,11 @@ export function Workspace({ session }: { session: Session }) {
                 geographies={geographies}
               />
             </Suspense>
+          )}
+          {page === "Verification" && validScope && <Suspense fallback={<p>Loading verification…</p>}><VerificationWorkspace key={session.user.id+scope} userId={session.user.id} managers={{organization:Boolean(ngos),volunteer:Boolean(volunteers),beneficiary:surveyManage}}/></Suspense>}
+          {page === "Project governance" && validScope && (surveyManage || (!poem && scope !== "personal")) && <Suspense fallback={<p>Loading governance…</p>}><ProjectGovernance key={scope} manage={surveyManage} organization={poem?null:scope}/></Suspense>}
+          {page === "Canonical registry" && validScope && surveyManage && (
+            <Suspense fallback={<p>Loading canonical registry…</p>}><CanonicalWorkbench /></Suspense>
           )}
           {page === "Data sharing" && validScope && (surveyManage || (!poem && scope !== "personal")) && (
             <DataSharingWorkspace

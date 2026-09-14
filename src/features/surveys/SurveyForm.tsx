@@ -50,7 +50,7 @@ export function SurveyForm({
     [name, setName] = useState(""),
     [birth, setBirth] = useState(""),
     [householdLabel, setHouseholdLabel] = useState(""),
-    [consent, setConsent] = useState(blankConsent),
+    [consent, setConsent] = useState<SurveyDeviceDraft["consent"]>(blankConsent),
     [hydrated, setHydrated] = useState(false),
     [restored, setRestored] = useState(false),
     [draftError, setDraftError] = useState(""),
@@ -87,7 +87,9 @@ export function SurveyForm({
         setBirth(draft.birth);
         setHouseholdLabel(draft.householdLabel);
         setAnswers(draft.answers);
-        setConsent(draft.consent);
+        const policyChanged = (draft.consent.governance_version || 0) !== project.governance_version;
+        setConsent({...draft.consent, agreed: policyChanged ? false : draft.consent.agreed});
+        if (policyChanged) setDraftError("Project policy changed. Review the current policy and obtain consent again before saving this recovered draft.");
         setRestored(true);
       })
       .catch((e) => {
@@ -99,7 +101,7 @@ export function SurveyForm({
     return () => {
       live = false;
     };
-  }, [draftResponse, project.id, userId]);
+  }, [draftResponse, project.id, project.governance_version, userId]);
 
   useEffect(() => {
     if (!hydrated || !dirty) return;
@@ -110,7 +112,7 @@ export function SurveyForm({
       birth,
       householdLabel,
       answers,
-      consent,
+      consent: {...consent, governance_version: project.governance_version},
     };
     const timer = window.setTimeout(() => {
       saveSurveyDeviceDraft(userId, project.id, draftResponse, payload)
@@ -143,7 +145,7 @@ export function SurveyForm({
       p_birth: birth || null,
       p_household_label: householdLabel,
       p_answers: answers,
-      p_consent: consent,
+      p_consent: {...consent, governance_version: project.governance_version},
       p_submit: button?.value === "submit",
       p_version: response?.version || 0,
     });
@@ -173,6 +175,7 @@ export function SurveyForm({
         </span>
       </div>
       <h3>{response ? "Update response" : "Collect a survey"}</h3>
+      <p>{project.governance_notice || "Legacy project policy: purpose and consent below apply; no independent-verification collection gate configured."}</p>
       {restored && (
         <div className="notice" role="status">
           An encrypted device draft was restored after the form was reopened.

@@ -592,6 +592,96 @@ created_at?: string;
 };
 Relationships: [];
 };
+independent_verification_events: {
+Row: {
+id: number;
+verification_id: string;
+actor_id: string;
+action: string;
+reason: string;
+snapshot: Json;
+created_at: string;
+};
+Insert: {
+id?: number;
+verification_id: string;
+actor_id: string;
+action: string;
+reason: string;
+snapshot: Json;
+created_at?: string;
+};
+Update: {
+id?: number;
+verification_id?: string;
+actor_id?: string;
+action?: string;
+reason?: string;
+snapshot?: Json;
+created_at?: string;
+};
+Relationships: [];
+};
+independent_verifications: {
+Row: {
+id: string;
+kind: string;
+organization_id: string | null;
+volunteer_id: string | null;
+canonical_id: string | null;
+subject_snapshot: Json;
+evidence_reference: string;
+request_note: string;
+status: string;
+requested_by: string;
+requested_at: string;
+reviewed_by: string | null;
+reviewed_at: string | null;
+review_note: string | null;
+method: string | null;
+expires_at: string | null;
+version: number;
+};
+Insert: {
+id?: string;
+kind: string;
+organization_id?: string | null;
+volunteer_id?: string | null;
+canonical_id?: string | null;
+subject_snapshot: Json;
+evidence_reference: string;
+request_note: string;
+status?: string;
+requested_by: string;
+requested_at?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string | null;
+method?: string | null;
+expires_at?: string | null;
+version?: number;
+};
+Update: {
+id?: string;
+kind?: string;
+organization_id?: string | null;
+volunteer_id?: string | null;
+canonical_id?: string | null;
+subject_snapshot?: Json;
+evidence_reference?: string;
+request_note?: string;
+status?: string;
+requested_by?: string;
+requested_at?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string | null;
+method?: string | null;
+expires_at?: string | null;
+version?: number;
+};
+Relationships: [];
+};
 need_assistance_links: {
 Row: {
 need_id: string;
@@ -765,6 +855,7 @@ programs: string;
 status: string;
 created_at: string;
 operations_version: number;
+verification_revision: number;
 };
 Insert: {
 id?: string;
@@ -779,6 +870,7 @@ programs?: string;
 status?: string;
 created_at?: string;
 operations_version?: number;
+verification_revision?: number;
 };
 Update: {
 id?: string;
@@ -793,6 +885,7 @@ programs?: string;
 status?: string;
 created_at?: string;
 operations_version?: number;
+verification_revision?: number;
 };
 Relationships: [];
 };
@@ -814,6 +907,54 @@ user_id?: string;
 organization_id?: string;
 consent_version?: string;
 granted_at?: string;
+};
+Relationships: [];
+};
+project_policy_versions: {
+Row: {
+project_id: string;
+version: number;
+retention_days: number;
+discovery: string;
+require_ngo_verification: boolean;
+require_volunteer_verification: boolean;
+collection_paused: boolean;
+purpose: string;
+consent_version: string;
+consent_notice: string;
+reason: string;
+published_by: string;
+published_at: string;
+};
+Insert: {
+project_id: string;
+version: number;
+retention_days: number;
+discovery: string;
+require_ngo_verification: boolean;
+require_volunteer_verification: boolean;
+collection_paused: boolean;
+purpose: string;
+consent_version: string;
+consent_notice: string;
+reason: string;
+published_by: string;
+published_at?: string;
+};
+Update: {
+project_id?: string;
+version?: number;
+retention_days?: number;
+discovery?: string;
+require_ngo_verification?: boolean;
+require_volunteer_verification?: boolean;
+collection_paused?: boolean;
+purpose?: string;
+consent_version?: string;
+consent_notice?: string;
+reason?: string;
+published_by?: string;
+published_at?: string;
 };
 Relationships: [];
 };
@@ -1008,6 +1149,8 @@ status: string;
 created_by: string;
 created_at: string;
 sharing_discoverable: boolean;
+governance_version: number;
+governance_notice: string;
 };
 Insert: {
 id?: string;
@@ -1025,6 +1168,8 @@ status?: string;
 created_by: string;
 created_at?: string;
 sharing_discoverable?: boolean;
+governance_version?: number;
+governance_notice?: string;
 };
 Update: {
 id?: string;
@@ -1042,6 +1187,8 @@ status?: string;
 created_by?: string;
 created_at?: string;
 sharing_discoverable?: boolean;
+governance_version?: number;
+governance_notice?: string;
 };
 Relationships: [];
 };
@@ -1085,6 +1232,7 @@ reviewed_at: string | null;
 created_at: string;
 updated_at: string;
 identity_snapshot: Json | null;
+governance_version: number | null;
 };
 Insert: {
 id?: string;
@@ -1101,6 +1249,7 @@ reviewed_at?: string | null;
 created_at?: string;
 updated_at?: string;
 identity_snapshot?: Json | null;
+governance_version?: number | null;
 };
 Update: {
 id?: string;
@@ -1117,6 +1266,7 @@ reviewed_at?: string | null;
 created_at?: string;
 updated_at?: string;
 identity_snapshot?: Json | null;
+governance_version?: number | null;
 };
 Relationships: [];
 };
@@ -1625,6 +1775,11 @@ required_language?: string;
 Relationships: [];
 };
 }; Views: { [_ in never]: never }; Functions: {
+apply_canonical_review: { Args: {
+p_preview: Json | null;
+p_status: string | null;
+p_reason: string | null;
+}; Returns: string };
 apply_work_opportunity: { Args: {
 p_opportunity: string | null;
 p_note: string | null;
@@ -1666,6 +1821,12 @@ p_person: string | null;
 }; Returns: Json };
 canonical_person_summary: { Args: {
 p_person: string | null;
+}; Returns: Json };
+canonical_workbench_detail: { Args: {
+p_canonical: string | null;
+p_section: string | null;
+p_offset: number | null;
+p_limit: number | null;
 }; Returns: Json };
 check_existing_identity: { Args: {
 p_project: string | null;
@@ -1777,9 +1938,18 @@ p_id: string | null;
 get_shared_beneficiary_summary: { Args: {
 p_grant: string | null;
 }; Returns: Json };
+list_independent_verifications: { Args: {
+p_kind: string | null;
+p_offset: number | null;
+p_limit: number | null;
+}; Returns: Json };
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+preview_canonical_review: { Args: {
+p_person: string | null;
+p_other: string | null;
+}; Returns: Json };
 project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
@@ -1794,6 +1964,16 @@ p_details: Json | null;
 p_version: number | null;
 p_geography: string | null;
 }; Returns: undefined };
+publish_project_policy: { Args: {
+p_project: string | null;
+p_version: number | null;
+p_retention_days: number | null;
+p_discovery: string | null;
+p_require_ngo: boolean | null;
+p_require_volunteer: boolean | null;
+p_paused: boolean | null;
+p_reason: string | null;
+}; Returns: number };
 publish_survey_template: { Args: {
 p_name: string | null;
 p_questions: Json | null;
@@ -1822,6 +2002,12 @@ p_next: string | null;
 registry_match_candidates: { Args: {
 p_person: string | null;
 }; Returns: Json };
+request_independent_verification: { Args: {
+p_kind: string | null;
+p_subject: string | null;
+p_evidence: string | null;
+p_note: string | null;
+}; Returns: string };
 respond_work_assignment: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -1864,6 +2050,14 @@ review_experience: { Args: {
 p_id: string | null;
 p_status: string | null;
 p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
+review_independent_verification: { Args: {
+p_id: string | null;
+p_decision: string | null;
+p_method: string | null;
+p_note: string | null;
+p_expires: string | null;
 p_version: number | null;
 }; Returns: undefined };
 review_profile: { Args: {
@@ -1955,6 +2149,12 @@ p_submit: boolean | null;
 p_version: number | null;
 p_request_id: string | null;
 }; Returns: string };
+search_canonical_registry: { Args: {
+p_query: string | null;
+p_state: string | null;
+p_after: number | null;
+p_limit: number | null;
+}; Returns: Json };
 search_volunteers: { Args: {
 p_org?: string | null;
 p_query?: string | null;
@@ -2019,6 +2219,10 @@ p_follow_up: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+verification_subjects: { Args: {
+p_kind: string | null;
+p_query: string | null;
+}; Returns: Json };
 void_assistance: { Args: {
 p_id: string | null;
 p_reason: string | null;

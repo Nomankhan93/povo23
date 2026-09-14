@@ -1,0 +1,13 @@
+import type { Database } from "../../../lib/supabase/database.types";
+type T = Database["public"]["Tables"];
+export type Identity = T["canonical_persons"]["Row"];
+export type SearchRow = Identity & { linked_records: number };
+export type Source = T["registry_persons"]["Row"] & { project_title: string; organization_name: string; link_reason?: string; linked_at?: string; linked_by?: string };
+export type Merge = T["canonical_merge_events"]["Row"] & { primary_version: number; secondary_version: number; primary_name: string; secondary_name: string };
+export type Preview = { source_a: Source; source_b: Source; canonical_a: Identity; canonical_b: Identity; decision: T["canonical_match_decisions"]["Row"] | null; moved_records: number; active_grants: number; pending_requests: number };
+export type Candidate = { id:string; full_name:string; birth_date:string|null; project_title:string; organization_name:string; signals:string[]; stale:boolean; status:string|null; same_canonical:boolean };
+export type Section = "sources" | "history" | "merges" | "assistance" | "decisions";
+export type Page<T> = { rows:T[]; has_more:boolean };
+export const beneficiary = (n:number) => `POEM-BEN-${String(n).padStart(8,"0")}`;
+export const date = (s:string|null|undefined) => s ? new Date(s).toLocaleString() : "—";
+export const identityLabel = (c:Identity) => c.identity_status === "merged" ? "Merged record" : c.review_required ? "Review required" : "Current identity";

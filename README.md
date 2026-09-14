@@ -1,3 +1,11 @@
+# Current release: POEM 2.9.0
+
+NGO/project governance and independent verification. See [release notes](docs/PHASE-2.9.md), [WSL upgrade](docs/UPGRADE-2.9.md) and [validation](docs/VALIDATION-2.9.md). Earlier release notes below are historical.
+
+# Current release: POEM 2.8.0
+
+Canonical registry operator workbench. See [release notes](docs/PHASE-2.8.md), [WSL upgrade](docs/UPGRADE-2.8.md) and [validation](docs/VALIDATION-2.8.md). Earlier release notes below are historical.
+
 # Current release: POEM 2.7.6
 
 Correctness and recovery stabilization. Start with [release notes](docs/PHASE-2.7.6.md), [WSL upgrade](docs/UPGRADE-2.7.6.md) and [validation](docs/VALIDATION-2.7.6.md). Historical sections below describe earlier releases; current profile publication is self-service.

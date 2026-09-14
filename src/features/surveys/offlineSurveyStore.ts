@@ -11,6 +11,7 @@ export type SurveyDeviceDraft = {
   householdLabel: string;
   answers: Record<string, Json>;
   consent: {
+    governance_version?: number;
     agreed: boolean;
     method: string;
     representative: string;
