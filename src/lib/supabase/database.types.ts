@@ -1717,6 +1717,42 @@ created_at?: string;
 };
 Relationships: [];
 };
+work_contract_amendments: {
+Row: {
+id: string;
+assignment_id: string;
+rate: number;
+effective_on: string;
+terms_note: string;
+status: string;
+offered_by: string;
+offered_at: string;
+responded_at: string | null;
+};
+Insert: {
+id?: string;
+assignment_id: string;
+rate: number;
+effective_on: string;
+terms_note: string;
+status?: string;
+offered_by: string;
+offered_at?: string;
+responded_at?: string | null;
+};
+Update: {
+id?: string;
+assignment_id?: string;
+rate?: number;
+effective_on?: string;
+terms_note?: string;
+status?: string;
+offered_by?: string;
+offered_at?: string;
+responded_at?: string | null;
+};
+Relationships: [];
+};
 work_invitations: {
 Row: {
 id: string;
@@ -1816,7 +1852,151 @@ required_language?: string;
 };
 Relationships: [];
 };
+work_payable_events: {
+Row: {
+id: string;
+unit_id: string;
+assignment_id: string;
+kind: string;
+amount: number;
+note: string;
+reference: string | null;
+occurred_on: string | null;
+reverses: string | null;
+actor_id: string | null;
+created_at: string;
+receipt_id: string | null;
+request_id: string | null;
+request_payload: Json | null;
+};
+Insert: {
+id?: string;
+unit_id: string;
+assignment_id: string;
+kind: string;
+amount?: number;
+note: string;
+reference?: string | null;
+occurred_on?: string | null;
+reverses?: string | null;
+actor_id?: string | null;
+created_at?: string;
+receipt_id?: string | null;
+request_id?: string | null;
+request_payload?: Json | null;
+};
+Update: {
+id?: string;
+unit_id?: string;
+assignment_id?: string;
+kind?: string;
+amount?: number;
+note?: string;
+reference?: string | null;
+occurred_on?: string | null;
+reverses?: string | null;
+actor_id?: string | null;
+created_at?: string;
+receipt_id?: string | null;
+request_id?: string | null;
+request_payload?: Json | null;
+};
+Relationships: [];
+};
+work_payable_receipts: {
+Row: {
+id: string;
+assignment_id: string;
+uploaded_by: string;
+filename: string;
+mime_type: string;
+size_bytes: number;
+created_at: string;
+};
+Insert: {
+id?: string;
+assignment_id: string;
+uploaded_by: string;
+filename: string;
+mime_type: string;
+size_bytes: number;
+created_at?: string;
+};
+Update: {
+id?: string;
+assignment_id?: string;
+uploaded_by?: string;
+filename?: string;
+mime_type?: string;
+size_bytes?: number;
+created_at?: string;
+};
+Relationships: [];
+};
+work_payable_units: {
+Row: {
+id: string;
+assignment_id: string;
+source_kind: string;
+response_id: string | null;
+work_date: string;
+rate: number;
+currency: string;
+terms_snapshot: Json;
+eligible: boolean;
+status: string;
+note: string;
+created_by: string | null;
+created_at: string;
+version: number;
+};
+Insert: {
+id?: string;
+assignment_id: string;
+source_kind: string;
+response_id?: string | null;
+work_date: string;
+rate: number;
+currency: string;
+terms_snapshot: Json;
+eligible?: boolean;
+status?: string;
+note: string;
+created_by?: string | null;
+created_at?: string;
+version?: number;
+};
+Update: {
+id?: string;
+assignment_id?: string;
+source_kind?: string;
+response_id?: string | null;
+work_date?: string;
+rate?: number;
+currency?: string;
+terms_snapshot?: Json;
+eligible?: boolean;
+status?: string;
+note?: string;
+created_by?: string | null;
+created_at?: string;
+version?: number;
+};
+Relationships: [];
+};
 }; Views: { [_ in never]: never }; Functions: {
+act_work_payable: { Args: {
+p_unit: string | null;
+p_action: string | null;
+p_amount: number | null;
+p_note: string | null;
+p_reference: string | null;
+p_date: string | null;
+p_reverses: string | null;
+p_version: number | null;
+p_request: string | null;
+p_receipt?: string | null;
+}; Returns: string };
 apply_canonical_review: { Args: {
 p_preview: Json | null;
 p_status: string | null;
@@ -1833,6 +2013,9 @@ p_fields: (string)[] | null;
 p_expires_at: string | null;
 p_note: string | null;
 p_version: number | null;
+}; Returns: string };
+authorize_payable_receipt: { Args: {
+p_receipt: string | null;
 }; Returns: string };
 authorize_survey_capture_view: { Args: {
 p_id: string | null;
@@ -1878,6 +2061,11 @@ p_project: string | null;
 p_name: string | null;
 p_birth: string | null;
 }; Returns: Json };
+claim_work_payable: { Args: {
+p_assignment: string | null;
+p_day: string | null;
+p_note: string | null;
+}; Returns: string };
 close_opportunity: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -1994,6 +2182,12 @@ p_limit: number | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+offer_work_amendment: { Args: {
+p_assignment: string | null;
+p_rate: number | null;
+p_effective: string | null;
+p_note: string | null;
+}; Returns: string };
 offline_capture_upload_complete: { Args: {
 p_id: string | null;
 }; Returns: boolean };
@@ -2035,6 +2229,9 @@ p_source_version: number | null;
 p_canonical_version: number | null;
 p_reason: string | null;
 }; Returns: undefined };
+reconcile_survey_payable: { Args: {
+p_response: string | null;
+}; Returns: string };
 record_assistance: { Args: {
 p_id: string | null;
 p_person: string | null;
@@ -2068,6 +2265,12 @@ p_mime: string | null;
 p_size: number | null;
 p_consent: Json | null;
 }; Returns: string };
+reserve_payable_receipt: { Args: {
+p_assignment: string | null;
+p_filename: string | null;
+p_mime: string | null;
+p_size: number | null;
+}; Returns: string };
 reserve_survey_capture_file: { Args: {
 p_project: string | null;
 p_question: string | null;
@@ -2076,6 +2279,10 @@ p_mime: string | null;
 p_size: number | null;
 p_consent: Json | null;
 }; Returns: string };
+respond_work_amendment: { Args: {
+p_amendment: string | null;
+p_status: string | null;
+}; Returns: undefined };
 respond_work_assignment: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -2300,4 +2507,8 @@ withdraw_work_application: { Args: {
 p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
+work_payable_statement: { Args: {
+p_assignment: string | null;
+p_page?: number | null;
+}; Returns: Json };
 }; Enums: { [_ in never]: never }; CompositeTypes: { [_ in never]: never } } };

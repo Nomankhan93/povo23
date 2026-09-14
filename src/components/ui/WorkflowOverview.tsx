@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react';
 export const navigationGroups = [
   {label:'Workspace',pages:['Overview','My profile','Work experience','Private documents']},
-  {label:'People & partners',pages:['Volunteers','Partner NGOs','Workforce marketplace','Invitations']},
+  {label:'People & partners',pages:['Volunteers','Partner NGOs','Workforce marketplace','Invitations','Workforce payables']},
   {label:'Field operations',pages:['Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing']},
   {label:'Administration',pages:['Memberships','Accounts','Geography','Notifications','Activity']},
 ];
@@ -13,12 +13,14 @@ export function WorkflowOverview({staff,personal,profileStatus,unread,allowed,on
  const tasks=personal?[
   ['My profile','Your volunteer profile','Update your skills, availability and sharing preferences.'],
   ['Survey projects','Your survey work','Open projects and continue assigned field work.'],
+  ['Workforce payables','Your earnings','View pending claims, approved amounts and payment history.'],
   ['Invitations','Work invitations','Review invitations and choose your next assignment.']
  ]:[
   ['Survey projects','Survey operations','Open projects, assignments and survey responses.'],
   ['Verification','Review work','Open the verification workspace for available reviews.'],
   ['Volunteers','Volunteer network','Find profiles available to your workspace.'],
   ['Canonical registry','Beneficiary registry','Review identities and resolve possible matches.'],
+  ['Workforce payables','Workforce accounting','Review work claims and record approved payments.'],
   ['Partner NGOs','Partner organizations','Open partner records and organization operations.']
  ];
  return <>

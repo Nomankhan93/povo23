@@ -29,6 +29,7 @@ import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
 import { APP_VERSION } from "./version";
+const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
 const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
 const CanonicalWorkbench = lazy(() => import("../features/registry/canonical/CanonicalWorkbench").then(m => ({ default: m.CanonicalWorkbench })));
@@ -278,7 +279,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage ? [["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || !poem ? [["Workforce marketplace", Users]] : []),
-    ...(!poem ? [["Invitations", Bell]] : []),
+    ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role)
       ? [["Memberships", Users]]
       : []),
@@ -771,6 +772,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Geography" && ngos && (
             <GeographyManager rows={geographies} refresh={load} />
           )}
+          {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
           {page === "Workforce marketplace" && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={scope}
