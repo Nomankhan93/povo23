@@ -1,3 +1,4 @@
+import {navigationGroups,WorkflowOverview} from "../components/ui/WorkflowOverview";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -76,6 +77,24 @@ export function Workspace({ session, openField }: { session: Session; openField:
     [menu, setMenu] = useState(false),
     [geographies, setGeographies] = useState<Geo[]>([]),
     [notifications, setNotifications] = useState<import('../lib/supabase/database.types').Database['public']['Tables']['notifications']['Row'][]>([]);
+  useEffect(()=>{
+    if(!menu)return;
+    const media=window.matchMedia('(max-width:800px)');
+    const closeOnDesktop=()=>{if(!media.matches)setMenu(false)};
+    closeOnDesktop();media.addEventListener('change',closeOnDesktop);
+    const drawer=document.getElementById('workspace-navigation');
+    const main=document.getElementById('workspace-main');
+    if(media.matches){main?.setAttribute('inert','');drawer?.querySelector<HTMLElement>('button,select')?.focus()}
+    const trap=(event:KeyboardEvent)=>{
+      if(event.key!=='Tab'||!media.matches||!drawer)return;
+      const items=Array.from(drawer.querySelectorAll<HTMLElement>('button:not(:disabled),select,a[href]')).filter(el=>el.getClientRects().length);
+      const first=items[0],last=items.at(-1);
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus()}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus()}
+    };
+    document.addEventListener('keydown',trap);
+    return()=>{main?.removeAttribute('inert');media.removeEventListener('change',closeOnDesktop);document.removeEventListener('keydown',trap)};
+  },[menu]);
   function setPage(next:string){void flushActiveDraft().then(()=>setPageState(next)).catch(e=>setError("Could not protect device draft: "+e.message))}
   const admin =
       account &&
@@ -266,7 +285,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(ngos ? [["Geography", MapPin]] : []),
     ["Notifications", Bell],
     ["Activity", Activity],
-  ] as const;
+  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
   const change = (p: string) => {
     setPage(p);
     setQuery("");
@@ -305,8 +324,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
       </div>
     );
   return (
-    <div className="app">
-      <aside className={menu ? "sidebar open" : "sidebar"}>
+    <div className="app" onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
+      <a className="skip-link" href="#workspace-content">Skip to content</a>
+      {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
+      <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
+        <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
         <div className="logo">
           <HeartHandshake />
           <b>POEM</b>
@@ -330,10 +352,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
             ))}
           </select>
         </div>
-        <nav>
-          {nav.map(([name, Icon]: any) => (
+        <nav aria-label="Main navigation">
+          {navigationGroups.map(group=>{const items=nav.filter(([name])=>group.pages.includes(name));return items.length?<div className="nav-section" key={group.label}><span className="nav-section-label">{group.label}</span>{items.map(([name, Icon]) => (
             <button
               key={name}
+              aria-current={page === name ? "page" : undefined}
               className={page === name ? "active" : ""}
               onClick={() => change(name)}
             >
@@ -346,7 +369,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   </span>
                 )}
             </button>
-          ))}
+          ))}</div>:null})}
         </nav>
         <div className="trust">
           <ShieldCheck />
@@ -367,10 +390,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
           Sign out
         </button>
       </aside>
-      <main>
+      <main id="workspace-main">
         <header>
           <button
             className="mobile-toggle"
+            id="navigation-toggle"
+            aria-controls="workspace-navigation"
+            aria-expanded={menu}
             aria-label="Toggle navigation"
             onClick={() => setMenu(!menu)}
           >
@@ -384,7 +410,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <span className="release">POEM {APP_VERSION}</span>
           </div>
         </header>
-        <div className="content">
+        <div className="content" id="workspace-content" tabIndex={-1}>
           <div className="heading">
             <div>
               <span className="eyebrow">PEOPLE AT THE HEART OF IMPACT</span>
@@ -431,69 +457,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           )}
           {page === "Overview" && (
             <>
-              <section className="panel detail">
-                <h2>
-                  {poem
-                    ? "POEM staff workspace"
-                    : scope === "personal"
-                      ? "Your volunteer workspace"
-                      : "NGO workforce workspace"}
-                </h2>
-                <p>
-                  {poem
-                    ? "Your staff role determines which records and actions are available."
-                    : scope === "personal"
-                      ? "Keep your profile and sharing preferences current."
-                      : "Search shared volunteers and manage your NGO shortlist."}
-                </p>
-                {(volunteers || (!poem && scope !== "personal")) && (
-                  <button
-                    className="primary"
-                    onClick={() => change("Volunteers")}
-                  >
-                    Search volunteers
-                  </button>
-                )}
-              </section>
-              <div className="overview-grid">
-                <section className="hero-panel">
-                  <span className="eyebrow">THE NEXT STEP STARTS WITH YOU</span>
-                  <h2>
-                    Local people.
-                    <br />
-                    Lasting possibilities.
-                  </h2>
-                  <p>
-                    Keep your information up to date and turn your experience
-                    into meaningful community work.
-                  </p>
-                  <button onClick={() => change("My profile")}>
-                    Complete your profile <ArrowRight size={17} />
-                  </button>
-                </section>
-                <section className="panel attention">
-                  <ShieldCheck size={32} />
-                  <h2>{volunteers ? "Volunteer network" : "Your profile status"}</h2>
-                  {volunteers ? (
-                    <>
-                      <p>Profiles publish directly. Use the volunteer directory to support volunteers and review private documents when needed.</p>
-                      <button onClick={() => change("Volunteers")}>
-                        Open volunteer directory <ArrowRight size={16} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <span className={"badge " + (my?.status || "draft")}>
-                        {my?.status === "verified" ? "Active" : human(my?.status || "draft")}
-                      </span>
-                      <p>Published profile changes go live immediately. Admin approval is not required.</p>
-                      <button onClick={() => change("My profile")}>
-                        View my profile <ArrowRight size={16} />
-                      </button>
-                    </>
-                  )}
-                </section>
-              </div>
+              <WorkflowOverview staff={Boolean(poem)} personal={scope === "personal"} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={notifications.filter(n=>!n.read_at).length} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>
               <section className="panel">
                 <div className="panel-title">
                   <h2>Recent activity</h2>

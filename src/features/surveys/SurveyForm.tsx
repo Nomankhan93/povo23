@@ -215,8 +215,9 @@ export function SurveyForm({
             : "Keep collecting. Save or submit will remain encrypted on this device until connectivity returns."}
         </span>
       </div>
-      <p role="status">{savedAt?`Saved locally at ${new Date(savedAt).toLocaleTimeString()}`:dirty?"Saving device draft… keep this form open":"Device draft ready"}</p>
+      <p role="status">{dirty?"Saving device draft… keep this form open":savedAt?`Saved locally at ${new Date(savedAt).toLocaleTimeString()}`:"Device draft ready"}</p>
       <h3>{response ? "Update response" : "Collect a survey"}</h3>
+      <div className="survey-progress"><label htmlFor="survey-question-progress">Survey questions: {qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).length} currently visible</label><progress id="survey-question-progress" max={Math.max(1,qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).length)} value={qs.filter(q=>isVisible(q,visibleAnswers(qs,answers)) && answers[q.id]!==undefined && answers[q.id]!==null && answers[q.id]!=='' && (!Array.isArray(answers[q.id]) || (answers[q.id] as unknown[]).length>0)).length}/><small>Progress shows questions with an answer. Consent, required fields and answer validity are checked separately before submission.</small></div>
       <p>{project.governance_notice || "Legacy project policy: purpose and consent below apply; no independent-verification collection gate configured."}</p>
       {restored && (
         <div className="notice" role="status">
@@ -334,7 +335,7 @@ export function SurveyForm({
         <p>
           * Required on submission. Drafts also require consent. Use the registry search above to locate existing people before creating another record.
         </p>
-        <div className="actions">
+        <div className="actions survey-actions">
           <button className="secondary" value="draft" disabled={busy || captureBusy>0}>
             Save draft
           </button>

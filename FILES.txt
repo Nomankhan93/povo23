@@ -8,6 +8,7 @@ docs/PHASE-1.3.md
 docs/PHASE-1.4.md
 docs/PHASE-2.1.md
 docs/PHASE-2.10.md
+docs/PHASE-2.11.1.md
 docs/PHASE-2.11.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -34,6 +35,7 @@ docs/UPGRADE-1.3.md
 docs/UPGRADE-1.4.md
 docs/UPGRADE-2.1.md
 docs/UPGRADE-2.10.md
+docs/UPGRADE-2.11.1.md
 docs/UPGRADE-2.11.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -53,6 +55,7 @@ docs/UPGRADE-2.7.md
 docs/UPGRADE-2.8.md
 docs/UPGRADE-2.9.md
 docs/VALIDATION-2.10.md
+docs/VALIDATION-2.11.1.md
 docs/VALIDATION-2.11.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
@@ -109,9 +112,11 @@ scripts/test-profile-structured-ui.mjs
 scripts/test-sidebar-profile-grouping.mjs
 scripts/test-stabilization.mjs
 scripts/test-survey-save276.mjs
+scripts/test-workflow-ui2111.mjs
 src/app/App.tsx
 src/app/AppShell.tsx
 src/app/version.ts
+src/components/ui/WorkflowOverview.tsx
 src/features/assistance/AssistancePanel.tsx
 src/features/audit/EventList.tsx
 src/features/auth/AccountAccess.tsx
@@ -173,6 +178,7 @@ src/main.tsx
 src/shared/legacyTypes.tsx
 src/shared/ui/FormFields.tsx
 src/style.css
+src/styles/design-system.css
 supabase/config.toml
 supabase/migrations/20260911000100_poem_foundation.sql
 supabase/migrations/20260912000100_phase12_geography_documents.sql

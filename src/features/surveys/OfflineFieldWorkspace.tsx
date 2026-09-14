@@ -1,3 +1,4 @@
+import {EmptyState,StatusBadge} from "../../components/ui/WorkflowOverview";
 import {useCallback,useEffect,useState} from 'react';
 import {db,rpc} from '../../lib/supabase/client';
 import type {Project,Template,Person,Household,Response} from './model';
@@ -42,8 +43,8 @@ export function OfflineFieldWorkspace({ownerId,back}:{ownerId:string;back:()=>vo
    lockFieldDevice();await db!.auth.signOut({scope:'local'});back();
  }
  const expired=selected&&(Date.now()>=Date.parse(selected.valid_until)||Boolean(selected.blocked));
- return <main className="panel detail" style={{maxWidth:1000,margin:'20px auto',padding:20}}>
-   <h1>Offline field workspace</h1><OfflineShellStatus/><p>{online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
+ return <main className="panel detail field-workspace">
+   <h1>Offline field workspace</h1><OfflineShellStatus/><p role="status"><StatusBadge tone={online?"success":"warning"}>{online?"Connected":"Offline"}</StatusBadge> {online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
    <div className="actions"><button type="button" disabled={collect||busy} onClick={back}>Main workspace</button><button type="button" disabled={collect||busy} onClick={()=>void logout()}>Lock and sign out</button></div>
    <SurveySyncStatus userId={ownerId}/>
    {error&&<p role="alert" className="notice error">{error}</p>}{notice&&<p role="status">{notice}</p>}
@@ -53,16 +54,17 @@ export function OfflineFieldWorkspace({ownerId,back}:{ownerId:string;back:()=>vo
    {!collect&&<>
    <h2>Assigned project downloads</h2><button disabled={!online||busy} onClick={()=>void action(findAssignments)}>Find my assignments</button><p>Lists up to 200 assignments. Downloads include the pinned template, policy/consent, geography and up to 200 own reference people, households and editable responses per project. Use online registry search for additional records.</p>
    {available.map(p=><p key={p.id}>{p.title} <button disabled={busy||!online} onClick={()=>void action(()=>download(p.id))}>Download / refresh</button></p>)}
-   <h2>On this device</h2>{bundles.map(b=><article className="document-row" key={b.project.id}><strong>{b.project.title}</strong><p>Template v{b.template.version} · policy {b.project.governance_version} · valid until {new Date(b.valid_until).toLocaleString()}</p>{b.blocked&&<p role="alert">{b.blocked}</p>}<button disabled={busy} onClick={()=>{setSelected(b);setEditing(null);setCollect(false)}}>Open downloaded project</button><button disabled={busy||!online} onClick={()=>void action(()=>download(b.project.id))}>Refresh access and policy</button></article>)}
+   <h2>On this device</h2>{!bundles.length&&<EmptyState>No projects downloaded yet. Connect and find your assignments to prepare for field work.</EmptyState>}{bundles.map(b=><article className="document-row" key={b.project.id}><strong>{b.project.title}</strong><p>Template v{b.template.version} · policy {b.project.governance_version} · valid until {new Date(b.valid_until).toLocaleString()}</p>{b.blocked&&<p role="alert">{b.blocked}</p>}<button disabled={busy} onClick={()=>{setSelected(b);setEditing(null);setCollect(false)}}>Open downloaded project</button><button disabled={busy||!online} onClick={()=>void action(()=>download(b.project.id))}>Refresh access and policy</button></article>)}
    {selected&&<section><h2>{selected.project.title}</h2>{expired?<p role="alert">Downloaded access expired or was denied. Existing data is retained. Reconnect and refresh before collecting.</p>:<><button onClick={()=>{setEditing(null);setCollect(true)}}>Start survey / open local draft</button>{selected.responses.map(r=><p key={r.id}>{r.status} · {r.id} <button onClick={()=>{setEditing(r);setCollect(true)}}>Open response / recovery draft</button></p>)}</>}</section>}
    </>}
    {selected&&collect&&!expired&&<SurveyForm key={selected.project.id+':'+(editing?.id||'new')+':'+selected.downloaded_at} project={selected.project} template={selected.template} response={editing} people={selected.people} households={selected.households} userId={ownerId} busy={busy} cancel={()=>setCollect(false)} onSaved={()=>{setCollect(false);void refresh()}} onQueued={()=>{setCollect(false);void refresh()}}/>}
    <h2>Per-survey device status</h2>
-   {inventory?.drafts.map(r=><p key={r.id}>Saved locally · project {r.projectId} · {r.responseId||'new survey draft'}</p>)}
-   {inventory?.queue.map(r=><p key={r.id}>{r.status} · project {r.projectId} · request {r.id.split(':').pop()} {r.error&&`— ${r.error}`}</p>)}
-   {inventory?.receipts.map(r=><p key={r.id}>Synchronized · response {r.responseId} · {new Date(r.updatedAt).toLocaleString()}</p>)}
-   <h2>Device attachments</h2>{files.map(f=><p key={f.id}>{f.filename} · {f.state} · {Math.round(f.offset/f.size*100)}% server-confirmed{f.error&&` — ${f.error}`}</p>)}
+   {inventory?.drafts.map(r=><p className="device-record" key={r.id}>Saved locally · project {r.projectId} · {r.responseId||'new survey draft'}</p>)}
+   {inventory?.queue.map(r=><p className={"device-record "+(r.status==='failed'?'failed':'')} key={r.id}>{r.status} · project {r.projectId} · request {r.id.split(':').pop()} {r.error&&`— ${r.error}`}</p>)}
+   {inventory?.receipts.map(r=><p className="device-record synced" key={r.id}>Synchronized · response {r.responseId} · {new Date(r.updatedAt).toLocaleString()}</p>)}
+   {inventory&&!inventory.drafts.length&&!inventory.queue.length&&!inventory.receipts.length&&<EmptyState>No device surveys yet. Start from a downloaded project.</EmptyState>}
+   <h2>Device attachments</h2>{!files.length&&<EmptyState>No attachments stored on this device.</EmptyState>}{files.map(f=><p className="device-record" key={f.id}>{f.filename} · {f.state} · {Math.round(f.offset/f.size*100)}% server-confirmed{f.error&&` — ${f.error}`}</p>)}
    <p>Sync runs while POEM is open, on reconnection and from Sync now. Closing the app pauses uploads; reopen to resume. Background Sync support is not required.</p>
-   <div className="actions"><button disabled={busy||collect} onClick={()=>void action(async()=>{await cleanupAcknowledgedAttachments(ownerId);await clearFieldReceipts(ownerId);setNotice('Acknowledged device copies cleaned. Server records remain unchanged.')})}>Clean acknowledged copies</button><button disabled={busy||collect} onClick={()=>{if(window.prompt('This permanently removes ALL your downloaded projects, drafts, queued surveys and device attachments from this browser. Type ERASE to confirm.')==='ERASE')void action(async()=>{await eraseOwnerFieldData(ownerId);setSelected(null);setNotice('Your device copies were erased. Server records are unchanged.')})}}>Erase my device data</button></div>
+   <div className="actions"><button disabled={busy||collect} onClick={()=>void action(async()=>{await cleanupAcknowledgedAttachments(ownerId);await clearFieldReceipts(ownerId);setNotice('Acknowledged device copies cleaned. Server records remain unchanged.')})}>Clean acknowledged copies</button><button className="danger-action" disabled={busy||collect} onClick={()=>{if(window.prompt('This permanently removes ALL your downloaded projects, drafts, queued surveys and device attachments from this browser. Type ERASE to confirm.')==='ERASE')void action(async()=>{await eraseOwnerFieldData(ownerId);setSelected(null);setNotice('Your device copies were erased. Server records are unchanged.')})}}>Erase my device data</button></div>
  </main>;
 }

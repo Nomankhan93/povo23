@@ -69,7 +69,7 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
 
   const label = !online
     ? summary.total
-      ? `Offline · ${summary.total} saved`
+      ? `Offline · ${summary.total} on device`
       : "Offline"
     : summary.attention
       ? `${summary.attention} survey${summary.attention === 1 ? "" : "s"} need attention`
