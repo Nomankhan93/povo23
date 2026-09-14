@@ -40,6 +40,8 @@ const SurveyTemplates = lazy(() =>
     default: m.SurveyTemplates,
   })),
 );
+import {flushActiveDraft} from "../features/surveys/activeDraft";
+import {fieldInventory,lockFieldDevice} from "../features/surveys/offlineSurveyStore";
 import { SurveySyncStatus } from "../features/surveys/SurveySyncStatus";
 
 import { Directory } from "../features/volunteers/Directory";
@@ -53,7 +55,7 @@ import { WorkforceMarketplace } from "../features/workforce/WorkforceMarketplace
 import { db, rpc } from "../lib/supabase/client";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
-export function Workspace({ session }: { session: Session }) {
+export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
   const [account, setAccount] = useState<Row | null>(null),
     [profiles, setProfiles] = useState<Row[]>([]),
     [orgs, setOrgs] = useState<Row[]>([]),
@@ -65,7 +67,7 @@ export function Workspace({ session }: { session: Session }) {
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
-    [page, setPage] = useState("Overview"),
+    [page, setPageState] = useState("Overview"),
     [scope, setScope] = useState(""),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
@@ -74,6 +76,7 @@ export function Workspace({ session }: { session: Session }) {
     [menu, setMenu] = useState(false),
     [geographies, setGeographies] = useState<Geo[]>([]),
     [notifications, setNotifications] = useState<import('../lib/supabase/database.types').Database['public']['Tables']['notifications']['Row'][]>([]);
+  function setPage(next:string){void flushActiveDraft().then(()=>setPageState(next)).catch(e=>setError("Could not protect device draft: "+e.message))}
   const admin =
       account &&
       [
@@ -216,7 +219,10 @@ export function Workspace({ session }: { session: Session }) {
     }
   }
   async function logout() {
-    const { error } = await db!.auth.signOut();
+    try{await flushActiveDraft()}catch(e){setError((e as Error).message);return;}
+    try{const copies=await fieldInventory(session.user.id);if((copies.queue.length||copies.drafts.length)&&!window.confirm("Unsynchronized field copies remain on this device. Sign out and retain them encrypted for this account? Use Offline field → Erase my device data for explicit shared-device cleanup."))return;}catch{if(!window.confirm("Device inventory unavailable. Sign out without deleting any field copies?"))return;}
+    lockFieldDevice();
+    const { error } = await db!.auth.signOut({scope:'local'});
     if (error) setError(error.message);
   }
   const my = profiles.find((p) => p.user_id === session.user.id),
@@ -374,7 +380,7 @@ export function Workspace({ session }: { session: Session }) {
             Workspace <b>/</b> {page}
           </span>
           <div className="header-tools">
-            <SurveySyncStatus userId={session.user.id} />
+            <button type="button" className="secondary" onClick={openField}>Offline field</button><SurveySyncStatus userId={session.user.id} />
             <span className="release">POEM {APP_VERSION}</span>
           </div>
         </header>

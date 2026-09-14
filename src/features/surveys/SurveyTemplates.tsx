@@ -98,15 +98,15 @@ export function SurveyTemplates() {
               <select
                 value={q.type}
                 onChange={(e) =>
-                  update(i, { type: e.target.value as Question["type"] })
+                  update(i, { type: e.target.value as Question["type"], min:undefined,max:undefined,after:undefined })
                 }
               >
-                {["text", "number", "date", "choice", "yesno"].map((t) => (
+                {["text", "number", "date", "choice", "yesno", "multiple", "phone", "identity", "household", "gps", "photo", "document"].map((t) => (
                   <option key={t}>{t}</option>
                 ))}
               </select>
             </label>
-            {q.type === "choice" && (
+            {(q.type === "choice" || q.type === "multiple") && (
               <label className="field">
                 Choices, one per line
                 <textarea
@@ -117,6 +117,10 @@ export function SurveyTemplates() {
                 />
               </label>
             )}
+            {q.type==='number'&&<div className="actions">{(['min','max'] as const).map(key=><label className="field" key={key}>{key}<input type="number" step="any" value={q[key]??''} onChange={e=>update(i,{[key]:e.target.value===''?undefined:Number(e.target.value)})}/></label>)}</div>}
+            {q.type==='date'&&<label className="field">Must be on or after<select value={q.after||''} onChange={e=>update(i,{after:e.target.value||undefined})}><option value="">No date comparison</option>{qs.slice(0,i).filter(p=>p.type==='date').map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label>}
+            <label className="field">Show only when<select value={q.when?.question||''} onChange={e=>{const parent=qs.find(p=>p.id===e.target.value);update(i,{when:parent?{question:parent.id,equals:parent.type==='yesno'?true:parent.options?.[0]||''}:undefined})}}><option value="">Always show</option>{qs.slice(0,i).filter(p=>p.type==='choice'||p.type==='yesno').map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label>
+            {q.when&&<label className="field">Equals<select value={String(q.when.equals)} onChange={e=>update(i,{when:{question:q.when!.question,equals:qs.find(p=>p.id===q.when!.question)?.type==='yesno'?e.target.value==='true':e.target.value}})}>{(qs.find(p=>p.id===q.when!.question)?.type==='yesno'?['true','false']:qs.find(p=>p.id===q.when!.question)?.options||[]).map(o=><option key={o} value={o}>{o==='true'?'Yes':o==='false'?'No':o}</option>)}</select></label>}
             <label className="checklabel">
               <input
                 type="checkbox"

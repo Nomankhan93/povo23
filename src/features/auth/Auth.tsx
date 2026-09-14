@@ -1,3 +1,4 @@
+import {rememberFieldOwner} from '../surveys/offlineSurveyStore';
 import {APP_VERSION} from '../../app/version';
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -40,6 +41,7 @@ export function Auth({
       if (mode === "login") {
         const r = await db!.auth.signInWithPassword({ email, password });
         if (r.error) throw r.error;
+        rememberFieldOwner(r.data.user.id);window.dispatchEvent(new Event("poem:field-unlocked"));
       }
       if (mode === "signup") {
         const r = await db!.auth.signUp({

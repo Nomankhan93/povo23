@@ -1,3 +1,5 @@
+import { answerText } from "./capture";
+import { AttachmentView } from "./CaptureFields";
 import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { type Json } from "../../lib/supabase/database.types";
@@ -382,7 +384,7 @@ export function SurveyProjectDetail({
           {((template?.questions as unknown as Question[]) || []).map((q) => (
             <p key={q.id}>
               <strong>{q.label}:</strong>{" "}
-              {String((selected.answers as Record<string, Json>)[q.id] ?? "—")}
+              {(q.type === "photo" || q.type === "document") && typeof (selected.answers as Record<string, Json>)[q.id] === "string" && (selected.answers as Record<string, Json>)[q.id] ? <AttachmentView id={String((selected.answers as Record<string, Json>)[q.id])}/> : <pre>{answerText((selected.answers as Record<string, Json>)[q.id])}</pre>}
             </p>
           ))}
           <details>

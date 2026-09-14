@@ -1132,6 +1132,48 @@ active?: boolean;
 };
 Relationships: [];
 };
+survey_capture_files: {
+Row: {
+id: string;
+project_id: string;
+collector_id: string;
+question_id: string;
+object_name: string;
+filename: string;
+mime_type: string;
+size_bytes: number;
+consent: Json;
+created_at: string;
+request_fingerprint: string | null;
+};
+Insert: {
+id?: string;
+project_id: string;
+collector_id: string;
+question_id: string;
+object_name: string;
+filename: string;
+mime_type: string;
+size_bytes: number;
+consent: Json;
+created_at?: string;
+request_fingerprint?: string | null;
+};
+Update: {
+id?: string;
+project_id?: string;
+collector_id?: string;
+question_id?: string;
+object_name?: string;
+filename?: string;
+mime_type?: string;
+size_bytes?: number;
+consent?: Json;
+created_at?: string;
+request_fingerprint?: string | null;
+};
+Relationships: [];
+};
 survey_projects: {
 Row: {
 id: string;
@@ -1792,6 +1834,9 @@ p_expires_at: string | null;
 p_note: string | null;
 p_version: number | null;
 }; Returns: string };
+authorize_survey_capture_view: { Args: {
+p_id: string | null;
+}; Returns: string };
 available_work_opportunities: { Args: {
 p_page?: number | null;
 }; Returns: Json };
@@ -1929,6 +1974,9 @@ p_person: string | null;
 document_download_path: { Args: {
 p_id: string | null;
 }; Returns: string };
+download_field_project: { Args: {
+p_project: string | null;
+}; Returns: Json };
 finish_document_delete: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -1946,6 +1994,9 @@ p_limit: number | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+offline_capture_upload_complete: { Args: {
+p_id: string | null;
+}; Returns: boolean };
 preview_canonical_review: { Args: {
 p_person: string | null;
 p_other: string | null;
@@ -2007,6 +2058,23 @@ p_kind: string | null;
 p_subject: string | null;
 p_evidence: string | null;
 p_note: string | null;
+}; Returns: string };
+reserve_offline_capture_file: { Args: {
+p_id: string | null;
+p_project: string | null;
+p_question: string | null;
+p_filename: string | null;
+p_mime: string | null;
+p_size: number | null;
+p_consent: Json | null;
+}; Returns: string };
+reserve_survey_capture_file: { Args: {
+p_project: string | null;
+p_question: string | null;
+p_filename: string | null;
+p_mime: string | null;
+p_size: number | null;
+p_consent: Json | null;
 }; Returns: string };
 respond_work_assignment: { Args: {
 p_id: string | null;

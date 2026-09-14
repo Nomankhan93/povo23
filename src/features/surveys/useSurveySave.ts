@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { db } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
 import {
+  assertOwner,
   definitiveSurveySaveError,
   enqueueSurveySave,
   markQueuedSurveyAttention,
@@ -49,8 +50,7 @@ export function useSurveySave(
     const notifyQueued = async () => { settled.current = true; callbackStarted = true; await onQueued(); };
     try {
       if (!db) throw Error("Supabase is not configured");
-      const session = await db.auth.getSession();
-      if (session.error || session.data.session?.user.id !== ownerId) throw Error("Survey owner session changed; sign in again before saving");
+      await assertOwner(ownerId);
       try {
         await enqueueSurveySave(ownerId, current);
         durable = true;
@@ -58,7 +58,8 @@ export function useSurveySave(
         if (!navigator.onLine) throw storageError;
       }
 
-      if (!navigator.onLine) {
+      if (!navigator.onLine || Object.values((current.p_answers || {}) as Record<string,unknown>).some(v=>typeof v === "string" && v.startsWith("local-file:"))) {
+        if(!durable)throw Error("Device storage is required before syncing local attachments");
         request.current = null;
         setUncertain(false);
         setQueued(true);
@@ -92,7 +93,7 @@ export function useSurveySave(
           setUncertain(true);
           throw result.error;
         }
-        if (durable) await removeQueuedSurveySave(ownerId, requestId);
+        if (durable) await removeQueuedSurveySave(ownerId, requestId, result.data);
         request.current = null;
         setUncertain(false);
         settled.current = true;

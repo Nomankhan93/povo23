@@ -26,6 +26,7 @@ type StoredQueue = {
   ownerId: string;
   projectId: string;
   responseId: string | null;
+  syncingAt?: number;
   createdAt: number;
   updatedAt: number;
   attempts: number;
@@ -52,7 +53,7 @@ export type SurveyQueueSummary = {
 };
 
 const DB_NAME = "poem-field-store-v1";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const KEY_ID = "survey-device-key";
 let database: Promise<IDBDatabase> | null = null;
 
@@ -79,11 +80,13 @@ function openDatabase() {
     const open = indexedDB.open(DB_NAME, DB_VERSION);
     open.onupgradeneeded = () => {
       const value = open.result;
+      if (!value.objectStoreNames.contains("field_records")) value.createObjectStore("field_records", { keyPath: "id" });
       if (!value.objectStoreNames.contains("keys")) value.createObjectStore("keys", { keyPath: "id" });
       if (!value.objectStoreNames.contains("drafts")) value.createObjectStore("drafts", { keyPath: "id" });
       if (!value.objectStoreNames.contains("queue")) value.createObjectStore("queue", { keyPath: "id" });
     };
-    open.onsuccess = () => resolve(open.result);
+    open.onblocked = () => { database=null;reject(new Error("Close other POEM tabs to upgrade offline storage")); };
+    open.onsuccess = () => { open.result.onversionchange=()=>{open.result.close();database=null};resolve(open.result); };
     open.onerror = () => reject(open.error || new Error("Could not open encrypted device storage"));
   });
   return database;
@@ -160,6 +163,7 @@ export async function saveSurveyDeviceDraft(
   payload: SurveyDeviceDraft,
 ) {
   const value = await openDatabase();
+  await assertOwner(ownerId);
   const cipher = await encrypt(payload);
   const tx = value.transaction("drafts", "readwrite");
   const row: StoredDraft = {
@@ -186,6 +190,7 @@ export async function loadSurveyDeviceDraft(
   )) as StoredDraft | undefined;
   await transactionDone(tx);
   if (!row || row.ownerId !== ownerId || row.projectId !== projectId) return null;
+  await assertOwner(ownerId);
   return decrypt<SurveyDeviceDraft>(row.cipher);
 }
 
@@ -252,9 +257,10 @@ async function putQueue(row: StoredQueue) {
   changed();
 }
 
-export async function removeQueuedSurveySave(ownerId: string, requestId: string) {
+export async function removeQueuedSurveySave(ownerId: string, requestId: string, responseId?: string | null) {
   const value = await openDatabase();
-  const tx = value.transaction("queue", "readwrite");
+  const tx = value.transaction(responseId ? ["queue","field_records"] : "queue", "readwrite");
+  if(responseId)tx.objectStore("field_records").put({id:`${ownerId}:receipt:${requestId}`,ownerId,kind:"receipt",key:requestId,updatedAt:Date.now(),responseId});
   tx.objectStore("queue").delete(queueId(ownerId, requestId));
   await transactionDone(tx);
   changed();
@@ -266,7 +272,9 @@ export async function surveyQueueSummary(ownerId: string): Promise<SurveyQueueSu
   return { total: rows.length, pending: rows.length - attention, attention };
 }
 
-async function assertOwner(ownerId: string) {
+export async function assertOwner(ownerId: string) {
+  if (window.localStorage?.getItem("poem-field-locked") === "yes") throw new Error("Field device is locked; sign in again");
+  if (!navigator.onLine && offlineOwner() === ownerId) return;
   if (!db) throw new Error("Supabase is not configured");
   const { data, error } = await db.auth.getSession();
   if (error || data.session?.user.id !== ownerId) throw new Error("Sign in with the survey owner's account first");
@@ -376,23 +384,32 @@ export async function markQueuedSurveyPending(
   await putQueue(row);
 }
 
-export async function syncSurveyQueue(ownerId: string) {
+async function syncQueueOnce(ownerId: string, force=false) {
   if (!db || !navigator.onLine) return surveyQueueSummary(ownerId);
   const auth = await db.auth.getUser();
-  if (auth.error || auth.data.user?.id !== ownerId) return surveyQueueSummary(ownerId);
+  if (auth.error || auth.data.user?.id !== ownerId) throw new Error("Sign in again as the survey owner before synchronization. Device copies are retained.");
   const rows = await queueRows(ownerId);
   for (const row of rows) {
-    if (row.state !== "pending" || row.nextAttemptAt > Date.now()) continue;
+    if (row.state !== "pending" || (!force && row.nextAttemptAt > Date.now())) continue;
     try {
       await assertOwner(ownerId);
       let args: SaveArgs;
       try { args = await decrypt<SaveArgs>(row.cipher); }
       catch { row.state="needs_attention"; row.failureKind="unreadable"; row.error="This device copy cannot be decrypted. It has been retained; automatic retry is paused."; await putQueue(row); continue; }
+      row.syncingAt=Date.now();await putQueue(row);
+      if (Object.values((args.p_answers || {}) as Record<string,Json>).some(v=>typeof v === "string" && v.startsWith("local-file:"))) {
+        const {prepareSurveyAttachments}=await import("./fieldAttachments");
+        args=await prepareSurveyAttachments(ownerId,args);
+        row.cipher=await encrypt(args);
+        await putQueue(row); // Persist deterministic server references before any survey RPC.
+      }
       await assertOwner(ownerId);
+      row.syncingAt=Date.now();await putQueue(row);
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 20_000);
       const result = await Promise.resolve(db.rpc("save_survey_response", args).abortSignal(controller.signal)).finally(() => clearTimeout(timer));
       await assertOwner(ownerId);
+      delete row.syncingAt;
       if (result.error) {
         if (definitiveSurveySaveError(result.error)) {
           row.state = "needs_attention";
@@ -410,7 +427,7 @@ export async function syncSurveyQueue(ownerId: string) {
         continue;
       }
       if (!args.p_request_id) throw new Error("Queued survey request ID is missing");
-      await removeQueuedSurveySave(ownerId, args.p_request_id);
+      await removeQueuedSurveySave(ownerId, args.p_request_id, result.data);
       window.dispatchEvent(
         new CustomEvent("poem:survey-synced", {
           detail: { projectId: row.projectId, responseId: result.data },
@@ -418,6 +435,8 @@ export async function syncSurveyQueue(ownerId: string) {
       );
     } catch (error) {
       await assertOwner(ownerId);
+      delete row.syncingAt;
+      if(definitiveSurveySaveError(error as {code?:string})) {row.state="needs_attention";row.failureKind="rejected";row.error=(error as Error).message;await putQueue(row);continue;}
       row.error = ((error as Error).message || "Sync failed").slice(0, 1000);
       row.attempts += 1;
       row.nextAttemptAt = Date.now() + retryDelay(row.attempts);
@@ -426,4 +445,88 @@ export async function syncSurveyQueue(ownerId: string) {
     }
   }
   return surveyQueueSummary(ownerId);
+}
+
+// 2.11 records share the existing nonextractable AES key; payloads remain owner scoped.
+export function offlineOwner(): string | null {
+  return window.localStorage?.getItem('poem-field-locked')==='yes' ? null : window.localStorage?.getItem('poem-field-owner') || null;
+}
+export function rememberFieldOwner(ownerId:string) {
+  window.localStorage.setItem('poem-field-owner',ownerId);
+  window.localStorage.removeItem('poem-field-locked');
+}
+export function lockFieldDevice() {
+  window.localStorage.setItem('poem-field-locked','yes');
+  window.localStorage.removeItem('poem-field-owner');
+  window.dispatchEvent(new Event('poem:field-locked'));
+}
+type FieldRecord = {id:string;ownerId:string;kind:string;key:string;updatedAt:number;cipher?:Cipher;responseId?:string};
+export async function putFieldRecord(ownerId:string,kind:string,key:string,payload:unknown) {
+  await assertOwner(ownerId);
+  const cipher=await encrypt(payload);await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readwrite');
+  tx.objectStore('field_records').put({id:`${ownerId}:${kind}:${key}`,ownerId,kind,key,updatedAt:Date.now(),cipher});
+  await transactionDone(tx);changed();
+}
+export async function fieldRecords<T>(ownerId:string,kind:string):Promise<{key:string;value:T;updatedAt:number}[]> {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readonly');
+  const rows=await request(tx.objectStore('field_records').getAll()) as FieldRecord[];
+  await transactionDone(tx);
+  const out=[];for(const row of rows.filter(r=>r.ownerId===ownerId&&r.kind===kind&&r.cipher))out.push({key:row.key,value:await decrypt<T>(row.cipher!),updatedAt:row.updatedAt});
+  await assertOwner(ownerId);return out;
+}
+export async function deleteFieldRecord(ownerId:string,kind:string,key:string) {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readwrite');
+  tx.objectStore('field_records').delete(`${ownerId}:${kind}:${key}`);await transactionDone(tx);changed();
+}
+export async function fieldInventory(ownerId:string) {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction(['queue','drafts','field_records'],'readonly');
+  const done=transactionDone(tx);
+  const [queue,drafts,records]=await Promise.all(['queue','drafts','field_records'].map(n=>request(tx.objectStore(n).getAll())));
+  await done;
+  return {
+    queue:(queue as StoredQueue[]).filter(r=>r.ownerId===ownerId).map(({cipher:_,...r})=>({...r,status:r.state==='needs_attention'?'failed':r.syncingAt&&Date.now()-r.syncingAt<30000?'syncing':'queued'})),
+    drafts:(drafts as StoredDraft[]).filter(r=>r.ownerId===ownerId).map(({cipher:_,...r})=>({...r,status:'saved locally'})),
+    receipts:(records as FieldRecord[]).filter(r=>r.ownerId===ownerId&&r.kind==='receipt').map(r=>({...r,status:'synchronized'})),
+  };
+}
+export async function clearFieldReceipts(ownerId:string) {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readwrite'),done=transactionDone(tx),store=tx.objectStore('field_records');
+  const rows=await request(store.getAll()) as FieldRecord[];
+  for(const r of rows)if(r.ownerId===ownerId&&r.kind==='receipt')store.delete(r.id);
+  await done;changed();
+}
+export async function eraseOwnerFieldData(ownerId:string) {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction(['queue','drafts','field_records'],'readwrite'),done=transactionDone(tx);
+  for(const name of ['queue','drafts','field_records']){const store=tx.objectStore(name);const rows=await request(store.getAll()) as {id:string;ownerId:string}[];for(const r of rows)if(r.ownerId===ownerId)store.delete(r.id)}
+  await done;changed();
+}
+export async function getFieldRecord<T>(ownerId:string,kind:string,key:string):Promise<T|null> {
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readonly');
+  const row=await request(tx.objectStore('field_records').get(`${ownerId}:${kind}:${key}`)) as FieldRecord|undefined;
+  await transactionDone(tx);
+  if(!row?.cipher)return null;
+  const result=await decrypt<T>(row.cipher);await assertOwner(ownerId);return result;
+}
+export async function putFieldRecords(ownerId:string,items:{kind:string;key:string;value:unknown}[]) {
+  await assertOwner(ownerId);
+  const rows=await Promise.all(items.map(async item=>({id:`${ownerId}:${item.kind}:${item.key}`,ownerId,kind:item.kind,key:item.key,updatedAt:Date.now(),cipher:await encrypt(item.value)})));
+  await assertOwner(ownerId);
+  const value=await openDatabase(),tx=value.transaction('field_records','readwrite');
+  for(const row of rows)tx.objectStore('field_records').put(row);
+  await transactionDone(tx);changed();
+}
+
+const activeSyncs=new Map<string,Promise<SurveyQueueSummary>>();
+export function syncSurveyQueue(ownerId:string,force=false):Promise<SurveyQueueSummary> {
+ const existing=activeSyncs.get(ownerId);if(existing)return existing;
+ const run=()=>syncQueueOnce(ownerId,force);
+ const pending=(async()=>navigator.locks?await navigator.locks.request('poem-field-sync:'+ownerId,run):await run())().finally(()=>activeSyncs.delete(ownerId));
+ activeSyncs.set(ownerId,pending);return pending;
 }

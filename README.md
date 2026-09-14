@@ -1,3 +1,11 @@
+# Current release: POEM 2.11.0
+
+Offline field reliability. See [release notes](docs/PHASE-2.11.md), [WSL upgrade](docs/UPGRADE-2.11.md) and [validation](docs/VALIDATION-2.11.md). Earlier release notes below are historical.
+
+# Current release: POEM 2.10.0
+
+Advanced survey capture. See [release notes](docs/PHASE-2.10.md), [WSL upgrade](docs/UPGRADE-2.10.md) and [validation](docs/VALIDATION-2.10.md). Earlier release notes below are historical.
+
 # Current release: POEM 2.9.0
 
 NGO/project governance and independent verification. See [release notes](docs/PHASE-2.9.md), [WSL upgrade](docs/UPGRADE-2.9.md) and [validation](docs/VALIDATION-2.9.md). Earlier release notes below are historical.

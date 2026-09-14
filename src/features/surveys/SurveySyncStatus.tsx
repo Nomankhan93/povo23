@@ -28,12 +28,12 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
     }
   }, [userId]);
 
-  const sync = useCallback(async () => {
+  const sync = useCallback(async (force=false) => {
     if (!navigator.onLine || syncingRef.current) return;
     syncingRef.current = true;
     setSyncing(true);
     try {
-      setSummary(await syncSurveyQueue(userId));
+      setSummary(await syncSurveyQueue(userId,force));
       setError("");
     } catch (e) {
       setError((e as Error).message);
@@ -87,7 +87,7 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
         </p>
         {error && <p className="error-text">{error}</p>}
         <div className="document-actions">
-          <button className="secondary" disabled={!online || syncing || !summary.pending} onClick={() => void sync()}>
+          <button className="secondary" disabled={!online || syncing || !summary.pending} onClick={() => void sync(true)}>
             Sync now
           </button>
 

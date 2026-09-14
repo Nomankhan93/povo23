@@ -1,6 +1,6 @@
 {
   "name": "poem-phase1-1",
-  "version": "2.9.0",
+  "version": "2.11.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "node scripts/check-env.mjs && vite --host 127.0.0.1 --port 5173 --strictPort",
     "check": "tsc --noEmit",
-    "build": "node scripts/check-env.mjs && npm run check && vite build",
+    "build": "node scripts/check-env.mjs && npm run check && vite build && node scripts/build-field-worker.mjs && node scripts/test-field-worker211.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs && node scripts/test-stabilization.mjs && node scripts/test-phase24.mjs && node scripts/test-phase25.mjs && node scripts/test-phase26.mjs && node scripts/test-phase27.mjs && node scripts/test-geography-reference.mjs && node scripts/test-profile-structured-ui.mjs && node scripts/test-profile-independence-photo.mjs && node scripts/test-sidebar-profile-grouping.mjs && node scripts/test-correctness276.mjs && node scripts/test-offline-recovery276.mjs && node scripts/test-survey-save276.mjs && node scripts/test-phase28.mjs && node scripts/test-phase29.mjs",
+    "test": "node scripts/test-database.mjs && node scripts/test-phase12.mjs && node scripts/test-phase13.mjs && node scripts/test-phase14.mjs && node scripts/test-phase21.mjs && node scripts/test-phase22.mjs && node scripts/test-phase23.mjs && node scripts/test-stabilization.mjs && node scripts/test-phase24.mjs && node scripts/test-phase25.mjs && node scripts/test-phase26.mjs && node scripts/test-phase27.mjs && node scripts/test-geography-reference.mjs && node scripts/test-profile-structured-ui.mjs && node scripts/test-profile-independence-photo.mjs && node scripts/test-sidebar-profile-grouping.mjs && node scripts/test-correctness276.mjs && node scripts/test-offline-recovery276.mjs && node scripts/test-survey-save276.mjs && node scripts/test-phase28.mjs && node scripts/test-phase29.mjs && node scripts/test-phase210.mjs && node scripts/test-capture-client.mjs && node scripts/test-phase211.mjs && node scripts/test-field211.mjs && node scripts/test-field-storage211.mjs",
     "env:local": "node scripts/local-env.mjs",
     "admin:bootstrap": "node scripts/bootstrap-admin.mjs",
     "preflight": "npm run types:check && npm run check && npm test && npm run build",

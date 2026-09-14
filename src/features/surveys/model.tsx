@@ -8,9 +8,13 @@ export type Household = Tables["registry_households"]["Row"];
 export type Question = {
   id: string;
   label: string;
-  type: "text" | "number" | "date" | "choice" | "yesno";
+  type: "text" | "number" | "date" | "choice" | "yesno" | "multiple" | "phone" | "identity" | "household" | "gps" | "photo" | "document";
   required: boolean;
   options?: string[];
+  when?: { question: string; equals: string | boolean };
+  min?: number;
+  max?: number;
+  after?: string;
 };
 export type Org = { id: string; name: string; status: string };
 export const get = (f: FormData, k: string) => String(f.get(k) || "");

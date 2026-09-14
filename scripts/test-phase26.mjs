@@ -18,7 +18,9 @@ ok("release includes Phase 2.6 or later", () => {
 });
 ok("device queue uses IndexedDB rather than localStorage", () => {
   assert.match(store, /indexedDB\.open/);
-  assert.doesNotMatch(store, /localStorage/);
+  // 2.11 stores only an owner/lock marker in localStorage; encrypted payloads stay in IDB.
+  for (const match of store.matchAll(/localStorage\.setItem\(['"]([^'"]+)['"]/g)) assert(['poem-field-owner','poem-field-locked'].includes(match[1]));
+  assert.doesNotMatch(store, /localStorage\.setItem\([^;]*(?:JSON\.stringify|cipher|answers|payload)/);
 });
 ok("survey payload is encrypted with a non-extractable AES-GCM device key", () => {
   assert.match(store, /AES-GCM/);

@@ -1,0 +1,18 @@
+import ts from 'typescript';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+const js=ts.transpileModule(readFileSync('src/features/surveys/tusUpload.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const out={};new Function('exports',js)(out);const {resumeTus,safeUploadUrl}=out;
+const endpoint='https://storage.example.test/storage/v1/upload/resumable';
+let requests=[],offset=0,url='',failPatch=true;
+const response=(status,headers={})=>new Response(null,{status,headers});
+const mock=async(u,init)=>{requests.push([u,init.method,init.headers['Upload-Offset']]);if(init.method==='POST')return response(201,{Location:endpoint+'/one'});if(init.method==='HEAD')return response(200,{'Upload-Offset':String(offset)});if(init.method==='PATCH'){offset+=await init.body.size;if(failPatch){failPatch=false;throw Error('Lost response after committed bytes')}return response(204,{'Upload-Offset':String(offset)})}throw Error('unexpected')};
+const options={endpoint,token:async()=>'fake',bytes:new Uint8Array(10),mime:'image/jpeg',objectName:'file',saveUrl:async u=>{url=u},progress:async()=>{},fetcher:mock};
+await assert.rejects(()=>resumeTus(options),/Lost response/);assert.equal(url,endpoint+'/one');
+await resumeTus({...options,url});assert.deepEqual(requests.map(r=>r[1]),['POST','PATCH','HEAD']);assert.equal(offset,10);console.log('PASS lost upload acknowledgement resumes with HEAD without resending completed bytes');
+requests=[];offset=4;await resumeTus({...options,url,fetcher:mock});assert.equal(requests[0][1],'HEAD');assert.equal(requests[1][2],'4');assert.equal(offset,10);console.log('PASS interrupted upload continues from server offset');
+let sequence=[];await resumeTus({...options,url,fetcher:async(u,init)=>{sequence.push(init.method);if(init.method==='HEAD')return response(410);if(init.method==='POST')return response(201,{Location:endpoint+'/new'});return response(204,{'Upload-Offset':'10'})}});assert.deepEqual(sequence,['HEAD','POST','PATCH']);console.log('PASS expired TUS URL creates a new session for the same immutable object');
+let patch=false;await assert.rejects(()=>resumeTus({...options,url:undefined,saveUrl:async()=>{throw Error('Quota exceeded')},fetcher:async(u,init)=>{if(init.method==='PATCH')patch=true;return response(201,{Location:endpoint+'/one'})}}),/Quota/);assert.equal(patch,false);console.log('PASS failed URL persistence stops upload before bytes leave device');
+assert.throws(()=>safeUploadUrl('https://attacker.test/upload',endpoint),/Untrusted/);assert.throws(()=>safeUploadUrl('https://storage.example.test/other',endpoint),/Untrusted/);console.log('PASS upload URL cannot redirect credentials outside trusted endpoint');
+await assert.rejects(()=>resumeTus({...options,url,fetcher:async()=>response(200,{'Upload-Offset':'99'})}),/offset/);console.log('PASS invalid server offset retains device data for recovery');
+await assert.rejects(()=>resumeTus({...options,url,fetcher:async()=>response(401)}),/sign in/);console.log('PASS expired authentication does not discard or restart original bytes');
+const source=readFileSync('src/features/surveys/activeDraft.ts','utf8');const module={};new Function('exports',ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(module);let saved=false;const unregister=module.registerActiveDraft(async()=>{await new Promise(r=>setTimeout(r,5));saved=true});await module.flushActiveDraft();assert(saved);unregister();await module.flushActiveDraft();console.log('PASS active draft flush waits for persistence before navigation');
+console.log('8 offline protocol/navigation scenarios passed (mock transport, not browser acceptance)');

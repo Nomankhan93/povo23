@@ -1,0 +1,17 @@
+import ts from 'typescript';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const js=ts.transpileModule(readFileSync('src/features/surveys/capture.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const exports={};new Function('exports',js)(exports);
+const {visibleAnswers,captureErrors}=exports;
+const qs=[{id:'a',type:'yesno'},{id:'b',type:'choice',options:['yes','no'],when:{question:'a',equals:true}},{id:'c',type:'text',required:true,when:{question:'b',equals:'yes'}}];
+assert.deepEqual(visibleAnswers(qs,{a:false,b:'yes',c:'sensitive old answer',unknown:'x'}),{a:false});
+assert.deepEqual(visibleAnswers(qs,{a:true,b:'yes',c:'retained'}),{a:true,b:'yes',c:'retained'});
+assert.equal(captureErrors(qs,{a:false},true).length,0);
+assert.equal(captureErrors(qs,{a:true,b:'yes'},true).length,1);
+assert.equal(captureErrors(qs,{a:true,b:'yes'},false).length,0);
+console.log('PASS cascading visibility removes hidden/unknown answers; draft and submission requirements differ');
+for(const [q,v] of [[{id:'x',type:'date'},'2026-02-30'],[{id:'x',type:'identity'},'123'],[{id:'x',type:'phone'},'abc'],[{id:'x',type:'number',min:0},-1],[{id:'x',type:'household'},[{full_name:'A',relationship:''}]]])assert(captureErrors([q],{x:v},true).length);
+assert.equal(captureErrors([{id:'x',type:'multiple',options:['A','B']}],{x:['A','B']},true).length,0);
+assert(captureErrors([{id:'x',type:'multiple',options:['A','B']}],{x:['A','A']},true).length);
+console.log('PASS malformed capture values rejected before offline queueing');

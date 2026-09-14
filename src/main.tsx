@@ -7,3 +7,12 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </React.StrictMode>,
 );
+
+// Built static assets only; authenticated API responses never enter Cache Storage.
+if(import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load',()=>{
+    void navigator.serviceWorker.register('/field-sw.js').then(reg=>{
+      reg.addEventListener('updatefound',()=>window.dispatchEvent(new Event('poem:field-update')));
+    }).catch(()=>window.dispatchEvent(new Event('poem:field-cache-failed')));
+  });
+}
