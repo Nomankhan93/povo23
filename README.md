@@ -1,3 +1,7 @@
+# Current release: POEM 2.11.2
+
+Official POEM branding. See [release notes](docs/PHASE-2.11.2.md), [WSL upgrade](docs/UPGRADE-2.11.2.md) and [validation](docs/PHASE-2.11.2.md). Earlier release notes below are historical.
+
 # Current release: POEM 2.11.1
 
 Design System & Workflow UX. See [release notes](docs/PHASE-2.11.1.md), [WSL upgrade](docs/UPGRADE-2.11.1.md) and [validation](docs/VALIDATION-2.11.1.md). Earlier release notes below are historical.

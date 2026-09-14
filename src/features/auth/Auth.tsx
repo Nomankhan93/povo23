@@ -1,3 +1,4 @@
+import {PoemBrand} from "../../components/ui/PoemBrand";
 import {rememberFieldOwner} from '../surveys/offlineSurveyStore';
 import {APP_VERSION} from '../../app/version';
 import type { Session } from "@supabase/supabase-js";
@@ -84,10 +85,7 @@ export function Auth({
   return (
     <div className="auth-shell">
       <section className="auth-story">
-        <div className="logo">
-          <HeartHandshake />
-          <b>POEM</b>
-        </div>
+        <PoemBrand />
         <span className="eyebrow">PEOPLE. PURPOSE. IMPACT.</span>
         <h1>
           Local people.
@@ -116,6 +114,7 @@ export function Auth({
       </section>
       <section className="auth-form">
         <div className="auth-card">
+          <div className="mobile-auth-brand"><PoemBrand /></div>
           <span className="eyebrow">WELCOME TO POEM</span>
           <h2>
             {mode === "signup"

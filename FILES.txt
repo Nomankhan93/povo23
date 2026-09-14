@@ -9,6 +9,7 @@ docs/PHASE-1.4.md
 docs/PHASE-2.1.md
 docs/PHASE-2.10.md
 docs/PHASE-2.11.1.md
+docs/PHASE-2.11.2.md
 docs/PHASE-2.11.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -36,6 +37,7 @@ docs/UPGRADE-1.4.md
 docs/UPGRADE-2.1.md
 docs/UPGRADE-2.10.md
 docs/UPGRADE-2.11.1.md
+docs/UPGRADE-2.11.2.md
 docs/UPGRADE-2.11.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -116,6 +118,9 @@ scripts/test-workflow-ui2111.mjs
 src/app/App.tsx
 src/app/AppShell.tsx
 src/app/version.ts
+src/assets/brand/poem-emblem.jpeg
+src/assets/brand/poem-wordmark.jpeg
+src/components/ui/PoemBrand.tsx
 src/components/ui/WorkflowOverview.tsx
 src/features/assistance/AssistancePanel.tsx
 src/features/audit/EventList.tsx

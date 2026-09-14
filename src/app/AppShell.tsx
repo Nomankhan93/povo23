@@ -1,3 +1,4 @@
+import {PoemBrand} from "../components/ui/PoemBrand";
 import {navigationGroups,WorkflowOverview} from "../components/ui/WorkflowOverview";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -329,10 +330,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
         <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
-        <div className="logo">
-          <HeartHandshake />
-          <b>POEM</b>
-        </div>
+        <PoemBrand />
         <div className="workspace-select">
           <label htmlFor="scope">WORKSPACE</label>
           <select

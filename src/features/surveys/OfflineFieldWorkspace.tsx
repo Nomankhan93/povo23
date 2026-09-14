@@ -1,3 +1,4 @@
+import {PoemBrand} from "../../components/ui/PoemBrand";
 import {EmptyState,StatusBadge} from "../../components/ui/WorkflowOverview";
 import {useCallback,useEffect,useState} from 'react';
 import {db,rpc} from '../../lib/supabase/client';
@@ -44,7 +45,7 @@ export function OfflineFieldWorkspace({ownerId,back}:{ownerId:string;back:()=>vo
  }
  const expired=selected&&(Date.now()>=Date.parse(selected.valid_until)||Boolean(selected.blocked));
  return <main className="panel detail field-workspace">
-   <h1>Offline field workspace</h1><OfflineShellStatus/><p role="status"><StatusBadge tone={online?"success":"warning"}>{online?"Connected":"Offline"}</StatusBadge> {online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
+   <PoemBrand compact/><h1>Offline field workspace</h1><OfflineShellStatus/><p role="status"><StatusBadge tone={online?"success":"warning"}>{online?"Connected":"Offline"}</StatusBadge> {online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
    <div className="actions"><button type="button" disabled={collect||busy} onClick={back}>Main workspace</button><button type="button" disabled={collect||busy} onClick={()=>void logout()}>Lock and sign out</button></div>
    <SurveySyncStatus userId={ownerId}/>
    {error&&<p role="alert" className="notice error">{error}</p>}{notice&&<p role="status">{notice}</p>}
