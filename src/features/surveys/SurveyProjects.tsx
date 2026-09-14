@@ -1,3 +1,5 @@
+import {AreaSelector} from "../geography/AreaSelector";
+import {selectableArea} from "../geography/areaSelection";
 import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { geographyPath, type Geo } from "../geography/model";
@@ -19,6 +21,7 @@ export function SurveyProjects({
   orgs: Org[];
   geographies: Geo[];
 }) {
+  const [collectionArea,setCollectionArea]=useState<string|null>(null);
   const [rows, setRows] = useState<Project[]>([]),
     [templates, setTemplates] = useState<Template[]>([]),
     [chosen, setChosen] = useState<Project | null>(null),
@@ -86,6 +89,7 @@ export function SurveyProjects({
   async function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    if(!selectableArea(collectionArea,geographies)){setError("Choose an active collection area before creating the project.");return;}
     setBusy(true);
     setError("");
     try {
@@ -93,7 +97,7 @@ export function SurveyProjects({
         p_org: get(f, "org"),
         p_title: get(f, "title"),
         p_template: get(f, "template"),
-        p_geography: get(f, "geo"),
+        p_geography: collectionArea!,
         p_target: Number(get(f, "target")),
         p_start: get(f, "start"),
         p_end: get(f, "end"),
@@ -102,6 +106,7 @@ export function SurveyProjects({
         p_consent_notice: get(f, "notice"),
       });
       setCreate(false);
+      setCollectionArea(null);
       setRev((n) => n + 1);
     } catch (e) {
       setError((e as Error).message);
@@ -169,23 +174,7 @@ export function SurveyProjects({
                 ))}
               </select>
             </label>
-            <label className="field">
-              Collection area
-              <select name="geo" required>
-                <option value="">Choose area</option>
-                {geographies
-                  .filter((g) =>
-                    geographyPath(g.id, geographies).every((g) => g.active),
-                  )
-                  .map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {geographyPath(g.id, geographies)
-                        .map((n) => n.name)
-                        .join(" / ")}
-                    </option>
-                  ))}
-              </select>
-            </label>
+            <AreaSelector rows={geographies} value={collectionArea} onChange={setCollectionArea} title="Collection area" disabled={busy}/>
             <label className="field">
               Target responses
               <input

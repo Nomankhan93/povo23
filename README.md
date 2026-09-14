@@ -1,3 +1,7 @@
+# Current release: POEM 2.12.1
+
+Dependent survey and NGO area selection. See [release notes](docs/PHASE-2.12.1.md), [WSL upgrade](docs/UPGRADE-2.12.1.md) and [validation](docs/VALIDATION-2.12.1.md). Earlier release notes below are historical.
+
 # Current release: POEM 2.12.0
 
 Workforce Payable Accounting. See [release notes](docs/PHASE-2.12.md), [WSL upgrade](docs/UPGRADE-2.12.md) and [validation](docs/VALIDATION-2.12.md). Earlier release notes below are historical.

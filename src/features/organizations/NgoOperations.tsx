@@ -1,3 +1,5 @@
+import {AreaSelector} from "../geography/AreaSelector";
+import {addOperatingArea,areaCaption,selectableArea,operatingKinds} from "../geography/areaSelection";
 import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { geographyPath, type Geo } from "../geography/model";
@@ -10,6 +12,8 @@ export function OperationsForm({
   geographies: Geo[];
   editable: boolean;
 }) {
+  const [candidate,setCandidate]=useState<string|null>(null);
+  const [loaded,setLoaded]=useState(false);
   const [selected, setSelected] = useState<string[]>([]),
     [programs, setPrograms] = useState(""),
     [version, setVersion] = useState(0),
@@ -20,6 +24,7 @@ export function OperationsForm({
   useEffect(() => {
     let alive = true;
     setBusy(true);
+    setLoaded(false);
     setError("");
     Promise.all([
       db!
@@ -43,6 +48,7 @@ export function OperationsForm({
         setSelected(a.data!.map((x) => x.geography_id));
         setPrograms(p.data!.map((x) => x.name).join("\n"));
         setVersion(o.data!.operations_version);
+        setLoaded(true);
       })
       .catch((e) => {
         if (alive) setError(e.message);
@@ -76,9 +82,7 @@ export function OperationsForm({
       setBusy(false);
     }
   }
-  const available = geographies.filter((g) =>
-    ["district", "taluka"].includes(g.kind),
-  );
+  const canAdd=Boolean(candidate&&selectableArea(candidate,geographies)&&operatingKinds.includes(geographies.find(g=>g.id===candidate)?.kind||'')&&!selected.includes(candidate)&&selected.length<100);
   return (
     <section className="operations">
       <h3>Structured NGO operations</h3>
@@ -95,34 +99,12 @@ export function OperationsForm({
         <p>Loading…</p>
       ) : editable ? (
         <form onSubmit={save}>
-          <fieldset>
-            <legend>Operating districts / talukas</legend>
-            <div className="area-options">
-              {available.map((g) => (
-                <label className="checklabel" key={g.id}>
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(g.id)}
-                    onChange={(e) =>
-                      setSelected(
-                        e.target.checked
-                          ? [...selected, g.id]
-                          : selected.filter((id) => id !== g.id),
-                      )
-                    }
-                  />
-                  {geographyPath(g.id, geographies)
-                    .map((n) => n.name)
-                    .join(" / ")}
-                  {!geographyPath(g.id, geographies).every((n) => n.active) &&
-                    " (inactive)"}
-                </label>
-              ))}
-              {!available.length && (
-                <p>Add sourced districts and talukas in Geography first.</p>
-              )}
-            </div>
-          </fieldset>
+          <AreaSelector rows={geographies} value={candidate} onChange={setCandidate} title="Operating areas" disabled={!loaded||busy}/>
+          <p>Choose District or a narrower area, then add it. You can keep areas from different provinces. Save operations to commit changes.</p>
+          <button type="button" className="secondary" disabled={!canAdd||!loaded||busy} onClick={()=>setSelected(old=>addOperatingArea(old,candidate,geographies))}>{candidate&&selected.includes(candidate)?'Area already added':'Add area'}</button>
+          <p role="status">{selected.length} / 100 areas selected</p>
+          <ul className="selected-operating-areas">{selected.map(id=><li key={id}><span>{areaCaption(id,geographies)}{!selectableArea(id,geographies)&&' (inactive or unavailable — retained)'}</span><button type="button" className="secondary" disabled={!loaded||busy} aria-label={'Remove '+areaCaption(id,geographies)} onClick={()=>setSelected(old=>old.filter(g=>g!==id))}>Remove</button></li>)}</ul>
+          {!selected.length&&<p>No operating areas selected.</p>}
           <label className="field">
             Programs (one per line)
             <textarea
@@ -131,7 +113,7 @@ export function OperationsForm({
               maxLength={5050}
             />
           </label>
-          <button className="secondary" disabled={busy || !version}>
+          <button className="secondary" disabled={busy || !version || !loaded}>
             Save operations
           </button>
         </form>

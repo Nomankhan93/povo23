@@ -12,6 +12,7 @@ docs/PHASE-2.10.md
 docs/PHASE-2.11.1.md
 docs/PHASE-2.11.2.md
 docs/PHASE-2.11.md
+docs/PHASE-2.12.1.md
 docs/PHASE-2.12.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -41,6 +42,7 @@ docs/UPGRADE-2.10.md
 docs/UPGRADE-2.11.1.md
 docs/UPGRADE-2.11.2.md
 docs/UPGRADE-2.11.md
+docs/UPGRADE-2.12.1.md
 docs/UPGRADE-2.12.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -62,6 +64,7 @@ docs/UPGRADE-2.9.md
 docs/VALIDATION-2.10.md
 docs/VALIDATION-2.11.1.md
 docs/VALIDATION-2.11.md
+docs/VALIDATION-2.12.1.md
 docs/VALIDATION-2.12.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
@@ -82,6 +85,7 @@ docs/VALIDATION.md
 index.html
 package-lock.json
 package.json
+project-tree.txt
 public/favicon.svg
 scripts/bootstrap-admin.mjs
 scripts/build-field-worker.mjs
@@ -89,6 +93,8 @@ scripts/check-env.mjs
 scripts/generate-types.mjs
 scripts/local-env.mjs
 scripts/schema-test-db.mjs
+scripts/test-area-operations.mjs
+scripts/test-area-picker.mjs
 scripts/test-capture-client.mjs
 scripts/test-correctness276.mjs
 scripts/test-database.mjs
@@ -131,8 +137,10 @@ src/features/assistance/AssistancePanel.tsx
 src/features/audit/EventList.tsx
 src/features/auth/AccountAccess.tsx
 src/features/auth/Auth.tsx
+src/features/geography/AreaSelector.tsx
 src/features/geography/GeographyManager.tsx
 src/features/geography/GeographyPicker.tsx
+src/features/geography/areaSelection.ts
 src/features/geography/model.tsx
 src/features/governance/ProjectGovernance.tsx
 src/features/needs/NeedDetail.tsx
@@ -212,5 +220,6 @@ supabase/migrations/20260926000100_governance_verification.sql
 supabase/migrations/20260927000100_advanced_capture.sql
 supabase/migrations/20260928000100_offline_field.sql
 supabase/migrations/20260929000100_workforce_payables.sql
+supabase/migrations/20260930000100_area_selection.sql
 tsconfig.json
 vite.config.ts
