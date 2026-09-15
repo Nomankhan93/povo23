@@ -1342,6 +1342,39 @@ created_at?: string;
 };
 Relationships: [];
 };
+survey_template_drafts: {
+Row: {
+id: string;
+owner_id: string;
+name: string;
+questions: Json;
+source: Json;
+version: number;
+published_id: string | null;
+updated_at: string;
+};
+Insert: {
+id: string;
+owner_id: string;
+name?: string;
+questions?: Json;
+source?: Json;
+version?: number;
+published_id?: string | null;
+updated_at?: string;
+};
+Update: {
+id?: string;
+owner_id?: string;
+name?: string;
+questions?: Json;
+source?: Json;
+version?: number;
+published_id?: string | null;
+updated_at?: string;
+};
+Relationships: [];
+};
 survey_templates: {
 Row: {
 id: string;
@@ -2223,6 +2256,10 @@ publish_survey_template: { Args: {
 p_name: string | null;
 p_questions: Json | null;
 }; Returns: string };
+publish_template_draft: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: string };
 reconcile_canonical_identity: { Args: {
 p_person: string | null;
 p_source_version: number | null;
@@ -2424,6 +2461,13 @@ p_submit: boolean | null;
 p_version: number | null;
 p_request_id: string | null;
 }; Returns: string };
+save_template_draft: { Args: {
+p_id: string | null;
+p_name: string | null;
+p_questions: Json | null;
+p_source: Json | null;
+p_version: number | null;
+}; Returns: number };
 search_canonical_registry: { Args: {
 p_query: string | null;
 p_state: string | null;

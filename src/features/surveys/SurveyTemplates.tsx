@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { type Json } from "../../lib/supabase/database.types";
 import { Question, Template } from "./model";
+import { templateLibrary, copyQuestions, dependencyErrors } from "./templateLibrary";
+import { TemplatePreview } from "./TemplatePreview";
 import { Pager } from "./Pager";
 export function SurveyTemplates() {
   const [rows, setRows] = useState<Template[]>([]),
@@ -13,6 +15,18 @@ export function SurveyTemplates() {
     [message, setMessage] = useState(""),
     [name, setName] = useState(""),
     [qs, setQs] = useState<Question[]>([]);
+  const [tab,setTab]=useState<'mine'|'library'>('mine'),[draftId,setDraftId]=useState<string>(()=>crypto.randomUUID()),[version,setVersion]=useState(0),[source,setSource]=useState<Json>({}),[dirty,setDirty]=useState(false),[preview,setPreview]=useState(false);
+  const [drafts,setDrafts]=useState<{id:string;name:string;questions:Json;source:Json;version:number;published_id:string|null}[]>([]);
+  useEffect(()=>{const leave=(e:BeforeUnloadEvent)=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',leave);return()=>window.removeEventListener('beforeunload',leave)},[dirty]);
+  useEffect(()=>{let live=true;db!.from('survey_template_drafts').select('*').order('updated_at',{ascending:false}).limit(100).then(r=>{if(!live)return;if(r.error)setError(r.error.message);else setDrafts(r.data||[])});return()=>{live=false}},[rev]);
+  function openDraft(title:string,questions:Question[],origin:Json,id:string=crypto.randomUUID(),v=0){
+    if(dirty&&!window.confirm('Discard unsaved changes and open this draft?'))return;
+    setName(title);setQs(structuredClone(questions));setSource(origin);setDraftId(id);setVersion(v);setDirty(v===0);setPreview(false);setTab('mine');setError('');setMessage('');
+  }
+  async function saveDraft(){
+    setBusy(true);setError('');try{const v=await rpc('save_template_draft',{p_id:draftId,p_name:name,p_questions:qs as unknown as Json,p_source:source,p_version:version});setVersion(v);setDirty(false);setMessage('Draft saved.');setRev(n=>n+1);}catch(e){setError((e as Error).message)}finally{setBusy(false)}
+  }
+  function move(i:number,delta:number){const next=[...qs];[next[i],next[i+delta]]=[next[i+delta],next[i]];const errors=dependencyErrors(next);if(errors.length){setError('Move blocked: '+errors.join(' '));return;}setQs(next);setDirty(true);}
   useEffect(() => {
     let live = true;
     setBusy(true);
@@ -40,10 +54,10 @@ export function SurveyTemplates() {
     setBusy(true);
     setError("");
     try {
-      await rpc("publish_survey_template", {
-        p_name: name,
-        p_questions: qs as unknown as Json,
-      });
+      if(dirty||!version)throw new Error('Save this draft before publishing.');
+      const errors=dependencyErrors(qs);if(errors.length)throw new Error(errors.join(' '));
+      await rpc('publish_template_draft',{p_id:draftId,p_version:version});
+      setDraftId(crypto.randomUUID());setVersion(0);setSource({});setDirty(false);
       setMessage(
         "Published. Existing versions and their projects remain unchanged.",
       );
@@ -56,21 +70,25 @@ export function SurveyTemplates() {
     }
   }
   const update = (i: number, patch: Partial<Question>) =>
-    setQs((q) => q.map((v, n) => (n === i ? { ...v, ...patch } : v)));
+    { setDirty(true);setQs((q) => q.map((v, n) => (n === i ? { ...v, ...patch } : v))); };
   return (
     <section className="panel detail">
-      <h2>Publish a survey template</h2>
-      <p>
-        Build questions below. Publishing the same name creates the next
-        version. This editor is not saved until you publish.
-      </p>
+      <h2>Survey templates</h2>
+      <div className="actions"><button type="button" disabled={busy} aria-pressed={tab==='mine'} onClick={()=>setTab('mine')}>My templates</button><button type="button" disabled={busy} aria-pressed={tab==='library'} onClick={()=>setTab('library')}>Template library</button></div>
+      {tab==='library'&&<div><p>Read-only starter templates. Use template creates your own editable draft. Review wording, required fields and project consent before publishing.</p>{templateLibrary.map(t=><article className="document-row" key={t.id}><h3>{t.name}</h3><p>{t.description} · {t.questions.length} questions · Library v{t.version}</p><details><summary>View questions</summary><ol>{t.questions.map(q=><li key={q.id}>{q.label} ({q.type})</li>)}</ol></details><button type="button" disabled={busy} onClick={()=>openDraft(t.name,copyQuestions(t.questions),{library_id:t.id,library_version:t.version})}>Use template</button></article>)}</div>}
+      <div hidden={tab!=='mine'}>
+      <h3>Saved drafts and publication recovery</h3><p>Your latest 100 drafts. Save before leaving this screen. Drafts are private to their author.</p>
+      {drafts.map(d=><article className="document-row" key={d.id}><strong>{d.name||'Untitled draft'}</strong><span> · {d.published_id?'Published':'Draft'} · revision {d.version}</span>{!d.published_id&&<button type="button" disabled={busy} onClick={()=>openDraft(d.name,d.questions as unknown as Question[],d.source,d.id,d.version)}>Open saved draft</button>}</article>)}
+      <button type="button" disabled={busy} onClick={()=>openDraft('',[],{})}>New blank draft</button>
+      <p role="status">{dirty?'Unsaved changes':version?'Saved draft':'New draft'} · Published versions cannot be edited.</p>
       {error && (
         <p role="alert" className="notice error">
           {error}
         </p>
       )}
       {message && <p role="status">{message}</p>}
-      <form onSubmit={publish}>
+      <form onSubmit={publish} onChange={()=>setDirty(true)}>
+<fieldset disabled={busy}>
         <label className="field">
           Template name
           <input
@@ -132,10 +150,13 @@ export function SurveyTemplates() {
             <button
               className="secondary"
               type="button"
-              onClick={() => setQs((items) => items.filter((_, n) => n !== i))}
+              onClick={() => {if(qs.some(other=>other.when?.question===q.id||other.after===q.id)){setError('Remove blocked: another question depends on this question. Clear its condition/date comparison first.');return;}setQs(items=>items.filter((_,n)=>n!==i));setDirty(true);}}
             >
               Remove question
             </button>
+            <button type="button" disabled={qs.length>=50} onClick={()=>{setQs(items=>[...items.slice(0,i+1),{...structuredClone(q),id:'q_'+crypto.randomUUID().replaceAll('-','')},...items.slice(i+1)]);setDirty(true)}}>Duplicate question</button>
+            <button type="button" disabled={i===0} onClick={()=>move(i,-1)}>Move up</button>
+            <button type="button" disabled={i===qs.length-1} onClick={()=>move(i,1)}>Move down</button>
           </fieldset>
         ))}
         <div className="actions">
@@ -143,7 +164,7 @@ export function SurveyTemplates() {
             className="secondary"
             type="button"
             disabled={qs.length >= 50 || busy}
-            onClick={() =>
+            onClick={() => {setDirty(true);
               setQs((q) => [
                 ...q,
                 {
@@ -152,16 +173,19 @@ export function SurveyTemplates() {
                   type: "text",
                   required: false,
                 },
-              ])
+              ]);}
             }
           >
             Add question
           </button>
-          <button className="primary" disabled={busy || !qs.length}>
+          <button type="button" onClick={()=>void saveDraft()}>Save draft</button>
+          <button type="button" onClick={()=>setPreview(p=>!p)}>Preview form</button>
+          <button className="primary" disabled={busy || !qs.length || dirty || !version}>
             Publish immutable version
           </button>
         </div>
-      </form>
+      </fieldset></form>
+      {preview&&<TemplatePreview questions={qs}/>}
       <h3>Published versions</h3>
       {rows.map((t) => (
         <article className="document-row" key={t.id}>
@@ -171,16 +195,15 @@ export function SurveyTemplates() {
           <p>{(t.questions as unknown as Question[]).length} questions</p>
           <button
             className="secondary"
-            onClick={() => {
-              setName(t.name);
-              setQs(structuredClone(t.questions) as unknown as Question[]);
-            }}
+            disabled={busy}
+            onClick={() => openDraft(t.name,t.questions as unknown as Question[],{published_template_id:t.id})}
           >
             Use as next-version draft
           </button>
         </article>
       ))}
       <Pager page={page} more={more} busy={busy} change={setPage} />
+      </div>
     </section>
   );
 }

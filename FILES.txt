@@ -1,4 +1,5 @@
 .gitignore
+.library-test-Xv1TVZ/library.mjs
 .nvmrc
 FILES.txt
 README.md
@@ -13,6 +14,7 @@ docs/PHASE-2.11.1.md
 docs/PHASE-2.11.2.md
 docs/PHASE-2.11.md
 docs/PHASE-2.12.1.md
+docs/PHASE-2.12.2.md
 docs/PHASE-2.12.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -43,6 +45,7 @@ docs/UPGRADE-2.11.1.md
 docs/UPGRADE-2.11.2.md
 docs/UPGRADE-2.11.md
 docs/UPGRADE-2.12.1.md
+docs/UPGRADE-2.12.2.md
 docs/UPGRADE-2.12.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -65,6 +68,7 @@ docs/VALIDATION-2.10.md
 docs/VALIDATION-2.11.1.md
 docs/VALIDATION-2.11.md
 docs/VALIDATION-2.12.1.md
+docs/VALIDATION-2.12.2.md
 docs/VALIDATION-2.12.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
@@ -125,6 +129,7 @@ scripts/test-profile-structured-ui.mjs
 scripts/test-sidebar-profile-grouping.mjs
 scripts/test-stabilization.mjs
 scripts/test-survey-save276.mjs
+scripts/test-template-library.mjs
 scripts/test-workflow-ui2111.mjs
 src/app/App.tsx
 src/app/AppShell.tsx
@@ -169,11 +174,13 @@ src/features/surveys/SurveyProjectDetail.tsx
 src/features/surveys/SurveyProjects.tsx
 src/features/surveys/SurveySyncStatus.tsx
 src/features/surveys/SurveyTemplates.tsx
+src/features/surveys/TemplatePreview.tsx
 src/features/surveys/activeDraft.ts
 src/features/surveys/capture.ts
 src/features/surveys/fieldAttachments.ts
 src/features/surveys/model.tsx
 src/features/surveys/offlineSurveyStore.ts
+src/features/surveys/templateLibrary.ts
 src/features/surveys/tusUpload.ts
 src/features/surveys/useSurveySave.ts
 src/features/verification/VerificationWorkspace.tsx
@@ -221,5 +228,6 @@ supabase/migrations/20260927000100_advanced_capture.sql
 supabase/migrations/20260928000100_offline_field.sql
 supabase/migrations/20260929000100_workforce_payables.sql
 supabase/migrations/20260930000100_area_selection.sql
+supabase/migrations/20261001000100_template_drafts.sql
 tsconfig.json
 vite.config.ts

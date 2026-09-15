@@ -1,3 +1,7 @@
+# Current release: POEM 2.12.2
+
+Survey Template Library and Draft Editing. See [release notes](docs/PHASE-2.12.2.md), [WSL upgrade](docs/UPGRADE-2.12.2.md) and [validation](docs/VALIDATION-2.12.2.md). Earlier release notes below are historical.
+
 # Current release: POEM 2.12.1
 
 Dependent survey and NGO area selection. See [release notes](docs/PHASE-2.12.1.md), [WSL upgrade](docs/UPGRADE-2.12.1.md) and [validation](docs/VALIDATION-2.12.1.md). Earlier release notes below are historical.
