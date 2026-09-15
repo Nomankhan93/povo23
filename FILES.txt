@@ -15,6 +15,7 @@ docs/PHASE-2.11.2.md
 docs/PHASE-2.11.md
 docs/PHASE-2.12.1.md
 docs/PHASE-2.12.2.md
+docs/PHASE-2.12.3.md
 docs/PHASE-2.12.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -46,6 +47,7 @@ docs/UPGRADE-2.11.2.md
 docs/UPGRADE-2.11.md
 docs/UPGRADE-2.12.1.md
 docs/UPGRADE-2.12.2.md
+docs/UPGRADE-2.12.3.md
 docs/UPGRADE-2.12.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -153,6 +155,7 @@ src/features/needs/NeedsPanel.tsx
 src/features/needs/Pager.tsx
 src/features/needs/model.tsx
 src/features/notifications/Notifications.tsx
+src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
 src/features/organizations/NgoOperations.tsx
 src/features/organizations/OrgForm.tsx

@@ -25,6 +25,7 @@ import { GeographyManager } from "../features/geography/GeographyManager";
 import { type Geo } from "../features/geography/model";
 import { Notifications } from "../features/notifications/Notifications";
 import { DataSharingWorkspace } from "../features/sharing/DataSharingWorkspace";
+import { MembershipActions } from "../features/organizations/MembershipActions";
 import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
@@ -691,7 +692,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 <h2>Organization memberships</h2>
                 <p>
                   Assign an existing registered account to an NGO. Membership
-                  does not automatically share the volunteer’s profile.
+                  does not automatically share the volunteer’s profile. To replace an NGO admin, assign the new admin first, then remove the previous membership access below. Removal suspends the membership and keeps its history. Separate survey assignments and platform roles are unchanged.
                 </p>
                 <MembershipForm
                   orgs={orgs}
@@ -718,6 +719,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                         <th>Account</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -733,6 +735,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                           <td>
                             <Badge value={m.status} />
                           </td>
+                          <td><MembershipActions key={`${m.organization_id}:${m.user_id}:${m.role}:${m.status}`} role={m.role} status={m.status} label={`${accounts.find(a=>a.id===m.user_id)?.email||m.user_id} at ${orgs.find(o=>o.id===m.organization_id)?.name||m.organization_id}`} busy={busy} save={(role,status)=>act(()=>rpc('set_membership',{p_org:m.organization_id,p_user:m.user_id,p_role:role,p_status:status}),'Membership updated. Separate project assignments and platform roles are unchanged.')}/></td>
                         </tr>
                       ))}
                     </tbody>
