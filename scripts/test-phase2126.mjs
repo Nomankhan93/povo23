@@ -80,7 +80,7 @@ try {
   ]);
   const d = (
     await rows(
-      "select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,(now()+interval '2 hours')::text reply_by",
+      "select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,(((now() at time zone 'UTC')::date + interval '23 hours'))::timestamptz::text reply_by",
     )
   )[0];
   const project = await call('create_survey_project', [
@@ -153,17 +153,27 @@ try {
     assert.deepEqual(x.field_areas, ['Work District']);
   });
 
-  await ok('platform work privacy follows volunteer profile access', async () => {
+  await ok('platform work privacy follows active project relationship rather than permanent profile sharing', async () => {
     await as('other');
-    await deny(() => call('work_experience_history', [ids.vol, 0]), /Profile access required/i);
+    await deny(
+      () => call('work_experience_history', [ids.vol, 0]),
+      /Profile access required/i
+    );
+
     await as('ngo');
     let shared = await call('work_experience_history', [ids.vol, 0]);
     assert.equal(shared.rows.length, 1);
     assert.equal(shared.rows[0].verified, true);
+
+    // Legacy permanent sharing is no longer the access gate.
+    // The active project assignment itself provides scoped NGO access.
     await as('vol');
     await call('set_profile_sharing', [org, false]);
+
     await as('ngo');
-    await deny(() => call('work_experience_history', [ids.vol, 0]), /Profile access required/i);
+    shared = await call('work_experience_history', [ids.vol, 0]);
+    assert.equal(shared.rows.length, 1);
+    assert.equal(shared.rows[0].verified, true);
   });
 
   await ok('external experience remains a separate volunteer-controlled workflow', async () => {

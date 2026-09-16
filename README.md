@@ -1,15 +1,15 @@
-# Current release: POEM 2.13.0
+# Current release: POEM 2.13.1
 
-Partner NGO Self-Onboarding & Approval. See [release notes](docs/PHASE-2.13.md), [WSL upgrade](docs/UPGRADE-2.13.md) and [validation](docs/VALIDATION-2.13.md).
+NGO Access & Authentication Stabilization. See [release notes](docs/PHASE-2.13.1.md), [WSL upgrade](docs/UPGRADE-2.13.1.md) and [validation](docs/VALIDATION-2.13.1.md).
 
-POEM 2.13 lets an authenticated representative create a private Partner NGO application, save structured operating areas/programs, upload registration evidence, submit for POEM review, respond to requested changes, and receive the first active NGO Admin membership only after approval. The release preserves the 2.12.6 automatic verified work-history model and includes a forward fix for the 2.12.6 `target` PL/pgSQL ambiguity.
+POEM 2.13.1 keeps the 2.13 self-onboarding flow and adds explicit Volunteer / Partner NGO / POEM Staff sign-in destinations. Partner NGO sign-in still uses the person's own secure POEM credentials: approved representatives open an active NGO workspace, while representatives without an active membership land on the Partner NGO application. The volunteer profile no longer exposes permanent “Allow profile access” controls; current recruitment uses application snapshots and project/assignment-scoped access.
 
 Current platform capabilities already include advanced survey capture, full offline field-reliability foundations, canonical registry operations, controlled NGO sharing, independent verification/project governance, template drafts/library, workforce recruitment and payable accounting. Historical phase documents remain in `docs/`.
 
 ## Current product boundaries
 
 - Volunteer profiles are self-published/active; independent identity verification is a separate evidence-review process.
-- Permanent NGO full-profile sharing is optional and is not required to browse public recruitment. Applications use a bounded, explicit recruitment-profile snapshot consent.
+- User-facing permanent NGO full-profile sharing is retired. Applications use a bounded recruitment-profile snapshot, and live NGO profile access is tied to explicit project/assignment relationships. The historical `profile_shares` schema/RPC remains only for compatibility with older migrations/tests and is not surfaced by current UI.
 - Partner NGO self-onboarding is included. A normal personal account can submit an organization application; approval creates the active organization and first NGO Admin membership. NGO approval is separate from volunteer-profile publication and independent verification.
 - Workforce payable accounting records contractual/payable/payment history, but POEM does not yet hold account balances or transfer money through JazzCash.
 - Automatic volunteer levels/performance ranking, Partner NGO self-service template approval/project launch, and JazzCash funding/withdrawal remain future work. POEM project work history is now generated automatically; formal specialization/level scoring remains future work.
@@ -43,7 +43,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - Editing invalidates previous approval; optimistic version checks reject stale saves/reviews.
 - Partner NGO self-onboarding, private registration evidence, POEM approval, operational status and assignment of registered accounts to organizations.
 - One account can belong to multiple NGOs; explicit workspace switching.
-- Volunteer-controlled full-profile sharing to individual NGOs, with revocation.
+- Recruitment/application snapshots plus project/assignment-scoped NGO profile access; the old permanent profile-sharing control is not exposed in the current UI.
 - Database-enforced permissions, active-account checks, protected RPC mutations and audit events.
 - Admin geography manager and cascading volunteer location selection.
 - Private PDF/JPG/PNG volunteer documents with upload recovery, removal and POEM review.
@@ -57,11 +57,11 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - App accounts are active after email confirmation. Volunteer profiles are self-published/active; independent verification is separate. NGO memberships are assigned through the current POEM/NGO administration rules. Account suspension is separate from profile publication and identity verification.
 - Legacy database profile status `verified` means active/published profile in compatibility code; independent identity verification, completed training and performance are separate concepts.
 - NGO “active” is operational approval. POEM 2.13 stores private onboarding evidence and records the application decision, while independent organization verification remains a separate governance concept.
-- Volunteer-profile sharing remains separate. Beneficiary coordination now uses explicit source-NGO approval plus POEM authorization, a field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
+- Volunteer recruitment access is application/assignment-scoped in the current UI. Beneficiary coordination remains a separate explicit source-NGO approval plus POEM authorization workflow with field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
 - Volunteer profiles now use the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy. Islamabad skips Division. Union Council is manual/optional and full address is mandatory. Admin geography tools remain available for controlled maintenance; existing approvals survive upgrade until edited/reviewed.
 - Survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Workforce payable accounting is included, but custodial account balances/payment-provider transfer, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
 - No migration/import from the older Cloudflare/Sites database is included.
-- Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
+- Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.
 - Never put service-role keys or server secrets into any `VITE_*` variable. The build includes a check for common secret-key mistakes.
 

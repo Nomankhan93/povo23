@@ -1,5 +1,8 @@
-# Current permissions note — POEM 2.12.6
+# Current permissions note — POEM 2.13.1
 
+- Sign-in exposes explicit Volunteer, Partner NGO and POEM Staff destinations while keeping one personal POEM credential set per person. Approved NGO representatives enter an active NGO workspace; otherwise Partner NGO sign-in routes to the onboarding application.
+- The volunteer profile no longer exposes permanent “Allow profile access” controls. Current open recruitment uses application snapshots; live NGO profile reads are bounded to explicit invitation/assignment relationships.
+- Direct survey assignment no longer requires a permanent profile-sharing grant; project authority, active/published volunteer state and project verification policy are still enforced.
 - Active volunteers can browse published public recruitment without granting permanent NGO profile access.
 - Applying requires an active/published volunteer profile plus application-scoped recruitment-profile consent.
 - Invite-only recruitment remains limited to invited volunteers.

@@ -1,23 +1,20 @@
-# Current release checklist — POEM 2.12.6
+# Current release checklist — POEM 2.13.1
 
 Before cloud migration or deployment:
 
 - `npm run preflight` passes.
 - `npm run test:local` passes against local Supabase Auth/Storage.
 - `npm run test:operations` passes.
-- Volunteer with no permanent NGO profile share can see published public opportunities.
-- Outside-area volunteer sees area-based work with a location-match notice instead of silent hiding.
-- Draft/unpublished volunteer can browse but cannot apply until profile publication.
-- Application creates no permanent `profile_shares` row.
-- Available Opportunities, My Applications and My Assigned Surveys render in the volunteer workspace.
-- Invite-only recruitment remains private.
-- Ordinary CV edits do not stale identity verification; identity-name change does.
-- Canonical reconciliation refuses unresolved/stale match decisions.
-- Active survey assignment appears automatically under POEM verified work without creating a manual experience row.
-- Survey review changes update submitted/accepted/correction/rejected/pending counts automatically.
-- Authorized profile viewers see only verified POEM work evidence; revoking profile access removes future reads.
-- Previous/external experience remains independently editable/requestable.
-- Recruitment snapshot contains a bounded POEM-verified work summary and still creates no permanent profile share.
+- Auth visibly offers **Volunteer**, **Partner NGO** and **POEM staff** sign-in destinations.
+- Partner NGO sign-in with an approved `ngo_admin` membership opens that NGO workspace automatically.
+- Partner NGO sign-in without active NGO membership opens **Partner NGO application** instead of a blank/non-NGO workspace.
+- Approved onboarding screen has an **Open NGO workspace** action.
+- Volunteer **My profile** contains no `NGO profile access`, `Allow profile access` or `Revoke access` controls.
+- Open/public opportunities remain visible without `profile_shares`.
+- Application snapshot still creates no permanent `profile_shares` row.
+- Direct active survey assignment succeeds without a permanent profile grant and creates assignment-scoped NGO access.
+- Deactivating the last scoped assignment removes that NGO's future live-profile access.
+- Existing onboarding RLS/document isolation and 2.12.6 verified-work history regressions remain green.
 
 Historical checklists below are retained for regression context.
 

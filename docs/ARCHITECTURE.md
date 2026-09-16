@@ -1,8 +1,8 @@
-# Current architecture note — POEM 2.12.6
+# Current architecture note — POEM 2.13.1
 
 POEM remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
 
-Public recruitment browsing is independent of permanent NGO full-profile sharing. Application-scoped recruitment snapshots remain consented and bounded. Volunteer profile publication is separate from independent identity verification. Canonical reconciliation now refuses unresolved/stale match decisions.
+Public recruitment browsing is independent of permanent NGO full-profile sharing. In 2.13.1 the user-facing permanent sharing control is retired: applications carry bounded recruitment snapshots, while live NGO access to a volunteer profile is tied to explicit invitation/assignment relationships. The historical `profile_shares` table/RPC is retained only as a compatibility surface and current rows are cleared by the 2.13.1 migration. Volunteer profile publication remains separate from independent identity verification.
 
 POEM work experience is now derived from authoritative survey-project records instead of copied into a second platform-experience table. `work_experience_history()` combines survey assignments, workforce assignment state, project/template metadata and current survey-review outcomes. Manual/external `volunteer_experiences` remain separate. Authorized third-party profile readers receive only POEM work backed by approved surveys or completed assignments; recruitment snapshots include at most 10 bounded verified work summaries.
 

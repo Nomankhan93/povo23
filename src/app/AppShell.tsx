@@ -18,9 +18,10 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { EventList } from "../features/audit/EventList";
 import { AccountAccess } from "../features/auth/AccountAccess";
+import { consumeWorkspaceEntryIntent } from "../features/auth/entryIntent";
 import { GeographyManager } from "../features/geography/GeographyManager";
 import { type Geo } from "../features/geography/model";
 import { Notifications } from "../features/notifications/Notifications";
@@ -67,7 +68,6 @@ export function Workspace({ session, openField }: { session: Session; openField:
     [orgs, setOrgs] = useState<Row[]>([]),
     [members, setMembers] = useState<Row[]>([]),
     [accounts, setAccounts] = useState<Row[]>([]),
-    [shares, setShares] = useState<Row[]>([]),
     [events, setEvents] = useState<Row[]>([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -128,6 +128,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       ),
   );
   const [revision, setRevision] = useState(0);
+  const entryHandled = useRef(false);
   async function load() {
     setError("");
     try {
@@ -151,7 +152,6 @@ export function Workspace({ session, openField }: { session: Session; openField:
           .eq("user_id", session.user.id),
         db!.from("organizations").select("*").order("name").limit(500),
         db!.from("organization_memberships").select("*").limit(1000),
-        db!.from("profile_shares").select("*").limit(1000),
         db!
           .from("audit_events")
           .select("*")
@@ -171,17 +171,16 @@ export function Workspace({ session, openField }: { session: Session; openField:
       ]);
       for (const r of res) if (r.error) throw r.error;
       setProfiles([
-        res[7].data!,
+        res[6].data!,
         ...(res[0].data || []).filter(
           (p: Row) => p.user_id !== session.user.id,
         ),
       ]);
       setOrgs(res[1].data || []);
       setMembers(res[2].data || []);
-      setShares(res[3].data || []);
-      setEvents(res[4].data || []);
-      setAccounts(res[5].data || []);
-      setNotifications(res[6].data || []);
+      setEvents(res[3].data || []);
+      setAccounts(res[4].data || []);
+      setNotifications(res[5].data || []);
       setRevision((n) => n + 1);
       const geoRows: Geo[] = [];
       for (let offset = 0; ; offset += 1000) {
@@ -195,28 +194,53 @@ export function Workspace({ session, openField }: { session: Session; openField:
         if ((g.data || []).length < 1000) break;
       }
       setGeographies(geoRows);
-      setScope(
-        (old) =>
-          old ||
-          ([
-            "admin",
-            "super_admin",
-            "volunteer_manager",
-            "ngo_manager",
-            "auditor",
-            "survey_manager",
-          ].includes(a.data.platform_role)
-            ? "poem"
-            : (res[2].data || []).find(
-                (m) =>
-                  m.user_id === session.user.id &&
-                  m.role === "ngo_admin" &&
-                  m.status === "active" &&
-                  (res[1].data || []).some(
-                    (o) => o.id === m.organization_id && o.status === "active",
-                  ),
-              )?.organization_id || "personal"),
+      const platformRole = a.data.platform_role;
+      const staffRole = [
+        "admin",
+        "super_admin",
+        "volunteer_manager",
+        "ngo_manager",
+        "auditor",
+        "survey_manager",
+      ].includes(platformRole);
+      const activeNgoMembership = (res[2].data || []).find(
+        (m) =>
+          m.user_id === session.user.id &&
+          m.role === "ngo_admin" &&
+          m.status === "active" &&
+          (res[1].data || []).some(
+            (o) => o.id === m.organization_id && o.status === "active",
+          ),
       );
+      const defaultScope = staffRole
+        ? "poem"
+        : activeNgoMembership?.organization_id || "personal";
+      if (!entryHandled.current) {
+        const intent = consumeWorkspaceEntryIntent();
+        entryHandled.current = true;
+        if (intent === "ngo") {
+          if (activeNgoMembership) {
+            setScope(activeNgoMembership.organization_id);
+            setPageState("Overview");
+          } else {
+            setScope("personal");
+            setPageState("Partner NGO application");
+            setNotice("No active Partner NGO workspace is linked to this account yet. Continue or review your Partner NGO application below.");
+          }
+        } else if (intent === "volunteer") {
+          setScope("personal");
+          setPageState("Overview");
+        } else if (intent === "poem") {
+          setScope(staffRole ? "poem" : "personal");
+          setPageState("Overview");
+          if (!staffRole)
+            setNotice("This account does not have POEM staff access. Your personal workspace is open instead.");
+        } else {
+          setScope((old) => old || defaultScope);
+        }
+      } else {
+        setScope((old) => old || defaultScope);
+      }
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -349,10 +373,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
             }}
           >
             {admin && <option value="poem">POEM administration</option>}
-            <option value="personal">My volunteer workspace</option>
+            <option value="personal">My Volunteer Workspace</option>
             {myOrgs.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.name}
+                {o.name} — NGO Workspace
               </option>
             ))}
           </select>
@@ -426,8 +450,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 {poem
                   ? "Manage the network, review profiles and support your partner NGOs."
                   : scope === "personal"
-                    ? "Build your profile and choose who can access it."
-                    : "View volunteers who have shared their profiles with your NGO."}
+                    ? "Build your profile, apply to open projects and grow your verified work history."
+                    : "Manage your NGO projects, recruitment and volunteers connected through POEM workflows."}
               </p>
             </div>
             {page === "Partner NGOs" && ngos && (
@@ -475,92 +499,36 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </>
           )}
           {page === "My profile" && my && (
-            <>
-              <ProfileForm
-                key={my.version}
-                profile={my}
-                geographies={geographies}
-                busy={busy}
-                saveDraft={(details, geography) =>
-                  act(
-                    () =>
-                      rpc("save_my_profile", {
-                        p_details: details,
-                        p_submit: false,
-                        p_version: my.version,
-                        p_geography: geography,
-                      }),
-                    "Draft saved.",
-                  )
-                }
-                publish={(details, geography) =>
-                  act(
-                    () =>
-                      rpc("publish_my_profile", {
-                        p_details: details,
-                        p_version: my.version,
-                        p_geography: geography,
-                      }),
-                    my.status === "draft" ? "Profile published." : "Profile changes saved.",
-                  )
-                }
-                onPhotoChanged={load}
-              />
-              <section className="panel sharing">
-                <h2>NGO profile access</h2>
-                <p>
-                  Documents remain private to you and POEM. Allow an active
-                  NGO’s administrators to view your full volunteer profile,
-                  including phone, education, structured skills/languages, references and preferred work areas. NGO-confirmed work experience is shown separately. This is
-                  optional and does not require POEM profile approval. Revocation
-                  stops future platform access; it cannot recall information
-                  already viewed.
-                </p>
-                {orgs
-                  .filter(
-                    (o) =>
-                      o.status === "active" ||
-                      shares.some(
-                        (s) =>
-                          s.organization_id === o.id &&
-                          s.user_id === session.user.id,
-                      ),
-                  )
-                  .map((o) => {
-                    const granted = shares.some(
-                      (s) =>
-                        s.user_id === session.user.id &&
-                        s.organization_id === o.id,
-                    );
-                    return (
-                      <div className="share-row" key={o.id}>
-                        <span>
-                          {o.name} <Badge value={o.status} />
-                        </span>
-                        <button
-                          disabled={busy}
-                          className={granted ? "secondary" : "primary"}
-                          onClick={() =>
-                            act(
-                              () =>
-                                rpc("set_profile_sharing", {
-                                  p_org: o.id,
-                                  p_allowed: !granted,
-                                }),
-                              granted
-                                ? "NGO access revoked."
-                                : "Profile access granted to this NGO.",
-                            )
-                          }
-                        >
-                          {granted ? "Revoke access" : "Allow profile access"}
-                        </button>
-                      </div>
-                    );
-                  })}
-                {!orgs.length && <p>No active partner NGOs yet.</p>}
-              </section>
-            </>
+            <ProfileForm
+              key={my.version}
+              profile={my}
+              geographies={geographies}
+              busy={busy}
+              saveDraft={(details, geography) =>
+                act(
+                  () =>
+                    rpc("save_my_profile", {
+                      p_details: details,
+                      p_submit: false,
+                      p_version: my.version,
+                      p_geography: geography,
+                    }),
+                  "Draft saved.",
+                )
+              }
+              publish={(details, geography) =>
+                act(
+                  () =>
+                    rpc("publish_my_profile", {
+                      p_details: details,
+                      p_version: my.version,
+                      p_geography: geography,
+                    }),
+                  my.status === "draft" ? "Profile published." : "Profile changes saved.",
+                )
+              }
+              onPhotoChanged={load}
+            />
           )}
           {page === "Volunteers" &&
             validScope &&
@@ -634,6 +602,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
               accountName={account.full_name || ""}
               accountEmail={account.email || ""}
               onChanged={load}
+              onOpenOrganization={(organizationId) => {
+                setScope(organizationId);
+                change("Overview");
+              }}
             />
           )}
           {page === "NGO applications" && ngos && validScope && (

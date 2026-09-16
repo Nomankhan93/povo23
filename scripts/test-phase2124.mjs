@@ -58,7 +58,7 @@ try {
   ]);
   const d = (
     await rows(
-      "select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,((now() at time zone 'UTC')::date+30)::text after_end,(now()+interval '2 hours')::text reply_by,(now()+interval '365 days')::text expiry",
+      "select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,((now() at time zone 'UTC')::date+30)::text after_end,(((now() at time zone 'UTC')::date + interval '23 hours'))::timestamptz::text reply_by,(now()+interval '365 days')::text expiry",
     )
   )[0];
   const project = await call('create_survey_project', [

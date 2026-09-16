@@ -265,12 +265,14 @@ export function PartnerNgoApplication({
   accountName,
   accountEmail,
   onChanged,
+  onOpenOrganization,
 }: {
   userId: string;
   geographies: Geo[];
   accountName: string;
   accountEmail: string;
   onChanged: () => Promise<void>;
+  onOpenOrganization?: (organizationId: string) => void;
 }) {
   const [application, setApplication] = useState<Application | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -427,9 +429,20 @@ export function PartnerNgoApplication({
         {error && <div className="notice error" role="alert">{error}</div>}
         {message && <div className="notice success" role="status">{message}</div>}
         {application.status === "approved" && (
-          <div className="notice success">
-            Your organization is active. Use the workspace selector to open the NGO workspace.
-            <button className="secondary" onClick={() => action(onChanged, "Workspace access refreshed.")}>Refresh workspace access</button>
+          <div className="notice success ngo-application-approved">
+            <div>
+              <strong>Your Partner NGO is active.</strong>
+              <p>Open the approved organization workspace to manage its projects, recruitment and operations.</p>
+            </div>
+            {application.organization_id ? (
+              <button className="primary" type="button" onClick={() => onOpenOrganization?.(application.organization_id!)}>
+                Open NGO workspace
+              </button>
+            ) : (
+              <button className="secondary" type="button" onClick={() => action(onChanged, "Workspace access refreshed.")}>
+                Refresh workspace access
+              </button>
+            )}
           </div>
         )}
         {["rejected", "withdrawn"].includes(application.status) && (
