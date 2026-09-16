@@ -1,4 +1,4 @@
-# Current permissions note — POEM 2.12.5
+# Current permissions note — POEM 2.12.6
 
 - Active volunteers can browse published public recruitment without granting permanent NGO profile access.
 - Applying requires an active/published volunteer profile plus application-scoped recruitment-profile consent.
@@ -6,6 +6,9 @@
 - Partner NGO admins/reviewers remain scoped to their authorized organization/project operations; POEM-only canonical and platform verification powers are unchanged.
 - Independent volunteer identity verification tracks identity-relevant name data, not ordinary CV edits such as skills or availability.
 - Canonical identity reconciliation is POEM-only and cannot clear review state while unresolved/stale match decisions remain.
+- Volunteers can read their complete automatic POEM work history; POEM Volunteer Managers can inspect it for volunteer management. Other authorized profile readers see only POEM work backed by approved surveys or completed assignments.
+- Automatic POEM work history exposes project/NGO/field/area and review counts, never beneficiary answers, private documents, payment values or supervisor feedback.
+- Previous/external experience remains volunteer-controlled and uses the existing NGO confirmation workflow.
 
 Historical permissions notes below remain useful for original phase boundaries; later migrations supersede them where stated.
 

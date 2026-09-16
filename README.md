@@ -1,8 +1,8 @@
-# Current release: POEM 2.12.5
+# Current release: POEM 2.12.6
 
-Current State Stabilization. See [release notes](docs/PHASE-2.12.5.md), [WSL upgrade](docs/UPGRADE-2.12.5.md) and [validation](docs/VALIDATION-2.12.5.md).
+Automatic Verified Work Experience. See [release notes](docs/PHASE-2.12.6.md), [WSL upgrade](docs/UPGRADE-2.12.6.md) and [validation](docs/VALIDATION-2.12.6.md).
 
-POEM 2.12.5 restores the volunteer Workforce Marketplace personal pages, makes public recruitment visible without permanent NGO profile sharing, preserves application-scoped consent, narrows volunteer identity-verification staleness to identity-relevant name changes, and blocks canonical reconciliation while unresolved/stale match decisions remain.
+POEM 2.12.6 derives volunteer project experience directly from assignments and reviewed survey responses. The Work experience page now separates automatic POEM-verified work from previous/external experience, and consented recruitment snapshots can include a bounded verified POEM-work summary without creating permanent NGO profile access. All 2.12.5 recruitment, verification and canonical-safety behavior is preserved.
 
 Current platform capabilities already include advanced survey capture, full offline field-reliability foundations, canonical registry operations, controlled NGO sharing, independent verification/project governance, template drafts/library, workforce recruitment and payable accounting. Historical phase documents remain in `docs/`.
 
@@ -12,7 +12,7 @@ Current platform capabilities already include advanced survey capture, full offl
 - Permanent NGO full-profile sharing is optional and is not required to browse public recruitment. Applications use a bounded, explicit recruitment-profile snapshot consent.
 - Partner NGO organizations and memberships are still created/managed through existing POEM administration; public NGO self-onboarding is not yet included.
 - Workforce payable accounting records contractual/payable/payment history, but POEM does not yet hold account balances or transfer money through JazzCash.
-- Automatic volunteer levels/performance ranking, Partner NGO self-service template approval/project launch, JazzCash funding/withdrawal, and automatic verified work-experience generation remain future work.
+- Automatic volunteer levels/performance ranking, Partner NGO self-service template approval/project launch, and JazzCash funding/withdrawal remain future work. POEM project work history is now generated automatically; formal specialization/level scoring remains future work.
 
 ## Historical foundation notes
 

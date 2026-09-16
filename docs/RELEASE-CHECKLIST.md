@@ -1,4 +1,4 @@
-# Current release checklist — POEM 2.12.5
+# Current release checklist — POEM 2.12.6
 
 Before cloud migration or deployment:
 
@@ -13,6 +13,11 @@ Before cloud migration or deployment:
 - Invite-only recruitment remains private.
 - Ordinary CV edits do not stale identity verification; identity-name change does.
 - Canonical reconciliation refuses unresolved/stale match decisions.
+- Active survey assignment appears automatically under POEM verified work without creating a manual experience row.
+- Survey review changes update submitted/accepted/correction/rejected/pending counts automatically.
+- Authorized profile viewers see only verified POEM work evidence; revoking profile access removes future reads.
+- Previous/external experience remains independently editable/requestable.
+- Recruitment snapshot contains a bounded POEM-verified work summary and still creates no permanent profile share.
 
 Historical checklists below are retained for regression context.
 

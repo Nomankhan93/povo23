@@ -2614,6 +2614,10 @@ withdraw_work_application: { Args: {
 p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
+work_experience_history: { Args: {
+p_user?: string | null;
+p_page?: number | null;
+}; Returns: Json };
 work_payable_statement: { Args: {
 p_assignment: string | null;
 p_page?: number | null;

@@ -1,6 +1,30 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { Experience, Org, text } from "../workforce/model";
+
+type PlatformExperience = {
+  id: string;
+  organization_name: string;
+  project_title: string;
+  field_label: string;
+  project_area: string;
+  field_areas: string[];
+  role_title: string;
+  workflow_status: "in_progress" | "completed" | "cancelled" | "recorded";
+  verified: boolean;
+  verification_basis: string;
+  source_kind: string;
+  start_date: string;
+  end_date: string | null;
+  last_activity_on: string | null;
+  submitted_surveys: number;
+  approved_surveys: number;
+  rejected_surveys: number;
+  correction_required_surveys: number;
+  pending_review_surveys: number;
+  reviewed_surveys: number;
+};
+type PlatformExperiencePage = { rows: PlatformExperience[]; total: number; page: number; page_size: number };
 export function ExperiencePanel({
   userId,
   organization,
@@ -21,7 +45,11 @@ export function ExperiencePanel({
     [revision, setRevision] = useState(0),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [platformRows, setPlatformRows] = useState<PlatformExperience[]>([]),
+    [platformPage, setPlatformPage] = useState(0),
+    [platformMore, setPlatformMore] = useState(false),
+    [platformBusy, setPlatformBusy] = useState(false);
   useEffect(() => {
     let live = true;
     setBusy(true);
@@ -50,6 +78,31 @@ export function ExperiencePanel({
       live = false;
     };
   }, [userId, organization, readonly, page, revision]);
+  useEffect(() => {
+    if (organization) {
+      setPlatformRows([]);
+      setPlatformMore(false);
+      return;
+    }
+    let live = true;
+    setPlatformBusy(true);
+    rpc("work_experience_history", { p_user: userId, p_page: platformPage })
+      .then((data) => {
+        if (!live) return;
+        const pageData = data as unknown as PlatformExperiencePage;
+        setPlatformRows(pageData.rows || []);
+        setPlatformMore((pageData.page + 1) * pageData.page_size < pageData.total);
+      })
+      .catch((e) => {
+        if (live) setError((e as Error).message);
+      })
+      .finally(() => {
+        if (live) setPlatformBusy(false);
+      });
+    return () => {
+      live = false;
+    };
+  }, [userId, organization, platformPage, revision]);
   async function act(fn: () => Promise<unknown>, success: string) {
     setBusy(true);
     setError("");
@@ -89,7 +142,7 @@ export function ExperiencePanel({
       <div className="panel-title">
         <h2>
           {readonly
-            ? "NGO-confirmed experience"
+            ? "Work experience"
             : organization
               ? "Experience confirmation requests"
               : "My work experience"}
@@ -103,17 +156,68 @@ export function ExperiencePanel({
               setCreate(true);
             }}
           >
-            Add experience
+            Add previous experience
           </button>
         )}
       </div>
       <p>
         {organization
-          ? "Confirm only work your NGO can substantiate. This does not verify the complete volunteer profile."
+          ? "Confirm only external or previous work your NGO can substantiate. POEM project work is recorded automatically from platform evidence."
           : readonly
-            ? "These entries were confirmed by their respective NGOs."
-            : "Requesting confirmation shares this entry and your name with the selected NGO. It does not grant access to your CV or private documents."}
+            ? "POEM-recorded field work is shown separately from NGO-confirmed previous or external experience."
+            : "POEM survey work updates automatically from your project assignments and reviewed survey responses. Add previous or external work separately below."}
       </p>
+      {!organization && (
+        <div className="experience-platform">
+          <div className="panel-title">
+            <div>
+              <h3>POEM verified work</h3>
+              <p>Live project history from POEM assignments and survey-review evidence. These records cannot be edited manually.</p>
+            </div>
+          </div>
+          {platformBusy && <p role="status">Loading POEM work history…</p>}
+          {platformRows.map((e) => {
+            const statusLabel = e.workflow_status === "completed"
+              ? "POEM verified"
+              : e.verified
+                ? "POEM verified activity"
+                : e.workflow_status === "in_progress"
+                  ? "In progress"
+                  : e.workflow_status === "cancelled"
+                    ? "Recorded history"
+                    : "POEM recorded";
+            return (
+              <article className="document-row" key={`poem-${e.id}`}>
+                <div className="document-heading">
+                  <h3>{e.role_title || "Field Surveyor"}</h3>
+                  <span className={"badge " + (e.verified ? "verified" : "pending")}>{statusLabel}</span>
+                </div>
+                <p><strong>{e.organization_name}</strong> · {e.project_title}</p>
+                <p>Survey field: {e.field_label} · Project area: {e.project_area}</p>
+                {Array.isArray(e.field_areas) && e.field_areas.length > 0 && (
+                  <p>Recorded field areas: {e.field_areas.join(" · ")}</p>
+                )}
+                <p>{e.start_date} – {e.end_date || (e.workflow_status === "in_progress" ? "Present" : e.last_activity_on || "Recorded")}</p>
+                <div className="stats compact-stats">
+                  <div><small>Submitted</small><strong>{e.submitted_surveys}</strong></div>
+                  <div><small>Accepted</small><strong>{e.approved_surveys}</strong></div>
+                  <div><small>Correction</small><strong>{e.correction_required_surveys}</strong></div>
+                  <div><small>Rejected</small><strong>{e.rejected_surveys}</strong></div>
+                  <div><small>Pending review</small><strong>{e.pending_review_surveys}</strong></div>
+                </div>
+              </article>
+            );
+          })}
+          {!platformBusy && !platformRows.length && <p>No POEM project work recorded yet.</p>}
+          <div className="actions">
+            <button className="secondary" disabled={platformBusy || !platformPage} onClick={() => setPlatformPage((n) => n - 1)}>Previous POEM work</button>
+            <button className="secondary" disabled={platformBusy || !platformMore} onClick={() => setPlatformPage((n) => n + 1)}>Next 50 POEM projects</button>
+          </div>
+          <hr />
+          <h3>Previous / external experience</h3>
+          <p>{readonly ? "Entries below were separately confirmed by their respective NGOs." : "Add experience completed outside POEM, then optionally request confirmation from that NGO."}</p>
+        </div>
+      )}
       {error && (
         <p className="notice error" role="alert">
           {error}
