@@ -55,6 +55,7 @@ export function InvitationsPanel({
           .from("work_opportunities")
           .select("*")
           .eq("organization_id", organization)
+          .is("survey_project_id", null)
           .order("created_at", { ascending: false })
           .order("id")
           .range(opPage * 50, opPage * 50 + 50);
@@ -212,7 +213,7 @@ export function InvitationsPanel({
       {busy && <p role="status">Loading…</p>}
       {organization && (
         <>
-          <h3>Your opportunities</h3>
+          <h3>Your invitation-only opportunities</h3>
           {opportunities
             .filter((o) => primaryIds.includes(o.id))
             .map((o) => (

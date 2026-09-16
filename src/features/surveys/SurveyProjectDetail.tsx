@@ -26,6 +26,7 @@ export function SurveyProjectDetail({
   review,
   geographies,
   back,
+  openRecruitment,
 }: {
   project: Project;
   userId: string;
@@ -33,6 +34,7 @@ export function SurveyProjectDetail({
   review: boolean;
   geographies: Geo[];
   back: () => void;
+  openRecruitment?: () => void;
 }) {
   const [registryPerson, setRegistryPerson] = useState<string | null>(null);
   const [template, setTemplate] = useState<Template | null>(null),
@@ -209,6 +211,11 @@ export function SurveyProjectDetail({
         </p>
       )}
       {message && <p role="status">{message}</p>}
+      {review && project.status === "active" && openRecruitment && (
+        <button className="secondary" onClick={openRecruitment}>
+          Open project recruitment
+        </button>
+      )}
       {manage && project.status === "active" && (
         <button
           className="secondary"

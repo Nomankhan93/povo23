@@ -279,7 +279,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
     ...(surveyManage ? [["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
-    ...(surveyManage || !poem ? [["Workforce marketplace", Users]] : []),
+    ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
+    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role)
       ? [["Memberships", Users]]
@@ -776,12 +777,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <GeographyManager rows={geographies} refresh={load} />
           )}
           {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
-          {page === "Workforce marketplace" && validScope && (surveyManage || !poem) && (
+          {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
-              key={scope}
+              key={`${scope}-${page}`}
               userId={session.user.id}
               organization={poem || scope === "personal" ? null : scope}
               mode={poem ? "poem" : scope === "personal" ? "personal" : "ngo"}
+              personalView={page === "Available Opportunities" ? "opportunities" : page === "My Applications" ? "applications" : page === "My Assigned Surveys" ? "assigned" : "all"}
               geographies={geographies}
               orgs={orgs as any}
             />
@@ -826,6 +828,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 review={surveyManage || (!poem && scope !== "personal")}
                 orgs={orgs as any}
                 geographies={geographies}
+                openRecruitment={() => change("Workforce marketplace")}
               />
             </Suspense>
           )}

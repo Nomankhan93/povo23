@@ -13,6 +13,7 @@ export function SurveyProjects({
   review,
   orgs,
   geographies,
+  openRecruitment,
 }: {
   userId: string;
   organization: string | null;
@@ -20,6 +21,7 @@ export function SurveyProjects({
   review: boolean;
   orgs: Org[];
   geographies: Geo[];
+  openRecruitment?: () => void;
 }) {
   const [collectionArea,setCollectionArea]=useState<string|null>(null);
   const [rows, setRows] = useState<Project[]>([]),
@@ -122,6 +124,7 @@ export function SurveyProjects({
         manage={manage}
         review={review}
         geographies={geographies}
+        openRecruitment={openRecruitment}
         back={() => {
           setChosen(null);
           setRev((n) => n + 1);

@@ -1601,6 +1601,11 @@ reviewed_at: string | null;
 version: number;
 created_at: string;
 updated_at: string;
+availability: string;
+profile_share_consent: boolean;
+consent_version: string;
+profile_snapshot: Json;
+withdrawn_at: string | null;
 };
 Insert: {
 id?: string;
@@ -1620,6 +1625,11 @@ reviewed_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+availability?: string;
+profile_share_consent?: boolean;
+consent_version?: string;
+profile_snapshot?: Json;
+withdrawn_at?: string | null;
 };
 Update: {
 id?: string;
@@ -1639,6 +1649,11 @@ reviewed_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+availability?: string;
+profile_share_consent?: boolean;
+consent_version?: string;
+profile_snapshot?: Json;
+withdrawn_at?: string | null;
 };
 Relationships: [];
 };
@@ -1844,6 +1859,12 @@ survey_project_id: string | null;
 required_volunteers: number;
 required_skill: string;
 required_language: string;
+visibility: string;
+publication_state: string;
+applications_open: boolean;
+eligibility_note: string;
+version: number;
+published_at: string | null;
 };
 Insert: {
 id?: string;
@@ -1863,6 +1884,12 @@ survey_project_id?: string | null;
 required_volunteers?: number;
 required_skill?: string;
 required_language?: string;
+visibility?: string;
+publication_state?: string;
+applications_open?: boolean;
+eligibility_note?: string;
+version?: number;
+published_at?: string | null;
 };
 Update: {
 id?: string;
@@ -1882,6 +1909,12 @@ survey_project_id?: string | null;
 required_volunteers?: number;
 required_skill?: string;
 required_language?: string;
+visibility?: string;
+publication_state?: string;
+applications_open?: boolean;
+eligibility_note?: string;
+version?: number;
+published_at?: string | null;
 };
 Relationships: [];
 };
@@ -2037,7 +2070,9 @@ p_reason: string | null;
 }; Returns: string };
 apply_work_opportunity: { Args: {
 p_opportunity: string | null;
+p_availability: string | null;
 p_note: string | null;
+p_profile_share_consent: boolean | null;
 }; Returns: string };
 authorize_data_access_request: { Args: {
 p_request: string | null;
@@ -2055,6 +2090,12 @@ p_id: string | null;
 }; Returns: string };
 available_work_opportunities: { Args: {
 p_page?: number | null;
+p_organization?: string | null;
+p_area?: string | null;
+p_payment?: string | null;
+p_skill?: string | null;
+p_work_date?: string | null;
+p_deadline?: string | null;
 }; Returns: Json };
 begin_document_delete: { Args: {
 p_id: string | null;
@@ -2159,6 +2200,23 @@ p_payment_note: string | null;
 p_required_volunteers: number | null;
 p_required_skill: string | null;
 p_required_language: string | null;
+}; Returns: string };
+create_recruitment_opportunity: { Args: {
+p_project: string | null;
+p_title: string | null;
+p_description: string | null;
+p_geography: string | null;
+p_start: string | null;
+p_end: string | null;
+p_reply_by: string | null;
+p_payment: string | null;
+p_payment_note: string | null;
+p_required_volunteers: number | null;
+p_required_skill: string | null;
+p_required_language: string | null;
+p_visibility: string | null;
+p_eligibility_note: string | null;
+p_publish: boolean | null;
 }; Returns: string };
 create_survey_project: { Args: {
 p_org: string | null;
@@ -2524,6 +2582,11 @@ set_survey_assignment: { Args: {
 p_project: string | null;
 p_user: string | null;
 p_active: boolean | null;
+}; Returns: undefined };
+set_work_opportunity_state: { Args: {
+p_id: string | null;
+p_state: string | null;
+p_version: number | null;
 }; Returns: undefined };
 survey_assignment_candidates: { Args: {
 p_project: string | null;
