@@ -1,7 +1,5 @@
 .gitignore
-.library-test-Xv1TVZ/library.mjs
 .nvmrc
-FILES.txt
 README.md
 docs/ACCEPTANCE-2.12.md
 docs/ARCHITECTURE.md
@@ -16,6 +14,8 @@ docs/PHASE-2.11.md
 docs/PHASE-2.12.1.md
 docs/PHASE-2.12.2.md
 docs/PHASE-2.12.3.md
+docs/PHASE-2.12.4.md
+docs/PHASE-2.12.5.md
 docs/PHASE-2.12.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
@@ -48,6 +48,8 @@ docs/UPGRADE-2.11.md
 docs/UPGRADE-2.12.1.md
 docs/UPGRADE-2.12.2.md
 docs/UPGRADE-2.12.3.md
+docs/UPGRADE-2.12.4.md
+docs/UPGRADE-2.12.5.md
 docs/UPGRADE-2.12.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
@@ -71,6 +73,8 @@ docs/VALIDATION-2.11.1.md
 docs/VALIDATION-2.11.md
 docs/VALIDATION-2.12.1.md
 docs/VALIDATION-2.12.2.md
+docs/VALIDATION-2.12.4.md
+docs/VALIDATION-2.12.5.md
 docs/VALIDATION-2.12.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
@@ -91,7 +95,6 @@ docs/VALIDATION.md
 index.html
 package-lock.json
 package.json
-project-tree.txt
 public/favicon.svg
 scripts/bootstrap-admin.mjs
 scripts/build-field-worker.mjs
@@ -103,6 +106,7 @@ scripts/test-area-operations.mjs
 scripts/test-area-picker.mjs
 scripts/test-capture-client.mjs
 scripts/test-correctness276.mjs
+scripts/test-current-state-stabilization.mjs
 scripts/test-database.mjs
 scripts/test-field-storage211.mjs
 scripts/test-field-worker211.mjs
@@ -118,6 +122,7 @@ scripts/test-phase21.mjs
 scripts/test-phase210.mjs
 scripts/test-phase211.mjs
 scripts/test-phase212.mjs
+scripts/test-phase2124.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -232,5 +237,7 @@ supabase/migrations/20260928000100_offline_field.sql
 supabase/migrations/20260929000100_workforce_payables.sql
 supabase/migrations/20260930000100_area_selection.sql
 supabase/migrations/20261001000100_template_drafts.sql
+supabase/migrations/20261002000100_open_opportunities_volunteer_applications.sql
+supabase/migrations/20261003000100_current_state_stabilization.sql
 tsconfig.json
 vite.config.ts

@@ -1,54 +1,20 @@
-# Current release: POEM 2.12.3
+# Current release: POEM 2.12.5
 
-NGO membership role and suspension actions. See [release notes](docs/PHASE-2.12.3.md), [WSL upgrade](docs/UPGRADE-2.12.3.md). Earlier release notes below are historical.
+Current State Stabilization. See [release notes](docs/PHASE-2.12.5.md), [WSL upgrade](docs/UPGRADE-2.12.5.md) and [validation](docs/VALIDATION-2.12.5.md).
 
-# Current release: POEM 2.12.2
+POEM 2.12.5 restores the volunteer Workforce Marketplace personal pages, makes public recruitment visible without permanent NGO profile sharing, preserves application-scoped consent, narrows volunteer identity-verification staleness to identity-relevant name changes, and blocks canonical reconciliation while unresolved/stale match decisions remain.
 
-Survey Template Library and Draft Editing. See [release notes](docs/PHASE-2.12.2.md), [WSL upgrade](docs/UPGRADE-2.12.2.md) and [validation](docs/VALIDATION-2.12.2.md). Earlier release notes below are historical.
+Current platform capabilities already include advanced survey capture, full offline field-reliability foundations, canonical registry operations, controlled NGO sharing, independent verification/project governance, template drafts/library, workforce recruitment and payable accounting. Historical phase documents remain in `docs/`.
 
-# Current release: POEM 2.12.1
+## Current product boundaries
 
-Dependent survey and NGO area selection. See [release notes](docs/PHASE-2.12.1.md), [WSL upgrade](docs/UPGRADE-2.12.1.md) and [validation](docs/VALIDATION-2.12.1.md). Earlier release notes below are historical.
+- Volunteer profiles are self-published/active; independent identity verification is a separate evidence-review process.
+- Permanent NGO full-profile sharing is optional and is not required to browse public recruitment. Applications use a bounded, explicit recruitment-profile snapshot consent.
+- Partner NGO organizations and memberships are still created/managed through existing POEM administration; public NGO self-onboarding is not yet included.
+- Workforce payable accounting records contractual/payable/payment history, but POEM does not yet hold account balances or transfer money through JazzCash.
+- Automatic volunteer levels/performance ranking, Partner NGO self-service template approval/project launch, JazzCash funding/withdrawal, and automatic verified work-experience generation remain future work.
 
-# Current release: POEM 2.12.0
-
-Workforce Payable Accounting. See [release notes](docs/PHASE-2.12.md), [WSL upgrade](docs/UPGRADE-2.12.md) and [validation](docs/VALIDATION-2.12.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.11.2
-
-Official POEM branding. See [release notes](docs/PHASE-2.11.2.md), [WSL upgrade](docs/UPGRADE-2.11.2.md) and [validation](docs/PHASE-2.11.2.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.11.1
-
-Design System & Workflow UX. See [release notes](docs/PHASE-2.11.1.md), [WSL upgrade](docs/UPGRADE-2.11.1.md) and [validation](docs/VALIDATION-2.11.1.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.11.0
-
-Offline field reliability. See [release notes](docs/PHASE-2.11.md), [WSL upgrade](docs/UPGRADE-2.11.md) and [validation](docs/VALIDATION-2.11.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.10.0
-
-Advanced survey capture. See [release notes](docs/PHASE-2.10.md), [WSL upgrade](docs/UPGRADE-2.10.md) and [validation](docs/VALIDATION-2.10.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.9.0
-
-NGO/project governance and independent verification. See [release notes](docs/PHASE-2.9.md), [WSL upgrade](docs/UPGRADE-2.9.md) and [validation](docs/VALIDATION-2.9.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.8.0
-
-Canonical registry operator workbench. See [release notes](docs/PHASE-2.8.md), [WSL upgrade](docs/UPGRADE-2.8.md) and [validation](docs/VALIDATION-2.8.md). Earlier release notes below are historical.
-
-# Current release: POEM 2.7.6
-
-Correctness and recovery stabilization. Start with [release notes](docs/PHASE-2.7.6.md), [WSL upgrade](docs/UPGRADE-2.7.6.md) and [validation](docs/VALIDATION-2.7.6.md). Historical sections below describe earlier releases; current profile publication is self-service.
-
-# POEM 2.7.5 — Sidebar Profile Grouping
-
-Current upgrade: [Phase 2.7.5 instructions](docs/UPGRADE-2.7.5.md).
-
-[Phase 2.7.5 scope](docs/PHASE-2.7.5.md) · [Validation](docs/VALIDATION-2.7.5.md) · [Phase 2.7.4 profile independence/photo](docs/PHASE-2.7.4.md) · [Phase 2.7.3 structured profile UI](docs/PHASE-2.7.3.md) · [Phase 2.7 workforce marketplace](docs/PHASE-2.7.md).
-
-Phase 2.7.5 keeps Work experience and Private documents as separate pages and places both immediately below My profile in the volunteer sidebar. No database or workflow behavior changes.
+## Historical foundation notes
 
 # POEM Phase 2.3
 
@@ -88,12 +54,12 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 ## Important boundaries
 
 - This is a development foundation. It is not the full POEM roadmap or a certified production release.
-- App accounts are active after email confirmation; POEM approval applies to submitted volunteer profiles. NGO memberships are assigned by POEM. Account suspension is separate from profile verification.
-- UI terminology “verified” means profile review only, not verified identity, completed training, or reliable survey performance.
+- App accounts are active after email confirmation. Volunteer profiles are self-published/active; independent verification is separate. NGO memberships are assigned through the current POEM/NGO administration rules. Account suspension is separate from profile publication and identity verification.
+- Legacy database profile status `verified` means active/published profile in compatibility code; independent identity verification, completed training and performance are separate concepts.
 - NGO “active” is operational approval, not document verification. Registration documents are not uploaded in this release.
 - Volunteer-profile sharing remains separate. Beneficiary coordination now uses explicit source-NGO approval plus POEM authorization, a field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
 - Volunteer profiles now use the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy. Islamabad skips Division. Union Council is manual/optional and full address is mandatory. Admin geography tools remain available for controlled maintenance; existing approvals survive upgrade until edited/reviewed.
-- Survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Payments, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
+- Survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Workforce payable accounting is included, but custodial account balances/payment-provider transfer, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
 - No migration/import from the older Cloudflare/Sites database is included.
 - Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships/shares and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.

@@ -1,3 +1,21 @@
+# Current release checklist — POEM 2.12.5
+
+Before cloud migration or deployment:
+
+- `npm run preflight` passes.
+- `npm run test:local` passes against local Supabase Auth/Storage.
+- `npm run test:operations` passes.
+- Volunteer with no permanent NGO profile share can see published public opportunities.
+- Outside-area volunteer sees area-based work with a location-match notice instead of silent hiding.
+- Draft/unpublished volunteer can browse but cannot apply until profile publication.
+- Application creates no permanent `profile_shares` row.
+- Available Opportunities, My Applications and My Assigned Surveys render in the volunteer workspace.
+- Invite-only recruitment remains private.
+- Ordinary CV edits do not stale identity verification; identity-name change does.
+- Canonical reconciliation refuses unresolved/stale match decisions.
+
+Historical checklists below are retained for regression context.
+
 > Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.

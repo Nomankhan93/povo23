@@ -1,3 +1,14 @@
+# Current permissions note — POEM 2.12.5
+
+- Active volunteers can browse published public recruitment without granting permanent NGO profile access.
+- Applying requires an active/published volunteer profile plus application-scoped recruitment-profile consent.
+- Invite-only recruitment remains limited to invited volunteers.
+- Partner NGO admins/reviewers remain scoped to their authorized organization/project operations; POEM-only canonical and platform verification powers are unchanged.
+- Independent volunteer identity verification tracks identity-relevant name data, not ordinary CV edits such as skills or availability.
+- Canonical identity reconciliation is POEM-only and cannot clear review state while unresolved/stale match decisions remain.
+
+Historical permissions notes below remain useful for original phase boundaries; later migrations supersede them where stated.
+
 > Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.

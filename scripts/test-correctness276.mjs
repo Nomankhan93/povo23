@@ -72,7 +72,39 @@ try{
  await as('manager');const afterSummary=await call('canonical_person_summary',[personA.id]);assert.equal(afterSummary.version,beforeSummary.version+1);assert.equal(afterSummary.display_name,beforeSummary.display_name);assert.equal(afterSummary.review_required,true);
  await deny(()=>call('reconcile_canonical_identity',[personA.id,1,beforeSummary.version,'Stale review must fail']),/changed/);
  await as('ngoB');await deny(()=>call('get_shared_beneficiary_summary',[grant]));await deny(()=>call('create_data_access_request',[personB.id,orgA,'Request before identity review',['basic_identity_summary'],dates.expiry]),/review/);console.log('PASS source correction marks stale, preserves identity and revokes access');
- await reconcile(personA.id);await as('ngoB');const fresh=await call('create_data_access_request',[personB.id,orgA,'Fresh authorization after identity review',['basic_identity_summary'],dates.expiry]);assert.notEqual(fresh,req);await deny(()=>call('get_shared_beneficiary_summary',[grant]));console.log('PASS fresh request after invalidation requires new approvals');
+ await as('manager');
+ let staleDecision=(await rows('select * from public.canonical_match_decisions'))[0];
+ await deny(
+  ()=>reconcile(personA.id),
+  /Resolve unresolved or stale canonical match decisions/i
+ );
+ await call(
+  'review_canonical_match',
+  [
+   personA.id,
+   personB.id,
+   'same_person',
+   'Reconfirm corrected source belongs to the existing canonical identity',
+   2,
+   personB.version,
+   staleDecision.version
+  ]
+ );
+ await reconcile(personA.id);
+ await as('ngoB');
+ const fresh=await call(
+  'create_data_access_request',
+  [
+   personB.id,
+   orgA,
+   'Fresh authorization after identity review',
+   ['basic_identity_summary'],
+   dates.expiry
+  ]
+ );
+ assert.notEqual(fresh,req);
+ await deny(()=>call('get_shared_beneficiary_summary',[grant]));
+ console.log('PASS fresh request after invalidation requires new approvals');
  await as('manager');let decision=(await rows('select * from public.canonical_match_decisions'))[0];await call('review_canonical_match',[personA.id,personB.id,'same_person','Reconfirm existing reviewed merge',2,personB.version,decision.version]);decision=(await rows('select * from public.canonical_match_decisions'))[0];assert.equal(decision.merge_event_id,mergeEvent);console.log('PASS repeated review preserves merge event');
  const ev=(await rows('select * from public.canonical_merge_events where id=$1',[mergeEvent]))[0];let primary=(await rows('select * from public.canonical_persons where id=$1',[ev.primary_canonical_id]))[0],secondary=(await rows('select * from public.canonical_persons where id=$1',[ev.secondary_canonical_id]))[0];
  await deny(()=>call('revert_canonical_merge',[mergeEvent,'Stale merge reversal',primary.version-1,secondary.version]),/changed/);

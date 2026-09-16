@@ -9,3 +9,5 @@ supabase/.branches/
 *.log
 
 .poem-patch-backups/
+.library-test-*/
+*.before-*-fix

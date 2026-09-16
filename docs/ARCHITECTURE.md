@@ -1,3 +1,9 @@
+# Current architecture note — POEM 2.12.5
+
+POEM remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
+
+Public recruitment browsing is independent of permanent NGO full-profile sharing. Application-scoped recruitment snapshots remain consented and bounded. Volunteer profile publication is separate from independent identity verification. Canonical reconciliation now refuses unresolved/stale match decisions.
+
 > Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.

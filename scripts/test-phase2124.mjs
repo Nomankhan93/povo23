@@ -173,16 +173,29 @@ try {
     assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
   });
 
-  await ok('area visibility includes descendant Taluka, excludes outside area, and draft profiles see nothing', async () => {
+  await ok('public recruitment is visible independent of residence and profile-sharing grants', async () => {
     await as('local');
     let r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    assert.equal(r.rows.some((x) => x.id === areaOpportunity), true);
+    let row = r.rows.find((x) => x.id === areaOpportunity);
+    assert(row);
+    assert.equal(row.area_match, true);
+    assert.equal(row.can_apply, true);
+
     await as('outside');
     r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    assert.equal(r.rows.some((x) => x.id === areaOpportunity), false);
+    row = r.rows.find((x) => x.id === areaOpportunity);
+    assert(row);
+    assert.equal(row.area_match, false);
+    assert.equal(row.can_apply, true);
+    assert.match(row.eligibility_reason, /outside your current profile location/i);
+
     await as('draft');
     r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    assert.equal(r.total, 0);
+    row = r.rows.find((x) => x.id === areaOpportunity);
+    assert(row);
+    assert.equal(row.can_apply, false);
+    assert.match(row.eligibility_reason, /publish an active volunteer profile/i);
+    assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
   });
 
   let localApplication;
@@ -403,6 +416,10 @@ try {
     assert(workforce.includes('.from("survey_assignments")'));
     assert(workforce.includes('if (ok) setApplying(null)'));
     assert(workforce.includes('Existing applications remain reviewable'));
+    assert(workforce.includes('{mode === "personal" && ('));
+    assert(workforce.includes('Open to all active volunteers'));
+    assert(!workforce.includes('// ...existing code...'));
+    assert.equal((workforce.match(/<h3>Find active volunteers<\/h3>/g) || []).length, 1);
     assert(invitations.includes('.is("survey_project_id", null)'));
   });
 
@@ -418,7 +435,7 @@ try {
     await deny(() => call('apply_work_opportunity', [areaOpportunity, 'Available', 'Anonymous', true]));
   });
 
-  console.log(`\n${passed} POEM 2.12.4 recruitment stabilization scenarios passed.`);
+  console.log(`\n${passed} POEM 2.12.4/2.12.5 recruitment compatibility scenarios passed.`);
 } finally {
   await db.close();
 }

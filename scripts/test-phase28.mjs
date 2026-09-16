@@ -68,7 +68,44 @@ try{
  let preview=await call('preview_canonical_review',[personA.id,personB.id]);assert.equal(preview.moved_records,0);assert.equal(preview.source_a.organization_name,'NGO A');await call('apply_canonical_review',[preview,'same_person','Reconfirm existing reviewed links']);assert.equal((await rows('select * from public.canonical_match_decisions'))[0].merge_event_id,mergeEvent);console.log('PASS same-identity preview/review preserves merge lineage');
  await deny(()=>call('apply_canonical_review',[preview,'needs_review','Stale decision revision']),/changed/);await deny(()=>call('apply_canonical_review',[{},'same_person','Missing concurrency tokens']),/stale/);console.log('PASS stale decision and missing preview guards');
  preview=await call('preview_canonical_review',[personA.id,personB.id]);await as('ngoA');await call('correct_registry_person',[personA.id,'Corrected source name','2012-03-04',personA.household_id,'Verified source correction',personA.version]);await as('manager');await deny(()=>call('apply_canonical_review',[preview,'same_person','Outdated source comparison']),/stale/);console.log('PASS source correction invalidates workbench preview');
- const mergePage=await call('canonical_workbench_detail',[c.id,'merges',0,25]);const event=mergePage.rows[0];await call('revert_canonical_merge',[event.id,'Workbench reversal test',event.primary_version,event.secondary_version]);const old=await call('preview_canonical_review',[personA.id,personB.id]);assert.equal(old.moved_records,1);const active=await call('canonical_person_summary',[personA.id]);await call('reconcile_canonical_identity',[personA.id,2,active.version,'Review canonical source display']);await deny(()=>call('apply_canonical_review',[old,'same_person','Stale canonical version']),/stale/);console.log('PASS canonical-only change invalidates preview');
+ const mergePage=await call('canonical_workbench_detail',[c.id,'merges',0,25]);
+ const event=mergePage.rows[0];
+ await call('revert_canonical_merge',[event.id,'Workbench reversal test',event.primary_version,event.secondary_version]);
+
+ // A reverted merge now leaves the relationship explicitly unresolved.
+ // Resolve that relationship before canonical display reconciliation.
+ const unresolved=await call('preview_canonical_review',[personA.id,personB.id]);
+ assert.equal(unresolved.moved_records,1);
+ await call('apply_canonical_review',[
+  unresolved,
+  'different_people',
+  'Resolve reverted relationship before canonical reconciliation'
+ ]);
+
+ // Capture a fresh preview, then change only the canonical display/version.
+ // The old preview must become stale.
+ const old=await call('preview_canonical_review',[personA.id,personB.id]);
+ assert.equal(old.moved_records,1);
+
+ const currentPersonA=(await rows(
+  'select * from public.registry_persons where id=$1',
+  [personA.id]
+ ))[0];
+
+ const active=await call('canonical_person_summary',[personA.id]);
+
+ await call('reconcile_canonical_identity',[
+  personA.id,
+  currentPersonA.version,
+  active.version,
+  'Review canonical source display'
+ ]);
+
+ await deny(
+  ()=>call('apply_canonical_review',[old,'same_person','Stale canonical version']),
+  /stale/
+ );
+ console.log('PASS canonical-only change invalidates preview');
  const ready=await call('preview_canonical_review',[personA.id,personB.id]);await call('apply_canonical_review',[ready,'different_people','Reviewed separate identities']);const needs=await call('preview_canonical_review',[personA.id,personB.id]);await call('apply_canonical_review',[needs,'needs_review','Further evidence is required']);const final=await call('preview_canonical_review',[personA.id,personB.id]);const newEvent=await call('apply_canonical_review',[final,'same_person','Reviewed merge from workbench']);assert(newEvent);console.log('PASS all three reviewed decision paths and actual merge');
  await as('super');const audit=await rows("select distinct action from public.audit_events where action like 'canonical_%'");for(const action of ['canonical_registry_searched','canonical_workbench_viewed','canonical_review_previewed','canonical_match_reviewed'])assert(audit.some(a=>a.action===action));console.log('PASS reads, previews and decisions audited');
  await as('ngoB');assert.equal((await rows('select * from public.canonical_persons')).length,0);console.log('PASS raw canonical identities remain hidden from NGOs');
