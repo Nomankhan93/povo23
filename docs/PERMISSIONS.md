@@ -113,3 +113,17 @@ A grant is invalid if revoked, expired, either NGO becomes inactive, or the cano
 | Cancel assignment | No | Own organization | Survey management emergency/oversight |
 
 Candidate search returns profile information only where the NGO already has profile-sharing access. Aggregate experience counters do not disclose another NGO's raw survey or case records.
+
+## Partner NGO onboarding (2.13)
+
+| Action | Applicant | POEM NGO Manager/Admin | Other user |
+| --- | --- | --- | --- |
+| Create/read own NGO application | Yes | Review read | No |
+| Edit draft / changes-requested application | Yes | No direct table mutation | No |
+| Upload/remove own application evidence while editable | Yes | No | No |
+| Download application evidence | Own | Yes | No |
+| Review application document | No | Yes | No |
+| Request changes / approve / reject | No | Yes | No |
+| Activate organization / first NGO Admin membership | No | Approval RPC only | No |
+
+Direct application/document table writes are not granted to authenticated clients; mutations use audited security-definer RPCs with owner/manager checks.

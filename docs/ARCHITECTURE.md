@@ -118,3 +118,9 @@ The existing generic recruitment objects remain intact, but operational survey r
 A volunteer continues to use one account across organizations. Applications and assignments reference that global account plus the relevant organization/project. No duplicate NGO-specific volunteer account is created.
 
 The workforce candidate RPC returns aggregate history only. It does not disclose which other NGO produced an approved survey or verified experience. Match labels are coarse discovery aids, not an employment ranking, and no automatic level promotion occurs in this phase.
+
+## POEM 2.13 — Partner NGO onboarding
+
+Partner NGO onboarding is a separate approval workflow rather than direct creation of an active `organizations` record. `partner_ngo_applications` holds the representative's draft/review lifecycle and structured programs/operating areas. `partner_ngo_application_documents` holds private evidence metadata; bytes live in the private `poem-ngo-applications` bucket.
+
+Approval is the boundary that creates the active organization and first `ngo_admin` membership. A personal POEM account remains the human identity; POEM does not create or encourage shared NGO credentials.

@@ -29,6 +29,8 @@ import { MembershipActions } from "../features/organizations/MembershipActions";
 import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
+import { PartnerNgoApplication } from "../features/organizations/PartnerNgoApplication";
+import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
@@ -273,6 +275,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(volunteers || (!poem && scope !== "personal")
       ? [["Volunteers", Users]]
       : []),
+    ...(!poem && scope === "personal" ? [["Partner NGO application", Building2]] : []),
+    ...(ngos ? [["NGO applications", Building2]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ["Verification", ShieldCheck],
@@ -623,6 +627,18 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 )}
               </>
             )}
+          {page === "Partner NGO application" && !poem && scope === "personal" && validScope && (
+            <PartnerNgoApplication
+              userId={session.user.id}
+              geographies={geographies}
+              accountName={account.full_name || ""}
+              accountEmail={account.email || ""}
+              onChanged={load}
+            />
+          )}
+          {page === "NGO applications" && ngos && validScope && (
+            <PartnerNgoApplicationsReview geographies={geographies} onChanged={load} />
+          )}
           {page === "Partner NGOs" && (
             <>
               {orgEdit && ngos && (

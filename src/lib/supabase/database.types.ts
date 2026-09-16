@@ -889,6 +889,138 @@ verification_revision?: number;
 };
 Relationships: [];
 };
+partner_ngo_application_documents: {
+Row: {
+id: string;
+application_id: string;
+applicant_user_id: string;
+object_path: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+kind: string;
+state: string;
+review_status: string;
+review_note: string;
+reviewed_by: string | null;
+reviewed_at: string | null;
+version: number;
+created_at: string;
+};
+Insert: {
+id?: string;
+application_id: string;
+applicant_user_id: string;
+object_path: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+kind: string;
+state?: string;
+review_status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+version?: number;
+created_at?: string;
+};
+Update: {
+id?: string;
+application_id?: string;
+applicant_user_id?: string;
+object_path?: string;
+file_name?: string;
+mime_type?: string;
+byte_size?: number;
+kind?: string;
+state?: string;
+review_status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+version?: number;
+created_at?: string;
+};
+Relationships: [];
+};
+partner_ngo_applications: {
+Row: {
+id: string;
+applicant_user_id: string;
+organization_id: string | null;
+organization_name: string;
+registration_number: string;
+legal_type: string;
+representative_name: string;
+representative_title: string;
+email: string;
+phone: string;
+address: string;
+website: string;
+operating_area_ids: (string)[];
+program_names: (string)[];
+status: string;
+review_note: string;
+reviewed_by: string | null;
+reviewed_at: string | null;
+submitted_at: string | null;
+approved_at: string | null;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+applicant_user_id: string;
+organization_id?: string | null;
+organization_name?: string;
+registration_number?: string;
+legal_type?: string;
+representative_name?: string;
+representative_title?: string;
+email?: string;
+phone?: string;
+address?: string;
+website?: string;
+operating_area_ids?: (string)[];
+program_names?: (string)[];
+status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+submitted_at?: string | null;
+approved_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+applicant_user_id?: string;
+organization_id?: string | null;
+organization_name?: string;
+registration_number?: string;
+legal_type?: string;
+representative_name?: string;
+representative_title?: string;
+email?: string;
+phone?: string;
+address?: string;
+website?: string;
+operating_area_ids?: (string)[];
+program_names?: (string)[];
+status?: string;
+review_note?: string;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+submitted_at?: string | null;
+approved_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 profile_shares: {
 Row: {
 user_id: string;
@@ -2106,6 +2238,16 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+begin_partner_ngo_document_delete: { Args: {
+p_id: string | null;
+}; Returns: string };
+begin_partner_ngo_document_upload: { Args: {
+p_application: string | null;
+p_name: string | null;
+p_type: string | null;
+p_bytes: number | null;
+p_kind: string | null;
+}; Returns: Json };
 cancel_work_assignment: { Args: {
 p_id: string | null;
 p_note: string | null;
@@ -2262,6 +2404,12 @@ p_id: string | null;
 finish_document_upload: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+finish_partner_ngo_document_delete: { Args: {
+p_id: string | null;
+}; Returns: undefined };
+finish_partner_ngo_document_upload: { Args: {
+p_id: string | null;
+}; Returns: undefined };
 get_shared_beneficiary_summary: { Args: {
 p_grant: string | null;
 }; Returns: Json };
@@ -2282,6 +2430,9 @@ p_note: string | null;
 offline_capture_upload_complete: { Args: {
 p_id: string | null;
 }; Returns: boolean };
+partner_ngo_document_download_path: { Args: {
+p_id: string | null;
+}; Returns: string };
 preview_canonical_review: { Args: {
 p_person: string | null;
 p_other: string | null;
@@ -2430,6 +2581,18 @@ p_note: string | null;
 p_expires: string | null;
 p_version: number | null;
 }; Returns: undefined };
+review_partner_ngo_application: { Args: {
+p_id: string | null;
+p_decision: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: string };
+review_partner_ngo_document: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
 review_profile: { Args: {
 p_user_id: string | null;
 p_status: string | null;
@@ -2497,6 +2660,13 @@ p_version: number | null;
 save_organization: { Args: {
 p_id: string | null;
 p_data: Json | null;
+}; Returns: string };
+save_partner_ngo_application: { Args: {
+p_id: string | null;
+p_data: Json | null;
+p_areas: (string)[] | null;
+p_programs: (string)[] | null;
+p_version: number | null;
 }; Returns: string };
 save_shortlist: { Args: {
 p_org: string | null;
@@ -2588,6 +2758,10 @@ p_id: string | null;
 p_state: string | null;
 p_version: number | null;
 }; Returns: undefined };
+submit_partner_ngo_application: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: undefined };
 survey_assignment_candidates: { Args: {
 p_project: string | null;
 p_query: string | null;
@@ -2608,6 +2782,10 @@ p_query: string | null;
 void_assistance: { Args: {
 p_id: string | null;
 p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+withdraw_partner_ngo_application: { Args: {
+p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
 withdraw_work_application: { Args: {

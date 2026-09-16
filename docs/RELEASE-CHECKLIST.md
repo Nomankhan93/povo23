@@ -135,3 +135,16 @@ Do not point this new project at the earlier `Volunteer` or JAS repository unles
 - Completion/cancellation deactivates survey access and preserves auditable assignment history.
 - Structured completion feedback stores five 1–5 categories but does not automatically change volunteer level/score.
 - Closing a survey project cancels unresolved workforce operations and active field access.
+
+## POEM 2.13
+
+- [ ] `20261005000000_work_experience_target_ambiguity_fix.sql` applies locally.
+- [ ] `20261005000100_partner_ngo_self_onboarding.sql` applies locally.
+- [ ] `node scripts/test-phase213.mjs` passes.
+- [ ] Personal account can save a Partner NGO draft.
+- [ ] Submission requires legal proof, program and structured operating area.
+- [ ] POEM reviewer can download/review evidence and request changes.
+- [ ] Approval creates one active NGO and active first `ngo_admin` membership.
+- [ ] Applicant can switch into approved NGO workspace after refresh.
+- [ ] Unrelated authenticated/anonymous users cannot read onboarding records or Storage objects.
+- [ ] Full `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.

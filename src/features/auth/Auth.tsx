@@ -127,7 +127,7 @@ export function Auth({
           </h2>
           <p>
             {mode === "signup"
-              ? "Create your account. You can complete your CV-style profile after signing in."
+              ? "Create one personal POEM account. After signing in you can build a volunteer profile or apply to represent a Partner NGO."
               : "Use your POEM account to continue."}
           </p>
           {error && (
@@ -191,7 +191,7 @@ export function Auth({
               {busy
                 ? "Please wait…"
                 : mode === "signup"
-                  ? "Create volunteer account"
+                  ? "Create POEM account"
                   : mode === "forgot"
                     ? "Send reset link"
                     : mode === "reset"
@@ -239,8 +239,8 @@ export function Auth({
             </button>
           )}
           <p className="fine">
-            Volunteer signup does not grant admin access. Your volunteer profile can be published directly;
-            private documents and work-experience confirmations are reviewed separately.
+            Account signup does not grant NGO or platform admin access. NGO representatives apply from
+            their personal workspace; POEM approval is required before a Partner NGO workspace is activated.
           </p>
         </div>
       </section>
