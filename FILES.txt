@@ -1,3 +1,4 @@
+.env.example
 .gitignore
 .nvmrc
 docs/ACCEPTANCE-2.12.md
@@ -22,6 +23,7 @@ docs/PHASE-2.13.2.md
 docs/PHASE-2.13.3.md
 docs/PHASE-2.13.md
 docs/PHASE-2.14.0.md
+docs/PHASE-2.14.1.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -62,6 +64,7 @@ docs/UPGRADE-2.13.2.md
 docs/UPGRADE-2.13.3.md
 docs/UPGRADE-2.13.md
 docs/UPGRADE-2.14.0.md
+docs/UPGRADE-2.14.1.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -93,6 +96,7 @@ docs/VALIDATION-2.13.2.md
 docs/VALIDATION-2.13.3.md
 docs/VALIDATION-2.13.md
 docs/VALIDATION-2.14.0.md
+docs/VALIDATION-2.14.1.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -150,6 +154,7 @@ scripts/test-phase213.mjs
 scripts/test-phase2131.mjs
 scripts/test-phase2132.mjs
 scripts/test-phase214.mjs
+scripts/test-phase2141.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -196,6 +201,7 @@ src/features/organizations/OrgForm.tsx
 src/features/organizations/PartnerNgoApplication.tsx
 src/features/organizations/PartnerNgoApplicationsReview.tsx
 src/features/payables/PayablesWorkspace.tsx
+src/features/projects/ProjectTeamWorkspace.tsx
 src/features/registry/canonical/canonical.css
 src/features/registry/canonical/CanonicalDetail.tsx
 src/features/registry/canonical/CanonicalWorkbench.tsx
@@ -278,5 +284,7 @@ supabase/migrations/20261005000100_partner_ngo_self_onboarding.sql
 supabase/migrations/20261006000100_ngo_access_auth_stabilization.sql
 supabase/migrations/20261006000200_invitation_access_scope_fix.sql
 supabase/migrations/20261007000100_project_team_area_governance.sql
+supabase/migrations/20261007000200_project_access_revocation_fix.sql
+supabase/migrations/20261007000300_project_team_workspace_ui.sql
 tsconfig.json
 vite.config.ts

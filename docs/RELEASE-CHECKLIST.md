@@ -1,6 +1,6 @@
-# Current release checklist — POEM 2.14.0
+# Current release checklist — POEM 2.14.1
 
-## POEM 2.14.0 acceptance
+## POEM 2.14.1 acceptance
 
 - [ ] `20261007000100_project_team_area_governance.sql` applies after the 2.13.x migration head.
 - [ ] `npm run types:check`, `npm run check`, `npm test` and `npm run build` pass.

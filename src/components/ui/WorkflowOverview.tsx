@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 export const navigationGroups = [
   {label:'Workspace',pages:['Overview','My profile','Work experience','Private documents']},
   {label:'People & partners',pages:['Volunteers','Partner NGO application','NGO applications','Partner NGOs','Workforce marketplace','Available Opportunities','My Applications','My Assigned Surveys','Invitations','Workforce payables']},
-  {label:'Field operations',pages:['Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing']},
+  {label:'Field operations',pages:['Project workspace','Project team','Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing']},
   {label:'Administration',pages:['Memberships','Accounts','Geography','Notifications','Activity']},
 ];
 export function StatusBadge({children,tone='neutral'}:{children:ReactNode;tone?:'neutral'|'success'|'warning'}){

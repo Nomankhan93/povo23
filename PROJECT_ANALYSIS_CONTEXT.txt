@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.14.0
+Release: 2.14.1
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.14.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.14.1 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -22,11 +22,11 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Historical permanent profile-share schema remains only for compatibility and is not a current UI workflow.
 - Survey capture includes encrypted device drafts/queue and reconnect synchronization; full cold-start offline/PWA caching remains outside the current baseline.
 - Payable accounting exists, but NGO account balances, project fund reservation and payment-provider money movement do not.
-- Project Manager and Area Focal Person database authorization now exists; dedicated project-team/workspace UI remains the next 2.14.x step.
+- Project Manager and Area Focal Person authorization now has dedicated project-team and project-scoped workspace UI; broad NGO administration remains separate.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 33
-Migration head: 20261007000100_project_team_area_governance.sql
+Ordered migration files: 35
+Migration head: 20261007000300_project_team_workspace_ui.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -62,12 +62,14 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261006000100_ngo_access_auth_stabilization.sql
 - 20261006000200_invitation_access_scope_fix.sql
 - 20261007000100_project_team_area_governance.sql
+- 20261007000200_project_access_revocation_fix.sql
+- 20261007000300_project_team_workspace_ui.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 42
-TypeScript/TSX source files: 73
-Markdown docs: 108
-Inventory files (excluding local/build/temp/backup state): 282
+Test scripts (scripts/test-*.mjs): 43
+TypeScript/TSX source files: 74
+Markdown docs: 111
+Inventory files (excluding local/build/temp/backup state): 290
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -84,8 +86,8 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.14.x — Project Team operational UI and workspace wiring.
-Use the 2.14.0 project staff / collection-geography authorization foundation for Project Team management, project-manager recruitment and focal monitoring screens.
+2.14.x — Continue project operational workflow stabilization on the 2.14.1 scoped workspace baseline.
+Use the 2.14 project staff / collection-geography authorization foundation for project-manager and focal monitoring screens.
 Do not widen broad NGO directory, template, canonical, sharing or finance access for project-scoped staff.
 
 ===== INVENTORY EXCLUSIONS =====

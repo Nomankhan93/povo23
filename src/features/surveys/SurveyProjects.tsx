@@ -9,6 +9,7 @@ import { SurveyProjectDetail } from "./SurveyProjectDetail";
 export function SurveyProjects({
   userId,
   organization,
+  projectId,
   manage,
   review,
   orgs,
@@ -17,6 +18,7 @@ export function SurveyProjects({
 }: {
   userId: string;
   organization: string | null;
+  projectId?: string | null;
   manage: boolean;
   review: boolean;
   orgs: Org[];
@@ -45,6 +47,7 @@ export function SurveyProjects({
         .order("id")
         .range(page * 50, page * 50 + 50);
       if (organization) q = q.eq("organization_id", organization);
+      if (projectId) q = q.eq("id", projectId);
       if (!manage && !review) {
         const a = await db!
           .from("survey_assignments")
@@ -75,7 +78,7 @@ export function SurveyProjects({
     return () => {
       live = false;
     };
-  }, [userId, organization, manage, review, page, rev]);
+  }, [userId, organization, projectId, manage, review, page, rev]);
   useEffect(() => {
     if (!create) return;
     db!

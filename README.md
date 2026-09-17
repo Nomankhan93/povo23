@@ -1,12 +1,12 @@
-# Current release: POEM 2.14.0
+# Current release: POEM 2.14.1
 
-Project Team & Area Governance Foundation. See [release notes](docs/PHASE-2.14.0.md), [WSL upgrade](docs/UPGRADE-2.14.0.md) and [validation](docs/VALIDATION-2.14.0.md).
+Project Team Management & Scoped Workspaces. See [release notes](docs/PHASE-2.14.1.md), [WSL upgrade](docs/UPGRADE-2.14.1.md) and [validation](docs/VALIDATION-2.14.1.md).
 
-POEM 2.14.0 introduces project-scoped operational authorization without promoting project staff to global NGO Admin. It adds Project Manager and Area Focal Person assignments, geography-scoped focal access, server-stamped collection geography, area-aware response review/RLS, auditable assignment/revocation RPCs and regression coverage.
+POEM 2.14.1 makes the 2.14 project-scoped authorization usable: NGO Admins can manage project staff, and Project Managers / Area Focal Persons receive dedicated project workspace contexts with database-scoped operational metrics and project views.
 
-This is the **database/security foundation** of the 2.14 line. It deliberately does not grant project staff organization membership administration, template publishing, canonical-registry administration, cross-NGO data sharing or finance authority. Dedicated project-team/recruitment UI wiring can build on these database-enforced capabilities without using frontend filters as the security boundary.
+The 2.14.0 database/security foundation remains authoritative. 2.14.1 adds UI/workspace wiring without granting project staff organization membership administration, template publishing, canonical-registry administration, cross-NGO data sharing or finance authority.
 
-## 2.14.0 operational rules
+## 2.14.1 operational rules
 
 - `project_manager` is project-scoped and can perform whole-project operational review/assignment actions that use `can_manage_project`; it is not an NGO Admin role.
 - `area_focal_person` is limited to explicitly assigned geography roots and their descendants.
@@ -17,7 +17,7 @@ This is the **database/security foundation** of the 2.14 line. It deliberately d
 
 ## Current product boundaries
 
-- 2.14.0 supplies the authorization/geography foundation; dedicated Project Team UI and broader project-manager recruitment-screen wiring remain the next 2.14.x work.
+- 2.14.1 now exposes Project Team management and dedicated project workspaces on top of the 2.14.0 authorization/geography foundation. Broader recruitment-screen polish can continue incrementally without widening permissions.
 - Focal persons can be authorized for scoped project response/review operations, but are not given finance, templates, organization membership, canonical registry or cross-NGO sharing access.
 - Workforce payable accounting remains contractual/payable history only; NGO balances/project reservations/JazzCash are later phases.
 - Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.

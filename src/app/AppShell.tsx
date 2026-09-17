@@ -32,6 +32,7 @@ import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
 import { PartnerNgoApplication } from "../features/organizations/PartnerNgoApplication";
 import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
+import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
@@ -67,6 +68,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     [profiles, setProfiles] = useState<Row[]>([]),
     [orgs, setOrgs] = useState<Row[]>([]),
     [members, setMembers] = useState<Row[]>([]),
+    [projectStaff, setProjectStaff] = useState<Row[]>([]),
+    [staffProjects, setStaffProjects] = useState<Row[]>([]),
     [accounts, setAccounts] = useState<Row[]>([]),
     [events, setEvents] = useState<Row[]>([]),
     [loading, setLoading] = useState(true),
@@ -194,6 +197,26 @@ export function Workspace({ session, openField }: { session: Session; openField:
         if ((g.data || []).length < 1000) break;
       }
       setGeographies(geoRows);
+      const staffAssignments = await db!
+        .from("project_staff_assignments")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .eq("status", "active");
+      if (staffAssignments.error) throw staffAssignments.error;
+      const activeStaffAssignments = staffAssignments.data || [];
+      setProjectStaff(activeStaffAssignments as Row[]);
+      const staffProjectIds = [...new Set(activeStaffAssignments.map((item) => item.project_id))];
+      if (staffProjectIds.length) {
+        const projectRows = await db!
+          .from("survey_projects")
+          .select("*")
+          .in("id", staffProjectIds)
+          .order("title");
+        if (projectRows.error) throw projectRows.error;
+        setStaffProjects((projectRows.data || []) as Row[]);
+      } else {
+        setStaffProjects([]);
+      }
       const platformRole = a.data.platform_role;
       const staffRole = [
         "admin",
@@ -214,7 +237,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
       );
       const defaultScope = staffRole
         ? "poem"
-        : activeNgoMembership?.organization_id || "personal";
+        : activeNgoMembership?.organization_id
+          || (activeStaffAssignments[0]?.project_id ? `project:${activeStaffAssignments[0].project_id}` : "personal");
       if (!entryHandled.current) {
         const intent = consumeWorkspaceEntryIntent();
         entryHandled.current = true;
@@ -222,6 +246,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
           if (activeNgoMembership) {
             setScope(activeNgoMembership.organization_id);
             setPageState("Overview");
+          } else if (activeStaffAssignments[0]?.project_id) {
+            setScope(`project:${activeStaffAssignments[0].project_id}`);
+            setPageState("Project workspace");
+            setNotice("Your account has project-scoped NGO access. Organization-wide NGO administration is not enabled.");
           } else {
             setScope("personal");
             setPageState("Partner NGO application");
@@ -285,9 +313,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
             m.status === "active",
         ),
     );
+  const projectScope = scope.startsWith("project:");
+  const projectScopeId = projectScope ? scope.slice("project:".length) : null;
   const validScope =
-    poem || scope === "personal" || myOrgs.some((o) => o.id === scope);
-  const nav = [
+    poem || scope === "personal" || myOrgs.some((o) => o.id === scope) || Boolean(projectScopeId && staffProjects.some((p) => p.id === projectScopeId));
+  const standardNav = [
     ["Overview", LayoutDashboard],
     ["My profile", UserRound],
     ...(!poem
@@ -303,6 +333,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(ngos ? [["NGO applications", Building2]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
+    ...(!poem && scope !== "personal" ? [["Project team", Users]] : []),
     ["Verification", ShieldCheck],
     ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
     ...(surveyManage ? [["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck]] : []),
@@ -318,6 +349,14 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Notifications", Bell],
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
+  const nav = projectScope
+    ? ([
+        ["Project workspace", LayoutDashboard],
+        ["Survey projects", ShieldCheck],
+        ["Notifications", Bell],
+        ["Activity", Activity],
+      ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
+    : standardNav;
   const change = (p: string) => {
     setPage(p);
     setQuery("");
@@ -368,8 +407,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
             id="scope"
             value={scope}
             onChange={(e) => {
-              setScope(e.target.value);
-              change("Overview");
+              const next = e.target.value;
+              setScope(next);
+              change(next.startsWith("project:") ? "Project workspace" : "Overview");
             }}
           >
             {admin && <option value="poem">POEM administration</option>}
@@ -379,6 +419,14 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 {o.name} — NGO Workspace
               </option>
             ))}
+            {staffProjects.map((p) => {
+              const assignment = projectStaff.find((s) => s.project_id === p.id);
+              return (
+                <option key={`project:${p.id}`} value={`project:${p.id}`}>
+                  {p.title} — {human(assignment?.role || "project_staff")}
+                </option>
+              );
+            })}
           </select>
         </div>
         <nav aria-label="Main navigation">
@@ -806,14 +854,34 @@ export function Workspace({ session, openField }: { session: Session; openField:
               <SurveyTemplates />
             </Suspense>
           )}
+          {page === "Project team" && !poem && scope !== "personal" && !projectScope && validScope && (
+            <ProjectTeamWorkspace
+              key={`team-${scope}-${revision}`}
+              userId={session.user.id}
+              organization={scope}
+              geographies={geographies}
+              canManageTeam={true}
+            />
+          )}
+          {page === "Project workspace" && projectScopeId && validScope && (
+            <ProjectTeamWorkspace
+              key={`project-${projectScopeId}-${revision}`}
+              userId={session.user.id}
+              organization={null}
+              projectId={projectScopeId}
+              geographies={geographies}
+              canManageTeam={false}
+            />
+          )}
           {page === "Survey projects" && validScope && (
             <Suspense fallback={<p role="status">Loading surveys…</p>}>
               <SurveyProjects
                 key={scope}
                 userId={session.user.id}
-                organization={scope === "personal" || poem ? null : scope}
+                organization={scope === "personal" || poem || projectScope ? null : scope}
+                projectId={projectScopeId}
                 manage={surveyManage}
-                review={surveyManage || (!poem && scope !== "personal")}
+                review={surveyManage || projectScope || (!poem && scope !== "personal")}
                 orgs={orgs as any}
                 geographies={geographies}
                 openRecruitment={() => change("Workforce marketplace")}

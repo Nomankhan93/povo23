@@ -1,8 +1,8 @@
-# Current architecture note — POEM 2.14.0
+# Current architecture note — POEM 2.14.1
 
-2.14.0 adds a project authorization layer on top of existing organization membership: `project_staff_assignments` + `project_staff_areas`. Project staff never become global NGO Admin by implication. `collection_geography_id` is now the operational scope anchor for assignments/responses/capture evidence, and database helpers (`can_manage_project`, `can_review_project_area`) are the authorization boundary. Historical data is not assigned invented sub-area precision.
+2.14.1 wires dedicated project-team and project-staff workspaces onto the 2.14 authorization layer. Project staff never become global NGO Admin by implication. `collection_geography_id` remains the operational scope anchor, and database helpers/RLS—not client navigation—remain the authorization boundary.
 
-**Next 2.14.x:** wire dedicated Project Team UI and project-manager recruitment/monitoring screens to these helpers/RPCs. Do not widen broad NGO directory/data-sharing/finance permissions.
+**Current 2.14.1:** NGO Admins can assign/revoke Project Managers and Area Focal Persons from active organization members. Assigned staff get dedicated project workspace contexts. Broader finance/template/canonical/data-sharing authority remains excluded.
 
 POEM remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
 

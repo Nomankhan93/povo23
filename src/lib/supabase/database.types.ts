@@ -2530,6 +2530,10 @@ project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
 }; Returns: Json };
+project_staff_candidates: { Args: {
+p_project: string | null;
+p_query?: string | null;
+}; Returns: Json };
 project_staff_roster: { Args: {
 p_project: string | null;
 }; Returns: Json };
