@@ -1,11 +1,14 @@
 import {PoemBrand} from "../../components/ui/PoemBrand";
 import {rememberFieldOwner} from '../surveys/offlineSurveyStore';
-import {APP_VERSION} from '../../app/version';
 import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
+  BriefcaseBusiness,
   Building2,
   CheckCircle,
+  Eye,
+  EyeOff,
+  Info,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -18,23 +21,79 @@ import {
   type WorkspaceEntryIntent,
 } from "./entryIntent";
 
-const entryCopy: Record<WorkspaceEntryIntent, { label: string; heading: string; button: string }> = {
+type EntryCopy = {
+  label: string;
+  destination: string;
+  storyHeading: string;
+  storyBody: string;
+};
+
+const entryCopy: Record<WorkspaceEntryIntent, EntryCopy> = {
   volunteer: {
     label: "Volunteer",
-    heading: "Sign in to your volunteer workspace",
-    button: "Sign in as volunteer",
+    destination: "Continue to your Volunteer workspace.",
+    storyHeading: "Build experience that matters.",
+    storyBody: "Discover meaningful field opportunities, build a verified work history and grow your professional profile through real community work.",
   },
   ngo: {
     label: "Partner NGO",
-    heading: "Sign in as a Partner NGO",
-    button: "Sign in as Partner NGO",
+    destination: "Continue to your Partner NGO workspace or application.",
+    storyHeading: "Find trusted people for meaningful work.",
+    storyBody: "Recruit volunteers, coordinate field delivery and manage organization work through one accountable operational workspace.",
   },
   poem: {
     label: "POEM staff",
-    heading: "Sign in to POEM administration",
-    button: "Sign in as POEM staff",
+    destination: "Continue to POEM Administration.",
+    storyHeading: "Operate the network with clarity.",
+    storyBody: "Review partners, govern access and monitor field operations across the POEM network from one trusted platform.",
   },
 };
+
+function PasswordInput({
+  id,
+  name,
+  label,
+  minLength,
+  autoComplete,
+  visible,
+  onToggle,
+  helper,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  minLength: number;
+  autoComplete: string;
+  visible: boolean;
+  onToggle: () => void;
+  helper?: string;
+}) {
+  return (
+    <div className="field auth-password-field">
+      <label htmlFor={id}>{label}</label>
+      <div className="password-input">
+        <input
+          id={id}
+          name={name}
+          type={visible ? "text" : "password"}
+          required
+          minLength={minLength}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          onClick={onToggle}
+          aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+          aria-pressed={visible}
+        >
+          {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+      {helper && <small>{helper}</small>}
+    </div>
+  );
+}
 
 export function Auth({
   session,
@@ -51,15 +110,30 @@ export function Auth({
     [entry, setEntry] = useState<WorkspaceEntryIntent>(() => readWorkspaceEntryIntent() || "volunteer"),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
-    [error, setError] = useState(initialError);
+    [error, setError] = useState(initialError),
+    [showPassword, setShowPassword] = useState(false),
+    [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   useEffect(() => {
     if (recovery) setMode("reset");
   }, [recovery]);
 
-  function chooseEntry(next: WorkspaceEntryIntent) {
-    setEntry(next);
+  function clearFeedback() {
     setError("");
     setMessage("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  }
+
+  function chooseEntry(next: WorkspaceEntryIntent) {
+    setEntry(next);
+    clearFeedback();
+    if (mode === "signup" && next === "poem") setMode("login");
+  }
+
+  function switchMode(next: "login" | "signup" | "forgot") {
+    setMode(next);
+    clearFeedback();
   }
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -77,7 +151,8 @@ export function Auth({
         rememberWorkspaceEntryIntent(entry);
         const r = await db!.auth.signInWithPassword({ email, password });
         if (r.error) throw r.error;
-        rememberFieldOwner(r.data.user.id);window.dispatchEvent(new Event("poem:field-unlocked"));
+        rememberFieldOwner(r.data.user.id);
+        window.dispatchEvent(new Event("poem:field-unlocked"));
       }
       if (mode === "signup") {
         const signupEntry = entry === "poem" ? "volunteer" : entry;
@@ -93,7 +168,7 @@ export function Auth({
         if (r.error) throw r.error;
         setMessage(
           signupEntry === "ngo"
-            ? "Representative account created. Confirm your email, then sign in as Partner NGO to continue the application."
+            ? "Account created. Confirm your email, then sign in as Partner NGO to continue your organization application."
             : "Account created. Check your email to confirm your address, then sign in.",
         );
       }
@@ -102,15 +177,11 @@ export function Auth({
           redirectTo: location.origin + "/reset",
         });
         if (r.error) throw r.error;
-        setMessage(
-          "If this email is registered, a reset link will arrive shortly.",
-        );
+        setMessage("If this email is registered, a reset link will arrive shortly.");
       }
       if (mode === "reset") {
-        if (!session)
-          throw Error("Open the latest reset link from your email.");
-        if (password !== f.get("confirm"))
-          throw Error("Passwords do not match.");
+        if (!session) throw Error("Open the latest reset link from your email.");
+        if (password !== f.get("confirm")) throw Error("Passwords do not match.");
         const r = await db!.auth.updateUser({ password });
         if (r.error) throw r.error;
         done();
@@ -124,52 +195,72 @@ export function Auth({
 
   const signupEntry = entry === "poem" ? "volunteer" : entry;
   const heading = mode === "signup"
-    ? signupEntry === "ngo" ? "Create an NGO representative account" : "Join the volunteer network"
+    ? "Create your POEM account"
     : mode === "forgot"
       ? "Reset your password"
       : mode === "reset"
         ? "Choose a new password"
-        : entryCopy[entry].heading;
+        : "Sign in to POEM";
+
+  const description = mode === "signup"
+    ? signupEntry === "ngo"
+      ? "Create your personal POEM account, then continue the Partner NGO application after sign-in."
+      : "Build your volunteer profile and start accessing available opportunities."
+    : mode === "forgot"
+      ? "Enter your account email and we will send a secure reset link if it is registered."
+      : mode === "reset"
+        ? "Use at least 12 characters for your new password."
+        : entryCopy[entry].destination;
+
+  const storyPoints = entry === "ngo"
+    ? [
+        [Building2, "Recruit and manage field teams"],
+        [CheckCircle, "Run approved projects and opportunities"],
+        [ShieldCheck, "POEM-governed organization access"],
+      ] as const
+    : entry === "poem"
+      ? [
+          [BriefcaseBusiness, "Operate partner and programme workflows"],
+          [CheckCircle, "Review verification and governance queues"],
+          [ShieldCheck, "Protect accountable access across the network"],
+        ] as const
+      : [
+          [UserRound, "Build your professional volunteer profile"],
+          [CheckCircle, "Keep POEM-verified work history"],
+          [ShieldCheck, "Apply through scoped NGO recruitment"],
+        ] as const;
 
   return (
-    <div className="auth-shell">
-      <section className="auth-story">
-        <PoemBrand />
-        <span className="eyebrow">PEOPLE. PURPOSE. IMPACT.</span>
-        <h1>
-          Local people.
-          <br />
-          Lasting possibilities.
-        </h1>
-        <p>
-          Bring your skills, experience and commitment to a network that puts
-          communities first.
-        </p>
-        <div className="auth-points">
-          {entry === "ngo" ? <>
-            <span><Building2 />Your approved NGO workspace</span>
-            <span><CheckCircle />Self-service Partner NGO application</span>
-            <span><ShieldCheck />POEM-reviewed organization access</span>
-          </> : <>
-            <span><UserRound />Your own volunteer profile</span>
-            <span><CheckCircle />POEM-verified work history</span>
-            <span><ShieldCheck />Application-scoped NGO recruitment</span>
-          </>}
+    <div className="auth-shell auth-shell-premium">
+      <section className="auth-story" aria-label="POEM account benefits">
+        <PoemBrand compact />
+        <div className="auth-story-main">
+          <span className="eyebrow">PEOPLE • PURPOSE • IMPACT</span>
+          <h1>{entryCopy[entry].storyHeading}</h1>
+          <p>{entryCopy[entry].storyBody}</p>
+          <div className="auth-points">
+            {storyPoints.map(([Icon, text]) => (
+              <span key={text}><Icon />{text}</span>
+            ))}
+          </div>
         </div>
-        <small>POEM Network · POEM {APP_VERSION}</small>
+        <small className="auth-story-footer">© {new Date().getFullYear()} POEM</small>
       </section>
+
       <section className="auth-form">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><PoemBrand /></div>
+          <div className="mobile-auth-brand"><PoemBrand compact /></div>
           <span className="eyebrow">WELCOME TO POEM</span>
+
           {!recovery && mode !== "forgot" && (
-            <div className="auth-entry-tabs" role="group" aria-label="Choose POEM workspace">
+            <div className="auth-entry-tabs" role="tablist" aria-label="Choose POEM workspace">
               {(Object.keys(entryCopy) as WorkspaceEntryIntent[]).map((value) => (
                 <button
                   type="button"
+                  role="tab"
                   key={value}
                   className={entry === value ? "active" : ""}
-                  aria-pressed={entry === value}
+                  aria-selected={entry === value}
                   onClick={() => chooseEntry(value)}
                 >
                   {entryCopy[value].label}
@@ -177,83 +268,99 @@ export function Auth({
               ))}
             </div>
           )}
+
           <h2>{heading}</h2>
-          <p>
-            {mode === "signup"
-              ? signupEntry === "ngo"
-                ? "Create your personal representative account first. After sign-in, complete the Partner NGO application for POEM approval."
-                : "Create your personal POEM account. You can complete your CV-style volunteer profile after signing in."
-              : mode === "login" && entry === "ngo"
-                ? "Use your personal POEM credentials. Approved representatives go straight to an NGO workspace; new representatives continue the Partner NGO application."
-                : mode === "login" && entry === "poem"
-                  ? "Use the POEM account that has been granted platform staff access."
-                  : "Use your POEM account to continue."}
-          </p>
+          <p className="auth-description">{description}</p>
+
           {error && <div role="alert" className="notice error">{error}</div>}
           {message && <div role="status" className="notice success">{message}</div>}
+
           <form onSubmit={submit}>
             {mode === "signup" && (
               <Field label="Full name">
                 <input name="full_name" required minLength={2} maxLength={200} autoComplete="name" />
               </Field>
             )}
+
             {mode !== "reset" && (
               <Field label="Email address">
                 <input name="email" type="email" required autoComplete="email" />
               </Field>
             )}
+
             {mode !== "forgot" && (
-              <Field label="Password">
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  minLength={mode === "login" ? 1 : 12}
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
-                />
-                {mode !== "login" && <small>At least 12 characters.</small>}
-              </Field>
+              <PasswordInput
+                id="auth-password"
+                name="password"
+                label="Password"
+                minLength={mode === "login" ? 1 : 12}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                visible={showPassword}
+                onToggle={() => setShowPassword((value) => !value)}
+                helper={mode !== "login" ? "Use at least 12 characters." : undefined}
+              />
             )}
+
             {mode === "reset" && (
-              <Field label="Confirm password">
-                <input name="confirm" type="password" required minLength={12} autoComplete="new-password" />
-              </Field>
+              <PasswordInput
+                id="auth-confirm-password"
+                name="confirm"
+                label="Confirm password"
+                minLength={12}
+                autoComplete="new-password"
+                visible={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword((value) => !value)}
+              />
             )}
-            <button className="primary wide" disabled={busy}>
+
+            {mode === "login" && (
+              <div className="auth-inline-action">
+                <button type="button" className="link" onClick={() => switchMode("forgot")}>
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
+            <button className="primary wide auth-primary-action" disabled={busy}>
               {busy
                 ? "Please wait…"
                 : mode === "signup"
-                  ? signupEntry === "ngo" ? "Create representative account" : "Create volunteer account"
+                  ? "Create account"
                   : mode === "forgot"
                     ? "Send reset link"
                     : mode === "reset"
                       ? "Update password"
-                      : entryCopy[entry].button}
+                      : "Sign in"}
               <ArrowRight size={16} />
             </button>
           </form>
+
           {mode === "login" ? (
-            <>
-              <button className="link" onClick={() => { setMode("forgot"); setError(""); setMessage(""); }}>
-                Forgot password?
-              </button>
-              {entry !== "poem" && (
-                <div className="auth-bottom">
-                  New to POEM?{" "}
-                  <button onClick={() => { setMode("signup"); setError(""); setMessage(""); }}>
-                    {entry === "ngo" ? "Create representative account" : "Create volunteer account"}
-                  </button>
-                </div>
-              )}
-            </>
+            entry !== "poem" && (
+              <div className="auth-bottom">
+                <span>{entry === "ngo" ? "Representing an NGO?" : "New to POEM?"}</span>{" "}
+                <button type="button" onClick={() => switchMode("signup")}>
+                  Create an account
+                </button>
+              </div>
+            )
           ) : (
-            <button className="link" onClick={() => { setMode("login"); setError(""); setMessage(""); if (recovery) done(); }}>
+            <button
+              type="button"
+              className="link auth-back-link"
+              onClick={() => {
+                switchMode("login");
+                if (recovery) done();
+              }}
+            >
               Back to sign in
             </button>
           )}
-          <p className="fine">
-            One personal POEM account can open different authorized workspaces. Choosing Partner NGO changes the destination after sign-in; it does not create a shared organization password. NGO access is activated only through an approved organization membership.
-          </p>
+
+          <div className="auth-account-note">
+            <Info size={16} aria-hidden="true" />
+            <span>One POEM account can access multiple authorized workspaces.</span>
+          </div>
         </div>
       </section>
     </div>
