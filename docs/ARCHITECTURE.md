@@ -1,12 +1,20 @@
-# Current architecture note — POEM 2.13.1
+# Current architecture note — POEM 2.13.3
 
 POEM remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
 
-Public recruitment browsing is independent of permanent NGO full-profile sharing. In 2.13.1 the user-facing permanent sharing control is retired: applications carry bounded recruitment snapshots, while live NGO access to a volunteer profile is tied to explicit invitation/assignment relationships. The historical `profile_shares` table/RPC is retained only as a compatibility surface and current rows are cleared by the 2.13.1 migration. Volunteer profile publication remains separate from independent identity verification.
+Public recruitment browsing is independent of permanent NGO full-profile sharing. Since 2.13.1 the user-facing permanent sharing control is retired: applications carry bounded recruitment snapshots, while live NGO access to a volunteer profile is tied to explicit invitation/assignment relationships. The historical `profile_shares` table/RPC is retained only as a compatibility surface and current rows are cleared by the 2.13.1 migration. Volunteer profile publication remains separate from independent identity verification.
 
 POEM work experience is now derived from authoritative survey-project records instead of copied into a second platform-experience table. `work_experience_history()` combines survey assignments, workforce assignment state, project/template metadata and current survey-review outcomes. Manual/external `volunteer_experiences` remain separate. Authorized third-party profile readers receive only POEM work backed by approved surveys or completed assignments; recruitment snapshots include at most 10 bounded verified work summaries.
 
-> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+## Consolidated 2.13.3 baseline
+
+- The frontend remains a React/TypeScript/Vite modular monolith backed by Supabase Auth, PostgreSQL, PostgREST and Storage.
+- PostgreSQL/RLS/RPC authorization remains the security boundary; 2.13.3 contains no schema or permission migration.
+- The ordered migration baseline contains 32 files and currently ends at `20261006000200_invitation_access_scope_fix.sql`. Existing migration filenames are historical ordering identifiers and must not be renamed. New forward migrations must sort after the existing head.
+- Release metadata is generated/checked with `npm run metadata:generate`, `npm run metadata:check` and `npm run release:consistency`.
+- The next planned feature phase is 2.14 Project Team & Area Governance. It should extend existing organization/project primitives rather than introduce a parallel role, recruitment, template or payable system.
+
+> Current consolidated release: [2.13.3](PHASE-2.13.3.md). For current validation and remaining limits, see [2.13.3 validation](VALIDATION-2.13.3.md). The phase-specific sections below are historical provenance and may describe behavior superseded by later migrations.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.
 
@@ -14,9 +22,9 @@ POEM work experience is now derived from authoritative survey-project records in
 
 > Phase 2.1 update: see [Survey & Registry Pilot](PHASE-2.1.md) for the current survey model, permissions and acceptance checks, and [upgrade instructions](UPGRADE-2.1.md) for existing installations. Earlier-phase sections below describe their original scope.
 
-Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+Historical Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
 
-Current release: see [Phase 1.3 additions and boundaries](PHASE-1.3.md). The sections below document the inherited foundation.
+Historical Phase 1.3: see [Phase 1.3 additions and boundaries](PHASE-1.3.md). The sections below document the inherited foundation.
 
 # Architecture and release boundary
 

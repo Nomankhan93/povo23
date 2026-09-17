@@ -1,4 +1,4 @@
-> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+> Current release validation: [POEM 2.13.3](VALIDATION-2.13.3.md). Older validation sections below are retained as historical regression context; later migrations and current release notes take precedence.
 
 # Phase 2.3 validation
 

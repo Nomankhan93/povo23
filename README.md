@@ -1,10 +1,10 @@
-# Current release: POEM 2.13.1
+# Current release: POEM 2.13.3
 
-NGO Access & Authentication Stabilization. See [release notes](docs/PHASE-2.13.1.md), [WSL upgrade](docs/UPGRADE-2.13.1.md) and [validation](docs/VALIDATION-2.13.1.md).
+Release Consolidation. See [release notes](docs/PHASE-2.13.3.md), [WSL upgrade](docs/UPGRADE-2.13.3.md) and [validation](docs/VALIDATION-2.13.3.md).
 
-POEM 2.13.1 keeps the 2.13 self-onboarding flow and adds explicit Volunteer / Partner NGO / POEM Staff sign-in destinations. Partner NGO sign-in still uses the person's own secure POEM credentials: approved representatives open an active NGO workspace, while representatives without an active membership land on the Partner NGO application. The volunteer profile no longer exposes permanent “Allow profile access” controls; current recruitment uses application snapshots and project/assignment-scoped access.
+POEM 2.13.3 is intentionally feature-free: it consolidates the 2.13.x baseline, synchronizes release/documentation metadata, regenerates the project-analysis inventory, and adds an automated release-consistency guard. It does **not** add a database migration, change RLS, alter authentication/workspace routing, or change the 2.13.2 user interface.
 
-Current platform capabilities already include advanced survey capture, full offline field-reliability foundations, canonical registry operations, controlled NGO sharing, independent verification/project governance, template drafts/library, workforce recruitment and payable accounting. Historical phase documents remain in `docs/`.
+The consolidated baseline preserves Partner NGO self-onboarding, explicit Volunteer / Partner NGO / POEM Staff sign-in destinations, application-scoped recruitment snapshots, project/assignment-scoped volunteer access, advanced survey capture, offline field reliability, canonical registry operations, controlled NGO sharing, verification/governance, template drafts/library, workforce recruitment, payable accounting and automatic verified POEM work history. Historical phase documents remain in `docs/`.
 
 ## Current product boundaries
 

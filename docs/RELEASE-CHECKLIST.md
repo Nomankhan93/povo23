@@ -1,5 +1,19 @@
-# Current release checklist — POEM 2.13.1
+# Current release checklist — POEM 2.13.3
 
+## 2.13.3 consolidation gate
+
+- [ ] `package.json` and `package-lock.json` report 2.13.3.
+- [ ] README, architecture, permissions and this checklist identify 2.13.3 as the current release.
+- [ ] `npm run metadata:check` passes and generated `FILES.txt`, `project-tree.txt` and `PROJECT_ANALYSIS_CONTEXT.txt` are clean.
+- [ ] `npm run release:consistency` passes.
+- [ ] No 2.13.3 SQL migration exists; the migration head remains `20261006000200_invitation_access_scope_fix.sql`.
+- [ ] `node scripts/test-phase2131.mjs` and `node scripts/test-phase2132.mjs` pass.
+- [ ] `npm run preflight` passes.
+- [ ] With local Supabase running, `npm run test:local` and `npm run test:operations` pass.
+- [ ] Browser acceptance confirms Volunteer / Partner NGO / POEM Staff sign-in destinations, NGO onboarding routing, password visibility controls, reset flow and compact mobile authentication layout.
+- [ ] `git diff --check` is clean before commit.
+
+2.13.3 adds no business feature, migration, RLS change or auth-routing behavior. The remaining sections are historical release checks retained for regression context.
 Before cloud migration or deployment:
 
 - `npm run preflight` passes.
@@ -18,7 +32,7 @@ Before cloud migration or deployment:
 
 Historical checklists below are retained for regression context.
 
-> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+> Current consolidated release: [2.13.3](PHASE-2.13.3.md). See [2.13.3 validation](VALIDATION-2.13.3.md). Older phase-specific statements below are historical.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.
 
@@ -26,9 +40,9 @@ Historical checklists below are retained for regression context.
 
 > Phase 2.1 update: see [Survey & Registry Pilot](PHASE-2.1.md) for the current survey model, permissions and acceptance checks, and [upgrade instructions](UPGRADE-2.1.md) for existing installations. Earlier-phase sections below describe their original scope.
 
-Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+Historical Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
 
-For the current Phase 1.3 release, use [upgrade commands](UPGRADE-1.3.md) and [acceptance checklist](PHASE-1.3.md). The following checklist covers inherited functionality.
+Historical Phase 1.3: see [upgrade commands](UPGRADE-1.3.md) and [acceptance checklist](PHASE-1.3.md). The following checklist covers inherited functionality.
 
 # Release checklist
 

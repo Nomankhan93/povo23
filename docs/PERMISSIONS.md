@@ -1,4 +1,4 @@
-# Current permissions note — POEM 2.13.1
+# Current permissions note — POEM 2.13.3
 
 - Sign-in exposes explicit Volunteer, Partner NGO and POEM Staff destinations while keeping one personal POEM credential set per person. Approved NGO representatives enter an active NGO workspace; otherwise Partner NGO sign-in routes to the onboarding application.
 - The volunteer profile no longer exposes permanent “Allow profile access” controls. Current open recruitment uses application snapshots; live NGO profile reads are bounded to explicit invitation/assignment relationships.
@@ -15,7 +15,11 @@
 
 Historical permissions notes below remain useful for original phase boundaries; later migrations supersede them where stated.
 
-> Current stabilization release: [2.3.1](STABILIZATION-2.3.1.md). For current validation and remaining limits, see [validation](VALIDATION-2.3.1.md). Older phase-specific statements below are historical; NGO Managers no longer assign memberships.
+## Consolidated 2.13.3 permission boundary
+
+2.13.3 changes no authorization rule. Existing platform roles, organization memberships, project/workforce relationships, verification permissions, canonical-registry restrictions, sharing grants and payable permissions continue to be enforced by the database. UI visibility is not an authorization boundary. Project Manager and Area Focal Person roles are **not** part of this release; they belong to the planned 2.14 project-scoped authorization model.
+
+> Current consolidated release: [2.13.3](PHASE-2.13.3.md). For current validation and remaining limits, see [2.13.3 validation](VALIDATION-2.13.3.md). Older permission matrices below are historical and later migrations take precedence.
 
 > Phase 2.3: [Needs Assessment & Assistance Follow-up](PHASE-2.3.md) adds approved-survey assessments, assistance links and a follow-up queue. See [upgrade instructions](UPGRADE-2.3.md). Earlier sections describe their original release scope.
 
@@ -23,9 +27,9 @@ Historical permissions notes below remain useful for original phase boundaries; 
 
 > Phase 2.1 update: see [Survey & Registry Pilot](PHASE-2.1.md) for the current survey model, permissions and acceptance checks, and [upgrade instructions](UPGRADE-2.1.md) for existing installations. Earlier-phase sections below describe their original scope.
 
-Current Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
+Historical Phase 1.4: see [experience/invitation workflow and permissions](PHASE-1.4.md) and [upgrade instructions](UPGRADE-1.4.md).
 
-Current release: [Phase 1.3 staff permission matrix](PHASE-1.3.md). Legacy roles below retain their prior permissions; Volunteer Manager now also reviews documents, NGO Manager manages geography/NGOs and Auditor reads audit events.
+Historical Phase 1.3: [staff permission matrix](PHASE-1.3.md). Treat it as provenance only; the current database/functions and the 2.13.3 note above define the active permission boundary.
 
 # POEM Phase 1.2 permission matrix
 
