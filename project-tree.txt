@@ -26,6 +26,7 @@
 ./docs/PHASE-2.13.md
 ./docs/PHASE-2.14.0.md
 ./docs/PHASE-2.14.1.md
+./docs/PHASE-2.14.2.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -67,6 +68,7 @@
 ./docs/UPGRADE-2.13.md
 ./docs/UPGRADE-2.14.0.md
 ./docs/UPGRADE-2.14.1.md
+./docs/UPGRADE-2.14.2.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -99,6 +101,7 @@
 ./docs/VALIDATION-2.13.md
 ./docs/VALIDATION-2.14.0.md
 ./docs/VALIDATION-2.14.1.md
+./docs/VALIDATION-2.14.2.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -159,6 +162,7 @@
 ./scripts/test-phase2132.mjs
 ./scripts/test-phase214.mjs
 ./scripts/test-phase2141.mjs
+./scripts/test-phase2142.mjs
 ./scripts/test-phase22.mjs
 ./scripts/test-phase23.mjs
 ./scripts/test-phase24.mjs

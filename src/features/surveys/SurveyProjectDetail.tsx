@@ -24,16 +24,20 @@ export function SurveyProjectDetail({
   userId,
   manage,
   review,
+  manageAssignments,
   geographies,
   back,
+  backLabel = "All projects",
   openRecruitment,
 }: {
   project: Project;
   userId: string;
   manage: boolean;
   review: boolean;
+  manageAssignments: boolean;
   geographies: Geo[];
   back: () => void;
+  backLabel?: string;
   openRecruitment?: () => void;
 }) {
   const [registryPerson, setRegistryPerson] = useState<string | null>(null);
@@ -65,6 +69,7 @@ export function SurveyProjectDetail({
       { user_id: string; details: Record<string, string> }[]
     >([]),
     [query, setQuery] = useState(""),
+    [responseStatus, setResponseStatus] = useState("all"),
     [revisions, setRevisions] = useState<
       Tables["survey_response_revisions"]["Row"][]
     >([]);
@@ -89,6 +94,7 @@ export function SurveyProjectDetail({
         .order("id")
         .range(page * 50, page * 50 + 50);
       if (!review) r = r.eq("collector_id", userId);
+      if (responseStatus !== "all") r = r.eq("status", responseStatus);
       const result = await Promise.all([
         db!
           .from("survey_templates")
@@ -160,7 +166,7 @@ export function SurveyProjectDetail({
     return () => {
       live = false;
     };
-  }, [project.id, page, registryPage, lookup, rev, review, userId]);
+  }, [project.id, page, registryPage, lookup, rev, review, userId, responseStatus]);
   async function act(fn: () => Promise<unknown>, success: string) {
     setBusy(true);
     setError("");
@@ -193,7 +199,7 @@ export function SurveyProjectDetail({
   return (
     <section className="panel detail">
       <button className="link" onClick={back}>
-        ← All projects
+        ← {backLabel}
       </button>
       <h2>{project.title}</h2>
       <p>
@@ -235,7 +241,7 @@ export function SurveyProjectDetail({
           Close collection
         </button>
       )}
-      {review && (
+      {manageAssignments && (
         <details className="survey-question">
           <summary>Direct survey access / operational override</summary>
           <form onSubmit={findVolunteers}>
@@ -346,7 +352,23 @@ export function SurveyProjectDetail({
           onChanged={() => setRev((n) => n + 1)}
         />
       )}
-      <h3>Responses</h3>
+      <div className="response-toolbar">
+        <div>
+          <h3>Responses</h3>
+          <p>Only records allowed by your current project and geography scope are returned.</p>
+        </div>
+        <label className="field response-status-filter">
+          Status
+          <select value={responseStatus} onChange={(e) => { setResponseStatus(e.target.value); setPage(0); setSelected(null); }}>
+            <option value="all">All visible</option>
+            <option value="submitted">Pending review</option>
+            <option value="approved">Approved</option>
+            <option value="correction_required">Correction required</option>
+            <option value="rejected">Rejected</option>
+            <option value="draft">Draft</option>
+          </select>
+        </label>
+      </div>
       {busy && <p role="status">Loading…</p>}
       {responses.map((r) => (
         <article className="document-row" key={r.id}>
@@ -384,6 +406,7 @@ export function SurveyProjectDetail({
             )}
         </article>
       ))}
+      {!busy && !responses.length && <p className="empty-state">No responses match this filter in your current scope.</p>}
       <Pager page={page} more={more} busy={busy} change={setPage} />
       {selected && (
         <section className="survey-question">

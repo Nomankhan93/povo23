@@ -1,17 +1,18 @@
-# Current release checklist — POEM 2.14.1
+# Current release checklist — POEM 2.14.2
 
-## POEM 2.14.1 acceptance
+## POEM 2.14.2 acceptance
 
-- [ ] `20261007000100_project_team_area_governance.sql` applies after the 2.13.x migration head.
-- [ ] `npm run types:check`, `npm run check`, `npm test` and `npm run build` pass.
-- [ ] NGO Admin/POEM can assign Project Manager or Area Focal Person only to an active member of that NGO.
-- [ ] Focal assignment requires 1–25 active areas within the project geography.
-- [ ] Project Manager sees/reviews the whole assigned project but receives no template/canonical/org-membership authority.
-- [ ] Area Focal Person can read/review only responses stamped inside assigned geography descendants.
-- [ ] Response/capture collection geography cannot be mutated after creation.
-- [ ] Suspending the underlying NGO membership removes project-staff authority on the next request.
-- [ ] Direct table mutation of project staff remains denied; mutations use audited RPCs.
-- [ ] Historical 2.13.x migrations remain unchanged.
+- [ ] `node scripts/test-phase214.mjs`, `test-phase2141.mjs` and `test-phase2142.mjs` pass.
+- [ ] `npm run preflight`, `npm run test:local` and `npm run test:operations` pass.
+- [ ] Project Manager dashboard shows RLS-filtered target progress, active volunteer count, response states, visible area coverage and latest visible responses.
+- [ ] **Open responses & reviews** opens the assigned project directly and back navigation returns to Project workspace.
+- [ ] Response status filter is server-side and never widens project/geography visibility.
+- [ ] Area Focal Person can review scoped responses but does not see direct survey-assignment management controls.
+- [ ] Project Manager retains authorized assignment controls.
+- [ ] Revoked project workspace returns to the personal workspace after reload/refresh.
+- [ ] Project dashboard/roster/filters are usable at desktop, tablet and narrow mobile widths without page-level horizontal overflow.
+- [ ] 2.14.2 adds no SQL migration; migration head remains `20261007000300_project_team_workspace_ui.sql`.
+- [ ] `git diff --check` is clean before commit.
 
 ## 2.13.3 consolidation gate
 

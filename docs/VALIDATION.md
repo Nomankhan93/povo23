@@ -1,4 +1,4 @@
-> Current release validation: [POEM 2.14.1](VALIDATION-2.14.1.md). Older validation sections below are retained as historical regression context; later migrations and current release notes take precedence.
+> Current release validation: [POEM 2.14.2](VALIDATION-2.14.2.md). Older validation sections below are retained as historical regression context; later migrations and current release notes take precedence.
 
 # Phase 2.3 validation
 

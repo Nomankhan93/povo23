@@ -1,6 +1,6 @@
-# Current permissions note — POEM 2.14.1
+# Current permissions note — POEM 2.14.2
 
-## 2.14.1 project-scoped roles
+## 2.14.2 project-scoped roles
 
 | Capability | POEM Survey Manager | NGO Admin | Project Manager | Area Focal Person | Collector |
 | --- | --- | --- | --- | --- | --- |

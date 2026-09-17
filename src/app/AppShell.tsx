@@ -315,8 +315,21 @@ export function Workspace({ session, openField }: { session: Session; openField:
     );
   const projectScope = scope.startsWith("project:");
   const projectScopeId = projectScope ? scope.slice("project:".length) : null;
+  const projectScopeAssignment = projectScopeId ? projectStaff.find((item) => item.project_id === projectScopeId) : null;
+  const projectScopeProject = projectScopeId ? staffProjects.find((item) => item.id === projectScopeId) : null;
   const validScope =
-    poem || scope === "personal" || myOrgs.some((o) => o.id === scope) || Boolean(projectScopeId && staffProjects.some((p) => p.id === projectScopeId));
+    poem || scope === "personal" || myOrgs.some((o) => o.id === scope) || Boolean(projectScopeId && projectScopeProject);
+  const canManageProjectAssignments = Boolean(
+    surveyManage ||
+    (!poem && scope !== "personal" && !projectScope) ||
+    (projectScope && projectScopeAssignment?.role === "project_manager"),
+  );
+  useEffect(() => {
+    if (loading || !projectScope || validScope) return;
+    setScope("personal");
+    setPageState("Overview");
+    setNotice("Your project workspace access is no longer active. Your personal workspace is open instead.");
+  }, [loading, projectScope, validScope]);
   const standardNav = [
     ["Overview", LayoutDashboard],
     ["My profile", UserRound],
@@ -499,7 +512,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   ? "Manage the network, review profiles and support your partner NGOs."
                   : scope === "personal"
                     ? "Build your profile, apply to open projects and grow your verified work history."
-                    : "Manage your NGO projects, recruitment and volunteers connected through POEM workflows."}
+                    : projectScope
+                      ? `${projectScopeProject?.title || "Project"} · ${human(projectScopeAssignment?.role || "project_staff")} · database-scoped operations.`
+                      : "Manage your NGO projects, recruitment and volunteers connected through POEM workflows."}
               </p>
             </div>
             {page === "Partner NGOs" && ngos && (
@@ -871,6 +886,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
               projectId={projectScopeId}
               geographies={geographies}
               canManageTeam={false}
+              openOperations={() => change("Survey projects")}
+              openNotifications={() => change("Notifications")}
             />
           )}
           {page === "Survey projects" && validScope && (
@@ -882,9 +899,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 projectId={projectScopeId}
                 manage={surveyManage}
                 review={surveyManage || projectScope || (!poem && scope !== "personal")}
+                manageAssignments={canManageProjectAssignments}
                 orgs={orgs as any}
                 geographies={geographies}
                 openRecruitment={() => change("Workforce marketplace")}
+                onBackToWorkspace={projectScope ? () => change("Project workspace") : undefined}
               />
             </Suspense>
           )}

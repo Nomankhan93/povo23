@@ -12,18 +12,22 @@ export function SurveyProjects({
   projectId,
   manage,
   review,
+  manageAssignments,
   orgs,
   geographies,
   openRecruitment,
+  onBackToWorkspace,
 }: {
   userId: string;
   organization: string | null;
   projectId?: string | null;
   manage: boolean;
   review: boolean;
+  manageAssignments: boolean;
   orgs: Org[];
   geographies: Geo[];
   openRecruitment?: () => void;
+  onBackToWorkspace?: () => void;
 }) {
   const [collectionArea,setCollectionArea]=useState<string|null>(null);
   const [rows, setRows] = useState<Project[]>([]),
@@ -80,6 +84,10 @@ export function SurveyProjects({
     };
   }, [userId, organization, projectId, manage, review, page, rev]);
   useEffect(() => {
+    if (!projectId || chosen || rows.length !== 1 || rows[0].id !== projectId) return;
+    setChosen(rows[0]);
+  }, [projectId, rows, chosen]);
+  useEffect(() => {
     if (!create) return;
     db!
       .from("survey_templates")
@@ -126,9 +134,15 @@ export function SurveyProjects({
         userId={userId}
         manage={manage}
         review={review}
+        manageAssignments={manageAssignments}
         geographies={geographies}
         openRecruitment={openRecruitment}
+        backLabel={projectId ? "Project workspace" : "All projects"}
         back={() => {
+          if (projectId && onBackToWorkspace) {
+            onBackToWorkspace();
+            return;
+          }
           setChosen(null);
           setRev((n) => n + 1);
         }}

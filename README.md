@@ -1,25 +1,25 @@
-# Current release: POEM 2.14.1
+# Current release: POEM 2.14.2
 
-Project Team Management & Scoped Workspaces. See [release notes](docs/PHASE-2.14.1.md), [WSL upgrade](docs/UPGRADE-2.14.1.md) and [validation](docs/VALIDATION-2.14.1.md).
+Project Operational Dashboard & Browser Stabilization. See [release notes](docs/PHASE-2.14.2.md), [WSL upgrade](docs/UPGRADE-2.14.2.md) and [validation](docs/VALIDATION-2.14.2.md).
 
-POEM 2.14.1 makes the 2.14 project-scoped authorization usable: NGO Admins can manage project staff, and Project Managers / Area Focal Persons receive dedicated project workspace contexts with database-scoped operational metrics and project views.
+POEM 2.14.2 makes project-scoped work practical for Project Managers and Area Focal Persons: accepted-target progress, visible assignment-area coverage, review queues, response-status filtering and direct project navigation now sit on top of the existing 2.14 database authorization model.
 
-The 2.14.0 database/security foundation remains authoritative. 2.14.1 adds UI/workspace wiring without granting project staff organization membership administration, template publishing, canonical-registry administration, cross-NGO data sharing or finance authority.
+The release intentionally adds no SQL migration. Existing 2.14 RLS/RPC rules and `collection_geography_id` remain the security boundary.
 
-## 2.14.1 operational rules
+## 2.14.2 operational rules
 
-- `project_manager` is project-scoped and can perform whole-project operational review/assignment actions that use `can_manage_project`; it is not an NGO Admin role.
-- `area_focal_person` is limited to explicitly assigned geography roots and their descendants.
-- Project staff authority additionally requires an active account and active `member`/`ngo_admin` membership in the owning NGO; membership suspension therefore removes staff authority immediately.
-- Survey assignments, work assignments, responses and capture evidence now carry `collection_geography_id`. New household/response/capture records are server-stamped from the active survey assignment.
-- Response and capture collection geography is immutable. Historical records are conservatively backfilled from existing project/household scope; unknown historical sub-area detail is not invented.
-- Existing modular-monolith, RLS, guarded RPC, recruitment, template, work-history and payable systems are extended rather than duplicated.
+- Project dashboard metrics and latest-response queues are queried through the current user's database scope; the UI does not fetch organization-wide data and hide it client-side.
+- `project_manager` can use existing project-wide operational assignment controls and response review.
+- `area_focal_person` can monitor/review only assigned geography roots and descendants and no longer sees assignment-management controls intended for Project Managers/NGO Admins.
+- Project-scoped Survey Projects opens the authorized project directly; response filtering remains server-side within RLS.
+- Revoked project workspace access falls back to the personal workspace on refresh/load instead of leaving a dead scoped context.
+- Finance, template publishing, canonical administration, organization membership and cross-NGO sharing are still outside project-staff authority.
 
 ## Current product boundaries
 
-- 2.14.1 now exposes Project Team management and dedicated project workspaces on top of the 2.14.0 authorization/geography foundation. Broader recruitment-screen polish can continue incrementally without widening permissions.
-- Focal persons can be authorized for scoped project response/review operations, but are not given finance, templates, organization membership, canonical registry or cross-NGO sharing access.
-- Workforce payable accounting remains contractual/payable history only; NGO balances/project reservations/JazzCash are later phases.
+- 2.14.2 completes the initial Project Governance UI stabilization track; deeper NGO project/template self-service belongs to 2.15.
+- Target progress is operational visibility only. Strict recruitment capacity/accepted-target closing rules belong to 2.16.
+- Workforce payable accounting remains contractual/payable history only; NGO balances/project reservations/JazzCash remain later phases.
 - Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
 
 ## Historical foundation notes
