@@ -1,18 +1,26 @@
-# Current release: POEM 2.13.3
+# Current release: POEM 2.14.0
 
-Release Consolidation. See [release notes](docs/PHASE-2.13.3.md), [WSL upgrade](docs/UPGRADE-2.13.3.md) and [validation](docs/VALIDATION-2.13.3.md).
+Project Team & Area Governance Foundation. See [release notes](docs/PHASE-2.14.0.md), [WSL upgrade](docs/UPGRADE-2.14.0.md) and [validation](docs/VALIDATION-2.14.0.md).
 
-POEM 2.13.3 is intentionally feature-free: it consolidates the 2.13.x baseline, synchronizes release/documentation metadata, regenerates the project-analysis inventory, and adds an automated release-consistency guard. It does **not** add a database migration, change RLS, alter authentication/workspace routing, or change the 2.13.2 user interface.
+POEM 2.14.0 introduces project-scoped operational authorization without promoting project staff to global NGO Admin. It adds Project Manager and Area Focal Person assignments, geography-scoped focal access, server-stamped collection geography, area-aware response review/RLS, auditable assignment/revocation RPCs and regression coverage.
 
-The consolidated baseline preserves Partner NGO self-onboarding, explicit Volunteer / Partner NGO / POEM Staff sign-in destinations, application-scoped recruitment snapshots, project/assignment-scoped volunteer access, advanced survey capture, offline field reliability, canonical registry operations, controlled NGO sharing, verification/governance, template drafts/library, workforce recruitment, payable accounting and automatic verified POEM work history. Historical phase documents remain in `docs/`.
+This is the **database/security foundation** of the 2.14 line. It deliberately does not grant project staff organization membership administration, template publishing, canonical-registry administration, cross-NGO data sharing or finance authority. Dedicated project-team/recruitment UI wiring can build on these database-enforced capabilities without using frontend filters as the security boundary.
+
+## 2.14.0 operational rules
+
+- `project_manager` is project-scoped and can perform whole-project operational review/assignment actions that use `can_manage_project`; it is not an NGO Admin role.
+- `area_focal_person` is limited to explicitly assigned geography roots and their descendants.
+- Project staff authority additionally requires an active account and active `member`/`ngo_admin` membership in the owning NGO; membership suspension therefore removes staff authority immediately.
+- Survey assignments, work assignments, responses and capture evidence now carry `collection_geography_id`. New household/response/capture records are server-stamped from the active survey assignment.
+- Response and capture collection geography is immutable. Historical records are conservatively backfilled from existing project/household scope; unknown historical sub-area detail is not invented.
+- Existing modular-monolith, RLS, guarded RPC, recruitment, template, work-history and payable systems are extended rather than duplicated.
 
 ## Current product boundaries
 
-- Volunteer profiles are self-published/active; independent identity verification is a separate evidence-review process.
-- User-facing permanent NGO full-profile sharing is retired. Applications use a bounded recruitment-profile snapshot, and live NGO profile access is tied to explicit project/assignment relationships. The historical `profile_shares` schema/RPC remains only for compatibility with older migrations/tests and is not surfaced by current UI.
-- Partner NGO self-onboarding is included. A normal personal account can submit an organization application; approval creates the active organization and first NGO Admin membership. NGO approval is separate from volunteer-profile publication and independent verification.
-- Workforce payable accounting records contractual/payable/payment history, but POEM does not yet hold account balances or transfer money through JazzCash.
-- Automatic volunteer levels/performance ranking, Partner NGO self-service template approval/project launch, and JazzCash funding/withdrawal remain future work. POEM project work history is now generated automatically; formal specialization/level scoring remains future work.
+- 2.14.0 supplies the authorization/geography foundation; dedicated Project Team UI and broader project-manager recruitment-screen wiring remain the next 2.14.x work.
+- Focal persons can be authorized for scoped project response/review operations, but are not given finance, templates, organization membership, canonical registry or cross-NGO sharing access.
+- Workforce payable accounting remains contractual/payable history only; NGO balances/project reservations/JazzCash are later phases.
+- Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
 
 ## Historical foundation notes
 

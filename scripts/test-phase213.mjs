@@ -196,7 +196,7 @@ try {
     const review = readFileSync('src/features/organizations/PartnerNgoApplicationsReview.tsx', 'utf8');
     assert.match(shell, /Partner NGO application/);
     assert.match(shell, /NGO applications/);
-    assert.match(auth, /one personal POEM account/i);
+    assert.match(auth, /One POEM account can access multiple authorized workspaces/i);
     assert.match(apply, /first Partner NGO Admin/i);
     assert.match(review, /Approve Partner NGO/);
   });

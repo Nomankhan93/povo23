@@ -1,4 +1,17 @@
-# Current release checklist — POEM 2.13.3
+# Current release checklist — POEM 2.14.0
+
+## POEM 2.14.0 acceptance
+
+- [ ] `20261007000100_project_team_area_governance.sql` applies after the 2.13.x migration head.
+- [ ] `npm run types:check`, `npm run check`, `npm test` and `npm run build` pass.
+- [ ] NGO Admin/POEM can assign Project Manager or Area Focal Person only to an active member of that NGO.
+- [ ] Focal assignment requires 1–25 active areas within the project geography.
+- [ ] Project Manager sees/reviews the whole assigned project but receives no template/canonical/org-membership authority.
+- [ ] Area Focal Person can read/review only responses stamped inside assigned geography descendants.
+- [ ] Response/capture collection geography cannot be mutated after creation.
+- [ ] Suspending the underlying NGO membership removes project-staff authority on the next request.
+- [ ] Direct table mutation of project staff remains denied; mutations use audited RPCs.
+- [ ] Historical 2.13.x migrations remain unchanged.
 
 ## 2.13.3 consolidation gate
 

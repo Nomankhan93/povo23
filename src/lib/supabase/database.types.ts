@@ -1090,6 +1090,75 @@ published_at?: string;
 };
 Relationships: [];
 };
+project_staff_areas: {
+Row: {
+assignment_id: string;
+geography_id: string;
+assigned_at: string;
+};
+Insert: {
+assignment_id: string;
+geography_id: string;
+assigned_at?: string;
+};
+Update: {
+assignment_id?: string;
+geography_id?: string;
+assigned_at?: string;
+};
+Relationships: [];
+};
+project_staff_assignments: {
+Row: {
+id: string;
+project_id: string;
+user_id: string;
+role: string;
+status: string;
+starts_at: string;
+ends_at: string | null;
+assigned_by: string;
+revoked_at: string | null;
+revoked_by: string | null;
+revoke_reason: string;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+project_id: string;
+user_id: string;
+role: string;
+status?: string;
+starts_at: string;
+ends_at?: string | null;
+assigned_by: string;
+revoked_at?: string | null;
+revoked_by?: string | null;
+revoke_reason?: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+project_id?: string;
+user_id?: string;
+role?: string;
+status?: string;
+starts_at?: string;
+ends_at?: string | null;
+assigned_by?: string;
+revoked_at?: string | null;
+revoked_by?: string | null;
+revoke_reason?: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 registry_households: {
 Row: {
 id: string;
@@ -1251,16 +1320,19 @@ Row: {
 project_id: string;
 user_id: string;
 active: boolean;
+collection_geography_id: string;
 };
 Insert: {
 project_id: string;
 user_id: string;
 active?: boolean;
+collection_geography_id: string;
 };
 Update: {
 project_id?: string;
 user_id?: string;
 active?: boolean;
+collection_geography_id?: string;
 };
 Relationships: [];
 };
@@ -1277,6 +1349,7 @@ size_bytes: number;
 consent: Json;
 created_at: string;
 request_fingerprint: string | null;
+collection_geography_id: string;
 };
 Insert: {
 id?: string;
@@ -1290,6 +1363,7 @@ size_bytes: number;
 consent: Json;
 created_at?: string;
 request_fingerprint?: string | null;
+collection_geography_id: string;
 };
 Update: {
 id?: string;
@@ -1303,6 +1377,7 @@ size_bytes?: number;
 consent?: Json;
 created_at?: string;
 request_fingerprint?: string | null;
+collection_geography_id?: string;
 };
 Relationships: [];
 };
@@ -1407,6 +1482,7 @@ created_at: string;
 updated_at: string;
 identity_snapshot: Json | null;
 governance_version: number | null;
+collection_geography_id: string;
 };
 Insert: {
 id?: string;
@@ -1424,6 +1500,7 @@ created_at?: string;
 updated_at?: string;
 identity_snapshot?: Json | null;
 governance_version?: number | null;
+collection_geography_id: string;
 };
 Update: {
 id?: string;
@@ -1441,6 +1518,7 @@ created_at?: string;
 updated_at?: string;
 identity_snapshot?: Json | null;
 governance_version?: number | null;
+collection_geography_id?: string;
 };
 Relationships: [];
 };
@@ -1824,6 +1902,7 @@ cancelled_at: string | null;
 cancelled_by: string | null;
 cancellation_note: string;
 created_at: string;
+collection_geography_id: string;
 };
 Insert: {
 id?: string;
@@ -1859,6 +1938,7 @@ cancelled_at?: string | null;
 cancelled_by?: string | null;
 cancellation_note?: string;
 created_at?: string;
+collection_geography_id: string;
 };
 Update: {
 id?: string;
@@ -1894,6 +1974,7 @@ cancelled_at?: string | null;
 cancelled_by?: string | null;
 cancellation_note?: string;
 created_at?: string;
+collection_geography_id?: string;
 };
 Relationships: [];
 };
@@ -2206,6 +2287,14 @@ p_availability: string | null;
 p_note: string | null;
 p_profile_share_consent: boolean | null;
 }; Returns: string };
+assign_project_staff: { Args: {
+p_project: string | null;
+p_user: string | null;
+p_role: string | null;
+p_areas: (string)[] | null;
+p_starts: string | null;
+p_ends: string | null;
+}; Returns: string };
 authorize_data_access_request: { Args: {
 p_request: string | null;
 p_decision: string | null;
@@ -2441,6 +2530,9 @@ project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
 }; Returns: Json };
+project_staff_roster: { Args: {
+p_project: string | null;
+}; Returns: Json };
 project_workforce_candidates: { Args: {
 p_project: string | null;
 p_query?: string | null;
@@ -2626,6 +2718,11 @@ p_grant: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+revoke_project_staff: { Args: {
+p_id: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 save_experience: { Args: {
 p_id: string | null;
 p_org: string | null;
@@ -2751,6 +2848,12 @@ p_reason: string | null;
 set_survey_assignment: { Args: {
 p_project: string | null;
 p_user: string | null;
+p_active: boolean | null;
+}; Returns: undefined };
+set_survey_assignment_scope: { Args: {
+p_project: string | null;
+p_user: string | null;
+p_geography: string | null;
 p_active: boolean | null;
 }; Returns: undefined };
 set_work_opportunity_state: { Args: {

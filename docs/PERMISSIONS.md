@@ -1,4 +1,18 @@
-# Current permissions note — POEM 2.13.3
+# Current permissions note — POEM 2.14.0
+
+## 2.14.0 project-scoped roles
+
+| Capability | POEM Survey Manager | NGO Admin | Project Manager | Area Focal Person | Collector |
+| --- | --- | --- | --- | --- | --- |
+| Assign/revoke project staff | Yes | Own NGO project | No | No | No |
+| Read project | Yes | Own NGO project | Assigned project | Assigned project | Assigned project |
+| Whole-project operational review | Yes | Own NGO project | Yes | No | No |
+| Review responses | Yes | Own NGO project | All project areas | Assigned area + descendants | Own response only |
+| Change scoped survey assignment | Yes | Own NGO project | Yes | No | No |
+| Publish templates / canonical administration | Yes where existing role permits | Existing rules only | No | No | No |
+| Organization memberships / cross-NGO sharing / finance | Existing rules | Existing rules | No new access | No new access | No |
+
+Project staff authority additionally requires an active account and active membership in the owning NGO. UI visibility is not an authorization boundary; RLS/RPC helpers enforce area scope.
 
 - Sign-in exposes explicit Volunteer, Partner NGO and POEM Staff destinations while keeping one personal POEM credential set per person. Approved NGO representatives enter an active NGO workspace; otherwise Partner NGO sign-in routes to the onboarding application.
 - The volunteer profile no longer exposes permanent “Allow profile access” controls. Current open recruitment uses application snapshots; live NGO profile reads are bounded to explicit invitation/assignment relationships.
