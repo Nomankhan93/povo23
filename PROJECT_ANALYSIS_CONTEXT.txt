@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.18.2
+Release: 2.18.3
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -100,10 +100,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261008000930_withdrawal_operations_manual_settlement.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 54
+Test scripts (scripts/test-*.mjs): 55
 TypeScript/TSX source files: 79
-Markdown docs: 145
-Inventory files (excluding local/build/temp/backup state): 353
+Markdown docs: 148
+Inventory files (excluding local/build/temp/backup state): 357
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

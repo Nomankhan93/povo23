@@ -1,28 +1,26 @@
-# Current release: POEM 2.18.2
+# Current release: POEM 2.18.3
 
-Withdrawal Operations, Manual Settlement & Provider Reconciliation. See [release notes](docs/PHASE-2.18.2.md), [WSL upgrade](docs/UPGRADE-2.18.2.md) and [validation](docs/VALIDATION-2.18.2.md).
+Payments Release Consolidation & Operations QA. See [release notes](docs/PHASE-2.18.3.md), [WSL upgrade](docs/UPGRADE-2.18.3.md) and [validation](docs/VALIDATION-2.18.3.md).
 
-POEM 2.18.2 makes JazzCash/Easypaisa withdrawals practically operable before live provider APIs are available. POEM Finance/Admin can approve a withdrawal, record manual provider processing, enter the real external transaction/reference after payment through the provider app/portal, and reconcile the result against exact payable allocations and the immutable finance bridge. Existing worker payables and finance journals remain authoritative.
+POEM 2.18.3 freezes the provider-independent payment core after runtime stabilization. It adds no database migration and no new money-movement architecture. Instead it consolidates the discovered 2.18 regression fixes, adds one payment-suite command, formalizes permission/reconciliation QA, and makes the current JazzCash/Easypaisa manual + mock workflow the release baseline until official provider APIs are available.
 
-## 2.18.2 withdrawal operations rules
+## 2.18.3 release rules
 
-- Only **JazzCash** and **Easypaisa** are supported; bank/IBAN payout methods remain excluded.
-- Manual settlement adds `requested → approved → processing → succeeded/failed`, with explicit reversal after success.
-- Exact payable allocations stay reserved through requested/approved/processing states.
-- External provider references are unique per provider and manual operation request IDs are idempotent.
-- Configurable minimum, per-request maximum and daily PKR limits are enforced server-side.
-- A configurable dual-control threshold requires a different POEM finance administrator to settle large withdrawals than the administrator who approved them.
-- Manual success/failure/reversal reuse existing `work_payable_events` and the 2.17.2 payable→finance bridge; no editable wallet-balance ledger is introduced.
-- Provider reconciliation compares withdrawal allocations, payment/reversal events, finance bridge links and manual external references.
-- Mock provider testing remains available, but 2.18.2 adds a separate real-world manual operational path; no live JazzCash/Easypaisa API integration is claimed.
+- Database migration head remains `20261008000930_withdrawal_operations_manual_settlement.sql`; 2.18.3 adds no migration.
+- `npm run test:payments` runs the complete 2.17.0 → 2.18.3 finance/payment regression chain.
+- Historical 2.18 UI tests assert behavior/labels rather than one obsolete copy phrase.
+- 2.18.2 tests read sensitive withdrawal state only through authorized RPCs; direct authenticated table access remains denied.
+- JazzCash and Easypaisa remain the only payout methods. Mock and manual provider modes are supported; live provider APIs are not claimed.
+- Existing `work_payable_*` and immutable finance journals remain the payment/accounting sources of truth.
+- Payment core is considered freeze-ready only after payment suite, full preflight, local auth/operations tests and browser QA are green.
 
 ## Current product boundaries
 
-- `work_payable_*` remains the worker entitlement/payment subledger.
-- Immutable finance journals remain authoritative for project `Reserved / Committed / Spent`.
-- Wallet/PIN/withdrawal/provider-operation tables remain RPC-only to normal browser users; wallet numbers returned to the UI are masked.
-- Live provider adapters must plug into the same guarded allocation, idempotency and reconciliation boundaries rather than bypass them.
-- Bank payout methods remain deferred.
+- Mock wallet verification is a development/testing aid, not live provider ownership verification.
+- Manual settlement records a real external JazzCash/Easypaisa transaction reference but does not call provider APIs.
+- Wallet/PIN/withdrawal/provider-operation tables remain RPC-only to browser roles and return masked wallet data.
+- Bank/IBAN payout methods remain deferred.
+- Future JazzCash/Easypaisa adapters must reuse the existing guarded allocation, idempotency, settlement and reconciliation boundaries.
 
 ## Historical foundation notes
 

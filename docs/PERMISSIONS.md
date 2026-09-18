@@ -1,4 +1,14 @@
-# Current permissions note — POEM 2.18.2
+# Current permissions note — POEM 2.18.3
+
+## 2.18.3 consolidated payment permission boundary
+
+- **Volunteer/account owner:** may operate only personal JazzCash/Easypaisa wallets, secure PIN and eligible withdrawal requests through guarded RPCs.
+- **NGO Admin:** retains funded payable approval authority but receives no provider settlement, PIN or central finance authority.
+- **Project Manager / Area Focal:** receive no wallet/provider/central-finance authority.
+- **POEM Admin / Super Admin:** may operate mock verification and finance/manual settlement functions subject to existing policy and dual-control checks.
+- **Sensitive tables:** direct authenticated access to wallet security, withdrawals, allocations, provider events and manual operation history remains denied; tests must use the same bounded RPCs as the application.
+- **Provider scope:** JazzCash and Easypaisa only; current execution modes are mock and manual. No bank/IBAN or live-provider permission surface is added.
+
 
 ## 2.18.2 withdrawal operations permissions
 

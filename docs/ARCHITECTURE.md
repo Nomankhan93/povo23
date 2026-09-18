@@ -1,4 +1,13 @@
-# Current architecture note — POEM 2.18.2
+# Current architecture note — POEM 2.18.3
+
+## 2.18.3 payments release consolidation
+
+2.18.3 is intentionally migration-free. The database contract remains the 2.18.2 stack ending at `20261008000930_withdrawal_operations_manual_settlement.sql`. The release consolidates runtime-discovered regression fixes and adds release-level QA rather than introducing another payment state model.
+
+The authoritative chain remains: project compensation snapshot → `work_payable_units/events` → 2.17.2 finance bridge → immutable finance journals → e-wallet withdrawal orchestration. Mock and manual provider execution both terminate in the same payable/finance settlement boundary. Sensitive wallet, PIN, withdrawal, allocation, provider-event and manual-operation tables remain RPC-only to authenticated browser users.
+
+`npm run test:payments` is the canonical payment regression command. Future live JazzCash/Easypaisa adapters must plug into the existing provider boundary and may not bypass exact payable allocation, idempotency, dual-control or reconciliation rules.
+
 
 ## 2.18.2 withdrawal operations architecture
 

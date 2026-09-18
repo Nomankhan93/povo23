@@ -1,4 +1,20 @@
-# Current release checklist — POEM 2.18.2
+# Current release checklist — POEM 2.18.3
+
+## POEM 2.18.3 acceptance
+
+- [ ] No new migration is introduced; migration head remains `20261008000930_withdrawal_operations_manual_settlement.sql`.
+- [ ] `npm run types:generate` and `npm run types:check` are green.
+- [ ] `npm run test:payments` passes the complete 2.17.0 → 2.18.3 payment chain.
+- [ ] `scripts/test-phase218.mjs` uses semantic manual/mock UI assertions rather than the obsolete `Development sandbox` phrase.
+- [ ] `scripts/test-phase2181.mjs` compares activation timestamps by value, not Date object identity.
+- [ ] `scripts/test-phase2182.mjs` does not directly query `e_wallet_withdrawals`; it reads through personal/admin RPCs.
+- [ ] Authenticated direct SELECT on sensitive e-wallet/payment tables remains denied.
+- [ ] Volunteer/NGO/project operational roles cannot execute POEM finance/provider operations.
+- [ ] Manual settlement, failure and reversal continue reconciling to exact payable allocations and finance bridge links.
+- [ ] JazzCash/Easypaisa remain the only payout providers; no bank/IBAN or fake live API path exists.
+- [ ] Browser QA covers volunteer withdrawal, POEM wallet verification, Finance manual settlement, failure/reversal and matched reconciliation.
+- [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations`, `git diff --check` all pass before cloud push.
+
 
 ## POEM 2.18.2 acceptance
 
@@ -15,8 +31,6 @@
 - [ ] Server-side minimum, maximum and daily limits are enforced.
 - [ ] JazzCash/Easypaisa remain the only payout methods; no bank/IBAN path or fake live API is added.
 - [ ] Full preflight/local/operations regression and `git diff --check` are green before cloud push.
-
-## POEM 2.18.1 acceptance
 
 ## POEM 2.18.1 acceptance
 
@@ -51,7 +65,7 @@
 - [ ] Mock success creates existing `work_payable_events` payment entries exactly once and 2.17.2 moves Committed → Spent.
 - [ ] Mock failure/cancel releases entitlement without payment; mock reversal restores payable/finance state through payment-reversal events.
 - [ ] Replayed mock provider event keys are idempotent.
-- [ ] UI is personal-workspace only and prominently labelled **Development sandbox** / no real money transfer.
+- [ ] UI clearly labels mock/development testing and does not imply a live provider transfer.
 - [ ] No live JazzCash/Easypaisa API endpoint, credential, callback secret or fake production integration is embedded.
 - [ ] `npm run test:local`, `npm run test:operations`, prior 2.17 regressions and `git diff --check` are green before cloud push.
 

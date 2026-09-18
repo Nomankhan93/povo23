@@ -1,6 +1,8 @@
-# Validation index — POEM 2.18.2
+# Validation index — POEM 2.18.3
 
-Current release validation: [VALIDATION-2.18.2.md](VALIDATION-2.18.2.md).
+Current release validation: [VALIDATION-2.18.3.md](VALIDATION-2.18.3.md).
+
+Previous manual settlement validation: [POEM 2.18.2](VALIDATION-2.18.2.md).
 
 Previous e-wallet stabilization validation: [POEM 2.18.1](VALIDATION-2.18.1.md).
 
@@ -11,13 +13,6 @@ Previous payable-finance validation: [POEM 2.17.2](VALIDATION-2.17.2.md).
 Previous project-funding validation: [POEM 2.17.1](VALIDATION-2.17.1.md).
 
 Previous finance-core validation: [POEM 2.17.0](VALIDATION-2.17.0.md).
-
-
-See [POEM 2.16.1](VALIDATION-2.16.1.md). The 2.16.1 gate adds embedded PostgreSQL coverage for project compensation permissions, versioned opportunity snapshots, immutable assignment contract inheritance, caller-override resistance and exactly-once reuse of the existing approved-survey payable engine.
-
-Previous release validation: [POEM 2.16.0](VALIDATION-2.16.0.md).
-
-> Historical validation: [POEM 2.14.2](VALIDATION-2.14.2.md). Older validation sections below are retained as historical regression context; later migrations and current release notes take precedence.
 
 # Phase 2.3 validation
 
