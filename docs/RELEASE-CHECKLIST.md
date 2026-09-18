@@ -1,5 +1,22 @@
-# Current release checklist — POEM 2.18.1
+# Current release checklist — POEM 2.18.2
 
+## POEM 2.18.2 acceptance
+
+- [ ] `20261008000920_ewallet_withdrawal_stabilization.sql` is applied and 2.18.1 tests are green.
+- [ ] `20261008000930_withdrawal_operations_manual_settlement.sql` applies locally.
+- [ ] `node scripts/test-phase218.mjs`, `test-phase2181.mjs` and `test-phase2182.mjs` pass.
+- [ ] Requested/approved/processing withdrawals continue reserving exact payable allocations.
+- [ ] Ordinary users cannot approve/process/settle/fail/reverse withdrawals or mutate operation history.
+- [ ] Manual settlement requires a provider external reference and creates existing payable payment events exactly once.
+- [ ] Large withdrawals enforce dual control at the configured threshold.
+- [ ] Provider external references cannot be reused for the same provider.
+- [ ] Failure releases reservation without payment; reversal posts exact paired payment-reversal events.
+- [ ] Reconciliation reports allocation/payment/reversal/finance-link drift explicitly.
+- [ ] Server-side minimum, maximum and daily limits are enforced.
+- [ ] JazzCash/Easypaisa remain the only payout methods; no bank/IBAN path or fake live API is added.
+- [ ] Full preflight/local/operations regression and `git diff --check` are green before cloud push.
+
+## POEM 2.18.1 acceptance
 
 ## POEM 2.18.1 acceptance
 

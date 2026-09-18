@@ -15,12 +15,12 @@ type Security={pin_configured:boolean;crypto_ready:boolean;failed_attempts:numbe
 type PinResult={ok:boolean;code:string;attempts_remaining:number;locked_until:string|null;changed_at?:string};
 type Withdrawal={
   id:string;provider:'jazzcash'|'easypaisa';account_title_snapshot:string;account_masked_snapshot:string;
-  currency:string;amount:string;status:'requested'|'processing'|'succeeded'|'failed'|'reversed'|'cancelled';
-  provider_mode:'mock';provider_reference:string;failure_code:string|null;failure_message:string|null;
-  requested_at:string;processing_at:string|null;settled_at:string|null;failed_at:string|null;reversed_at:string|null;cancelled_at:string|null;
+  currency:string;amount:string;status:'requested'|'approved'|'processing'|'succeeded'|'failed'|'reversed'|'cancelled';
+  provider_mode:'mock'|'manual';provider_reference:string;settlement_reference:string|null;reversal_reference:string|null;failure_code:string|null;failure_message:string|null;
+  requested_at:string;approved_at:string|null;processing_at:string|null;settled_at:string|null;failed_at:string|null;reversed_at:string|null;cancelled_at:string|null;
   version:number;allocation_count:number;
 };
-type WithdrawalList={rows:Withdrawal[];count:number;provider_mode:'mock'};
+type WithdrawalList={rows:Withdrawal[];count:number;settlement_modes:string[]};
 
 type Call=(name:string,args?:Record<string,unknown>)=>Promise<unknown>;
 const call=rpc as unknown as Call;
@@ -83,7 +83,7 @@ export function EWalletWithdrawalWorkspace(){
         throw Error(`Transaction PIN is incorrect. ${state.attempts_remaining} attempt${state.attempts_remaining===1?'':'s'} remaining.`);
       }
       return result;
-    },'Mock withdrawal request created. No live provider API was called.').then(result=>{if(result!==null)element.reset()});
+    },'Withdrawal request created and approved earnings reserved for processing.').then(result=>{if(result!==null)element.reset()});
   }
 
   const verified=useMemo(()=>wallets.rows.filter(w=>w.status==='verified'),[wallets.rows]);
@@ -99,8 +99,8 @@ export function EWalletWithdrawalWorkspace(){
 
   if(loading&&!summary)return <p role="status">Loading e-wallets and withdrawal balance…</p>;
   return <section className="ewallet-workspace">
-    <div className="panel-title"><div><span className="eyebrow">PAYOUT METHODS</span><h2>JazzCash & Easypaisa</h2></div><Badge value="mock sandbox"/></div>
-    <div className="notice warning"><strong>Development sandbox:</strong> JazzCash/Easypaisa verification and provider settlement are simulated by the POEM Admin sandbox. No live provider API is called and no real money is transferred.</div>
+    <div className="panel-title"><div><span className="eyebrow">PAYOUT METHODS</span><h2>JazzCash & Easypaisa</h2></div><Badge value="manual + mock"/></div>
+    <div className="notice"><strong>Current provider mode:</strong> wallet ownership verification is still simulated until live provider APIs are connected. POEM Finance can process approved withdrawals manually through JazzCash/Easypaisa and record the external transaction reference, while the mock sandbox remains available for development testing.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
     <div className="actions"><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh balance</button></div>
 
@@ -153,9 +153,9 @@ export function EWalletWithdrawalWorkspace(){
 
     <section className="panel detail"><h3>Withdrawal history</h3>{!withdrawals.length&&<EmptyState>No withdrawal requests yet.</EmptyState>}
       {withdrawals.map(w=><article className="document-row" key={w.id}><div className="panel-title"><div><strong>PKR {money(w.amount)} · {providerLabel(w.provider)} {w.account_masked_snapshot}</strong><p>{new Date(w.requested_at).toLocaleString()} · {w.allocation_count} payable allocation{w.allocation_count===1?'':'s'}</p></div><Badge value={w.status}/></div>
-        <p>Provider reference: {w.provider_reference}</p>{w.failure_message&&<p className="notice error">{w.failure_message}</p>}
+        <p>POEM reference: {w.provider_reference} · Processing mode: {w.provider_mode==='manual'?'Manual provider settlement':'Mock sandbox'}.</p>{w.settlement_reference&&<p>Provider settlement reference: <strong>{w.settlement_reference}</strong></p>}{w.reversal_reference&&<p>Provider reversal reference: <strong>{w.reversal_reference}</strong></p>}{w.failure_message&&<p className="notice error">{w.failure_message}</p>}
         <div className="actions">{w.status==='requested'&&<button className="secondary" disabled={busy} onClick={()=>void run(()=>call('cancel_my_e_wallet_withdrawal',{p_withdrawal:w.id,p_version:w.version}),'Withdrawal cancelled and reserved earnings released.')}>Cancel request</button>}</div>
-        {['requested','processing'].includes(w.status)&&<p className="notice">POEM Admin's mock provider sandbox controls this test settlement. You cannot mark your own withdrawal successful.</p>}
+        {['requested','approved','processing'].includes(w.status)&&<p className="notice">POEM Finance/Admin controls approval and provider settlement. You cannot mark your own withdrawal paid.</p>}
       </article>)}
     </section>
   </section>;

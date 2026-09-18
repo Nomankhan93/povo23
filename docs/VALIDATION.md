@@ -1,6 +1,8 @@
-# Validation index — POEM 2.18.1
+# Validation index — POEM 2.18.2
 
-Current release validation: [VALIDATION-2.18.1.md](VALIDATION-2.18.1.md).
+Current release validation: [VALIDATION-2.18.2.md](VALIDATION-2.18.2.md).
+
+Previous e-wallet stabilization validation: [POEM 2.18.1](VALIDATION-2.18.1.md).
 
 Previous e-wallet sandbox validation: [POEM 2.18.0](VALIDATION-2.18.0.md).
 

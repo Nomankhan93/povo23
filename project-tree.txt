@@ -37,6 +37,7 @@
 ./docs/PHASE-2.17.2.md
 ./docs/PHASE-2.18.0.md
 ./docs/PHASE-2.18.1.md
+./docs/PHASE-2.18.2.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -88,6 +89,7 @@
 ./docs/UPGRADE-2.17.2.md
 ./docs/UPGRADE-2.18.0.md
 ./docs/UPGRADE-2.18.1.md
+./docs/UPGRADE-2.18.2.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -130,6 +132,7 @@
 ./docs/VALIDATION-2.17.2.md
 ./docs/VALIDATION-2.18.0.md
 ./docs/VALIDATION-2.18.1.md
+./docs/VALIDATION-2.18.2.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -200,6 +203,7 @@
 ./scripts/test-phase2172.mjs
 ./scripts/test-phase218.mjs
 ./scripts/test-phase2181.mjs
+./scripts/test-phase2182.mjs
 ./scripts/test-phase22.mjs
 ./scripts/test-phase23.mjs
 ./scripts/test-phase24.mjs
@@ -267,6 +271,7 @@
 ./src/features/payments
 ./src/features/payments/EWalletWithdrawalWorkspace.tsx
 ./src/features/payments/MockEWalletSandbox.tsx
+./src/features/payments/WithdrawalOperationsWorkspace.tsx
 ./src/features/projects
 ./src/features/projects/ProjectTeamWorkspace.tsx
 ./src/features/registry
@@ -381,6 +386,7 @@
 ./supabase/migrations/20261008000900_ewallet_mock_withdrawal_sandbox.sql
 ./supabase/migrations/20261008000910_ewallet_default_owner_fix.sql
 ./supabase/migrations/20261008000920_ewallet_withdrawal_stabilization.sql
+./supabase/migrations/20261008000930_withdrawal_operations_manual_settlement.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

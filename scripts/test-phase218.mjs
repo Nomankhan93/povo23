@@ -248,7 +248,8 @@ try{
     const app=readFileSync('src/app/AppShell.tsx','utf8');
     const permissions=readFileSync('docs/PERMISSIONS.md','utf8');
     assert.match(ui,/JazzCash & Easypaisa/i);
-    assert.match(ui,/Development sandbox/i);
+    assert.match(ui,/manual \+ mock/i);
+    assert.match(ui,/mock sandbox remains available for development testing/i);
     assert.match(ui,/Transaction PIN/i);
     assert.match(ui,/activation hold/i);
     assert.match(ui,/temporarily lock/i);

@@ -1,15 +1,17 @@
-# Current permissions note — POEM 2.18.1
+# Current permissions note — POEM 2.18.2
 
+## 2.18.2 withdrawal operations permissions
+
+- **Volunteer / account owner:** may link JazzCash/Easypaisa, manage their secure transaction PIN, request withdrawal within configured limits, view status/references and cancel only while still `requested`. They cannot approve, process, settle, fail or reverse a withdrawal.
+- **NGO Admin:** retains existing payable authority but receives no e-wallet/provider-operation or central settlement authority. Active withdrawal reservations continue to block competing payable monetary mutation.
+- **POEM Admin / Super Admin:** may configure payout limits, approve manual settlement, start processing, record provider success/failure/reversal and view reconciliation. At/above the dual-control threshold, the approver cannot also record settlement.
+- **Project Manager / Area Focal:** no payout, PIN or central-finance authority.
+- **Direct table access:** payout policy and manual-operation history are not directly exposed to authenticated browser roles; guarded RPCs provide bounded views/actions.
+- **Supported providers:** JazzCash and Easypaisa only. No bank/IBAN payout surface exists.
 
 ## 2.18.1 e-wallet / withdrawal permissions
 
-- **Volunteer / account owner:** may link their own JazzCash/Easypaisa wallet, choose one verified default, configure/change their own transaction PIN through the secure lockout-aware RPC, request withdrawal only to a verified wallet after its activation hold, and cancel a request before processing. They cannot bypass verification, activation hold, provider settlement or PIN lockout.
-- **NGO Admin:** receives no wallet-number, PIN, verification-event or withdrawal-provider authority. Existing payable management remains, but an active withdrawal reservation blocks competing monetary mutation unless the event carries the exact server-generated allocation settlement/reversal identity.
-- **POEM Admin / Super Admin:** may operate the development-only mock verification/provider sandbox and may explicitly bypass the 24-hour activation hold for testing. These actions are event-keyed/audited and do not constitute live JazzCash/Easypaisa authorization.
-- **Project Manager / Area Focal:** receive no payout, PIN or central-finance authority.
-- **Other users/NGOs:** cannot read or operate another user's wallets/withdrawals.
-- **Direct table access:** wallet security, withdrawals, allocations, provider events and verification events remain unavailable to authenticated table access; guarded RPCs return bounded/masked data.
-- **Supported payout methods:** JazzCash and Easypaisa only. Bank accounts/IBAN remain outside the 2.18 line.
+2.18.1 permissions remain in force for wallet ownership, activation hold, PIN lockout and mock-provider controls. Manual operations added in 2.18.2 do not weaken those boundaries.
 
 ## 2.18.0 e-wallet / withdrawal permissions
 
