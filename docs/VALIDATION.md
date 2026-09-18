@@ -1,6 +1,8 @@
-# Validation index — POEM 2.17.2
+# Validation index — POEM 2.18.0
 
-Current release validation: [VALIDATION-2.17.2.md](VALIDATION-2.17.2.md).
+Current release validation: [VALIDATION-2.18.0.md](VALIDATION-2.18.0.md).
+
+Previous payable-finance validation: [POEM 2.17.2](VALIDATION-2.17.2.md).
 
 Previous project-funding validation: [POEM 2.17.1](VALIDATION-2.17.1.md).
 

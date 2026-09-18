@@ -1,9 +1,9 @@
 import type {ReactNode} from 'react';
 export const navigationGroups = [
   {label:'Workspace',pages:['Overview','My profile','Work experience','Private documents']},
-  {label:'People & partners',pages:['Volunteers','Partner NGO application','NGO applications','Partner NGOs','Workforce marketplace','Available Opportunities','My Applications','My Assigned Surveys','Invitations','Workforce payables']},
+  {label:'People & partners',pages:['Volunteers','Partner NGO application','NGO applications','Partner NGOs','Workforce marketplace','Available Opportunities','My Applications','My Assigned Surveys','Invitations','Workforce payables','E-Wallets & withdrawals']},
   {label:'Field operations',pages:['Project workspace','Project team','Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing','Project funding']},
-  {label:'Administration',pages:['Memberships','Accounts','Geography','Notifications','Activity']},
+  {label:'Administration',pages:['Memberships','Accounts','Geography','E-Wallet sandbox','Notifications','Activity']},
 ];
 export function StatusBadge({children,tone='neutral'}:{children:ReactNode;tone?:'neutral'|'success'|'warning'}){
  return <span className={`status-pill status-${tone}`}>{children}</span>;
@@ -14,6 +14,7 @@ export function WorkflowOverview({staff,personal,profileStatus,unread,allowed,on
   ['My profile','Your volunteer profile','Update your skills, availability and sharing preferences.'],
   ['Survey projects','Your survey work','Open projects and continue assigned field work.'],
   ['Workforce payables','Your earnings','View pending claims, approved amounts and payment history.'],
+  ['E-Wallets & withdrawals','Your payout methods','Link JazzCash or Easypaisa, set your transaction PIN and request withdrawals. POEM Admin controls mock provider outcomes during development.'],
   ['Invitations','Work invitations','Review invitations and choose your next assignment.'],
   ['Partner NGO application','Represent an NGO','Apply for a Partner NGO workspace using your existing personal POEM account.']
  ]:[

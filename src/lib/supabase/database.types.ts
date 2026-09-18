@@ -559,6 +559,231 @@ updated_at?: string;
 };
 Relationships: [];
 };
+e_wallet_provider_events: {
+Row: {
+id: string;
+withdrawal_id: string;
+provider: string;
+event_key: string;
+outcome: string;
+payload: Json;
+created_at: string;
+};
+Insert: {
+id?: string;
+withdrawal_id: string;
+provider: string;
+event_key: string;
+outcome: string;
+payload?: Json;
+created_at?: string;
+};
+Update: {
+id?: string;
+withdrawal_id?: string;
+provider?: string;
+event_key?: string;
+outcome?: string;
+payload?: Json;
+created_at?: string;
+};
+Relationships: [];
+};
+e_wallet_security: {
+Row: {
+user_id: string;
+pin_hash: string;
+changed_at: string;
+};
+Insert: {
+user_id: string;
+pin_hash: string;
+changed_at?: string;
+};
+Update: {
+user_id?: string;
+pin_hash?: string;
+changed_at?: string;
+};
+Relationships: [];
+};
+e_wallet_withdrawal_allocations: {
+Row: {
+id: string;
+withdrawal_id: string;
+unit_id: string;
+assignment_id: string;
+organization_id: string;
+project_id: string;
+currency: string;
+amount: number;
+payment_request_id: string;
+reversal_request_id: string;
+payment_event_id: string | null;
+reversal_event_id: string | null;
+created_at: string;
+};
+Insert: {
+id?: string;
+withdrawal_id: string;
+unit_id: string;
+assignment_id: string;
+organization_id: string;
+project_id: string;
+currency: string;
+amount: number;
+payment_request_id?: string;
+reversal_request_id?: string;
+payment_event_id?: string | null;
+reversal_event_id?: string | null;
+created_at?: string;
+};
+Update: {
+id?: string;
+withdrawal_id?: string;
+unit_id?: string;
+assignment_id?: string;
+organization_id?: string;
+project_id?: string;
+currency?: string;
+amount?: number;
+payment_request_id?: string;
+reversal_request_id?: string;
+payment_event_id?: string | null;
+reversal_event_id?: string | null;
+created_at?: string;
+};
+Relationships: [];
+};
+e_wallet_withdrawals: {
+Row: {
+id: string;
+user_id: string;
+wallet_id: string;
+provider: string;
+account_title_snapshot: string;
+account_masked_snapshot: string;
+currency: string;
+amount: number;
+status: string;
+provider_mode: string;
+provider_reference: string;
+request_id: string;
+failure_code: string | null;
+failure_message: string | null;
+requested_at: string;
+processing_at: string | null;
+settled_at: string | null;
+failed_at: string | null;
+reversed_at: string | null;
+cancelled_at: string | null;
+version: number;
+};
+Insert: {
+id?: string;
+user_id: string;
+wallet_id: string;
+provider: string;
+account_title_snapshot: string;
+account_masked_snapshot: string;
+currency?: string;
+amount: number;
+status?: string;
+provider_mode?: string;
+provider_reference: string;
+request_id: string;
+failure_code?: string | null;
+failure_message?: string | null;
+requested_at?: string;
+processing_at?: string | null;
+settled_at?: string | null;
+failed_at?: string | null;
+reversed_at?: string | null;
+cancelled_at?: string | null;
+version?: number;
+};
+Update: {
+id?: string;
+user_id?: string;
+wallet_id?: string;
+provider?: string;
+account_title_snapshot?: string;
+account_masked_snapshot?: string;
+currency?: string;
+amount?: number;
+status?: string;
+provider_mode?: string;
+provider_reference?: string;
+request_id?: string;
+failure_code?: string | null;
+failure_message?: string | null;
+requested_at?: string;
+processing_at?: string | null;
+settled_at?: string | null;
+failed_at?: string | null;
+reversed_at?: string | null;
+cancelled_at?: string | null;
+version?: number;
+};
+Relationships: [];
+};
+e_wallets: {
+Row: {
+id: string;
+user_id: string;
+provider: string;
+account_title: string;
+account_number: string;
+status: string;
+verification_mode: string;
+verification_reference: string | null;
+is_default: boolean;
+verified_at: string | null;
+rejected_at: string | null;
+suspended_at: string | null;
+unlinked_at: string | null;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+user_id: string;
+provider: string;
+account_title: string;
+account_number: string;
+status?: string;
+verification_mode?: string;
+verification_reference?: string | null;
+is_default?: boolean;
+verified_at?: string | null;
+rejected_at?: string | null;
+suspended_at?: string | null;
+unlinked_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+user_id?: string;
+provider?: string;
+account_title?: string;
+account_number?: string;
+status?: string;
+verification_mode?: string;
+verification_reference?: string | null;
+is_default?: boolean;
+verified_at?: string | null;
+rejected_at?: string | null;
+suspended_at?: string | null;
+unlinked_at?: string | null;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 finance_accounts: {
 Row: {
 id: string;
@@ -2702,6 +2927,8 @@ p_version: number | null;
 p_request: string | null;
 p_receipt?: string | null;
 }; Returns: string };
+admin_mock_e_wallet_queue: { Args: {
+}; Returns: Json };
 apply_canonical_review: { Args: {
 p_preview: Json | null;
 p_status: string | null;
@@ -2763,6 +2990,10 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+cancel_my_e_wallet_withdrawal: { Args: {
+p_withdrawal: string | null;
+p_version: number | null;
+}; Returns: undefined };
 cancel_work_assignment: { Args: {
 p_id: string | null;
 p_note: string | null;
@@ -2808,6 +3039,10 @@ p_id: string | null;
 p_feedback: Json | null;
 p_note: string | null;
 p_version: number | null;
+}; Returns: undefined };
+configure_withdrawal_pin: { Args: {
+p_current: string | null;
+p_new: string | null;
 }; Returns: undefined };
 correct_registry_person: { Args: {
 p_id: string | null;
@@ -2966,6 +3201,17 @@ p_limit: number | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+my_e_wallet_withdrawals: { Args: {
+p_before?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
+my_e_wallets: { Args: {
+}; Returns: Json };
+my_withdrawal_security: { Args: {
+}; Returns: Json };
+my_withdrawal_summary: { Args: {
+p_currency?: string | null;
+}; Returns: Json };
 offer_work_amendment: { Args: {
 p_assignment: string | null;
 p_rate: number | null;
@@ -3099,6 +3345,12 @@ p_currency: string | null;
 p_amount: number | null;
 p_idempotency_key: string | null;
 p_reason: string | null;
+}; Returns: string };
+request_e_wallet_withdrawal: { Args: {
+p_wallet: string | null;
+p_amount: number | null;
+p_pin: string | null;
+p_request: string | null;
 }; Returns: string };
 request_independent_verification: { Args: {
 p_kind: string | null;
@@ -3278,6 +3530,11 @@ p_code: string | null;
 p_source: string | null;
 p_active: boolean | null;
 }; Returns: string };
+save_my_e_wallet: { Args: {
+p_provider: string | null;
+p_account_title: string | null;
+p_account_number: string | null;
+}; Returns: string };
 save_my_profile: { Args: {
 p_details: Json | null;
 p_submit: boolean | null;
@@ -3377,6 +3634,9 @@ p_user: string | null;
 p_role: string | null;
 p_status: string | null;
 }; Returns: undefined };
+set_default_e_wallet: { Args: {
+p_wallet: string | null;
+}; Returns: undefined };
 set_membership: { Args: {
 p_org: string | null;
 p_user: string | null;
@@ -3437,6 +3697,16 @@ p_id: string | null;
 p_state: string | null;
 p_version: number | null;
 }; Returns: undefined };
+simulate_mock_e_wallet_provider: { Args: {
+p_withdrawal: string | null;
+p_outcome: string | null;
+p_event_key: string | null;
+}; Returns: Json };
+simulate_mock_e_wallet_verification: { Args: {
+p_wallet: string | null;
+p_outcome: string | null;
+p_event_key: string | null;
+}; Returns: string };
 submit_partner_ngo_application: { Args: {
 p_id: string | null;
 p_version: number | null;
@@ -3453,6 +3723,9 @@ survey_assignment_candidates: { Args: {
 p_project: string | null;
 p_query: string | null;
 }; Returns: Json };
+unlink_my_e_wallet: { Args: {
+p_wallet: string | null;
+}; Returns: undefined };
 update_beneficiary_need: { Args: {
 p_id: string | null;
 p_description: string | null;

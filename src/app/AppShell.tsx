@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Bell,
   Building2,
+  CreditCard,
   HeartHandshake,
   KeyRound,
   LayoutDashboard,
@@ -36,6 +37,8 @@ import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace"
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFundingWorkspace").then(m=>({default:m.ProjectFundingWorkspace})));
+const EWalletWithdrawalWorkspace = lazy(()=>import("../features/payments/EWalletWithdrawalWorkspace").then(m=>({default:m.EWalletWithdrawalWorkspace})));
+const MockEWalletSandbox = lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
 const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
 const CanonicalWorkbench = lazy(() => import("../features/registry/canonical/CanonicalWorkbench").then(m => ({ default: m.CanonicalWorkbench })));
@@ -357,7 +360,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
     ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
+    ...(!poem && scope === "personal" ? [["E-Wallets & withdrawals", CreditCard]] : []),
     ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
+    ...(financeManage ? [["E-Wallet sandbox", CreditCard]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role)
       ? [["Memberships", Users]]
       : []),
@@ -833,6 +838,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <GeographyManager rows={geographies} refresh={load} />
           )}
           {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
+          {page === "E-Wallets & withdrawals" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading e-wallets and withdrawals…</p>}><EWalletWithdrawalWorkspace key={`wallet-${session.user.id}`}/></Suspense>}
+          {page === "E-Wallet sandbox" && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
           {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace

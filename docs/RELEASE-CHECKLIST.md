@@ -1,4 +1,23 @@
-# Current release checklist — POEM 2.17.2
+# Current release checklist — POEM 2.18.0
+
+
+## POEM 2.18.0 acceptance
+
+- [ ] `20261008000610_finance_rls_helper_execute_fix.sql`, 2.17.1 funding and 2.17.2 payable-finance bridge are applied and green before 2.18.0.
+- [ ] `20261008000900_ewallet_mock_withdrawal_sandbox.sql` applies after the 2.17.2 migration head.
+- [ ] Run `npm run types:generate`, then `npm run preflight`.
+- [ ] `node scripts/test-phase218.mjs` passes all e-wallet / mock-withdrawal scenarios.
+- [ ] Only JazzCash and Easypaisa are supported; no bank-account/IBAN payout UI or schema exists.
+- [ ] Authenticated users cannot directly read/write wallet, PIN, withdrawal-allocation or provider-event tables.
+- [ ] Wallet numbers returned to the UI are masked; mock verification is POEM-Admin-only and clearly states it is not live ownership proof.
+- [ ] Transaction PIN is six digits and stored only as a server-side cryptographic verifier.
+- [ ] Withdrawal requests reserve exact unpaid payable allocations and prevent double withdrawal/concurrent monetary payable mutation.
+- [ ] Mock success creates existing `work_payable_events` payment entries exactly once and 2.17.2 moves Committed → Spent.
+- [ ] Mock failure/cancel releases entitlement without payment; mock reversal restores payable/finance state through payment-reversal events.
+- [ ] Replayed mock provider event keys are idempotent.
+- [ ] UI is personal-workspace only and prominently labelled **Development sandbox** / no real money transfer.
+- [ ] No live JazzCash/Easypaisa API endpoint, credential, callback secret or fake production integration is embedded.
+- [ ] `npm run test:local`, `npm run test:operations`, prior 2.17 regressions and `git diff --check` are green before cloud push.
 
 ## POEM 2.17.2 acceptance
 

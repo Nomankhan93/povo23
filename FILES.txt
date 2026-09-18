@@ -32,6 +32,7 @@ docs/PHASE-2.16.1.md
 docs/PHASE-2.17.0.md
 docs/PHASE-2.17.1.md
 docs/PHASE-2.17.2.md
+docs/PHASE-2.18.0.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -81,6 +82,7 @@ docs/UPGRADE-2.16.1.md
 docs/UPGRADE-2.17.0.md
 docs/UPGRADE-2.17.1.md
 docs/UPGRADE-2.17.2.md
+docs/UPGRADE-2.18.0.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -121,6 +123,7 @@ docs/VALIDATION-2.16.1.md
 docs/VALIDATION-2.17.0.md
 docs/VALIDATION-2.17.1.md
 docs/VALIDATION-2.17.2.md
+docs/VALIDATION-2.18.0.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -187,6 +190,7 @@ scripts/test-phase2161.mjs
 scripts/test-phase217.mjs
 scripts/test-phase2171.mjs
 scripts/test-phase2172.mjs
+scripts/test-phase218.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -234,6 +238,8 @@ src/features/organizations/OrgForm.tsx
 src/features/organizations/PartnerNgoApplication.tsx
 src/features/organizations/PartnerNgoApplicationsReview.tsx
 src/features/payables/PayablesWorkspace.tsx
+src/features/payments/EWalletWithdrawalWorkspace.tsx
+src/features/payments/MockEWalletSandbox.tsx
 src/features/projects/ProjectTeamWorkspace.tsx
 src/features/registry/canonical/canonical.css
 src/features/registry/canonical/CanonicalDetail.tsx
@@ -329,5 +335,6 @@ supabase/migrations/20261008000600_finance_core_double_entry_ledger.sql
 supabase/migrations/20261008000610_finance_rls_helper_execute_fix.sql
 supabase/migrations/20261008000700_project_funding_reservation.sql
 supabase/migrations/20261008000800_payable_finance_bridge_reconciliation.sql
+supabase/migrations/20261008000900_ewallet_mock_withdrawal_sandbox.sql
 tsconfig.json
 vite.config.ts

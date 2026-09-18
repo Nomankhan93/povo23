@@ -1,27 +1,29 @@
-# Current release: POEM 2.17.2
+# Current release: POEM 2.18.0
 
-Payable → Finance Bridge & Reconciliation. See [release notes](docs/PHASE-2.17.2.md), [WSL upgrade](docs/UPGRADE-2.17.2.md) and [validation](docs/VALIDATION-2.17.2.md).
+JazzCash & Easypaisa E-Wallet Binding + Mock Withdrawal Sandbox. See [release notes](docs/PHASE-2.18.0.md), [WSL upgrade](docs/UPGRADE-2.18.0.md) and [validation](docs/VALIDATION-2.18.0.md).
 
-POEM 2.17.2 connects the existing worker-entitlement subledger to the immutable project finance ledger without creating a second payable engine. Monetary payable events are bridged exactly once into project reserved/committed/spent funding buckets, and historical events can be reconciled explicitly.
+POEM 2.18.0 adds a **provider-safe development sandbox** for volunteer withdrawals without pretending that a live JazzCash or Easypaisa API is connected. Volunteers can bind JazzCash/Easypaisa payout methods, configure a server-hashed transaction PIN and request withdrawals from approved unpaid earnings. POEM Admin controls the mock ownership-verification and provider processing/success/failure/reversal sandbox so an end user cannot self-authorize a payout outcome. Successful mock settlement writes the existing `work_payable_events` payment entries so the 2.17.2 payable→finance bridge remains the only accounting bridge.
 
-## 2.17.2 payable-finance rules
+## 2.18.0 e-wallet / withdrawal rules
 
-- Existing `work_payable_units` / `work_payable_events` remain authoritative for who is owed, why, under which assignment and at what immutable contract rate.
-- Financial approval is atomic with project funding: an accrual cannot succeed when project reserved funding is insufficient.
-- Positive approved entitlement consumes `project_reserved` into `project_committed`.
-- Recorded payment moves the paid amount from `project_committed` into `project_spent`; payment reversal moves it back according to current entitlement.
-- Negative entitlement adjustments return only unused commitment to project reserve. Prior recorded payments are retained and never fabricated back into reserve.
-- Every monetary payable event has one immutable bridge record; posted finance journals reference the source `work_payable_event` and are idempotent.
-- Project reconciliation compares worker-subledger totals with aggregate finance committed/spent balances and can replay historical unbridged events.
-- Project Manager, Area Focal and Volunteers receive no new finance authority.
-- JazzCash/provider callbacks, withdrawals and provider clearing remain deferred to 2.18.
+- Only **JazzCash** and **Easypaisa** are modeled in this phase. Bank accounts, IBAN and bank-transfer payout paths are intentionally absent.
+- Wallet mobile numbers are normalized server-side and returned to the browser only in masked form through guarded RPCs.
+- Mock ownership verification is POEM-Admin-controlled and requires the entered account title to match the current POEM account name; it still does **not** prove live provider ownership.
+- A user may keep at most one active wallet per provider (maximum two total) and choose one verified wallet as default.
+- A six-digit transaction PIN is hashed server-side with the database cryptographic extension; the hash is never readable through authenticated table access.
+- Withdrawal requests allocate exact approved/unpaid PKR payable units. Pending/processing allocations prevent double withdrawal and block competing monetary payable mutations until resolved.
+- Mock success creates source-linked payment events in the existing worker payable subledger; the existing 2.17.2 trigger moves project `Committed → Spent` atomically.
+- Mock failure/cancel creates no payment event and releases the reserved entitlement. Mock reversal creates payment-reversal events so worker balance and project committed/spent finance reconcile again.
+- Mock provider controls are POEM-Admin-only and event keys are idempotent. Replaying the same event does not duplicate settlement.
+- No real JazzCash/Easypaisa credentials, callback signature verification, provider network call, custody or live money transfer exists in 2.18.0.
 
 ## Current product boundaries
 
-- No editable NGO/project balance fields exist.
-- Funding-source metadata and posted finance history are immutable.
-- Funding/release retries are idempotent; insufficient funds and over-release are rejected server-side.
-- 2.16 soft target/offline behavior and immutable compensation snapshots remain unchanged.
+- Existing `work_payable_*` remains the worker-entitlement/payment subledger; 2.18.0 does not create a second earnings engine.
+- Existing immutable finance journals remain authoritative for project funding buckets.
+- The sandbox is for development and integration testing only. Live adapters must replace mock verification/callback controls before production payout.
+- Bank payout methods remain deferred.
+- 2.16 soft target/offline behavior and 2.17 funding/reconciliation rules remain unchanged.
 
 ## Historical foundation notes
 

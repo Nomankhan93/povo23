@@ -1,4 +1,16 @@
-# Current permissions note — POEM 2.17.2
+# Current permissions note — POEM 2.18.0
+
+
+## 2.18.0 e-wallet / withdrawal permissions
+
+- **Volunteer / account owner:** may link their own JazzCash/Easypaisa wallet, choose a default verified wallet, configure/change their own transaction PIN, request withdrawals from their own approved unpaid PKR entitlement, and cancel a request before processing. They cannot self-verify a wallet or mark their own withdrawal successful.
+- **NGO Admin:** receives no wallet credential/PIN access. Existing payable approval/adjustment/payment authority remains, but monetary payable mutation is blocked while the affected unit is reserved by an active user withdrawal.
+- **POEM Admin / Super Admin:** existing finance authority remains unchanged and includes the development-only **E-Wallet sandbox** for mock wallet verification and mock provider callback outcomes. Admins still do not receive browser access to transaction PIN hashes or unmasked wallet numbers.
+- **Project Manager / Area Focal:** no e-wallet, withdrawal, PIN or central-finance authority is added.
+- **Other users/NGOs:** cannot read or operate another user's wallets/withdrawals.
+- **Mock provider controls:** POEM-Admin-only. They are not proof of live wallet ownership and must not be treated as production provider authorization; end users cannot invoke them.
+- **Direct table access:** authenticated roles receive no direct grants on `e_wallets`, `e_wallet_security`, `e_wallet_withdrawals`, allocations or provider-event tables. Guarded SECURITY DEFINER RPCs return only bounded/masked data.
+- **Supported payout methods:** JazzCash and Easypaisa only. Bank accounts/IBAN are not in the 2.18.0 schema or UI.
 
 ## 2.17.2 finance bridge permissions
 

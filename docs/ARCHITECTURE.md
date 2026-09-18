@@ -1,4 +1,17 @@
-# Current architecture note — POEM 2.17.2
+# Current architecture note — POEM 2.18.0
+
+
+## 2.18.0 e-wallet / mock-withdrawal architecture
+
+2.18.0 adds a payout orchestration layer **above** the existing worker-payable and finance ledgers. `e_wallets` stores JazzCash/Easypaisa binding state; `e_wallet_withdrawals` stores the withdrawal lifecycle; `e_wallet_withdrawal_allocations` reserves exact unpaid payable units; and `e_wallet_provider_events` stores idempotent mock provider outcomes. Authenticated clients receive masked wallet data only through guarded RPCs; the sensitive tables are not directly granted to browser roles.
+
+Withdrawal availability is derived from existing approved entitlement minus recorded payments and active withdrawal allocations. A request therefore does not create a new balance column. Pending/processing allocations reserve exact units, preventing concurrent requests or NGO payable adjustments from consuming the same entitlement.
+
+Mock settlement is intentionally integrated through existing accounting primitives: success inserts `work_payable_events(kind='payment')` for the reserved allocations, and the 2.17.2 payable-finance trigger moves project committed funding to spent. Failure/cancel inserts no payment event. Reversal inserts existing payment-reversal events, restoring the payable balance and finance commitment. The provider layer does not recalculate entitlement or post an independent project-spend journal.
+
+Transaction PINs are separate from login credentials. Only a bcrypt-style verifier produced by the database cryptographic extension is stored; browser users cannot read the security table. The PGlite test suite uses a test-only crypt API shim to exercise workflow semantics, while local/cloud Supabase must provide the real cryptographic extension.
+
+Provider mode is `mock` only. JazzCash/Easypaisa live API requests, provider-issued credentials, callback signatures, provider clearing and production reconciliation remain future adapters. Bank/IBAN payout methods are explicitly outside 2.18.0.
 
 ## 2.17.2 payable → finance bridge architecture
 
