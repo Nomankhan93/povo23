@@ -685,6 +685,69 @@ posted_at?: string;
 };
 Relationships: [];
 };
+finance_payable_event_links: {
+Row: {
+event_id: string;
+unit_id: string;
+assignment_id: string;
+organization_id: string;
+project_id: string;
+currency: string;
+event_kind: string;
+journal_id: string | null;
+bridge_status: string;
+approved_before: number;
+approved_after: number;
+paid_before: number;
+paid_after: number;
+committed_before: number;
+committed_after: number;
+spent_before: number;
+spent_after: number;
+created_at: string;
+};
+Insert: {
+event_id: string;
+unit_id: string;
+assignment_id: string;
+organization_id: string;
+project_id: string;
+currency: string;
+event_kind: string;
+journal_id?: string | null;
+bridge_status: string;
+approved_before: number;
+approved_after: number;
+paid_before: number;
+paid_after: number;
+committed_before: number;
+committed_after: number;
+spent_before: number;
+spent_after: number;
+created_at?: string;
+};
+Update: {
+event_id?: string;
+unit_id?: string;
+assignment_id?: string;
+organization_id?: string;
+project_id?: string;
+currency?: string;
+event_kind?: string;
+journal_id?: string | null;
+bridge_status?: string;
+approved_before?: number;
+approved_after?: number;
+paid_before?: number;
+paid_after?: number;
+committed_before?: number;
+committed_after?: number;
+spent_before?: number;
+spent_after?: number;
+created_at?: string;
+};
+Relationships: [];
+};
 finance_postings: {
 Row: {
 id: string;
@@ -2947,6 +3010,10 @@ project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
 }; Returns: Json };
+project_payable_finance_reconciliation: { Args: {
+p_project: string | null;
+p_currency?: string | null;
+}; Returns: Json };
 project_recruitment_status: { Args: {
 p_project: string | null;
 }; Returns: Json };
@@ -2991,9 +3058,17 @@ p_source_version: number | null;
 p_canonical_version: number | null;
 p_reason: string | null;
 }; Returns: undefined };
+reconcile_project_payable_finance: { Args: {
+p_project: string | null;
+p_currency?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 reconcile_survey_payable: { Args: {
 p_response: string | null;
 }; Returns: string };
+reconcile_work_payable_finance: { Args: {
+p_unit: string | null;
+}; Returns: Json };
 record_assistance: { Args: {
 p_id: string | null;
 p_person: string | null;

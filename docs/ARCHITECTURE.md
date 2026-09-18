@@ -1,16 +1,18 @@
-# Current architecture note — POEM 2.17.1
+# Current architecture note — POEM 2.17.2
 
-## 2.17.1 project-funding architecture
+## 2.17.2 payable → finance bridge architecture
 
-POEM keeps the two accounting layers introduced in 2.17.0: the existing worker-entitlement subledger and the immutable central double-entry finance ledger. 2.17.1 adds constrained business actions on top of the finance ledger rather than widening generic journal permissions.
+POEM keeps two intentionally separate accounting layers. `work_payable_*` is the worker-entitlement subledger; `finance_accounts` / `finance_journals` / `finance_postings` is the immutable central double-entry ledger. 2.17.2 links them without recalculating worker entitlement.
 
-`finance_funding_sources` stores immutable organization funding provenance. POEM finance authority records verified/opening receipts into standardized organization accounts. NGO Admin can then reserve verified available funds into own active projects or release unused reserved funds. The reserve/release RPCs call a private journal core after enforcing organization/project authorization, positive amounts, idempotency and available/reserved balance limits.
+The bridge is event-sourced and append-only:
 
-Standard account purposes are `organization_available`, `project_reserved`, `project_committed` and `project_spent`. Reservation and release use the first two today; committed/spent are established for the 2.17.2 payable bridge. All balances remain derived from `finance_postings`; no mutable balance column or second money ledger exists.
+`work_payable_event` → immutable `finance_payable_event_links` → one balanced `payable_finance_bridge` journal when money movement is required.
 
-Generic `post_finance_journal` remains POEM finance-admin only. Project Manager and Area Focal operational roles do not inherit finance authority.
+Project funding buckets remain aggregate controls. Approval moves reserved funding to committed, payment moves committed to spent, reversals restore the prior bucket, and entitlement reduction releases only unused commitment. `reserved + committed + spent` therefore remains the funded project envelope for the currency.
 
-# Previous architecture note — POEM 2.17.0
+Historical monetary payable events are not silently rewritten. Authorized NGO Admin / POEM finance users can replay missing bridge links through reconciliation RPCs. New monetary events bridge automatically in the same database transaction, so an unfunded approval rolls back rather than creating an unrepresented financial obligation.
+
+Provider settlement remains outside this phase. 2.18 may add JazzCash/provider clearing on top of the same finance journal system; it must not mutate historical bridge journals or replace worker payables.
 
 ## 2.17.0 finance-core architecture
 

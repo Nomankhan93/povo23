@@ -4,7 +4,36 @@ const rows=async(q,p=[]) => (await db.query(q,p)).rows;async function as(n){awai
 try{
 for(const [name,id] of Object.entries(ids))await db.query('insert into auth.users(id,email) values($1,$2)',[id,name+'@example.test']);await db.query("update public.accounts set platform_role='super_admin' where id=$1",[ids.super]);await as('super');await call('set_account_access',[ids.manager,'survey_manager','active']);const org=await call('save_organization',[null,{name:'Payable NGO',status:'active'}]),other=await call('save_organization',[null,{name:'Other NGO',status:'active'}]);await call('set_membership',[org,ids.ngo,'ngo_admin','active']);await call('set_membership',[other,ids.otherngo,'ngo_admin','active']);const geo=await call('save_geography',[null,null,'province','Test Province','P212','Synthetic fixture',true]);
 await db.exec('RESET ROLE');await db.query("update public.volunteer_profiles set status='verified' where user_id in ($1,$2)",[ids.a,ids.b]);await as('a');await call('set_profile_sharing',[org,true]);await as('b');await call('set_profile_sharing',[org,true]);
-await as('manager');const template=await call('publish_survey_template',['Payable survey',[{id:'name',type:'text',label:'Name',required:true}]]);const dates=(await rows("select (current_date-1)::text start,(current_date+3)::text end,current_date::text today"))[0];const project=await call('create_survey_project',[org,'Payable field pilot',template,geo,100,dates.start,dates.end,'Assess needs','v1','Explain collection and use before survey consent.']);await call('set_survey_assignment',[project,ids.a,true]);
+await as('manager');const template=await call('publish_survey_template',['Payable survey',[{id:'name',type:'text',label:'Name',required:true}]]);const dates=(await rows("select (current_date-1)::text start,(current_date+3)::text end,current_date::text today"))[0];const project=await call('create_survey_project',[org,'Payable field pilot',template,geo,100,dates.start,dates.end,'Assess needs','v1','Explain collection and use before survey consent.']);
+
+await as('super');
+const fundingSource=await call('create_finance_funding_source',[
+  org,
+  'grant',
+  'Legacy payable regression funding',
+  'P212-FUNDING-1',
+  'PKR',
+  'Funding fixture for payable regression tests after the 2.17.2 finance bridge'
+]);
+
+await call('record_organization_funding',[
+  fundingSource,
+  500,
+  crypto.randomUUID(),
+  'Record funding for legacy payable regression tests'
+]);
+
+await as('ngo');
+await call('reserve_project_funding',[
+  project,
+  'PKR',
+  500,
+  crypto.randomUUID(),
+  'Reserve compensation funding for legacy payable regression tests'
+]);
+
+await as('manager');
+await call('set_survey_assignment',[project,ids.a,true]);
 async function fixture(type,user='a',status='active') {await db.exec('RESET ROLE');return (await rows("insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,rate,target_surveys,start_date,end_date,status,offered_by,responded_at) values($1,$2,$3,'Volunteer','NGO','Project','shortlist','paid',$4,120.25,100,$5,$6,$7,$8,now()-interval '1 day') returning id",[project,org,ids[user],type,dates.start,dates.end,status,ids.ngo]))[0].id}
 const assignment=await fixture('per_verified_survey');await as('a');const response=await call('save_survey_response',[null,project,null,null,'Person','1990-01-01','Household',{name:'Person'},{agreed:true,method:'verbal',capture_authority:'self',governance_version:0},true,0,crypto.randomUUID()]);
 await ok('submission alone creates no payable',async()=>assert.equal((await rows('select * from public.work_payable_units')).length,0));

@@ -1,19 +1,21 @@
-# Current release checklist — POEM 2.17.1
+# Current release checklist — POEM 2.17.2
 
-## POEM 2.17.1 acceptance
+## POEM 2.17.2 acceptance
 
-- [ ] `20261008000700_project_funding_reservation.sql` applies after the 2.17.0 finance-core migration.
-- [ ] Run `npm run types:generate`, then `npm run preflight`.
-- [ ] `node scripts/test-phase217.mjs` and `node scripts/test-phase2171.mjs` pass.
-- [ ] POEM finance authority can register immutable funding sources and record verified organization funding.
-- [ ] NGO Admin can reserve only own organization available funds into own active projects and release only current reserved funds.
-- [ ] Insufficient available funds, over-release, cross-NGO access and generic NGO journal posting are denied server-side.
-- [ ] Available/reserved/committed/spent are derived finance-account balances; no editable balance column exists.
-- [ ] Project Manager, Area Focal and Volunteer receive no new finance authority.
-- [ ] Existing worker payables are unchanged; no payable-finance bridge or JazzCash/provider flow exists yet.
-- [ ] `npm run test:local`, `npm run test:operations`, historical regressions and `git diff --check` are green before cloud push.
-
-# Previous release checklist — POEM 2.17.0
+- [ ] `20261008000610_finance_rls_helper_execute_fix.sql` is present before project funding/bridge validation.
+- [ ] `20261008000700_project_funding_reservation.sql` applies and 2.17.1 funding tests pass.
+- [ ] `20261008000800_payable_finance_bridge_reconciliation.sql` applies locally.
+- [ ] `node scripts/test-phase217.mjs` passes.
+- [ ] `node scripts/test-phase2171.mjs` passes.
+- [ ] `node scripts/test-phase2172.mjs` passes.
+- [ ] Payable approval fails atomically when the project has insufficient reserved funding.
+- [ ] Funded approval moves Reserved → Committed exactly once.
+- [ ] Payment / reversal move Committed ↔ Spent without changing worker-entitlement history.
+- [ ] Negative entitlement adjustment releases only unused commitment.
+- [ ] Historical unbridged monetary events are detectable and can be replayed idempotently.
+- [ ] Project Manager / Area Focal still cannot read or mutate central finance.
+- [ ] No JazzCash/provider or withdrawal flow is introduced in 2.17.2.
+- [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
 
 ## POEM 2.17.0 acceptance
 

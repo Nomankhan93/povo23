@@ -1,19 +1,20 @@
-# Current release: POEM 2.17.1
+# Current release: POEM 2.17.2
 
-Project Funding & Reservation. See [release notes](docs/PHASE-2.17.1.md), [WSL upgrade](docs/UPGRADE-2.17.1.md) and [validation](docs/VALIDATION-2.17.1.md).
+Payable → Finance Bridge & Reconciliation. See [release notes](docs/PHASE-2.17.2.md), [WSL upgrade](docs/UPGRADE-2.17.2.md) and [validation](docs/VALIDATION-2.17.2.md).
 
-POEM 2.17.1 adds verified organization funding sources/receipts and controlled project reserve/release workflows on top of the immutable 2.17.0 double-entry finance core. NGO Admins can move only verified available funds into their own projects; they still cannot post arbitrary journals or manufacture balances.
+POEM 2.17.2 connects the existing worker-entitlement subledger to the immutable project finance ledger without creating a second payable engine. Monetary payable events are bridged exactly once into project reserved/committed/spent funding buckets, and historical events can be reconciled explicitly.
 
-## 2.17.1 project-funding rules
+## 2.17.2 payable-finance rules
 
-- Verified external/opening funding is recorded by POEM finance authority and creates balanced organization funding journals.
-- NGO Admin can reserve own organization available funds into an active project and release only currently reserved funds.
-- `organization_available`, `project_reserved`, `project_committed` and `project_spent` are standardized finance-account purposes; balances are always derived from postings.
-- Reservation is a balanced reclassification (`project reserved` debit / `organization available` credit); release is the opposite entry.
-- Project Manager, Area Focal and Volunteer still receive no finance access.
-- Generic journal posting remains POEM Admin/Super Admin only.
-- Worker payables remain a separate entitlement subledger; payable-event finance posting is deferred to 2.17.2.
-- JazzCash/provider money movement remains deferred to 2.18.
+- Existing `work_payable_units` / `work_payable_events` remain authoritative for who is owed, why, under which assignment and at what immutable contract rate.
+- Financial approval is atomic with project funding: an accrual cannot succeed when project reserved funding is insufficient.
+- Positive approved entitlement consumes `project_reserved` into `project_committed`.
+- Recorded payment moves the paid amount from `project_committed` into `project_spent`; payment reversal moves it back according to current entitlement.
+- Negative entitlement adjustments return only unused commitment to project reserve. Prior recorded payments are retained and never fabricated back into reserve.
+- Every monetary payable event has one immutable bridge record; posted finance journals reference the source `work_payable_event` and are idempotent.
+- Project reconciliation compares worker-subledger totals with aggregate finance committed/spent balances and can replay historical unbridged events.
+- Project Manager, Area Focal and Volunteers receive no new finance authority.
+- JazzCash/provider callbacks, withdrawals and provider clearing remain deferred to 2.18.
 
 ## Current product boundaries
 

@@ -31,6 +31,7 @@ docs/PHASE-2.16.0.md
 docs/PHASE-2.16.1.md
 docs/PHASE-2.17.0.md
 docs/PHASE-2.17.1.md
+docs/PHASE-2.17.2.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -79,6 +80,7 @@ docs/UPGRADE-2.16.0.md
 docs/UPGRADE-2.16.1.md
 docs/UPGRADE-2.17.0.md
 docs/UPGRADE-2.17.1.md
+docs/UPGRADE-2.17.2.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -118,6 +120,7 @@ docs/VALIDATION-2.16.0.md
 docs/VALIDATION-2.16.1.md
 docs/VALIDATION-2.17.0.md
 docs/VALIDATION-2.17.1.md
+docs/VALIDATION-2.17.2.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -183,6 +186,7 @@ scripts/test-phase216.mjs
 scripts/test-phase2161.mjs
 scripts/test-phase217.mjs
 scripts/test-phase2171.mjs
+scripts/test-phase2172.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -324,5 +328,6 @@ supabase/migrations/20261008000500_recruitment_discovery_compatibility_fix.sql
 supabase/migrations/20261008000600_finance_core_double_entry_ledger.sql
 supabase/migrations/20261008000610_finance_rls_helper_execute_fix.sql
 supabase/migrations/20261008000700_project_funding_reservation.sql
+supabase/migrations/20261008000800_payable_finance_bridge_reconciliation.sql
 tsconfig.json
 vite.config.ts
