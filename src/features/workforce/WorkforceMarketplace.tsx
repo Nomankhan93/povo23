@@ -14,7 +14,7 @@ type SurveyAssignment = Tables["survey_assignments"]["Row"];
 type Mode = "personal" | "ngo" | "project" | "poem";
 type PersonalView = "opportunities" | "applications" | "assigned" | "all";
 type Org = { id: string; name: string; status: string };
-type AvailableRow = Pick<Opportunity, "id" | "organization_id" | "title" | "description" | "geography_id" | "start_date" | "end_date" | "reply_by" | "payment_type" | "payment_note" | "status" | "survey_project_id" | "required_volunteers" | "required_skill" | "required_language" | "created_at"> & {
+type AvailableRow = Pick<Opportunity, "id" | "organization_id" | "title" | "description" | "geography_id" | "start_date" | "end_date" | "reply_by" | "payment_type" | "payment_note" | "status" | "survey_project_id" | "required_volunteers" | "required_skill" | "required_language" | "created_at" | "work_mode" | "compensation_type" | "currency" | "rate" | "compensation_note" | "compensation_snapshot_version"> & {
   organization_name: string;
   project_title: string;
   application_status: string | null;
@@ -48,6 +48,18 @@ const money = (a: Assignment) =>
   a.work_mode === "paid"
     ? `${a.currency} ${Number(a.rate || 0).toLocaleString()} · ${human(a.compensation_type)}`
     : "Volunteer / unpaid";
+const projectCompensation = (p?: Project) =>
+  !p || p.work_mode !== "paid"
+    ? "Volunteer / unpaid"
+    : `${p.compensation_currency} ${Number(p.compensation_rate || 0).toLocaleString()} · ${human(p.compensation_type)}`;
+const opportunityCompensation = (o?: Pick<Opportunity, "payment_type" | "payment_note" | "work_mode" | "compensation_type" | "currency" | "rate" | "compensation_snapshot_version"> | null) =>
+  !o
+    ? "Compensation unavailable"
+    : o.compensation_snapshot_version
+      ? o.work_mode === "paid"
+        ? `${o.currency} ${Number(o.rate || 0).toLocaleString()} · ${human(o.compensation_type || "paid")}`
+        : "Volunteer / unpaid"
+      : `${human(o.payment_type)} · legacy terms${o.payment_note ? ` · ${o.payment_note}` : ""}`;
 
 export function WorkforceMarketplace({
   userId,
@@ -213,8 +225,8 @@ export function WorkforceMarketplace({
           p_start: val(f, "start"),
           p_end: val(f, "end"),
           p_reply_by: new Date(val(f, "reply")).toISOString(),
-          p_payment: val(f, "payment"),
-          p_payment_note: val(f, "payment_note"),
+          p_payment: chosenCreateProject?.work_mode === "paid" ? "paid" : "unpaid",
+          p_payment_note: chosenCreateProject?.compensation_note || "Project compensation defaults",
           p_required_volunteers: Number(val(f, "positions")),
           p_required_skill: val(f, "skill"),
           p_required_language: val(f, "language"),
@@ -251,7 +263,12 @@ export function WorkforceMarketplace({
     e.preventDefault();
     if (!offer || !projectId || !offer.source_kind) return;
     const f = new FormData(e.currentTarget);
-    const paid = val(f, "work_mode") === "paid";
+    const sourceApplication = offer.source_kind === "application" ? applications.find((a) => a.id === offer.source_id) : null;
+    const sourceOpportunity = sourceApplication ? opportunities.find((o) => o.id === sourceApplication.opportunity_id) : null;
+    const modeSnapshot = sourceOpportunity?.work_mode || chosenProject?.work_mode || "volunteer";
+    const typeSnapshot = sourceOpportunity?.compensation_type || chosenProject?.compensation_type || "none";
+    const currencySnapshot = sourceOpportunity?.currency || chosenProject?.compensation_currency || "PKR";
+    const rateSnapshot = sourceOpportunity?.rate ?? chosenProject?.compensation_rate ?? null;
     act(
       () =>
         rpc("create_work_assignment", {
@@ -259,10 +276,10 @@ export function WorkforceMarketplace({
           p_user: offer.user_id,
           p_source_kind: offer.source_kind!,
           p_source_id: offer.source_kind === "shortlist" ? null : offer.source_id,
-          p_work_mode: val(f, "work_mode"),
-          p_compensation_type: paid ? val(f, "compensation") : "none",
-          p_currency: val(f, "currency") || "PKR",
-          p_rate: paid ? Number(val(f, "rate")) : null,
+          p_work_mode: modeSnapshot,
+          p_compensation_type: typeSnapshot,
+          p_currency: currencySnapshot,
+          p_rate: rateSnapshot,
           p_target_surveys: Number(val(f, "target")),
           p_start: val(f, "start"),
           p_end: val(f, "end"),
@@ -277,6 +294,13 @@ export function WorkforceMarketplace({
   const activeProjects = projects.filter((p) => p.status === "active");
   const chosenProject = projectMap.get(projectId);
   const chosenCreateProject = projectMap.get(createProjectId);
+  const offerApplication = offer?.source_kind === "application" ? applications.find((a) => a.id === offer.source_id) : null;
+  const offerOpportunity = offerApplication ? opportunities.find((o) => o.id === offerApplication.opportunity_id) : null;
+  const offerCompensation = offer?.source_kind === "invitation"
+    ? "Inherited from the accepted invitation opportunity snapshot"
+    : offerOpportunity
+      ? opportunityCompensation(offerOpportunity)
+      : projectCompensation(chosenProject);
   const directSurveyAssignments = surveyAssignments.filter((sa) =>
     sa.active && !assignments.some((a) => a.survey_project_id === sa.project_id && ["active", "completed"].includes(a.status)),
   );
@@ -325,7 +349,7 @@ export function WorkforceMarketplace({
                 <p>{o.organization_name} · {o.project_title}</p>
                 <p>{o.description}</p>
                 <p>{geographyPath(o.geography_id, geographies).map((n)=>n.name).join(" / ")} · {o.start_date} → {o.end_date}</p>
-                <p>{human(o.payment_type)} · {o.required_volunteers} position(s) · Apply by {new Date(o.reply_by).toLocaleString()}</p>
+                <p>{opportunityCompensation(o)} · {o.required_volunteers} position(s) · Apply by {new Date(o.reply_by).toLocaleString()}</p>
                 <p>{o.visibility === "invite_only" ? "Invite only" : "Open to all active volunteers"}{o.visibility === "area" ? " · Work is based in the selected area" : ""}{o.eligibility_note ? ` · ${o.eligibility_note}` : ""}</p>
                 {(o.required_skill || o.required_language) && <p>Criteria: {o.required_skill || "Any skill"} · {o.required_language || "Any language"}</p>}
                 {o.visibility === "area" && !o.area_match && <p className="notice">Work area is outside your current profile location. You may still apply if you can work there.</p>}
@@ -406,16 +430,15 @@ export function WorkforceMarketplace({
             <label className="field">Start<input key={`start-${createProjectId}`} name="start" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.start_date || ""} required /></label>
             <label className="field">End<input key={`end-${createProjectId}`} name="end" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.end_date || ""} required /></label>
             <label className="field">Application deadline<input name="reply" type="datetime-local" required /></label>
-            <label className="field">Work mode<select name="payment" defaultValue="unpaid"><option value="unpaid">Volunteer / unpaid</option><option value="paid">Paid</option></select></label>
+            <label className="field">Project compensation<input readOnly value={projectCompensation(chosenCreateProject)} /></label>
             <label className="field">Recruitment access<select name="visibility" defaultValue="area"><option value="all">Open to all volunteers</option><option value="area">Open to all volunteers — work in selected area</option><option value="invite_only">Invite only</option></select></label>
             <label className="field">Publication<select name="publication" defaultValue="published"><option value="published">Publish now</option><option value="draft">Save as draft</option></select></label>
             <label className="field">Required skill (optional)<input name="skill" maxLength={100} /></label>
             <label className="field">Required language (optional)<input name="language" maxLength={100} /></label>
           </div>
           <AreaSelector rows={geographies} value={createArea} onChange={setCreateArea} title="Recruitment work area" />
-          {chosenCreateProject && <p className="notice">The recruitment work area must stay within {chosenCreateProject.title}'s configured project area.</p>}
+          {chosenCreateProject && <p className="notice">The recruitment work area must stay within {chosenCreateProject.title}'s configured project area. Compensation is snapshotted from the project defaults when this opportunity is created; later project-rate changes do not alter this opportunity.</p>}
           <label className="field">Expected field tasks<textarea name="description" minLength={10} maxLength={4000} required /></label>
-          <label className="field">Proposed payment / expense note<textarea name="payment_note" maxLength={1000} /></label>
           <label className="field">Eligibility note<textarea name="eligibility_note" maxLength={1000} placeholder="Optional qualifications, travel expectations or selection notes." /></label>
           <div className="actions"><button className="secondary" type="button" onClick={() => { setCreate(false); setCreateProjectId(""); setCreateArea(null); }}>Cancel</button><button className="primary" disabled={busy || !createProjectId || !createArea}>Save recruitment</button></div>
         </form>
@@ -444,12 +467,9 @@ export function WorkforceMarketplace({
             })}
             {offer && chosenProject && <form onSubmit={offerAssignment} className="review">
               <h3>Assignment terms for {offer.details.full_name || offer.user_id}</h3>
-              <p>Project: {chosenProject.title}. Terms become an immutable snapshot when offered.</p>
+              <p>Project: {chosenProject.title}. Compensation is inherited from the recruitment opportunity snapshot (or the current project default for a direct shortlist offer) and is immutable when offered. Volunteer acceptance confirms that frozen contract.</p>
+              <p className="notice"><strong>Contract compensation:</strong> {offerCompensation}</p>
               <div className="form-grid">
-                <label className="field">Work mode<select name="work_mode" defaultValue="volunteer"><option value="volunteer">Volunteer / unpaid</option><option value="paid">Paid</option></select></label>
-                <label className="field">Compensation basis<select name="compensation" defaultValue="per_verified_survey"><option value="per_verified_survey">Per verified survey</option><option value="daily_rate">Daily rate</option><option value="fixed_assignment">Fixed assignment</option></select></label>
-                <label className="field">Currency<input name="currency" defaultValue="PKR" maxLength={3} /></label>
-                <label className="field">Rate<input name="rate" type="number" min="0.01" step="0.01" /></label>
                 <label className="field">Survey target<input name="target" type="number" min={1} max={1000000} required /></label>
                 <label className="field">Start<input name="start" type="date" defaultValue={chosenProject.start_date} required /></label>
                 <label className="field">End<input name="end" type="date" defaultValue={chosenProject.end_date} required /></label>
@@ -464,7 +484,7 @@ export function WorkforceMarketplace({
             {opportunities.map((o)=><article className="document-row" key={o.id}>
               <strong>{o.title} · {o.publication_state === "draft" ? "Draft" : o.status !== "open" ? "Opportunity closed" : o.applications_open ? "Applications open" : "Applications closed"}</strong>
               <p>{projectMap.get(o.survey_project_id || "")?.title || o.survey_project_id} · {human(o.visibility)} · deadline {new Date(o.reply_by).toLocaleString()}</p>
-              <p>{o.required_volunteers} position(s) · {human(o.payment_type)}{o.eligibility_note ? ` · ${o.eligibility_note}` : ""}</p>
+              <p>{o.required_volunteers} position(s) · {opportunityCompensation(o)}{o.eligibility_note ? ` · ${o.eligibility_note}` : ""}</p>
               <div className="actions">
                 {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
                 {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
@@ -518,6 +538,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
     <strong>{a.volunteer_name} · {human(a.status)}</strong>
     <p>{a.project_title || project?.title || a.survey_project_id} · {a.organization_name || orgName || a.organization_id}</p>
     <p>{a.start_date} → {a.end_date} · Target {a.target_surveys} · {money(a)}</p>
+    <p>Compensation source: {human(a.compensation_source)}{a.compensation_source_version ? ` v${a.compensation_source_version}` : ""}{a.compensation_note_snapshot ? ` · ${a.compensation_note_snapshot}` : ""}</p>
     <p>{a.terms_note}</p>
     {a.completion_note && <p>Completion: {a.completion_note}</p>}
     {a.cancellation_note && <p>Cancellation: {a.cancellation_note}</p>}

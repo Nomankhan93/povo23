@@ -70,55 +70,16 @@ try{
     await deny(()=>call('project_recruitment_status',[project]),/Project management permission required/i);
   });
 
-  await ok('selected applications establish assignment eligibility without permanent profile grants',async()=>{
-    await as('manager');
-
-    const eligibilityOpportunity=await call('create_recruitment_opportunity',[
-      project,
-      '2.16 Assignment Eligibility',
-      'Establish application-scoped assignment eligibility for capacity testing',
-      taluka,
-      dates.opp_start,
-      dates.opp_end,
-      dates.reply,
-      'unpaid',
-      'Unpaid volunteer role',
-      2,
-      'Survey',
-      'Urdu',
-      'all',
-      'Available for field survey work',
-      true,
-    ]);
-
-    for(const who of ['collectorA','collectorB','collectorC']){
-      await as(who);
-
-      const application=await call('apply_work_opportunity',[
-        eligibilityOpportunity,
-        'Available throughout the project period',
-        'Application for recruitment-capacity validation',
-        true,
-      ]);
-
-      await as('manager');
-
-      const current=(await rows(
-        'select version from public.work_applications where id=$1',
-        [application],
-      ))[0];
-
-      await call('review_work_application',[
-        application,
-        'selected',
-        'Selected for assignment-capacity validation',
-        current.version,
-      ]);
-    }
-  });
-
   await ok('capacity counts distinct committed volunteers and blocks a third direct assignment',async()=>{
     await as('manager');
+    const eligibilityOpportunity=await call('create_recruitment_opportunity',[project,'2.16 Assignment Eligibility','Establish application-scoped assignment eligibility for capacity testing',taluka,dates.opp_start,dates.opp_end,dates.reply,'unpaid','Project defaults apply',2,'Survey','Urdu','all','Available for field survey work',true]);
+    for(const who of ['collectorA','collectorB','collectorC']){
+      await as(who);
+      const application=await call('apply_work_opportunity',[eligibilityOpportunity,'Available throughout the project period','Application for recruitment-capacity validation',true]);
+      await as('manager');
+      const current=(await rows('select version from public.work_applications where id=$1',[application]))[0];
+      await call('review_work_application',[application,'selected','Selected for assignment-capacity validation',current.version]);
+    }
     await call('set_survey_assignment_scope',[project,ids.collectorA,taluka,true]);
     await call('set_survey_assignment_scope',[project,ids.collectorB,taluka,true]);
     plan=await call('project_recruitment_status',[project]);

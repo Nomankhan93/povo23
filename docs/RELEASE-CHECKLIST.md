@@ -1,4 +1,20 @@
-# Current release checklist — POEM 2.16.0
+# Current release checklist — POEM 2.16.1
+
+- [ ] `20261008000400_project_compensation_assignment_contract.sql` applies after the 2.16.0 target/capacity migration.
+- [ ] Run `npm run types:generate` after the migration, then `npm run preflight`.
+- [ ] `node scripts/test-phase216.mjs` passes the corrected legitimate recruitment-connection fixture.
+- [ ] `node scripts/test-phase2161.mjs` passes compensation/default/assignment/payable scenarios.
+- [ ] NGO Admin can configure project `volunteer`/`paid` defaults, basis, uppercase currency, positive two-decimal rate and note with optimistic concurrency.
+- [ ] Project Manager can read/use compensation defaults but cannot change the project compensation commitment; Area Focal remains denied global compensation-plan access.
+- [ ] New project opportunities snapshot the current compensation version; later project changes do not mutate historical opportunities.
+- [ ] Formal assignment offers copy the authoritative opportunity/project snapshot and caller-supplied rate fields cannot override it.
+- [ ] Assignment compensation/provenance is immutable once offered; volunteer acceptance confirms the frozen contract.
+- [ ] Approved `per_verified_survey` work still creates at most one existing `work_payable_units` row per response; no second payable generator/table exists.
+- [ ] Daily/fixed payable claim flows remain existing behavior.
+- [ ] 2.16.0 soft target/offline synchronization behavior remains unchanged.
+- [ ] `npm run test:local`, `npm run test:operations`, prior 2.14/2.15/2.16.0 regressions and `git diff --check` are green before cloud push.
+
+# Previous release checklist — POEM 2.16.0
 
 - [ ] `20261008000300_project_targets_recruitment_capacity.sql` applies after the 2.15.1 project-self-service migration.
 - [ ] Run `npm run types:generate` after the new migration, then `npm run preflight`.

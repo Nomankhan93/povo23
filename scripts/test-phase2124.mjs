@@ -260,6 +260,20 @@ try {
   let outsideApplication;
   await ok('POEM survey manager can publish all-volunteer recruitment and outside volunteer can apply', async () => {
     await as('manager');
+
+    const compensation = await call('project_compensation_status', [project]);
+
+    await call('set_project_compensation_defaults', [
+      project,
+      'paid',
+      'per_verified_survey',
+      'PKR',
+      120.25,
+      'PKR 120.25 per independently approved survey',
+      'Configure structured compensation for the historical paid recruitment scenario',
+      compensation.version,
+    ]);
+
     allOpportunity = await call('create_recruitment_opportunity', [
       project,
       'Open statewide interest opportunity',

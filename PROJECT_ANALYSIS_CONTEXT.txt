@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.16.0
+Release: 2.16.1
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.16.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.16.1 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -30,10 +30,13 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Project approved-response targets are soft operational controls: target reach closes new recruitment/offers but does not reject existing/offline survey synchronization.
 - Project-level required-volunteer capacity is separate from the survey target and counts distinct committed volunteers across current formal/direct assignments.
 - NGO Admin and Project Manager can increase target/capacity or manually close/reopen recruitment; Area Focal remains scoped monitoring/review only.
+- Projects now carry structured compensation defaults for future work; NGO Admin / POEM survey-management authority can change them while Project Manager is read-only for the financial commitment.
+- New recruitment opportunities snapshot project compensation; later project-rate changes do not mutate historical opportunities.
+- Formal work assignments inherit the authoritative opportunity/project snapshot and remain immutable; existing payable generation continues to use approved-response uniqueness rather than a second accounting engine.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 38
-Migration head: 20261008000300_project_targets_recruitment_capacity.sql
+Ordered migration files: 39
+Migration head: 20261008000400_project_compensation_assignment_contract.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -74,12 +77,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261008000100_ngo_template_self_service.sql
 - 20261008000200_ngo_project_self_service.sql
 - 20261008000300_project_targets_recruitment_capacity.sql
+- 20261008000400_project_compensation_assignment_contract.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 47
+Test scripts (scripts/test-*.mjs): 48
 TypeScript/TSX source files: 75
-Markdown docs: 123
-Inventory files (excluding local/build/temp/backup state): 310
+Markdown docs: 126
+Inventory files (excluding local/build/temp/backup state): 315
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -96,7 +100,7 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.16.1 — Project Compensation Defaults & Assignment Contract Integration should snapshot paid/volunteer terms into existing assignments and feed the existing payable engine without creating a second accounting system.
+2.17 — Project Funding & Financial Ledger should add central immutable/double-entry project funding and reservation/commitment/spend accounting without replacing the existing worker payable subledger.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary for approved project workflows.
 Do not widen broad NGO directory, canonical, sharing or finance access for project-scoped staff.
 

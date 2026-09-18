@@ -1,4 +1,14 @@
-# Current permissions note — POEM 2.16.0
+# Current permissions note — POEM 2.16.1
+
+- **NGO Admin:** may configure paid/volunteer project compensation defaults for own active projects, including basis/currency/rate/note; may manage recruitment and assignments under existing project/recruitment gates.
+- **Project Manager:** may read project compensation defaults, create recruitment opportunities and send formal assignment offers, but cannot change project compensation defaults. The database derives contract compensation from the authoritative project/opportunity snapshot rather than trusting manager-supplied rate fields.
+- **Area Focal Person:** receives no global compensation configuration, recruitment-rate or payable-management authority; existing geography-scoped monitoring/review remains unchanged.
+- **Volunteer:** sees structured compensation on published opportunities and formal assignment offers; accepting an offer confirms the frozen assignment terms.
+- **POEM survey manager/admin:** may configure compensation defaults where existing project-management authority permits and continues existing oversight.
+- **Payables:** existing NGO Admin payable approval/payment rules remain unchanged. Project compensation configuration is not a funding balance and does not grant payment-provider or finance-ledger authority.
+- Direct table/UI edits are not an authorization boundary. Guarded RPCs, immutable assignment triggers, RLS and existing payable uniqueness enforce the contract/payable chain.
+
+# Previous permissions note — POEM 2.16.0
 
 - **NGO Admin:** may read/update the approved-response target, required-volunteer capacity and manual recruitment gate for own active projects; may continue existing NGO-wide recruitment/assignment operations subject to the effective project gate.
 - **Project Manager:** may read/update the project recruitment plan, manage project recruitment and assignments, and see project-wide target/capacity metrics. New recruitment/offers are server-blocked when target/capacity/manual state closes.

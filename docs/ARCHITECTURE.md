@@ -1,4 +1,14 @@
-# Current architecture note — POEM 2.16.0
+# Current architecture note — POEM 2.16.1
+
+2.16.1 extends the existing project/workforce/payable architecture rather than adding a parallel compensation subsystem. `survey_projects` now stores structured compensation defaults and optimistic `compensation_version`. These defaults describe **future work offers** only; they are not a cash balance or funding reservation.
+
+`work_opportunities` carries a compensation snapshot for each newly created project opportunity. A later project-rate change creates a new version for future opportunities and does not mutate existing recruitment. Formal `work_assignments` copy the authoritative opportunity snapshot (or current project default for a direct selected-shortlist offer) into the existing immutable contract fields plus compensation provenance. Existing `protect_work_terms()` therefore protects the offered rate, currency, basis and source before acceptance; volunteer acceptance confirms the frozen terms rather than creating a mutable negotiation state.
+
+The existing `work_payable_units` / `work_payable_events` subsystem remains authoritative. `sync_survey_payable()` continues to create `per_verified_survey` units from independently approved responses using unique `response_id`; 2.16.1 only enriches `payable_snapshot()` with compensation provenance. No second payable generator, balance table or provider-transfer model is introduced.
+
+Authorization remains layered: NGO Admin / POEM survey-management authority can change project compensation defaults; Project Manager can read/use the defaults and manage recruitment/assignment offers but cannot change the project's compensation commitment; Area Focal receives no compensation-plan authority. 2.16.0 soft target/capacity/offline behavior remains unchanged.
+
+# Previous architecture note — POEM 2.16.0
 
 2.16.0 keeps `survey_projects` as the operational source of truth and adds project-level `required_volunteers`, `recruitment_status` and optimistic `recruitment_version`. Approved-response progress and committed-volunteer counts are derived from existing `survey_responses`, `work_assignments` and `survey_assignments`; no parallel counter ledger is introduced.
 

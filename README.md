@@ -1,26 +1,26 @@
-# Current release: POEM 2.16.0
+# Current release: POEM 2.16.1
 
-Project Targets & Recruitment Capacity. See [release notes](docs/PHASE-2.16.0.md), [WSL upgrade](docs/UPGRADE-2.16.0.md) and [validation](docs/VALIDATION-2.16.0.md).
+Project Compensation Defaults & Assignment Contract Integration. See [release notes](docs/PHASE-2.16.1.md), [WSL upgrade](docs/UPGRADE-2.16.1.md) and [validation](docs/VALIDATION-2.16.1.md).
 
-POEM 2.16.0 connects the existing approved-response target to project recruitment capacity without creating a second recruitment or payable system. Targets remain soft operational controls: once the approved target or configured volunteer capacity is reached, new recruitment/offers/direct assignments stop, while already-assigned and offline-queued legitimate field submissions continue through the existing survey/review workflow.
+POEM 2.16.1 connects project compensation defaults to existing recruitment opportunities, immutable work assignments and the existing payable engine. It does **not** create a second accounting system. New project opportunities snapshot the project's paid/volunteer terms; formal assignment offers inherit that source snapshot and remain immutable while volunteer acceptance confirms the frozen contract.
 
-## 2.16.0 target/recruitment rules
+## 2.16.1 compensation/contract rules
 
-- `survey_projects.target` remains the approved-response target; submitted/correction/rejected responses do not consume it.
-- `required_volunteers` is a separate project-level recruitment-capacity control; it does not rewrite the survey target or assignment `target_surveys`.
-- `recruitment_status` is a manager-controlled manual gate (`open`/`closed`); effective recruitment also requires an active project, approved count below target and remaining volunteer capacity.
-- Target reach is **not** project closure. Existing assigned volunteers can still synchronize legitimate/offline work; over-target approvals are retained and reported.
-- Project Manager/NGO Admin can increase target/capacity and manually close/reopen recruitment through an optimistic-version RPC. Area Focal remains monitoring/review scoped and cannot manage the global recruitment plan.
-- Published opportunities remain historical rows when the effective gate closes, but disappear from new volunteer discovery and cannot accept new applications.
-- New invitations and new assignment offers/direct activations are blocked when target/capacity/manual status closes recruitment. Existing assignment acceptance/survey sync semantics are preserved.
-- Existing `work_payable_units` and compensation accounting are unchanged; project compensation defaults and assignment contract integration belong to 2.16.1.
+- `survey_projects` stores structured future-work defaults: work mode, compensation basis, currency, rate, note and optimistic `compensation_version`.
+- NGO Admin / POEM survey-management authority may change project compensation defaults. Project Manager may read/use them for recruitment but cannot change the financial commitment.
+- Each new project recruitment opportunity snapshots the project compensation version. Later project-rate changes do not rewrite existing opportunities.
+- Formal application/invitation assignments inherit the opportunity snapshot; direct selected-shortlist offers inherit the current project default. Caller-supplied rate/mode values no longer override the authoritative server snapshot.
+- `work_assignments` remains the immutable contract record. Existing `protect_work_terms()` prevents rate/currency/basis/source changes after offer; volunteer acceptance confirms that offer.
+- Existing `sync_survey_payable()` remains authoritative. An independently approved response under an accepted `per_verified_survey` paid assignment creates at most one `work_payable_units` row through the existing unique `response_id`.
+- Existing daily-rate/fixed-assignment payable claim flows remain unchanged.
+- Historical paid opportunities that predate structured compensation and cannot be safely parsed must be replaced before creating a new structured assignment. Historical unpaid project opportunities are safely mapped to volunteer/unpaid terms.
 
 ## Current product boundaries
 
-- 2.16.0 does not add hard collection quotas or trusted client timestamps; strict pre-issued collection slots remain future work if needed.
-- 2.16.0 does not create a new payable/compensation engine. Compensation defaults and immutable assignment snapshots are 2.16.1.
-- Internal funding ledger and payment-provider money movement remain 2.17/2.18.
-- Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
+- 2.16.1 does not add NGO wallet balances, project fund reservation, deposit/withdrawal or provider money movement. Those remain 2.17/2.18.
+- Compensation defaults are future-contract configuration, not proof that project funds are available. Funding controls come from the later financial ledger.
+- 2.16.0 soft target/offline rules remain unchanged: target reach blocks new recruitment/offers but does not destroy legitimate active/offline field synchronization.
+- Existing payable approval/payment journal remains unchanged and append-only.
 
 ## Historical foundation notes
 
