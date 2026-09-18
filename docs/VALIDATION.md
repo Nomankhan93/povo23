@@ -1,8 +1,8 @@
 # Current release validation
 
-See [POEM 2.15.1](VALIDATION-2.15.1.md). The 2.15.1 gate adds embedded PostgreSQL coverage for organization-owned project drafts, same-NGO admin continuity, cross-NGO isolation, approved-template ownership, submission locking, changes-request/resubmission, atomic operational-project materialization, idempotent approval and RPC-only workflow mutations.
+See [POEM 2.16.0](VALIDATION-2.16.0.md). The 2.16.0 gate adds embedded PostgreSQL coverage for approved-response soft targets, distinct project volunteer capacity, target/capacity/manual recruitment closure, offline-safe existing assignment sync, over-target reporting, manager-controlled reopen/increase, project-manager recruitment access and volunteer-discovery gating.
 
-Previous release validation: [POEM 2.15.0](VALIDATION-2.15.0.md).
+Previous release validation: [POEM 2.15.1](VALIDATION-2.15.1.md).
 
 > Historical validation: [POEM 2.14.2](VALIDATION-2.14.2.md). Older validation sections below are retained as historical regression context; later migrations and current release notes take precedence.
 

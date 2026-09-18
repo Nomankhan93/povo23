@@ -1,22 +1,24 @@
-# Current release: POEM 2.15.1
+# Current release: POEM 2.16.0
 
-NGO Project Self-Service & POEM Project Approval. See [release notes](docs/PHASE-2.15.1.md), [WSL upgrade](docs/UPGRADE-2.15.1.md) and [validation](docs/VALIDATION-2.15.1.md).
+Project Targets & Recruitment Capacity. See [release notes](docs/PHASE-2.16.0.md), [WSL upgrade](docs/UPGRADE-2.16.0.md) and [validation](docs/VALIDATION-2.16.0.md).
 
-POEM 2.15.1 adds an NGO-owned project approval envelope without creating a second operational project system. Active NGO Admins can save project drafts, select POEM library or their own approved templates, submit/resubmit for review and receive POEM decisions. Approval atomically creates the existing `survey_projects` record in `active` state.
+POEM 2.16.0 connects the existing approved-response target to project recruitment capacity without creating a second recruitment or payable system. Targets remain soft operational controls: once the approved target or configured volunteer capacity is reached, new recruitment/offers/direct assignments stop, while already-assigned and offline-queued legitimate field submissions continue through the existing survey/review workflow.
 
-## 2.15.1 project-governance rules
+## 2.16.0 target/recruitment rules
 
-- `survey_project_drafts` is a staging/review envelope; `survey_projects` remains the only operational project table.
-- NGO project drafts are organization-owned and editable only in `draft` or `changes_requested`; submitted/approved/rejected revisions are locked.
-- Submission requires an active NGO, active collection geography, complete target/dates/purpose/consent, and either a POEM-owned template or an approved template owned by the same NGO.
-- POEM approval atomically materializes one active `survey_projects` row and records `approved_project_id`; approval retries cannot create duplicates.
-- Direct POEM project creation remains available but now enforces the same template-ownership boundary to prevent cross-NGO template reuse.
-- Project Manager and Area Focal Person roles do not gain project-draft submission or approval authority.
-- 2.15.0 template self-service remains the source of NGO-approved template versions; no second template or project engine is introduced.
+- `survey_projects.target` remains the approved-response target; submitted/correction/rejected responses do not consume it.
+- `required_volunteers` is a separate project-level recruitment-capacity control; it does not rewrite the survey target or assignment `target_surveys`.
+- `recruitment_status` is a manager-controlled manual gate (`open`/`closed`); effective recruitment also requires an active project, approved count below target and remaining volunteer capacity.
+- Target reach is **not** project closure. Existing assigned volunteers can still synchronize legitimate/offline work; over-target approvals are retained and reported.
+- Project Manager/NGO Admin can increase target/capacity and manually close/reopen recruitment through an optimistic-version RPC. Area Focal remains monitoring/review scoped and cannot manage the global recruitment plan.
+- Published opportunities remain historical rows when the effective gate closes, but disappear from new volunteer discovery and cannot accept new applications.
+- New invitations and new assignment offers/direct activations are blocked when target/capacity/manual status closes recruitment. Existing assignment acceptance/survey sync semantics are preserved.
+- Existing `work_payable_units` and compensation accounting are unchanged; project compensation defaults and assignment contract integration belong to 2.16.1.
 
 ## Current product boundaries
 
-- 2.15.1 covers project draft/submission/review/activation only. Recruitment target closure and project compensation belong to 2.16.
+- 2.16.0 does not add hard collection quotas or trusted client timestamps; strict pre-issued collection slots remain future work if needed.
+- 2.16.0 does not create a new payable/compensation engine. Compensation defaults and immutable assignment snapshots are 2.16.1.
 - Internal funding ledger and payment-provider money movement remain 2.17/2.18.
 - Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
 

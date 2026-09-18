@@ -1,4 +1,20 @@
-# Current release checklist — POEM 2.15.1
+# Current release checklist — POEM 2.16.0
+
+- [ ] `20261008000300_project_targets_recruitment_capacity.sql` applies after the 2.15.1 project-self-service migration.
+- [ ] Run `npm run types:generate` after the new migration, then `npm run preflight`.
+- [ ] `node scripts/test-phase216.mjs` passes all soft-target/recruitment-capacity scenarios.
+- [ ] Target progress counts **approved** responses only and reports remaining/over-target values.
+- [ ] Project required-volunteer capacity counts distinct offered/active work assignments plus active survey assignments without double-counting the same volunteer.
+- [ ] At target/capacity/manual close, new published recruitment, fresh invitations and new assignment/direct-assignment activation are blocked by the database.
+- [ ] Already-assigned volunteers can still save/synchronize survey responses after target reach; project status remains active until explicitly closed.
+- [ ] Over-target approvals are retained/reported rather than discarded.
+- [ ] NGO Admin / Project Manager can increase target/capacity and manually close/reopen recruitment with optimistic concurrency; Area Focal is denied the global plan RPC.
+- [ ] Published opportunities disappear from new volunteer discovery when the effective gate closes without rewriting historical opportunity state.
+- [ ] 2.16.0 does not change `save_survey_response()` or create a second payable/compensation system.
+- [ ] `npm run test:local`, `npm run test:operations`, and 2.14/2.15 regression suites remain green before cloud push.
+- [ ] `git diff --check` is clean before commit.
+
+# Previous release checklist — POEM 2.15.1
 
 - [ ] `20261008000200_ngo_project_self_service.sql` applies after the 2.15.0 template migration.
 - [ ] `node scripts/test-phase2151.mjs` passes all NGO project-draft/approval scenarios.

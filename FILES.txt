@@ -27,6 +27,7 @@ docs/PHASE-2.14.1.md
 docs/PHASE-2.14.2.md
 docs/PHASE-2.15.0.md
 docs/PHASE-2.15.1.md
+docs/PHASE-2.16.0.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -71,6 +72,7 @@ docs/UPGRADE-2.14.1.md
 docs/UPGRADE-2.14.2.md
 docs/UPGRADE-2.15.0.md
 docs/UPGRADE-2.15.1.md
+docs/UPGRADE-2.16.0.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -106,6 +108,7 @@ docs/VALIDATION-2.14.1.md
 docs/VALIDATION-2.14.2.md
 docs/VALIDATION-2.15.0.md
 docs/VALIDATION-2.15.1.md
+docs/VALIDATION-2.16.0.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -167,6 +170,7 @@ scripts/test-phase2141.mjs
 scripts/test-phase2142.mjs
 scripts/test-phase215.mjs
 scripts/test-phase2151.mjs
+scripts/test-phase216.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -301,5 +305,6 @@ supabase/migrations/20261007000200_project_access_revocation_fix.sql
 supabase/migrations/20261007000300_project_team_workspace_ui.sql
 supabase/migrations/20261008000100_ngo_template_self_service.sql
 supabase/migrations/20261008000200_ngo_project_self_service.sql
+supabase/migrations/20261008000300_project_targets_recruitment_capacity.sql
 tsconfig.json
 vite.config.ts

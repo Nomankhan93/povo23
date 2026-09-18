@@ -1,4 +1,12 @@
-# Current architecture note — POEM 2.15.1
+# Current architecture note — POEM 2.16.0
+
+2.16.0 keeps `survey_projects` as the operational source of truth and adds project-level `required_volunteers`, `recruitment_status` and optimistic `recruitment_version`. Approved-response progress and committed-volunteer counts are derived from existing `survey_responses`, `work_assignments` and `survey_assignments`; no parallel counter ledger is introduced.
+
+The recruitment gate is deliberately **soft for field collection**. Effective recruitment is open only while the project is active, the manual gate is open, approved responses remain below `target`, and configured volunteer capacity remains. The gate blocks new opportunity publication, invitations and new assignment/direct-assignment activation, but does not modify `save_survey_response()` or automatically close the project. Already-assigned/offline-queued submissions can synchronize and over-target approvals remain auditable.
+
+Project Manager and NGO Admin can read/update the global recruitment plan through guarded RPCs. Area Focal Person remains geography-scoped for operational monitoring/review and does not receive project-wide recruitment-plan authority. Existing workforce opportunity/application/assignment tables and the existing payable subsystem remain authoritative; compensation defaults are deferred to 2.16.1.
+
+# Previous architecture note — POEM 2.15.1
 
 2.15.1 adds `survey_project_drafts` and append-only `survey_project_review_events` as approval/workflow state. These rows are not operational projects. Active NGO Admin membership is the organization ownership boundary; POEM review remains `can_manage_surveys()`.
 

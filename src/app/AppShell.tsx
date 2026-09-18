@@ -367,6 +367,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ? ([
         ["Project workspace", LayoutDashboard],
         ["Survey projects", ShieldCheck],
+        ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users]] : []),
         ["Notifications", Bell],
         ["Activity", Activity],
       ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
@@ -829,12 +830,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <GeographyManager rows={geographies} refresh={load} />
           )}
           {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
-          {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys"].includes(page)) && validScope && (surveyManage || !poem) && (
+          {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={`${scope}-${page}`}
               userId={session.user.id}
-              organization={poem || scope === "personal" ? null : scope}
-              mode={poem ? "poem" : scope === "personal" ? "personal" : "ngo"}
+              organization={poem || scope === "personal" ? null : projectScope ? (projectScopeProject?.organization_id || null) : scope}
+              mode={poem ? "poem" : scope === "personal" ? "personal" : projectScope ? "project" : "ngo"}
+              projectScopeId={projectScopeId}
               personalView={page === "Available Opportunities" ? "opportunities" : page === "My Applications" ? "applications" : page === "My Assigned Surveys" ? "assigned" : "all"}
               geographies={geographies}
               orgs={orgs as any}
@@ -903,7 +905,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 manageAssignments={canManageProjectAssignments}
                 orgs={orgs as any}
                 geographies={geographies}
-                openRecruitment={() => change("Workforce marketplace")}
+                openRecruitment={canManageProjectAssignments ? () => change(projectScope ? "Recruitment" : "Workforce marketplace") : undefined}
                 onBackToWorkspace={projectScope ? () => change("Project workspace") : undefined}
               />
             </Suspense>

@@ -1499,6 +1499,9 @@ created_at: string;
 sharing_discoverable: boolean;
 governance_version: number;
 governance_notice: string;
+required_volunteers: number | null;
+recruitment_status: string;
+recruitment_version: number;
 };
 Insert: {
 id?: string;
@@ -1518,6 +1521,9 @@ created_at?: string;
 sharing_discoverable?: boolean;
 governance_version?: number;
 governance_notice?: string;
+required_volunteers?: number | null;
+recruitment_status?: string;
+recruitment_version?: number;
 };
 Update: {
 id?: string;
@@ -1537,6 +1543,9 @@ created_at?: string;
 sharing_discoverable?: boolean;
 governance_version?: number;
 governance_notice?: string;
+required_volunteers?: number | null;
+recruitment_status?: string;
+recruitment_version?: number;
 };
 Relationships: [];
 };
@@ -2680,6 +2689,9 @@ project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
 }; Returns: Json };
+project_recruitment_status: { Args: {
+p_project: string | null;
+}; Returns: Json };
 project_staff_candidates: { Args: {
 p_project: string | null;
 p_query?: string | null;
@@ -3028,6 +3040,14 @@ set_profile_sharing: { Args: {
 p_org: string | null;
 p_allowed: boolean | null;
 }; Returns: undefined };
+set_project_recruitment_plan: { Args: {
+p_project: string | null;
+p_target: number | null;
+p_required_volunteers: number | null;
+p_status: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: number };
 set_project_sharing_discovery: { Args: {
 p_project: string | null;
 p_enabled: boolean | null;

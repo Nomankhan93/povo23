@@ -1,4 +1,13 @@
-# Current permissions note — POEM 2.15.1
+# Current permissions note — POEM 2.16.0
+
+- **NGO Admin:** may read/update the approved-response target, required-volunteer capacity and manual recruitment gate for own active projects; may continue existing NGO-wide recruitment/assignment operations subject to the effective project gate.
+- **Project Manager:** may read/update the project recruitment plan, manage project recruitment and assignments, and see project-wide target/capacity metrics. New recruitment/offers are server-blocked when target/capacity/manual state closes.
+- **Area Focal Person:** may continue geography-scoped monitoring/review only; cannot read/update the global recruitment plan or gain project-wide recruitment/assignment authority.
+- **Volunteer:** may discover/apply only while an opportunity remains published/open **and** the project effective recruitment gate is open. Existing assigned field work is not invalidated by target reach.
+- **POEM survey manager/admin:** retains existing project/recruitment authority and is subject to the same project target/capacity gate for new recruitment activity.
+- Direct project-plan mutation is not a frontend trust boundary; guarded RPCs plus triggers/RLS enforce the target/capacity rules.
+
+# Previous permissions note — POEM 2.15.1
 
 - **NGO Admin:** create/edit own-organization project drafts while `draft`/`changes_requested`, submit/resubmit them, read decision history and see the resulting operational project after approval.
 - **POEM survey manager/admin:** review all submitted NGO project drafts, request changes, reject, or approve and atomically activate the existing operational project model.

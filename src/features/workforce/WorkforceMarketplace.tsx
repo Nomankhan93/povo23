@@ -11,7 +11,7 @@ type Opportunity = Tables["work_opportunities"]["Row"];
 type Application = Tables["work_applications"]["Row"];
 type Assignment = Tables["work_assignments"]["Row"];
 type SurveyAssignment = Tables["survey_assignments"]["Row"];
-type Mode = "personal" | "ngo" | "poem";
+type Mode = "personal" | "ngo" | "project" | "poem";
 type PersonalView = "opportunities" | "applications" | "assigned" | "all";
 type Org = { id: string; name: string; status: string };
 type AvailableRow = Pick<Opportunity, "id" | "organization_id" | "title" | "description" | "geography_id" | "start_date" | "end_date" | "reply_by" | "payment_type" | "payment_note" | "status" | "survey_project_id" | "required_volunteers" | "required_skill" | "required_language" | "created_at"> & {
@@ -56,6 +56,7 @@ export function WorkforceMarketplace({
   geographies,
   orgs,
   personalView = "all",
+  projectScopeId = null,
 }: {
   userId: string;
   organization: string | null;
@@ -63,6 +64,7 @@ export function WorkforceMarketplace({
   geographies: Geo[];
   orgs: Org[];
   personalView?: PersonalView;
+  projectScopeId?: string | null;
 }) {
   const [projects, setProjects] = useState<Project[]>([]),
     [opportunities, setOpportunities] = useState<Opportunity[]>([]),
@@ -125,6 +127,11 @@ export function WorkforceMarketplace({
           o = o.eq("organization_id", organization);
           a = a.eq("organization_id", organization);
           w = w.eq("organization_id", organization);
+        } else if (mode === "project" && projectScopeId) {
+          p = p.eq("id", projectScopeId);
+          o = o.eq("survey_project_id", projectScopeId);
+          a = a.eq("survey_project_id", projectScopeId);
+          w = w.eq("survey_project_id", projectScopeId);
         }
         const result = await Promise.all([p, o, a, w]);
         for (const r of result) if (r.error) throw r.error;
@@ -144,7 +151,13 @@ export function WorkforceMarketplace({
   }
   useEffect(() => {
     void load();
-  }, [mode, organization, userId, revision, orgFilter, areaFilter, paymentFilter, skillFilter, workDateFilter, deadlineFilter, availablePage]);
+  }, [mode, organization, projectScopeId, userId, revision, orgFilter, areaFilter, paymentFilter, skillFilter, workDateFilter, deadlineFilter, availablePage]);
+
+  useEffect(() => {
+    if (mode !== "project" || !projectScopeId) return;
+    setProjectId(projectScopeId);
+    setCreateProjectId(projectScopeId);
+  }, [mode, projectScopeId]);
 
   async function act(fn: () => Promise<unknown>, success: string): Promise<boolean> {
     setBusy(true);
@@ -213,7 +226,7 @@ export function WorkforceMarketplace({
     );
     if (ok) {
       setCreate(false);
-      setCreateProjectId("");
+      setCreateProjectId(mode === "project" ? projectScopeId || "" : "");
       setCreateArea(null);
     }
   }
@@ -277,16 +290,18 @@ export function WorkforceMarketplace({
     <section className="panel detail workforce-marketplace">
       <div className="panel-title">
         <div>
-          <h2>{mode === "personal" ? (personalView === "opportunities" ? "Available Opportunities" : personalView === "applications" ? "My Applications" : personalView === "assigned" ? "My Assigned Surveys" : "Volunteer marketplace") : mode === "ngo" ? "NGO workforce marketplace" : "POEM workforce management"}</h2>
+          <h2>{mode === "personal" ? (personalView === "opportunities" ? "Available Opportunities" : personalView === "applications" ? "My Applications" : personalView === "assigned" ? "My Assigned Surveys" : "Volunteer marketplace") : mode === "ngo" ? "NGO workforce marketplace" : mode === "project" ? "Project recruitment" : "POEM workforce management"}</h2>
           <p>
             {mode === "personal"
               ? (personalView === "opportunities" ? "Browse published project recruitment without granting permanent NGO profile access." : personalView === "applications" ? "Track application decisions and withdraw applications that are still pending or shortlisted." : personalView === "assigned" ? "Accept formal offers and open survey work only after assignment activation." : "Apply for survey work and accept formal assignment terms before field access starts.")
               : mode === "ngo"
                 ? "Recruit active local volunteers, review applications and manage formal project assignments."
-                : "Manage and oversee recruitment, applications and assignments across partner NGOs."}
+                : mode === "project"
+                  ? "Manage recruitment, applications and assignment offers only for this authorized project."
+                  : "Manage and oversee recruitment, applications and assignments across partner NGOs."}
           </p>
         </div>
-        {mode !== "personal" && <button className="primary" onClick={() => { setCreate((v) => !v); setCreateProjectId(""); setCreateArea(null); }}>Create project opportunity</button>}
+        {mode !== "personal" && <button className="primary" onClick={() => { setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>Create project opportunity</button>}
       </div>
       {error && <p className="notice error" role="alert">{error}</p>}
       {message && <p className="notice success" role="status">{message}</p>}
@@ -385,7 +400,7 @@ export function WorkforceMarketplace({
         <form onSubmit={createOpportunity} className="review">
           <h3>Publish survey-project opportunity</h3>
           <div className="form-grid">
-            <label className="field">Survey project<select required value={createProjectId} onChange={(e) => { const id=e.target.value; setCreateProjectId(id); setCreateArea(projectMap.get(id)?.geography_id || null); }}><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>
+            {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenCreateProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select required value={createProjectId} onChange={(e) => { const id=e.target.value; setCreateProjectId(id); setCreateArea(projectMap.get(id)?.geography_id || null); }}><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
             <label className="field">Opportunity title<input name="title" required minLength={3} maxLength={150} /></label>
             <label className="field">Positions<input name="positions" type="number" min={1} max={5000} defaultValue={1} required /></label>
             <label className="field">Start<input key={`start-${createProjectId}`} name="start" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.start_date || ""} required /></label>
@@ -412,7 +427,7 @@ export function WorkforceMarketplace({
             <h3>Find active volunteers</h3>
             <form onSubmit={findCandidates}>
               <div className="form-grid">
-                <label className="field">Survey project<select value={projectId} onChange={(e) => { setProjectId(e.target.value); setCandidates([]); setOffer(null); }} required><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>
+                {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select value={projectId} onChange={(e) => { setProjectId(e.target.value); setCandidates([]); setOffer(null); }} required><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
                 <label className="field">Name / skill / language<input value={query} maxLength={100} onChange={(e) => setQuery(e.target.value)} /></label>
               </div>
               <button className="secondary" disabled={busy || !projectId}>Search candidates</button>
@@ -506,7 +521,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
     <p>{a.terms_note}</p>
     {a.completion_note && <p>Completion: {a.completion_note}</p>}
     {a.cancellation_note && <p>Cancellation: {a.cancellation_note}</p>}
-    {mode === "ngo" && a.status === "active" && <div className="actions">
+    {(mode === "ngo" || mode === "project") && a.status === "active" && <div className="actions">
       <button className="primary" disabled={busy} onClick={() => setComplete((v) => !v)}>Complete assignment</button>
       <button className="secondary" disabled={busy} onClick={() => {
         const note=window.prompt("Cancellation reason:","Assignment cancelled by project administrator.");
@@ -517,7 +532,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
       const note=window.prompt("Cancellation reason:","Assignment offer withdrawn by project administrator.");
       if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment offer cancelled.");
     }}>Withdraw offer</button>}
-    {complete && mode === "ngo" && <form className="review" onSubmit={(e) => {
+    {complete && (mode === "ngo" || mode === "project") && <form className="review" onSubmit={(e) => {
       e.preventDefault();const f=new FormData(e.currentTarget);
       const feedback: Json={professionalism:Number(val(f,"professionalism")),communication:Number(val(f,"communication")),field_discipline:Number(val(f,"discipline")),data_quality:Number(val(f,"quality")),task_completion:Number(val(f,"completion"))};
       void act(() => rpc("complete_work_assignment",{p_id:a.id,p_feedback:feedback,p_note:val(f,"note"),p_version:a.version}),"Assignment completed and added to verified POEM work history.");
