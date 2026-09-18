@@ -1,26 +1,26 @@
-# Current release: POEM 2.16.1
+# Current release: POEM 2.17.0
 
-Project Compensation Defaults & Assignment Contract Integration. See [release notes](docs/PHASE-2.16.1.md), [WSL upgrade](docs/UPGRADE-2.16.1.md) and [validation](docs/VALIDATION-2.16.1.md).
+Finance Core & Double-Entry Ledger. See [release notes](docs/PHASE-2.17.0.md), [WSL upgrade](docs/UPGRADE-2.17.0.md) and [validation](docs/VALIDATION-2.17.0.md).
 
-POEM 2.16.1 connects project compensation defaults to existing recruitment opportunities, immutable work assignments and the existing payable engine. It does **not** create a second accounting system. New project opportunities snapshot the project's paid/volunteer terms; formal assignment offers inherit that source snapshot and remain immutable while volunteer acceptance confirms the frozen contract.
+POEM 2.17.0 adds the provider-independent accounting foundation for future project funding and settlement. It introduces immutable finance accounts, journals and postings, enforces balanced double-entry journals at the database boundary, derives balances from postings and uses reversal journals instead of editing posted history. Existing `work_payable_*` tables remain the worker entitlement subledger and are not replaced.
 
-## 2.16.1 compensation/contract rules
+## 2.17.0 finance-core rules
 
-- `survey_projects` stores structured future-work defaults: work mode, compensation basis, currency, rate, note and optimistic `compensation_version`.
-- NGO Admin / POEM survey-management authority may change project compensation defaults. Project Manager may read/use them for recruitment but cannot change the financial commitment.
-- Each new project recruitment opportunity snapshots the project compensation version. Later project-rate changes do not rewrite existing opportunities.
-- Formal application/invitation assignments inherit the opportunity snapshot; direct selected-shortlist offers inherit the current project default. Caller-supplied rate/mode values no longer override the authoritative server snapshot.
-- `work_assignments` remains the immutable contract record. Existing `protect_work_terms()` prevents rate/currency/basis/source changes after offer; volunteer acceptance confirms that offer.
-- Existing `sync_survey_payable()` remains authoritative. An independently approved response under an accepted `per_verified_survey` paid assignment creates at most one `work_payable_units` row through the existing unique `response_id`.
-- Existing daily-rate/fixed-assignment payable claim flows remain unchanged.
-- Historical paid opportunities that predate structured compensation and cannot be safely parsed must be replaced before creating a new structured assignment. Historical unpaid project opportunities are safely mapped to volunteer/unpaid terms.
+- `finance_accounts` defines currency-bound scoped ledger accounts for system, organization, project and future user/payable purposes.
+- `finance_journals` is append-only and carries journal type, source/reference, idempotency key, memo, scope and optional reversal lineage.
+- `finance_postings` stores debit/credit lines; every posted journal must contain at least two lines with total debits exactly equal to total credits.
+- No editable `organization.balance` or `project.balance` field is introduced. Account balances are derived from immutable postings according to account class.
+- Generic account/journal mutation is POEM finance-admin only (`admin` / `super_admin`). NGO Admin can read its own organization ledger but cannot create arbitrary entries. Project Manager and Area Focal receive no finance access in 2.17.0.
+- Exact journal retries are idempotent; the same source/type cannot be posted twice with different payloads.
+- Posted accounts, journals and postings cannot be updated/deleted. Corrections use an opposite balanced reversal journal while preserving the original.
+- 2.17.0 does not fund projects, reserve budgets, bridge payable events or integrate JazzCash. Those remain 2.17.1, 2.17.2 and 2.18.
 
 ## Current product boundaries
 
-- 2.16.1 does not add NGO wallet balances, project fund reservation, deposit/withdrawal or provider money movement. Those remain 2.17/2.18.
-- Compensation defaults are future-contract configuration, not proof that project funds are available. Funding controls come from the later financial ledger.
-- 2.16.0 soft target/offline rules remain unchanged: target reach blocks new recruitment/offers but does not destroy legitimate active/offline field synchronization.
-- Existing payable approval/payment journal remains unchanged and append-only.
+- The existing worker entitlement/accounting subledger (`work_payable_units`, `work_payable_events`, receipts and amendments) remains authoritative for who is owed what under an assignment contract.
+- Finance Core is the central money/accounting ledger only. The payable-to-finance bridge is intentionally deferred to 2.17.2 to avoid duplicate accrual logic.
+- 2.16 soft target/offline behavior and immutable compensation snapshots remain unchanged.
+- Provider clearing account concepts are supported structurally, but no payment-provider callback, deposit, withdrawal or settlement API exists in this release.
 
 ## Historical foundation notes
 

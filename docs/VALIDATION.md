@@ -1,4 +1,7 @@
-# Current release validation
+# Validation index — POEM 2.17.0
+
+Current release validation: [VALIDATION-2.17.0.md](VALIDATION-2.17.0.md).
+
 
 See [POEM 2.16.1](VALIDATION-2.16.1.md). The 2.16.1 gate adds embedded PostgreSQL coverage for project compensation permissions, versioned opportunity snapshots, immutable assignment contract inheritance, caller-override resistance and exactly-once reuse of the existing approved-survey payable engine.
 

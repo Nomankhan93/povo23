@@ -1,4 +1,16 @@
-# Current architecture note — POEM 2.16.1
+# Current architecture note — POEM 2.17.0
+
+## 2.17.0 finance-core architecture
+
+POEM now has two intentionally separate accounting layers:
+
+1. **Worker entitlement subledger** — existing `work_payable_units`, `work_payable_events`, receipts and contract amendments determine worker entitlement and payment history.
+2. **Central double-entry finance ledger** — `finance_accounts`, `finance_journals` and `finance_postings` record money/accounting movement without recalculating worker entitlement.
+
+A finance journal is immutable after posting and must balance (`debits = credits`) in one currency. Account balances are computed from postings using the account class normal side; no mutable organization/project balance column exists. Organization journals may use system clearing accounts plus accounts from that organization, but may not cross into another NGO or another project's scoped account. Corrections are new reversal journals linked to the original.
+
+2.17.0 deliberately exposes only a POEM finance-administration generic write surface. 2.17.1 will add constrained project funding/reservation actions for NGO workflows; 2.17.2 will add the idempotent `work_payable_event → finance_journal` bridge.
+
 
 2.16.1 extends the existing project/workforce/payable architecture rather than adding a parallel compensation subsystem. `survey_projects` now stores structured compensation defaults and optimistic `compensation_version`. These defaults describe **future work offers** only; they are not a cash balance or funding reservation.
 

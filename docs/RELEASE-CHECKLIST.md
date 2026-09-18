@@ -1,4 +1,21 @@
-# Current release checklist — POEM 2.16.1
+# Current release checklist — POEM 2.17.0
+
+## POEM 2.17.0 acceptance
+
+- [ ] `20261008000500_recruitment_discovery_compatibility_fix.sql` is present/applied (2.16.1 compatibility follow-up).
+- [ ] `20261008000600_finance_core_double_entry_ledger.sql` applies after the current 2.16.1 chain.
+- [ ] Run `npm run types:generate`, then `npm run preflight`.
+- [ ] `node scripts/test-phase217.mjs` passes all finance-core/double-entry scenarios.
+- [ ] Direct authenticated writes to `finance_accounts`, `finance_journals` and `finance_postings` are denied.
+- [ ] Every journal is same-currency, has at least two postings and satisfies total debits = total credits.
+- [ ] Journal/account/posting history is immutable; corrections create a linked reversal journal.
+- [ ] Account balances are derived from postings; no editable NGO/project balance column exists.
+- [ ] NGO Admin can read only its own organization ledger; Project Manager/Area Focal receive no finance access in this release.
+- [ ] Exact idempotent retries return the same journal; conflicting retries/source reuse are rejected.
+- [ ] Existing worker payable tables/functions remain authoritative and unchanged.
+- [ ] No project funding/reservation, payable-finance bridge, JazzCash or withdrawal flow is introduced yet.
+- [ ] `npm run test:local`, `npm run test:operations`, historical recruitment regressions and `git diff --check` are green before cloud push.
+
 
 - [ ] `20261008000400_project_compensation_assignment_contract.sql` applies after the 2.16.0 target/capacity migration.
 - [ ] Run `npm run types:generate` after the migration, then `npm run preflight`.

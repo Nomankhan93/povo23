@@ -559,6 +559,129 @@ updated_at?: string;
 };
 Relationships: [];
 };
+finance_accounts: {
+Row: {
+id: string;
+organization_id: string | null;
+project_id: string | null;
+user_id: string | null;
+code: string;
+name: string;
+account_class: string;
+purpose: string;
+currency: string;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+organization_id?: string | null;
+project_id?: string | null;
+user_id?: string | null;
+code: string;
+name: string;
+account_class: string;
+purpose: string;
+currency: string;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string | null;
+project_id?: string | null;
+user_id?: string | null;
+code?: string;
+name?: string;
+account_class?: string;
+purpose?: string;
+currency?: string;
+created_by?: string;
+created_at?: string;
+};
+Relationships: [];
+};
+finance_journals: {
+Row: {
+id: string;
+organization_id: string | null;
+project_id: string | null;
+journal_type: string;
+currency: string;
+reference_type: string | null;
+reference_id: string | null;
+idempotency_key: string;
+memo: string;
+reverses_journal_id: string | null;
+request_payload: Json;
+created_by: string;
+posted_at: string;
+};
+Insert: {
+id?: string;
+organization_id?: string | null;
+project_id?: string | null;
+journal_type: string;
+currency: string;
+reference_type?: string | null;
+reference_id?: string | null;
+idempotency_key: string;
+memo: string;
+reverses_journal_id?: string | null;
+request_payload: Json;
+created_by: string;
+posted_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string | null;
+project_id?: string | null;
+journal_type?: string;
+currency?: string;
+reference_type?: string | null;
+reference_id?: string | null;
+idempotency_key?: string;
+memo?: string;
+reverses_journal_id?: string | null;
+request_payload?: Json;
+created_by?: string;
+posted_at?: string;
+};
+Relationships: [];
+};
+finance_postings: {
+Row: {
+id: string;
+journal_id: string;
+line_no: number;
+account_id: string;
+direction: string;
+amount: number;
+memo: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+journal_id: string;
+line_no: number;
+account_id: string;
+direction: string;
+amount: number;
+memo?: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+journal_id?: string;
+line_no?: number;
+account_id?: string;
+direction?: string;
+amount?: number;
+memo?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 geographies: {
 Row: {
 id: string;
@@ -2611,6 +2734,16 @@ p_purpose: string | null;
 p_fields: (string)[] | null;
 p_expires_at: string | null;
 }; Returns: string };
+create_finance_account: { Args: {
+p_organization: string | null;
+p_project: string | null;
+p_user: string | null;
+p_code: string | null;
+p_name: string | null;
+p_account_class: string | null;
+p_purpose: string | null;
+p_currency: string | null;
+}; Returns: string };
 create_opportunity: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -2691,6 +2824,18 @@ p_id: string | null;
 download_field_project: { Args: {
 p_project: string | null;
 }; Returns: Json };
+finance_account_balance: { Args: {
+p_account: string | null;
+}; Returns: number };
+finance_account_statement: { Args: {
+p_account: string | null;
+p_before?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
+finance_scope_summary: { Args: {
+p_organization: string | null;
+p_project?: string | null;
+}; Returns: Json };
 finish_document_delete: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -2725,6 +2870,17 @@ p_id: string | null;
 }; Returns: boolean };
 partner_ngo_document_download_path: { Args: {
 p_id: string | null;
+}; Returns: string };
+post_finance_journal: { Args: {
+p_organization: string | null;
+p_project: string | null;
+p_journal_type: string | null;
+p_currency: string | null;
+p_reference_type: string | null;
+p_reference_id: string | null;
+p_idempotency_key: string | null;
+p_memo: string | null;
+p_postings: Json | null;
 }; Returns: string };
 preview_canonical_review: { Args: {
 p_person: string | null;
@@ -2845,6 +3001,11 @@ p_id: string | null;
 p_status: string | null;
 p_version: number | null;
 }; Returns: undefined };
+reverse_finance_journal: { Args: {
+p_journal: string | null;
+p_idempotency_key: string | null;
+p_reason: string | null;
+}; Returns: string };
 revert_canonical_merge: { Args: {
 p_event: string | null;
 p_reason: string | null;

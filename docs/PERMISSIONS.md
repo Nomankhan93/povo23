@@ -1,4 +1,18 @@
-# Current permissions note — POEM 2.16.1
+# Current permissions note — POEM 2.17.0
+
+## 2.17.0 finance permissions
+
+| Capability | POEM Super/Admin | NGO Admin (own NGO) | Project Manager | Area Focal | Volunteer |
+| --- | --- | --- | --- | --- | --- |
+| Read organization finance accounts/journals/postings | Yes | Yes | No | No | No |
+| Read POEM/system finance accounts | Yes | No | No | No | No |
+| Create generic finance account | Yes | No | No | No | No |
+| Post generic balanced journal | Yes | No | No | No | No |
+| Reverse posted journal | Yes | No | No | No | No |
+| Edit/delete posted finance history | No | No | No | No | No |
+
+The generic posting RPC is intentionally not an NGO money-movement API. NGO funding/reservation actions arrive in 2.17.1 as constrained business RPCs. Project Manager/Area Focal operational roles are not automatically financial roles.
+
 
 - **NGO Admin:** may configure paid/volunteer project compensation defaults for own active projects, including basis/currency/rate/note; may manage recruitment and assignments under existing project/recruitment gates.
 - **Project Manager:** may read project compensation defaults, create recruitment opportunities and send formal assignment offers, but cannot change project compensation defaults. The database derives contract compensation from the authoritative project/opportunity snapshot rather than trusting manager-supplied rate fields.
