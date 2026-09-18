@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.15.0
+Release: 2.15.1
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.15.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.15.1 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -23,12 +23,14 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Survey capture includes encrypted device drafts/queue and reconnect synchronization; full cold-start offline/PWA caching remains outside the current baseline.
 - Payable accounting exists, but NGO account balances, project fund reservation and payment-provider money movement do not.
 - Project Manager and Area Focal Person workspaces include RLS-filtered operational metrics, area coverage, recent response queues and direct review navigation; broad NGO administration remains separate.
-- Active NGO Admins can now create organization-owned survey-template drafts, submit/resubmit them for POEM review and use immutable approved NGO template versions.
-- POEM survey managers retain direct POEM template publication and receive a guarded NGO template review queue with changes-request/reject/approve decisions.
+- Active NGO Admins can create organization-owned survey-template drafts and use immutable approved NGO template versions.
+- Active NGO Admins can stage organization-owned project drafts; POEM approval materializes exactly one existing operational survey_projects row.
+- Project drafts can use POEM-owned templates or approved templates owned by the same NGO; cross-NGO private template reuse is rejected server-side.
+- POEM survey managers retain direct project creation and receive guarded template/project review queues with changes-request/reject/approve decisions.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 36
-Migration head: 20261008000100_ngo_template_self_service.sql
+Ordered migration files: 37
+Migration head: 20261008000200_ngo_project_self_service.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -67,12 +69,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261007000200_project_access_revocation_fix.sql
 - 20261007000300_project_team_workspace_ui.sql
 - 20261008000100_ngo_template_self_service.sql
+- 20261008000200_ngo_project_self_service.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 45
-TypeScript/TSX source files: 74
-Markdown docs: 117
-Inventory files (excluding local/build/temp/backup state): 299
+Test scripts (scripts/test-*.mjs): 46
+TypeScript/TSX source files: 75
+Markdown docs: 120
+Inventory files (excluding local/build/temp/backup state): 305
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -89,7 +92,7 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.15.1 — NGO Project Self-Service should stage NGO project requests separately and materialize approval into the existing survey_projects operational table.
+2.16 — Recruitment Targets & Project Compensation should connect approved-response targets, recruitment capacity and existing immutable payable primitives without creating a second payable engine.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary for approved project workflows.
 Do not widen broad NGO directory, canonical, sharing or finance access for project-scoped staff.
 

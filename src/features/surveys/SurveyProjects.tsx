@@ -6,6 +6,7 @@ import { geographyPath, type Geo } from "../geography/model";
 import { Org, Project, Template, get } from "./model";
 import { Pager } from "./Pager";
 import { SurveyProjectDetail } from "./SurveyProjectDetail";
+import { SurveyProjectDrafts } from "./SurveyProjectDrafts";
 export function SurveyProjects({
   userId,
   organization,
@@ -30,6 +31,7 @@ export function SurveyProjects({
   onBackToWorkspace?: () => void;
 }) {
   const [collectionArea,setCollectionArea]=useState<string|null>(null);
+  const [createOrganization,setCreateOrganization]=useState("");
   const [rows, setRows] = useState<Project[]>([]),
     [templates, setTemplates] = useState<Template[]>([]),
     [chosen, setChosen] = useState<Project | null>(null),
@@ -119,6 +121,7 @@ export function SurveyProjects({
         p_consent_notice: get(f, "notice"),
       });
       setCreate(false);
+      setCreateOrganization("");
       setCollectionArea(null);
       setRev((n) => n + 1);
     } catch (e) {
@@ -153,7 +156,7 @@ export function SurveyProjects({
       <div className="panel-title">
         <h2>Survey projects</h2>
         {manage && (
-          <button className="primary" onClick={() => setCreate(!create)}>
+          <button className="primary" onClick={() => { setCreate(!create); setCreateOrganization(""); }}>
             Create project
           </button>
         )}
@@ -162,6 +165,15 @@ export function SurveyProjects({
         <p className="notice error" role="alert">
           {error}
         </p>
+      )}
+      {(manage || organization) && (
+        <SurveyProjectDrafts
+          organization={manage ? null : organization}
+          manage={manage}
+          orgs={orgs}
+          geographies={geographies}
+          onChanged={() => setRev((n) => n + 1)}
+        />
       )}
       {create && (
         <form onSubmit={save}>
@@ -172,7 +184,7 @@ export function SurveyProjects({
             </label>
             <label className="field">
               NGO
-              <select name="org" required>
+              <select name="org" required value={createOrganization} onChange={(event) => setCreateOrganization(event.target.value)}>
                 <option value="">Choose NGO</option>
                 {orgs
                   .filter((o) => o.status === "active")
@@ -187,11 +199,13 @@ export function SurveyProjects({
               Published template
               <select name="template" required>
                 <option value="">Choose version</option>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} · v{t.version}
-                  </option>
-                ))}
+                {templates
+                  .filter((t) => Boolean(createOrganization) && (t.organization_id === null || t.organization_id === createOrganization))
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} · v{t.version}{t.organization_id ? " · NGO" : " · POEM"}
+                    </option>
+                  ))}
               </select>
             </label>
             <AreaSelector rows={geographies} value={collectionArea} onChange={setCollectionArea} title="Collection area" disabled={busy}/>

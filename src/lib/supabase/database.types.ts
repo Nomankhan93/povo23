@@ -1381,6 +1381,105 @@ collection_geography_id?: string;
 };
 Relationships: [];
 };
+survey_project_drafts: {
+Row: {
+id: string;
+organization_id: string;
+created_by: string;
+title: string;
+template_id: string | null;
+geography_id: string | null;
+target: number | null;
+start_date: string | null;
+end_date: string | null;
+purpose: string;
+consent_version: string;
+consent_notice: string;
+review_status: string;
+version: number;
+submitted_at: string | null;
+reviewed_at: string | null;
+reviewed_by: string | null;
+review_note: string;
+approved_project_id: string | null;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+created_by: string;
+title?: string;
+template_id?: string | null;
+geography_id?: string | null;
+target?: number | null;
+start_date?: string | null;
+end_date?: string | null;
+purpose?: string;
+consent_version?: string;
+consent_notice?: string;
+review_status?: string;
+version?: number;
+submitted_at?: string | null;
+reviewed_at?: string | null;
+reviewed_by?: string | null;
+review_note?: string;
+approved_project_id?: string | null;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+created_by?: string;
+title?: string;
+template_id?: string | null;
+geography_id?: string | null;
+target?: number | null;
+start_date?: string | null;
+end_date?: string | null;
+purpose?: string;
+consent_version?: string;
+consent_notice?: string;
+review_status?: string;
+version?: number;
+submitted_at?: string | null;
+reviewed_at?: string | null;
+reviewed_by?: string | null;
+review_note?: string;
+approved_project_id?: string | null;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+survey_project_review_events: {
+Row: {
+id: number;
+draft_id: string;
+actor_id: string;
+action: string;
+note: string;
+created_at: string;
+};
+Insert: {
+id?: number;
+draft_id: string;
+actor_id: string;
+action: string;
+note?: string;
+created_at?: string;
+};
+Update: {
+id?: number;
+draft_id?: string;
+actor_id?: string;
+action?: string;
+note?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 survey_projects: {
 Row: {
 id: string;
@@ -2747,6 +2846,12 @@ p_note: string | null;
 p_version: number | null;
 p_checks: Json | null;
 }; Returns: undefined };
+review_project_draft: { Args: {
+p_id: string | null;
+p_decision: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: string };
 review_registry_match: { Args: {
 p_person: string | null;
 p_other: string | null;
@@ -2819,6 +2924,20 @@ save_organization: { Args: {
 p_id: string | null;
 p_data: Json | null;
 }; Returns: string };
+save_organization_project_draft: { Args: {
+p_id: string | null;
+p_organization: string | null;
+p_title: string | null;
+p_template: string | null;
+p_geography: string | null;
+p_target: number | null;
+p_start: string | null;
+p_end: string | null;
+p_purpose: string | null;
+p_consent_version: string | null;
+p_consent_notice: string | null;
+p_version: number | null;
+}; Returns: number };
 save_organization_template_draft: { Args: {
 p_id: string | null;
 p_organization: string | null;
@@ -2934,6 +3053,10 @@ submit_partner_ngo_application: { Args: {
 p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
+submit_project_draft: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: number };
 submit_template_draft: { Args: {
 p_id: string | null;
 p_version: number | null;

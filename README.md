@@ -1,24 +1,23 @@
-# Current release: POEM 2.15.0
+# Current release: POEM 2.15.1
 
-NGO Template Self-Service & POEM Approval Workflow. See [release notes](docs/PHASE-2.15.0.md), [WSL upgrade](docs/UPGRADE-2.15.0.md) and [validation](docs/VALIDATION-2.15.0.md).
+NGO Project Self-Service & POEM Project Approval. See [release notes](docs/PHASE-2.15.1.md), [WSL upgrade](docs/UPGRADE-2.15.1.md) and [validation](docs/VALIDATION-2.15.1.md).
 
-POEM 2.15.0 extends the existing survey-template draft engine instead of creating a parallel builder. Active NGO Admins can create organization-owned drafts, use starter templates, save/edit shared NGO drafts, submit them to POEM, respond to requested changes and see immutable approved versions. POEM survey managers review submissions and can request changes, reject or atomically approve+publish.
+POEM 2.15.1 adds an NGO-owned project approval envelope without creating a second operational project system. Active NGO Admins can save project drafts, select POEM library or their own approved templates, submit/resubmit for review and receive POEM decisions. Approval atomically creates the existing `survey_projects` record in `active` state.
 
-## 2.15.0 template-governance rules
+## 2.15.1 project-governance rules
 
-- `survey_template_drafts.organization_id` is the NGO ownership boundary. `owner_id` remains creator/audit evidence, not the authorization anchor.
-- NGO drafts can be edited only in `draft` or `changes_requested`; `submitted`, `approved` and `rejected` revisions are locked.
-- POEM approval atomically creates one immutable `survey_templates` row, records `source_draft_id`, preserves NGO ownership and writes review/audit history.
-- POEM-authored private drafts keep the existing direct-publish workflow for backward compatibility.
-- Active NGO Admins can read POEM-owned published templates and their own NGO-approved templates, but not another NGO's private approved template unless later project authorization explicitly permits it.
-- Project Manager and Area Focal Person roles do not gain template-authoring or approval authority.
-- The application-side starter library remains a starter source; 2.15.0 does not introduce a second database template marketplace.
+- `survey_project_drafts` is a staging/review envelope; `survey_projects` remains the only operational project table.
+- NGO project drafts are organization-owned and editable only in `draft` or `changes_requested`; submitted/approved/rejected revisions are locked.
+- Submission requires an active NGO, active collection geography, complete target/dates/purpose/consent, and either a POEM-owned template or an approved template owned by the same NGO.
+- POEM approval atomically materializes one active `survey_projects` row and records `approved_project_id`; approval retries cannot create duplicates.
+- Direct POEM project creation remains available but now enforces the same template-ownership boundary to prevent cross-NGO template reuse.
+- Project Manager and Area Focal Person roles do not gain project-draft submission or approval authority.
+- 2.15.0 template self-service remains the source of NGO-approved template versions; no second template or project engine is introduced.
 
 ## Current product boundaries
 
-- 2.15.0 covers template self-service only. NGO project draft/submission/approval and activation belong to 2.15.1.
-- Target/recruitment-capacity and compensation rules remain 2.16.
-- Internal financial ledger and payment providers remain 2.17/2.18.
+- 2.15.1 covers project draft/submission/review/activation only. Recruitment target closure and project compensation belong to 2.16.
+- Internal funding ledger and payment-provider money movement remain 2.17/2.18.
 - Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
 
 ## Historical foundation notes

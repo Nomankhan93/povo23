@@ -26,6 +26,7 @@ docs/PHASE-2.14.0.md
 docs/PHASE-2.14.1.md
 docs/PHASE-2.14.2.md
 docs/PHASE-2.15.0.md
+docs/PHASE-2.15.1.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -69,6 +70,7 @@ docs/UPGRADE-2.14.0.md
 docs/UPGRADE-2.14.1.md
 docs/UPGRADE-2.14.2.md
 docs/UPGRADE-2.15.0.md
+docs/UPGRADE-2.15.1.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -103,6 +105,7 @@ docs/VALIDATION-2.14.0.md
 docs/VALIDATION-2.14.1.md
 docs/VALIDATION-2.14.2.md
 docs/VALIDATION-2.15.0.md
+docs/VALIDATION-2.15.1.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -163,6 +166,7 @@ scripts/test-phase214.mjs
 scripts/test-phase2141.mjs
 scripts/test-phase2142.mjs
 scripts/test-phase215.mjs
+scripts/test-phase2151.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -229,6 +233,7 @@ src/features/surveys/offlineSurveyStore.ts
 src/features/surveys/Pager.tsx
 src/features/surveys/SurveyForm.tsx
 src/features/surveys/SurveyProjectDetail.tsx
+src/features/surveys/SurveyProjectDrafts.tsx
 src/features/surveys/SurveyProjects.tsx
 src/features/surveys/SurveySyncStatus.tsx
 src/features/surveys/SurveyTemplates.tsx
@@ -295,5 +300,6 @@ supabase/migrations/20261007000100_project_team_area_governance.sql
 supabase/migrations/20261007000200_project_access_revocation_fix.sql
 supabase/migrations/20261007000300_project_team_workspace_ui.sql
 supabase/migrations/20261008000100_ngo_template_self_service.sql
+supabase/migrations/20261008000200_ngo_project_self_service.sql
 tsconfig.json
 vite.config.ts

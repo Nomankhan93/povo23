@@ -1,4 +1,18 @@
-# Current release checklist — POEM 2.15.0
+# Current release checklist — POEM 2.15.1
+
+- [ ] `20261008000200_ngo_project_self_service.sql` applies after the 2.15.0 template migration.
+- [ ] `node scripts/test-phase2151.mjs` passes all NGO project-draft/approval scenarios.
+- [ ] Active NGO Admins can save incomplete organization-owned project drafts and another active Admin of the same NGO can continue them.
+- [ ] Other NGOs and ordinary members cannot read or mutate those drafts.
+- [ ] Only POEM-owned templates and same-NGO approved templates can be selected; cross-NGO private template reuse is denied by the database.
+- [ ] Submitted drafts lock editing; changes-requested drafts reopen; rejected/approved drafts remain locked.
+- [ ] POEM approval creates exactly one active `survey_projects` row and stores `approved_project_id`; retry is idempotent.
+- [ ] Direct POEM `create_survey_project()` also enforces template ownership.
+- [ ] Project Manager and Area Focal Person permissions remain unchanged from 2.14.
+- [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
+- [ ] `git diff --check` is clean before commit.
+
+# Previous release checklist — POEM 2.15.0
 
 - [ ] `20261008000100_ngo_template_self_service.sql` applies locally after the 2.14.2 migration head.
 - [ ] `node scripts/test-phase215.mjs` passes all NGO template ownership/review scenarios.
@@ -9,7 +23,7 @@
 - [ ] Existing POEM private draft direct publication still works.
 - [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
 
-# Current release checklist — POEM 2.14.2
+# Previous release checklist — POEM 2.14.2
 
 ## POEM 2.14.2 acceptance
 

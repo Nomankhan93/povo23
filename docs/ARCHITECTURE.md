@@ -1,10 +1,15 @@
-# Current architecture note — POEM 2.15.0
+# Current architecture note — POEM 2.15.1
 
+2.15.1 adds `survey_project_drafts` and append-only `survey_project_review_events` as approval/workflow state. These rows are not operational projects. Active NGO Admin membership is the organization ownership boundary; POEM review remains `can_manage_surveys()`.
+
+Approval calls the existing `create_survey_project()` inside the review transaction and stores the resulting `approved_project_id`. Existing `survey_projects.status` remains strictly operational (`active`/`closed`), so collection, recruitment, governance, offline capture, work assignments and payables do not need draft-state branches. Direct POEM project creation is additionally hardened so a project may use only a POEM-owned template or a template owned by the same NGO.
+
+# Previous architecture note — POEM 2.15.0
 Template self-service extends `survey_template_drafts` with organization ownership and review state. `survey_templates` remains the immutable published artifact and now preserves optional NGO ownership plus `source_draft_id`. `survey_template_review_events` is append-only workflow history. NGO authorization is organization-scoped through active `ngo_admin` membership; POEM review remains `can_manage_surveys()`. Project staff roles from 2.14 receive no template authority.
 
 The application-side starter library remains a source for creating drafts; it is not migrated into a parallel marketplace. Project self-service is deferred to 2.15.1 and must materialize approved requests into the existing `survey_projects` operational table rather than overloading current `active/closed` operational status.
 
-# Current architecture note — POEM 2.14.2
+# Previous architecture note — POEM 2.14.2
 
 2.14.2 stabilizes the project-scoped operational workspace on the 2.14 authorization layer. Project dashboards, response queues, status filters and assignment-area coverage query only rows allowed by existing RLS. Project staff never become global NGO Admin by implication.
 
