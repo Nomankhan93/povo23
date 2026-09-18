@@ -32,6 +32,7 @@
 ./docs/PHASE-2.16.0.md
 ./docs/PHASE-2.16.1.md
 ./docs/PHASE-2.17.0.md
+./docs/PHASE-2.17.1.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -79,6 +80,7 @@
 ./docs/UPGRADE-2.16.0.md
 ./docs/UPGRADE-2.16.1.md
 ./docs/UPGRADE-2.17.0.md
+./docs/UPGRADE-2.17.1.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -117,6 +119,7 @@
 ./docs/VALIDATION-2.16.0.md
 ./docs/VALIDATION-2.16.1.md
 ./docs/VALIDATION-2.17.0.md
+./docs/VALIDATION-2.17.1.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -183,6 +186,7 @@
 ./scripts/test-phase216.mjs
 ./scripts/test-phase2161.mjs
 ./scripts/test-phase217.mjs
+./scripts/test-phase2171.mjs
 ./scripts/test-phase22.mjs
 ./scripts/test-phase23.mjs
 ./scripts/test-phase24.mjs
@@ -221,6 +225,8 @@
 ./src/features/auth/AccountAccess.tsx
 ./src/features/auth/Auth.tsx
 ./src/features/auth/entryIntent.ts
+./src/features/finance
+./src/features/finance/ProjectFundingWorkspace.tsx
 ./src/features/geography
 ./src/features/geography/areaSelection.ts
 ./src/features/geography/AreaSelector.tsx
@@ -353,6 +359,8 @@
 ./supabase/migrations/20261008000400_project_compensation_assignment_contract.sql
 ./supabase/migrations/20261008000500_recruitment_discovery_compatibility_fix.sql
 ./supabase/migrations/20261008000600_finance_core_double_entry_ledger.sql
+./supabase/migrations/20261008000610_finance_rls_helper_execute_fix.sql
+./supabase/migrations/20261008000700_project_funding_reservation.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

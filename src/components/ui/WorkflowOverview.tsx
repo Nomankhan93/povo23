@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 export const navigationGroups = [
   {label:'Workspace',pages:['Overview','My profile','Work experience','Private documents']},
   {label:'People & partners',pages:['Volunteers','Partner NGO application','NGO applications','Partner NGOs','Workforce marketplace','Available Opportunities','My Applications','My Assigned Surveys','Invitations','Workforce payables']},
-  {label:'Field operations',pages:['Project workspace','Project team','Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing']},
+  {label:'Field operations',pages:['Project workspace','Project team','Survey projects','Survey templates','Verification','Canonical registry','Project governance','Data sharing','Project funding']},
   {label:'Administration',pages:['Memberships','Accounts','Geography','Notifications','Activity']},
 ];
 export function StatusBadge({children,tone='neutral'}:{children:ReactNode;tone?:'neutral'|'success'|'warning'}){
@@ -22,6 +22,7 @@ export function WorkflowOverview({staff,personal,profileStatus,unread,allowed,on
   ['Volunteers','Volunteer network','Find profiles available to your workspace.'],
   ['Canonical registry','Beneficiary registry','Review identities and resolve possible matches.'],
   ['Workforce payables','Workforce accounting','Review work claims and record approved payments.'],
+  ['Project funding','Project funding','Reserve verified organization funds for approved projects and review immutable funding movements.'],
   ['Partner NGOs','Partner organizations','Open partner records and organization operations.']
  ];
  return <>

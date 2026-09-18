@@ -601,6 +601,42 @@ created_at?: string;
 };
 Relationships: [];
 };
+finance_funding_sources: {
+Row: {
+id: string;
+organization_id: string;
+source_type: string;
+name: string;
+external_reference: string | null;
+currency: string;
+note: string;
+created_by: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+source_type: string;
+name: string;
+external_reference?: string | null;
+currency: string;
+note?: string;
+created_by: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+source_type?: string;
+name?: string;
+external_reference?: string | null;
+currency?: string;
+note?: string;
+created_by?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 finance_journals: {
 Row: {
 id: string;
@@ -2744,6 +2780,14 @@ p_account_class: string | null;
 p_purpose: string | null;
 p_currency: string | null;
 }; Returns: string };
+create_finance_funding_source: { Args: {
+p_organization: string | null;
+p_source_type: string | null;
+p_name: string | null;
+p_external_reference: string | null;
+p_currency: string | null;
+p_note?: string | null;
+}; Returns: string };
 create_opportunity: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -2889,6 +2933,16 @@ p_other: string | null;
 project_compensation_status: { Args: {
 p_project: string | null;
 }; Returns: Json };
+project_funding_history: { Args: {
+p_project: string | null;
+p_currency?: string | null;
+p_before?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
+project_funding_status: { Args: {
+p_project: string | null;
+p_currency?: string | null;
+}; Returns: Json };
 project_needs_summary: { Args: {
 p_project: string | null;
 p_person?: string | null;
@@ -2955,9 +3009,22 @@ p_funding: string | null;
 p_evidence: string | null;
 p_next: string | null;
 }; Returns: string };
+record_organization_funding: { Args: {
+p_source: string | null;
+p_amount: number | null;
+p_idempotency_key: string | null;
+p_memo: string | null;
+}; Returns: string };
 registry_match_candidates: { Args: {
 p_person: string | null;
 }; Returns: Json };
+release_project_funding: { Args: {
+p_project: string | null;
+p_currency: string | null;
+p_amount: number | null;
+p_idempotency_key: string | null;
+p_reason: string | null;
+}; Returns: string };
 request_independent_verification: { Args: {
 p_kind: string | null;
 p_subject: string | null;
@@ -2978,6 +3045,13 @@ p_assignment: string | null;
 p_filename: string | null;
 p_mime: string | null;
 p_size: number | null;
+}; Returns: string };
+reserve_project_funding: { Args: {
+p_project: string | null;
+p_currency: string | null;
+p_amount: number | null;
+p_idempotency_key: string | null;
+p_reason: string | null;
 }; Returns: string };
 reserve_survey_capture_file: { Args: {
 p_project: string | null;

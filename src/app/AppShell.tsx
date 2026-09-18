@@ -35,6 +35,7 @@ import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerN
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
+const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFundingWorkspace").then(m=>({default:m.ProjectFundingWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
 const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
 const CanonicalWorkbench = lazy(() => import("../features/registry/canonical/CanonicalWorkbench").then(m => ({ default: m.CanonicalWorkbench })));
@@ -130,6 +131,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         account?.platform_role,
       ),
   );
+  const financeManage = Boolean(poem && ["admin", "super_admin"].includes(account?.platform_role));
   const [revision, setRevision] = useState(0);
   const entryHandled = useRef(false);
   async function load() {
@@ -355,6 +357,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
     ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
+    ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role)
       ? [["Memberships", Users]]
       : []),
@@ -830,6 +833,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <GeographyManager rows={geographies} refresh={load} />
           )}
           {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
+          {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={`${scope}-${page}`}

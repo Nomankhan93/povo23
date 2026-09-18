@@ -1,4 +1,16 @@
-# Current architecture note — POEM 2.17.0
+# Current architecture note — POEM 2.17.1
+
+## 2.17.1 project-funding architecture
+
+POEM keeps the two accounting layers introduced in 2.17.0: the existing worker-entitlement subledger and the immutable central double-entry finance ledger. 2.17.1 adds constrained business actions on top of the finance ledger rather than widening generic journal permissions.
+
+`finance_funding_sources` stores immutable organization funding provenance. POEM finance authority records verified/opening receipts into standardized organization accounts. NGO Admin can then reserve verified available funds into own active projects or release unused reserved funds. The reserve/release RPCs call a private journal core after enforcing organization/project authorization, positive amounts, idempotency and available/reserved balance limits.
+
+Standard account purposes are `organization_available`, `project_reserved`, `project_committed` and `project_spent`. Reservation and release use the first two today; committed/spent are established for the 2.17.2 payable bridge. All balances remain derived from `finance_postings`; no mutable balance column or second money ledger exists.
+
+Generic `post_finance_journal` remains POEM finance-admin only. Project Manager and Area Focal operational roles do not inherit finance authority.
+
+# Previous architecture note — POEM 2.17.0
 
 ## 2.17.0 finance-core architecture
 

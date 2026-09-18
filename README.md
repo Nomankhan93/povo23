@@ -1,26 +1,26 @@
-# Current release: POEM 2.17.0
+# Current release: POEM 2.17.1
 
-Finance Core & Double-Entry Ledger. See [release notes](docs/PHASE-2.17.0.md), [WSL upgrade](docs/UPGRADE-2.17.0.md) and [validation](docs/VALIDATION-2.17.0.md).
+Project Funding & Reservation. See [release notes](docs/PHASE-2.17.1.md), [WSL upgrade](docs/UPGRADE-2.17.1.md) and [validation](docs/VALIDATION-2.17.1.md).
 
-POEM 2.17.0 adds the provider-independent accounting foundation for future project funding and settlement. It introduces immutable finance accounts, journals and postings, enforces balanced double-entry journals at the database boundary, derives balances from postings and uses reversal journals instead of editing posted history. Existing `work_payable_*` tables remain the worker entitlement subledger and are not replaced.
+POEM 2.17.1 adds verified organization funding sources/receipts and controlled project reserve/release workflows on top of the immutable 2.17.0 double-entry finance core. NGO Admins can move only verified available funds into their own projects; they still cannot post arbitrary journals or manufacture balances.
 
-## 2.17.0 finance-core rules
+## 2.17.1 project-funding rules
 
-- `finance_accounts` defines currency-bound scoped ledger accounts for system, organization, project and future user/payable purposes.
-- `finance_journals` is append-only and carries journal type, source/reference, idempotency key, memo, scope and optional reversal lineage.
-- `finance_postings` stores debit/credit lines; every posted journal must contain at least two lines with total debits exactly equal to total credits.
-- No editable `organization.balance` or `project.balance` field is introduced. Account balances are derived from immutable postings according to account class.
-- Generic account/journal mutation is POEM finance-admin only (`admin` / `super_admin`). NGO Admin can read its own organization ledger but cannot create arbitrary entries. Project Manager and Area Focal receive no finance access in 2.17.0.
-- Exact journal retries are idempotent; the same source/type cannot be posted twice with different payloads.
-- Posted accounts, journals and postings cannot be updated/deleted. Corrections use an opposite balanced reversal journal while preserving the original.
-- 2.17.0 does not fund projects, reserve budgets, bridge payable events or integrate JazzCash. Those remain 2.17.1, 2.17.2 and 2.18.
+- Verified external/opening funding is recorded by POEM finance authority and creates balanced organization funding journals.
+- NGO Admin can reserve own organization available funds into an active project and release only currently reserved funds.
+- `organization_available`, `project_reserved`, `project_committed` and `project_spent` are standardized finance-account purposes; balances are always derived from postings.
+- Reservation is a balanced reclassification (`project reserved` debit / `organization available` credit); release is the opposite entry.
+- Project Manager, Area Focal and Volunteer still receive no finance access.
+- Generic journal posting remains POEM Admin/Super Admin only.
+- Worker payables remain a separate entitlement subledger; payable-event finance posting is deferred to 2.17.2.
+- JazzCash/provider money movement remains deferred to 2.18.
 
 ## Current product boundaries
 
-- The existing worker entitlement/accounting subledger (`work_payable_units`, `work_payable_events`, receipts and amendments) remains authoritative for who is owed what under an assignment contract.
-- Finance Core is the central money/accounting ledger only. The payable-to-finance bridge is intentionally deferred to 2.17.2 to avoid duplicate accrual logic.
+- No editable NGO/project balance fields exist.
+- Funding-source metadata and posted finance history are immutable.
+- Funding/release retries are idempotent; insufficient funds and over-release are rejected server-side.
 - 2.16 soft target/offline behavior and immutable compensation snapshots remain unchanged.
-- Provider clearing account concepts are supported structurally, but no payment-provider callback, deposit, withdrawal or settlement API exists in this release.
 
 ## Historical foundation notes
 

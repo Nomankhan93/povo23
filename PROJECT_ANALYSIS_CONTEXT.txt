@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.17.0
+Release: 2.17.1
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.17.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.17.1 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -34,12 +34,13 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - New recruitment opportunities snapshot project compensation; later project-rate changes do not mutate historical opportunities.
 - Formal work assignments inherit the authoritative opportunity/project snapshot and remain immutable; existing payable generation continues to use approved-response uniqueness rather than a second accounting engine.
 - Finance Core now uses immutable `finance_accounts`, `finance_journals` and `finance_postings`; journal debits and credits must balance in one currency and balances are derived from postings.
-- Existing worker payable tables remain a separate entitlement subledger; no payable-to-finance bridge, project funding/reservation or provider settlement is included in 2.17.0.
-- Generic finance mutation is POEM admin/super-admin only; NGO Admin read access is organization-scoped and project operational roles do not inherit finance authority.
+- Existing worker payable tables remain a separate entitlement subledger; 2.17.1 adds controlled organization funding and project reservation but no payable-to-finance bridge or provider settlement.
+- Generic finance mutation is POEM admin/super-admin only; NGO Admin may reserve/release verified own-organization funds only through constrained project-funding RPCs; project operational roles do not inherit finance authority.
+- Verified funding sources/receipts are immutable. Available/reserved/committed/spent values are derived from standardized finance accounts rather than editable balance columns.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 41
-Migration head: 20261008000600_finance_core_double_entry_ledger.sql
+Ordered migration files: 43
+Migration head: 20261008000700_project_funding_reservation.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -83,12 +84,14 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261008000400_project_compensation_assignment_contract.sql
 - 20261008000500_recruitment_discovery_compatibility_fix.sql
 - 20261008000600_finance_core_double_entry_ledger.sql
+- 20261008000610_finance_rls_helper_execute_fix.sql
+- 20261008000700_project_funding_reservation.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 49
-TypeScript/TSX source files: 75
-Markdown docs: 129
-Inventory files (excluding local/build/temp/backup state): 321
+Test scripts (scripts/test-*.mjs): 50
+TypeScript/TSX source files: 76
+Markdown docs: 132
+Inventory files (excluding local/build/temp/backup state): 328
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -105,9 +108,9 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.17.1 — Project Funding & Reservation should add constrained NGO/project funding and reservation actions on top of the 2.17.0 double-entry finance core.
+2.17.2 — Payable → Finance Bridge & Reconciliation should post existing payable events into the finance ledger idempotently without recalculating worker entitlement.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary for approved project workflows.
-2.17.2 should bridge existing payable events into finance journals idempotently; do not duplicate worker entitlement calculations.
+Keep project funding/reservation on the 2.17.1 controlled RPC surface; do not widen generic finance posting to NGO or project staff.
 Do not widen broad NGO directory, canonical, sharing or finance access for project-scoped staff.
 
 ===== INVENTORY EXCLUSIONS =====

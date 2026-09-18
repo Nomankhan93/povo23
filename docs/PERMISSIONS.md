@@ -1,4 +1,20 @@
-# Current permissions note — POEM 2.17.0
+# Current permissions note — POEM 2.17.1
+
+## 2.17.1 finance/funding permissions
+
+| Capability | POEM Super/Admin | NGO Admin (own NGO) | Project Manager | Area Focal | Volunteer |
+| --- | --- | --- | --- | --- | --- |
+| Read organization finance/funding | Yes | Yes | No | No | No |
+| Register immutable funding source | Yes | No | No | No | No |
+| Record verified organization funding | Yes | No | No | No | No |
+| Reserve available funds into own project | Yes | Yes | No | No | No |
+| Release unused project reservation | Yes | Yes | No | No | No |
+| Post arbitrary generic finance journal | Yes | No | No | No | No |
+| Edit/delete posted finance/funding history | No | No | No | No | No |
+
+NGO Admin can move only verified available funds through the dedicated reserve/release RPCs. The role cannot create arbitrary finance accounts, credit its own balance, post a custom journal or access another NGO. Project Manager and Area Focal remain operational roles, not financial roles.
+
+# Previous permissions note — POEM 2.17.0
 
 ## 2.17.0 finance permissions
 

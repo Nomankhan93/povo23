@@ -1,4 +1,19 @@
-# Current release checklist — POEM 2.17.0
+# Current release checklist — POEM 2.17.1
+
+## POEM 2.17.1 acceptance
+
+- [ ] `20261008000700_project_funding_reservation.sql` applies after the 2.17.0 finance-core migration.
+- [ ] Run `npm run types:generate`, then `npm run preflight`.
+- [ ] `node scripts/test-phase217.mjs` and `node scripts/test-phase2171.mjs` pass.
+- [ ] POEM finance authority can register immutable funding sources and record verified organization funding.
+- [ ] NGO Admin can reserve only own organization available funds into own active projects and release only current reserved funds.
+- [ ] Insufficient available funds, over-release, cross-NGO access and generic NGO journal posting are denied server-side.
+- [ ] Available/reserved/committed/spent are derived finance-account balances; no editable balance column exists.
+- [ ] Project Manager, Area Focal and Volunteer receive no new finance authority.
+- [ ] Existing worker payables are unchanged; no payable-finance bridge or JazzCash/provider flow exists yet.
+- [ ] `npm run test:local`, `npm run test:operations`, historical regressions and `git diff --check` are green before cloud push.
+
+# Previous release checklist — POEM 2.17.0
 
 ## POEM 2.17.0 acceptance
 
