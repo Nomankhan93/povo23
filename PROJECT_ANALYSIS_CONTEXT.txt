@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.14.2
+Release: 2.15.0
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.14.2 PRODUCT BOUNDARIES =====
+===== CURRENT 2.15.0 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -22,11 +22,13 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Historical permanent profile-share schema remains only for compatibility and is not a current UI workflow.
 - Survey capture includes encrypted device drafts/queue and reconnect synchronization; full cold-start offline/PWA caching remains outside the current baseline.
 - Payable accounting exists, but NGO account balances, project fund reservation and payment-provider money movement do not.
-- Project Manager and Area Focal Person workspaces now include RLS-filtered operational metrics, area coverage, recent response queues and direct review navigation; broad NGO administration remains separate.
+- Project Manager and Area Focal Person workspaces include RLS-filtered operational metrics, area coverage, recent response queues and direct review navigation; broad NGO administration remains separate.
+- Active NGO Admins can now create organization-owned survey-template drafts, submit/resubmit them for POEM review and use immutable approved NGO template versions.
+- POEM survey managers retain direct POEM template publication and receive a guarded NGO template review queue with changes-request/reject/approve decisions.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 35
-Migration head: 20261007000300_project_team_workspace_ui.sql
+Ordered migration files: 36
+Migration head: 20261008000100_ngo_template_self_service.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -64,12 +66,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261007000100_project_team_area_governance.sql
 - 20261007000200_project_access_revocation_fix.sql
 - 20261007000300_project_team_workspace_ui.sql
+- 20261008000100_ngo_template_self_service.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 44
+Test scripts (scripts/test-*.mjs): 45
 TypeScript/TSX source files: 74
-Markdown docs: 114
-Inventory files (excluding local/build/temp/backup state): 294
+Markdown docs: 117
+Inventory files (excluding local/build/temp/backup state): 299
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -86,8 +89,8 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.15 — NGO Template & Project Self-Service should extend the existing template draft/project primitives.
-Keep 2.14 project staff / collection-geography authorization as the operational boundary for later project workflows.
+2.15.1 — NGO Project Self-Service should stage NGO project requests separately and materialize approval into the existing survey_projects operational table.
+Keep 2.14 project staff / collection-geography authorization as the operational boundary for approved project workflows.
 Do not widen broad NGO directory, canonical, sharing or finance access for project-scoped staff.
 
 ===== INVENTORY EXCLUSIONS =====

@@ -1,3 +1,11 @@
+# Current permissions note — POEM 2.15.0
+
+- **NGO Admin:** create/edit organization-owned template drafts while `draft`/`changes_requested`, submit/resubmit them, read review history and read own approved templates plus POEM-owned published templates.
+- **POEM survey manager/admin:** retain direct POEM draft publication and can review all submitted NGO drafts, request changes, reject or approve+publish.
+- **Project Manager / Area Focal Person:** no template authoring, submission or approval authority.
+- **Other NGO / ordinary member / volunteer:** no access to another NGO's draft/review history or private NGO-approved templates.
+- Direct table writes remain denied; workflow mutations use guarded RPCs and RLS remains the read boundary.
+
 # Current permissions note — POEM 2.14.2
 
 ## 2.14.2 project-scoped roles

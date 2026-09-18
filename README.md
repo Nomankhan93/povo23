@@ -1,25 +1,24 @@
-# Current release: POEM 2.14.2
+# Current release: POEM 2.15.0
 
-Project Operational Dashboard & Browser Stabilization. See [release notes](docs/PHASE-2.14.2.md), [WSL upgrade](docs/UPGRADE-2.14.2.md) and [validation](docs/VALIDATION-2.14.2.md).
+NGO Template Self-Service & POEM Approval Workflow. See [release notes](docs/PHASE-2.15.0.md), [WSL upgrade](docs/UPGRADE-2.15.0.md) and [validation](docs/VALIDATION-2.15.0.md).
 
-POEM 2.14.2 makes project-scoped work practical for Project Managers and Area Focal Persons: accepted-target progress, visible assignment-area coverage, review queues, response-status filtering and direct project navigation now sit on top of the existing 2.14 database authorization model.
+POEM 2.15.0 extends the existing survey-template draft engine instead of creating a parallel builder. Active NGO Admins can create organization-owned drafts, use starter templates, save/edit shared NGO drafts, submit them to POEM, respond to requested changes and see immutable approved versions. POEM survey managers review submissions and can request changes, reject or atomically approve+publish.
 
-The release intentionally adds no SQL migration. Existing 2.14 RLS/RPC rules and `collection_geography_id` remain the security boundary.
+## 2.15.0 template-governance rules
 
-## 2.14.2 operational rules
-
-- Project dashboard metrics and latest-response queues are queried through the current user's database scope; the UI does not fetch organization-wide data and hide it client-side.
-- `project_manager` can use existing project-wide operational assignment controls and response review.
-- `area_focal_person` can monitor/review only assigned geography roots and descendants and no longer sees assignment-management controls intended for Project Managers/NGO Admins.
-- Project-scoped Survey Projects opens the authorized project directly; response filtering remains server-side within RLS.
-- Revoked project workspace access falls back to the personal workspace on refresh/load instead of leaving a dead scoped context.
-- Finance, template publishing, canonical administration, organization membership and cross-NGO sharing are still outside project-staff authority.
+- `survey_template_drafts.organization_id` is the NGO ownership boundary. `owner_id` remains creator/audit evidence, not the authorization anchor.
+- NGO drafts can be edited only in `draft` or `changes_requested`; `submitted`, `approved` and `rejected` revisions are locked.
+- POEM approval atomically creates one immutable `survey_templates` row, records `source_draft_id`, preserves NGO ownership and writes review/audit history.
+- POEM-authored private drafts keep the existing direct-publish workflow for backward compatibility.
+- Active NGO Admins can read POEM-owned published templates and their own NGO-approved templates, but not another NGO's private approved template unless later project authorization explicitly permits it.
+- Project Manager and Area Focal Person roles do not gain template-authoring or approval authority.
+- The application-side starter library remains a starter source; 2.15.0 does not introduce a second database template marketplace.
 
 ## Current product boundaries
 
-- 2.14.2 completes the initial Project Governance UI stabilization track; deeper NGO project/template self-service belongs to 2.15.
-- Target progress is operational visibility only. Strict recruitment capacity/accepted-target closing rules belong to 2.16.
-- Workforce payable accounting remains contractual/payable history only; NGO balances/project reservations/JazzCash remain later phases.
+- 2.15.0 covers template self-service only. NGO project draft/submission/approval and activation belong to 2.15.1.
+- Target/recruitment-capacity and compensation rules remain 2.16.
+- Internal financial ledger and payment providers remain 2.17/2.18.
 - Full production hardening, retention, malware scanning, large-list paging and external notification delivery remain later roadmap work.
 
 ## Historical foundation notes

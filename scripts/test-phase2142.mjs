@@ -54,7 +54,8 @@ await ok('mobile browser stabilization covers project cards filters and roster t
 });
 await ok('2.14.2 is frontend stabilization and adds no schema migration',async()=>{
  const migrations=readdirSync('supabase/migrations').filter(name=>name.endsWith('.sql')).sort();
- assert.equal(migrations.at(-1),'20261007000300_project_team_workspace_ui.sql');
+ assert.equal(migrations.includes('20261007000300_project_team_workspace_ui.sql'),true);
+ assert.match(readFileSync('docs/PHASE-2.14.2.md','utf8'),/no database migration/i);
 });
 
 console.log(`\n${passed} POEM 2.14.2 operational-dashboard/browser-stabilization scenarios passed.`);

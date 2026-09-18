@@ -349,7 +349,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(!poem && scope !== "personal" ? [["Project team", Users]] : []),
     ["Verification", ShieldCheck],
     ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
-    ...(surveyManage ? [["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck]] : []),
+    ...(surveyManage || (!poem && scope !== "personal") ? [["Survey templates", ShieldCheck]] : []),
+    ...(surveyManage ? [["Canonical registry", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
     ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
@@ -864,9 +865,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
               geographies={geographies}
             />
           )}
-          {page === "Survey templates" && surveyManage && (
+          {page === "Survey templates" && validScope && (surveyManage || (!poem && scope !== "personal" && !projectScope)) && (
             <Suspense fallback={<p role="status">Loading templates…</p>}>
-              <SurveyTemplates />
+              <SurveyTemplates manage={surveyManage} organization={surveyManage ? null : scope} />
             </Suspense>
           )}
           {page === "Project team" && !poem && scope !== "personal" && !projectScope && validScope && (

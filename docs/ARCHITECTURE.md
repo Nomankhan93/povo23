@@ -1,3 +1,9 @@
+# Current architecture note — POEM 2.15.0
+
+Template self-service extends `survey_template_drafts` with organization ownership and review state. `survey_templates` remains the immutable published artifact and now preserves optional NGO ownership plus `source_draft_id`. `survey_template_review_events` is append-only workflow history. NGO authorization is organization-scoped through active `ngo_admin` membership; POEM review remains `can_manage_surveys()`. Project staff roles from 2.14 receive no template authority.
+
+The application-side starter library remains a source for creating drafts; it is not migrated into a parallel marketplace. Project self-service is deferred to 2.15.1 and must materialize approved requests into the existing `survey_projects` operational table rather than overloading current `active/closed` operational status.
+
 # Current architecture note — POEM 2.14.2
 
 2.14.2 stabilizes the project-scoped operational workspace on the 2.14 authorization layer. Project dashboards, response queues, status filters and assignment-area coverage query only rows allowed by existing RLS. Project staff never become global NGO Admin by implication.

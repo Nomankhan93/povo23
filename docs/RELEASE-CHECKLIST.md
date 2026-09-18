@@ -1,3 +1,14 @@
+# Current release checklist — POEM 2.15.0
+
+- [ ] `20261008000100_ngo_template_self_service.sql` applies locally after the 2.14.2 migration head.
+- [ ] `node scripts/test-phase215.mjs` passes all NGO template ownership/review scenarios.
+- [ ] NGO Admin can create from blank/starter/published template and another active Admin of the same NGO can continue an editable draft.
+- [ ] Submitted drafts lock editing; changes-requested drafts reopen; rejected/approved revisions stay locked.
+- [ ] POEM approval atomically publishes one immutable NGO-owned template and records source/review history.
+- [ ] Other NGOs, ordinary members, Project Managers and Area Focal Persons do not receive template-authoring/review authority.
+- [ ] Existing POEM private draft direct publication still works.
+- [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
+
 # Current release checklist — POEM 2.14.2
 
 ## POEM 2.14.2 acceptance

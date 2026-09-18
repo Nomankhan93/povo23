@@ -1562,6 +1562,12 @@ source: Json;
 version: number;
 published_id: string | null;
 updated_at: string;
+organization_id: string | null;
+review_status: string;
+submitted_at: string | null;
+reviewed_at: string | null;
+reviewed_by: string | null;
+review_note: string;
 };
 Insert: {
 id: string;
@@ -1572,6 +1578,12 @@ source?: Json;
 version?: number;
 published_id?: string | null;
 updated_at?: string;
+organization_id?: string | null;
+review_status?: string;
+submitted_at?: string | null;
+reviewed_at?: string | null;
+reviewed_by?: string | null;
+review_note?: string;
 };
 Update: {
 id?: string;
@@ -1582,6 +1594,39 @@ source?: Json;
 version?: number;
 published_id?: string | null;
 updated_at?: string;
+organization_id?: string | null;
+review_status?: string;
+submitted_at?: string | null;
+reviewed_at?: string | null;
+reviewed_by?: string | null;
+review_note?: string;
+};
+Relationships: [];
+};
+survey_template_review_events: {
+Row: {
+id: number;
+draft_id: string;
+actor_id: string;
+action: string;
+note: string;
+created_at: string;
+};
+Insert: {
+id?: number;
+draft_id: string;
+actor_id: string;
+action: string;
+note?: string;
+created_at?: string;
+};
+Update: {
+id?: number;
+draft_id?: string;
+actor_id?: string;
+action?: string;
+note?: string;
+created_at?: string;
 };
 Relationships: [];
 };
@@ -1593,6 +1638,8 @@ version: number;
 questions: Json;
 created_by: string;
 created_at: string;
+organization_id: string | null;
+source_draft_id: string | null;
 };
 Insert: {
 id?: string;
@@ -1601,6 +1648,8 @@ version: number;
 questions: Json;
 created_by: string;
 created_at?: string;
+organization_id?: string | null;
+source_draft_id?: string | null;
 };
 Update: {
 id?: string;
@@ -1609,6 +1658,8 @@ version?: number;
 questions?: Json;
 created_by?: string;
 created_at?: string;
+organization_id?: string | null;
+source_draft_id?: string | null;
 };
 Relationships: [];
 };
@@ -2711,6 +2762,12 @@ p_status: string | null;
 p_note: string | null;
 p_version: number | null;
 }; Returns: undefined };
+review_template_draft: { Args: {
+p_id: string | null;
+p_decision: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: string };
 review_work_application: { Args: {
 p_id: string | null;
 p_status: string | null;
@@ -2762,6 +2819,14 @@ save_organization: { Args: {
 p_id: string | null;
 p_data: Json | null;
 }; Returns: string };
+save_organization_template_draft: { Args: {
+p_id: string | null;
+p_organization: string | null;
+p_name: string | null;
+p_questions: Json | null;
+p_source: Json | null;
+p_version: number | null;
+}; Returns: number };
 save_partner_ngo_application: { Args: {
 p_id: string | null;
 p_data: Json | null;
@@ -2869,6 +2934,10 @@ submit_partner_ngo_application: { Args: {
 p_id: string | null;
 p_version: number | null;
 }; Returns: undefined };
+submit_template_draft: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: number };
 survey_assignment_candidates: { Args: {
 p_project: string | null;
 p_query: string | null;
