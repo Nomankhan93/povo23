@@ -1,29 +1,29 @@
-# Current release: POEM 2.18.0
+# Current release: POEM 2.18.1
 
-JazzCash & Easypaisa E-Wallet Binding + Mock Withdrawal Sandbox. See [release notes](docs/PHASE-2.18.0.md), [WSL upgrade](docs/UPGRADE-2.18.0.md) and [validation](docs/VALIDATION-2.18.0.md).
+E-Wallet & Withdrawal Stabilization. See [release notes](docs/PHASE-2.18.1.md), [WSL upgrade](docs/UPGRADE-2.18.1.md) and [validation](docs/VALIDATION-2.18.1.md).
 
-POEM 2.18.0 adds a **provider-safe development sandbox** for volunteer withdrawals without pretending that a live JazzCash or Easypaisa API is connected. Volunteers can bind JazzCash/Easypaisa payout methods, configure a server-hashed transaction PIN and request withdrawals from approved unpaid earnings. POEM Admin controls the mock ownership-verification and provider processing/success/failure/reversal sandbox so an end user cannot self-authorize a payout outcome. Successful mock settlement writes the existing `work_payable_events` payment entries so the 2.17.2 payable→finance bridge remains the only accounting bridge.
+POEM 2.18.1 hardens the JazzCash/Easypaisa mock payout foundation before live provider adapters are connected. It keeps the existing worker-payable and immutable finance architecture, adds provider/account uniqueness, provider-scoped verification-event idempotency, a 24-hour new-wallet activation hold, persistent transaction-PIN lockout, account-level withdrawal replay serialization, and exact allocation-request authorization for settlement/reversal. Bank accounts/IBAN remain intentionally excluded and no live JazzCash/Easypaisa API is claimed.
 
-## 2.18.0 e-wallet / withdrawal rules
+## 2.18.1 e-wallet / withdrawal stabilization rules
 
-- Only **JazzCash** and **Easypaisa** are modeled in this phase. Bank accounts, IBAN and bank-transfer payout paths are intentionally absent.
-- Wallet mobile numbers are normalized server-side and returned to the browser only in masked form through guarded RPCs.
-- Mock ownership verification is POEM-Admin-controlled and requires the entered account title to match the current POEM account name; it still does **not** prove live provider ownership.
-- A user may keep at most one active wallet per provider (maximum two total) and choose one verified wallet as default.
-- A six-digit transaction PIN is hashed server-side with the database cryptographic extension; the hash is never readable through authenticated table access.
-- Withdrawal requests allocate exact approved/unpaid PKR payable units. Pending/processing allocations prevent double withdrawal and block competing monetary payable mutations until resolved.
-- Mock success creates source-linked payment events in the existing worker payable subledger; the existing 2.17.2 trigger moves project `Committed → Spent` atomically.
-- Mock failure/cancel creates no payment event and releases the reserved entitlement. Mock reversal creates payment-reversal events so worker balance and project committed/spent finance reconcile again.
-- Mock provider controls are POEM-Admin-only and event keys are idempotent. Replaying the same event does not duplicate settlement.
-- No real JazzCash/Easypaisa credentials, callback signature verification, provider network call, custody or live money transfer exists in 2.18.0.
+- Only **JazzCash** and **Easypaisa** remain supported in this phase.
+- An active wallet number is unique per provider across POEM accounts; the same mobile can still exist once under JazzCash and once under Easypaisa.
+- Verified wallet details remain immutable. Changing them requires unlink + relink and a fresh verification cycle.
+- Verification callbacks are recorded with provider-scoped event identity so one event key cannot authorize a different wallet/outcome.
+- New verification starts a **24-hour withdrawal activation hold**. POEM Admin may bypass it only in the labelled mock sandbox for development testing.
+- Transaction PIN protection now persists failed attempts: five failures trigger a **15-minute lock**. The old browser PIN mutation RPC is revoked in favor of the secure flow.
+- Withdrawal request-id checks are serialized per account before allocation, reducing concurrent replay races.
+- Pending payable reservations no longer trust a custom session GUC. Only exact server-generated allocation payment/reversal request IDs can pass the reservation guard.
+- Mock success/failure/cancel/reversal continue to reuse existing `work_payable_events` and the 2.17.2 payable→finance bridge.
+- No live provider credentials, callbacks, bank account, IBAN or bank-transfer payout path exists in 2.18.1.
 
 ## Current product boundaries
 
-- Existing `work_payable_*` remains the worker-entitlement/payment subledger; 2.18.0 does not create a second earnings engine.
-- Existing immutable finance journals remain authoritative for project funding buckets.
-- The sandbox is for development and integration testing only. Live adapters must replace mock verification/callback controls before production payout.
+- Existing `work_payable_*` remains the authoritative worker entitlement/payment subledger.
+- Existing immutable finance journals remain authoritative for project funding and aggregate `Reserved / Committed / Spent` buckets.
+- E-wallet and withdrawal tables remain RPC-only to authenticated browser users; returned account numbers are masked.
+- The mock sandbox is development-only. Live JazzCash/Easypaisa adapters must preserve the same allocation, idempotency, PIN/step-up and accounting boundaries rather than bypassing them.
 - Bank payout methods remain deferred.
-- 2.16 soft target/offline behavior and 2.17 funding/reconciliation rules remain unchanged.
 
 ## Historical foundation notes
 

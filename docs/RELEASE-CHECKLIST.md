@@ -1,5 +1,24 @@
-# Current release checklist — POEM 2.18.0
+# Current release checklist — POEM 2.18.1
 
+
+## POEM 2.18.1 acceptance
+
+- [ ] `20261008000910_ewallet_default_owner_fix.sql` is present/applied before 2.18.1.
+- [ ] `20261008000920_ewallet_withdrawal_stabilization.sql` applies after 00910.
+- [ ] Active `(provider, wallet number)` duplicates are resolved before migration; the unique index is not weakened.
+- [ ] Run `npm run types:generate`, then `npm run preflight`.
+- [ ] `node scripts/test-phase218.mjs` and `node scripts/test-phase2181.mjs` pass.
+- [ ] Verification event keys cannot authorize a different wallet/outcome for the same provider.
+- [ ] New verified wallets have a 24-hour withdrawal hold; only POEM Admin can use the labelled mock activation override.
+- [ ] Five failed transaction-PIN checks persist and create a 15-minute lock; correct PIN cannot bypass an active lock.
+- [ ] Authenticated clients cannot execute the old `configure_withdrawal_pin` mutation RPC.
+- [ ] Withdrawal request-id lookup/allocation is serialized per account.
+- [ ] Setting/spoofing `app.wallet_settlement` does not bypass pending payable reservations.
+- [ ] Exact server-generated allocation payment/reversal request IDs still settle through `work_payable_events` and 2.17.2 finance bridge exactly once.
+- [ ] Verified wallet details are immutable; unlink/relink requires fresh verification.
+- [ ] Wallet/PIN/provider/verification-event sensitive tables remain direct-access denied and returned wallet numbers stay masked.
+- [ ] No bank/IBAN payout path and no live JazzCash/Easypaisa credential/API is introduced.
+- [ ] `npm run test:local`, `npm run test:operations`, historical 2.17/2.18 regressions and `git diff --check` are green before cloud push.
 
 ## POEM 2.18.0 acceptance
 

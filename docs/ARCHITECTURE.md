@@ -1,5 +1,15 @@
-# Current architecture note — POEM 2.18.0
+# Current architecture note — POEM 2.18.1
 
+
+## 2.18.1 e-wallet / withdrawal stabilization architecture
+
+2.18.1 preserves the 2.18.0 payout orchestration layer and hardens its trust boundaries. Active wallet identity is unique by `(provider, normalized account number)`, while immutable verification-event rows make mock verification/activation event keys provider-scoped and replay-safe. Verified wallet details remain immutable; title/number changes require unlink + relink so verification cannot silently survive credential changes.
+
+A newly verified wallet receives `withdrawal_eligible_at = verified_at + 24 hours`. The personal RPC/UI will not allow withdrawal before that point. The development-only mock admin can explicitly create an audited activation override so automated/manual tests do not need to wait 24 hours; this control is not a live-provider contract.
+
+PIN security now has persistent failed-attempt state in `e_wallet_security`. Five failed protected checks lock PIN-protected operations for 15 minutes. The browser no longer executes the original PIN mutation RPC; the secure replacement shares lockout state with withdrawal requests. Incorrect PIN attempts return a non-success result rather than raising after the counter update, so the failed-attempt state commits atomically.
+
+Withdrawal creation locks the account before request-id lookup, serializing same-user replay/allocation work. More importantly, reserved-payable protection no longer trusts the `app.wallet_settlement` custom session setting. A payment/reversal can cross the reservation guard only when its `request_id`, unit, assignment, amount and reversal target match server-generated allocation identities. The existing payable event and 2.17.2 finance triggers remain the only settlement/accounting path.
 
 ## 2.18.0 e-wallet / mock-withdrawal architecture
 

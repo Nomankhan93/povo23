@@ -594,16 +594,64 @@ Row: {
 user_id: string;
 pin_hash: string;
 changed_at: string;
+failed_attempts: number;
+locked_until: string | null;
+last_failed_at: string | null;
+last_success_at: string | null;
 };
 Insert: {
 user_id: string;
 pin_hash: string;
 changed_at?: string;
+failed_attempts?: number;
+locked_until?: string | null;
+last_failed_at?: string | null;
+last_success_at?: string | null;
 };
 Update: {
 user_id?: string;
 pin_hash?: string;
 changed_at?: string;
+failed_attempts?: number;
+locked_until?: string | null;
+last_failed_at?: string | null;
+last_success_at?: string | null;
+};
+Relationships: [];
+};
+e_wallet_verification_events: {
+Row: {
+id: string;
+wallet_id: string;
+provider: string;
+event_key: string;
+event_kind: string;
+outcome: string;
+actor_id: string;
+payload: Json;
+created_at: string;
+};
+Insert: {
+id?: string;
+wallet_id: string;
+provider: string;
+event_key: string;
+event_kind: string;
+outcome: string;
+actor_id: string;
+payload?: Json;
+created_at?: string;
+};
+Update: {
+id?: string;
+wallet_id?: string;
+provider?: string;
+event_key?: string;
+event_kind?: string;
+outcome?: string;
+actor_id?: string;
+payload?: Json;
+created_at?: string;
 };
 Relationships: [];
 };
@@ -745,6 +793,7 @@ unlinked_at: string | null;
 version: number;
 created_at: string;
 updated_at: string;
+withdrawal_eligible_at: string | null;
 };
 Insert: {
 id?: string;
@@ -763,6 +812,7 @@ unlinked_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+withdrawal_eligible_at?: string | null;
 };
 Update: {
 id?: string;
@@ -781,6 +831,7 @@ unlinked_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+withdrawal_eligible_at?: string | null;
 };
 Relationships: [];
 };
@@ -3044,6 +3095,10 @@ configure_withdrawal_pin: { Args: {
 p_current: string | null;
 p_new: string | null;
 }; Returns: undefined };
+configure_withdrawal_pin_secure: { Args: {
+p_current: string | null;
+p_new: string | null;
+}; Returns: Json };
 correct_registry_person: { Args: {
 p_id: string | null;
 p_name: string | null;
@@ -3697,6 +3752,10 @@ p_id: string | null;
 p_state: string | null;
 p_version: number | null;
 }; Returns: undefined };
+simulate_mock_e_wallet_activation: { Args: {
+p_wallet: string | null;
+p_event_key: string | null;
+}; Returns: string };
 simulate_mock_e_wallet_provider: { Args: {
 p_withdrawal: string | null;
 p_outcome: string | null;

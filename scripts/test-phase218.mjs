@@ -102,6 +102,8 @@ try{
     await as('super');
     assert.equal(await call('simulate_mock_e_wallet_verification',[jazzcash,'verified',crypto.randomUUID()]),'verified');
     assert.equal(await call('simulate_mock_e_wallet_verification',[easypaisa,'verified',crypto.randomUUID()]),'verified');
+    await call('simulate_mock_e_wallet_activation',[jazzcash,crypto.randomUUID()]);
+    await call('simulate_mock_e_wallet_activation',[easypaisa,crypto.randomUUID()]);
     await as('worker');
     const list=await call('my_e_wallets',[]);
     assert.equal(list.count,2);
@@ -118,12 +120,16 @@ try{
     let security=await call('my_withdrawal_security',[]);
     assert.equal(security.crypto_ready,true);
     assert.equal(security.pin_configured,false);
-    await call('configure_withdrawal_pin',[null,'123456']);
+    let pinResult=await call('configure_withdrawal_pin_secure',[null,'123456']);
+    assert.equal(pinResult.ok,true);
     security=await call('my_withdrawal_security',[]);
     assert.equal(security.pin_configured,true);
     await deny(()=>db.query('select * from public.e_wallet_security'),/permission denied/i);
-    await deny(()=>call('configure_withdrawal_pin',['000000','654321']),/Current transaction PIN/i);
-    await call('configure_withdrawal_pin',['123456','654321']);
+    pinResult=await call('configure_withdrawal_pin_secure',['000000','654321']);
+    assert.equal(pinResult.ok,false);
+    assert.equal(pinResult.code,'pin_incorrect');
+    pinResult=await call('configure_withdrawal_pin_secure',['123456','654321']);
+    assert.equal(pinResult.ok,true);
   });
 
   let withdrawal,requestId;
@@ -133,7 +139,7 @@ try{
     assert.equal(Number(summary.approved),500);
     assert.equal(Number(summary.paid),0);
     assert.equal(Number(summary.available),500);
-    await deny(()=>call('request_e_wallet_withdrawal',[easypaisa,200,'000000',crypto.randomUUID()]),/PIN is incorrect/i);
+    assert.equal(await call('request_e_wallet_withdrawal',[easypaisa,200,'000000',crypto.randomUUID()]),null);
     requestId=crypto.randomUUID();
     withdrawal=await call('request_e_wallet_withdrawal',[easypaisa,200,'654321',requestId]);
     assert.equal(await call('request_e_wallet_withdrawal',[easypaisa,200,'654321',requestId]),withdrawal);
@@ -244,9 +250,12 @@ try{
     assert.match(ui,/JazzCash & Easypaisa/i);
     assert.match(ui,/Development sandbox/i);
     assert.match(ui,/Transaction PIN/i);
+    assert.match(ui,/activation hold/i);
+    assert.match(ui,/temporarily lock/i);
     assert.doesNotMatch(ui,/Simulate success/i);
     assert.match(adminUi,/Mock E-Wallet Sandbox/i);
     assert.match(adminUi,/Success/);
+    assert.match(adminUi,/Activate now \(mock\)/);
     assert.doesNotMatch(ui+adminUi,/IBAN|Bank Account|bank transfer/i);
     assert.match(app,/E-Wallets & withdrawals/);
     assert.match(app,/E-Wallet sandbox/);
