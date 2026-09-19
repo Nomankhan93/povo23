@@ -2083,6 +2083,8 @@ status: string;
 created_at: string;
 operations_version: number;
 verification_revision: number;
+logo_path: string;
+logo_updated_at: string | null;
 };
 Insert: {
 id?: string;
@@ -2098,6 +2100,8 @@ status?: string;
 created_at?: string;
 operations_version?: number;
 verification_revision?: number;
+logo_path?: string;
+logo_updated_at?: string | null;
 };
 Update: {
 id?: string;
@@ -2113,6 +2117,8 @@ status?: string;
 created_at?: string;
 operations_version?: number;
 verification_revision?: number;
+logo_path?: string;
+logo_updated_at?: string | null;
 };
 Relationships: [];
 };
@@ -2195,6 +2201,8 @@ approved_at: string | null;
 version: number;
 created_at: string;
 updated_at: string;
+logo_path: string;
+logo_updated_at: string | null;
 };
 Insert: {
 id?: string;
@@ -2220,6 +2228,8 @@ approved_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+logo_path?: string;
+logo_updated_at?: string | null;
 };
 Update: {
 id?: string;
@@ -2245,6 +2255,8 @@ approved_at?: string | null;
 version?: number;
 created_at?: string;
 updated_at?: string;
+logo_path?: string;
+logo_updated_at?: string | null;
 };
 Relationships: [];
 };
@@ -4632,6 +4644,10 @@ p_active: boolean | null;
 p_reason: string | null;
 p_need_version: number | null;
 p_link_version: number | null;
+}; Returns: undefined };
+set_partner_ngo_application_logo: { Args: {
+p_application: string | null;
+p_present: boolean | null;
 }; Returns: undefined };
 set_profile_photo: { Args: {
 p_present: boolean | null;

@@ -13,9 +13,10 @@ const nav=read('src/app/navigation.ts');
 const brand=read('src/components/ui/FieldLanceBrand.tsx');
 const overview=read('src/components/ui/WorkflowOverview.tsx');
 
-ok('release is FieldLance 2.19.6 with a dedicated visual-system test command',()=>{
+ok('release retains the FieldLance 2.19.6 visual-system contract and dedicated test command',()=>{
   assert.equal(pkg.name,'fieldlance-platform');
-  assert.equal(pkg.version,'2.19.6');
+  const [major,minor,patch]=pkg.version.split('.').map(Number);
+  assert(major>2||(major===2&&(minor>19||(minor===19&&patch>=6))));
   assert.equal(pkg.scripts['test:visual-system'],'node scripts/test-visual-system2196.mjs');
 });
 
@@ -86,9 +87,9 @@ ok('responsive drawer accessibility remains intact',()=>{
   assert.match(css,/@media\(max-width:800px\)/);
 });
 
-ok('2.19.6 is migration-free and preserves the 2.19.5 database head',()=>{
+ok('2.19.6 visual-system release remains migration-free after later forward migrations',()=>{
   const migrations=readdirSync('supabase/migrations').filter((n)=>n.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261009000500_fieldlance_brand_compatibility.sql');
+  assert.equal(migrations.includes('20261009000500_fieldlance_brand_compatibility.sql'),true);
   assert.equal(migrations.some((n)=>/2196|visual.*system|navigation/i.test(n)),false);
 });
 

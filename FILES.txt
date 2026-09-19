@@ -44,6 +44,7 @@ docs/PHASE-2.19.3.md
 docs/PHASE-2.19.4.md
 docs/PHASE-2.19.5.md
 docs/PHASE-2.19.6.md
+docs/PHASE-2.19.7.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -105,6 +106,7 @@ docs/UPGRADE-2.19.3.md
 docs/UPGRADE-2.19.4.md
 docs/UPGRADE-2.19.5.md
 docs/UPGRADE-2.19.6.md
+docs/UPGRADE-2.19.7.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -156,6 +158,7 @@ docs/VALIDATION-2.19.3.md
 docs/VALIDATION-2.19.4.md
 docs/VALIDATION-2.19.5.md
 docs/VALIDATION-2.19.6.md
+docs/VALIDATION-2.19.7.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -205,6 +208,7 @@ scripts/test-geography-reference.mjs
 scripts/test-local-auth.mjs
 scripts/test-local-operations.mjs
 scripts/test-offline-recovery276.mjs
+scripts/test-partner-ngo-application2197.mjs
 scripts/test-phase12.mjs
 scripts/test-phase13.mjs
 scripts/test-phase14.mjs
@@ -283,6 +287,7 @@ src/features/notifications/Notifications.tsx
 src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
 src/features/organizations/NgoOperations.tsx
+src/features/organizations/OrganizationLogo.tsx
 src/features/organizations/OrgForm.tsx
 src/features/organizations/PartnerNgoApplication.tsx
 src/features/organizations/PartnerNgoApplicationsReview.tsx
@@ -393,5 +398,6 @@ supabase/migrations/20261009000200_assistance_distribution_planning.sql
 supabase/migrations/20261009000300_assistance_ledger_duplicate_controls.sql
 supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
 supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
+supabase/migrations/20261009000600_partner_ngo_application_experience.sql
 tsconfig.json
 vite.config.ts

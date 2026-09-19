@@ -1,4 +1,15 @@
-# Current architecture note — FieldLance 2.19.6
+# Current architecture note — FieldLance 2.19.7
+
+## 2.19.7 Partner NGO application architecture
+
+2.19.7 keeps the existing Partner NGO application, document-review and approval model and adds one forward migration. The browser now presents the same application as five guided steps rather than one long page; registration/designation/program controls normalize data before the existing `save_partner_ngo_application` RPC persists it. Program areas continue to use the existing `program_names text[]`, and operating areas continue to use `operating_area_ids uuid[]`.
+
+Organization logos are stored separately from private legal documents in a dedicated private `fieldlance-organization-logos` bucket. The object path is deterministic (`<application>/logo`), write/delete access is limited to the application owner while the application is editable, and FieldLance NGO reviewers may read draft logos. Approval synchronizes the application logo path onto the newly created organization through a database trigger; active authenticated platform users can then read the approved organization logo for normal organization presentation.
+
+The final submission contract now also requires `legal_type`. Document kinds expand to organization profile and financial document while registration/legal proof remains the required approval evidence. Existing approval continues to create exactly one organization and first NGO Admin membership; 2.19.7 does not create a parallel organization or document model.
+
+The post-submit modal is presentation state only and is raised after the guarded submit RPC resolves successfully. Review/approval and logo authorization remain server-enforced.
+
 
 ## 2.19.6 visual-system / navigation architecture
 

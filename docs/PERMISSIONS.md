@@ -1,4 +1,15 @@
-# Current permissions note — FieldLance 2.19.6
+# Current permissions note — FieldLance 2.19.7
+
+## 2.19.7 Partner NGO application permissions
+
+- **Applicant / personal account:** may create/edit its own draft or changes-requested Partner NGO application, add operating/program areas, upload/remove its organization logo and private supporting documents, and submit only when server requirements are satisfied.
+- **Organization logo draft:** private to the applicant and existing FieldLance NGO-management reviewers; unrelated authenticated users cannot read it before approval. Applicant write/delete access ends when the application leaves an editable state.
+- **Approved organization logo:** after approval, the logo path is copied to the active organization and may be read by active authenticated platform users for organization presentation. It does not expose legal supporting documents.
+- **FieldLance NGO management:** retains the existing application/document review authority. 2.19.7 adds no reviewer self-approval or cross-role bypass.
+- **Supporting documents:** remain in the existing private `poem-ngo-applications` bucket with the existing owner/reviewer lifecycle; added document categories do not broaden read authority.
+- **Direct tables:** application/logo state remains RPC/Storage-policy controlled. The five-step UI, completion indicator and success modal grant no authority.
+- **Approval:** still creates one organization and first NGO Admin membership through the guarded existing review workflow; logo synchronization is an approval-side database effect only.
+
 
 ## 2.19.6 visual-system / navigation permissions
 

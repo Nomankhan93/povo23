@@ -1,4 +1,25 @@
-# Current release checklist — FieldLance 2.19.6
+# Current release checklist — FieldLance 2.19.7
+
+## FieldLance 2.19.7 acceptance
+
+- [ ] Package and lockfile report `2.19.7`.
+- [ ] `20261009000600_partner_ngo_application_experience.sql` applies after `20261009000500_fieldlance_brand_compatibility.sql`; earlier migrations remain untouched.
+- [ ] `npm run types:generate` / `npm run types:check` include organization/application logo fields and the new logo RPC.
+- [ ] `npm run test:ngo-application` passes all 2.19.7 application/logo scenarios.
+- [ ] Existing `test-phase213`, `test-phase2131`, branding, visual-system and frontend-foundation suites remain green.
+- [ ] Application presents Organization → Operating Areas → Programs → Documents → Review with mobile-safe layout and no horizontal main-form scroll.
+- [ ] Registration type and representative designation use structured selectors with Other/custom entry.
+- [ ] Program areas use searchable multi-select chips and persist to the existing `program_names` array.
+- [ ] Operating areas reuse the existing validated geography selector and show selected area chips.
+- [ ] Registration/legal proof remains required; new document categories do not weaken document RLS.
+- [ ] Organization logo accepts only JPG/PNG/WebP up to 2 MiB, is private before approval and is reused on the approved organization presentation.
+- [ ] Submission readiness is server-backed; final submit requires registration type, organization/contact details, an operating area, a program and ready legal proof.
+- [ ] Success modal appears only after successful server submission and shows Under review with View application / Back to dashboard actions.
+- [ ] Approval still creates exactly one active organization and first NGO Admin membership; applicant cannot self-review.
+- [ ] `npm run preflight`, payment, local-auth/storage and operations regressions remain green.
+- [ ] Browser QA covers desktop/mobile stepper, custom registration/designation, program chips, logo upload/replace/remove, document upload, review/edit links and success modal.
+- [ ] Local and remote migrations are aligned through `20261009000600` before cloud rollout.
+
 
 ## FieldLance 2.19.6 acceptance
 

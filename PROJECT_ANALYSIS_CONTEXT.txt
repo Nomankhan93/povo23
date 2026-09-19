@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.19.6
+Release: 2.19.7
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,15 +14,15 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.19.6 PRODUCT BOUNDARIES =====
+===== CURRENT 2.19.7 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.19.0 adds beneficiary cases/requests; 2.19.1 adds planning-only distribution plans; 2.19.2 records controlled delivery into assistance_entries with canonical duplicate-support controls; 2.19.3 adds structured follow-up, outcomes and controlled close/reopen lifecycle history.
-- 2.19.4 stabilized the frontend foundation. 2.19.5 completed the user-facing FieldLance rebrand. 2.19.6 adds the migration-free visual-system/navigation foundation while preserving historical database identifiers and compatibility.
+- 2.19.4 stabilized the frontend foundation. 2.19.5 completed the user-facing FieldLance rebrand. 2.19.6 added the visual-system/navigation foundation. 2.19.7 redesigns Partner NGO onboarding into a five-step application and adds the guarded organization-logo lifecycle.
 - Case intake requires approved survey provenance; one assessed need can belong to only one active case at a time.
 - FieldLance survey authority, NGO Admin and Project Manager manage cases/requests/plans/follow-ups within existing project scope; only NGO Admin / FieldLance survey authority approve or reject requests. Area Focal remains outside broad case/planning/delivery/follow-up mutation authority.
 - Assistance-request approval means approved for planning only. A ready plan still is not delivery; 2.19.2 creates assistance_entries through guarded delivery recording, and 2.19.3 requires structured post-delivery follow-up/outcome evidence before controlled case closure.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
-- Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
+- Partner NGO onboarding uses Organization → Operating Areas → Programs → Documents → Review; approval creates the organization and first NGO Admin membership. Draft logos remain private and approval synchronizes the logo to organization presentation.
 - Open recruitment uses application-scoped profile snapshots; live NGO volunteer access is project/assignment/invitation scoped.
 - Historical permanent profile-share schema remains only for compatibility and is not a current UI workflow.
 - Survey capture includes encrypted device drafts/queue and reconnect synchronization; full cold-start offline/PWA caching remains outside the current baseline.
@@ -51,8 +51,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 54
-Migration head: 20261009000500_fieldlance_brand_compatibility.sql
+Ordered migration files: 55
+Migration head: 20261009000600_partner_ngo_application_experience.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -109,12 +109,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000300_assistance_ledger_duplicate_controls.sql
 - 20261009000400_case_followup_outcomes_closure.sql
 - 20261009000500_fieldlance_brand_compatibility.sql
+- 20261009000600_partner_ngo_application_experience.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 62
-TypeScript/TSX source files: 81
-Markdown docs: 170
-Inventory files (excluding local/build/temp/backup state): 397
+Test scripts (scripts/test-*.mjs): 63
+TypeScript/TSX source files: 82
+Markdown docs: 173
+Inventory files (excluding local/build/temp/backup state): 403
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -122,6 +123,7 @@ npm run release:consistency
 npm run preflight
 npx supabase start
 npx supabase migration up --local
+npm run test:ngo-application
 npm run test:followup
 npm run test:assistance
 npm run test:distribution
@@ -137,7 +139,7 @@ npm run test:operations
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
 2.19.3 completes the currently scoped beneficiary assistance lifecycle from assessed need through delivered support, structured follow-up/outcome and controlled close/reopen history.
-2.19.6 establishes the shared FieldLance visual/navigation foundation. The next screen-level UI phase is 2.19.7 Field Worker Marketplace UX; routing/database/authorization redesign remains out of scope unless a concrete workflow requires it.
+2.19.7 completes the Partner NGO application UX and organization-logo foundation. The next screen-level UI phase is the Field Worker Marketplace UX; routing/database/authorization redesign remains out of scope unless a concrete workflow requires it.
 Audit the validated 2.19.3 state before choosing the next product phase; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

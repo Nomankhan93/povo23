@@ -34,6 +34,7 @@ import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
 import { PartnerNgoApplication } from "../features/organizations/PartnerNgoApplication";
 import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
+import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
@@ -401,6 +402,25 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ? `${projectScopeProject?.title || "Project"} · ${workspaceLabels.project}`
         : `${myOrgs.find((o) => o.id === scope)?.name || "Organization"} · ${workspaceLabels.organization}`;
   const unreadNotifications = notifications.filter((n) => !n.read_at).length;
+  const pageEyebrow = page === "Partner NGO application" ? "ORGANIZATION ONBOARDING" : "PEOPLE AT THE HEART OF IMPACT";
+  const pageTitle = page === "Overview"
+    ? poem
+      ? "Operate the field network with confidence."
+      : scope === "personal"
+        ? "Your next opportunity starts here."
+        : projectScope
+          ? projectScopeProject?.title || "Project workspace"
+          : "Build the field team your project needs."
+    : page;
+  const pageDescription = page === "Partner NGO application"
+    ? "Create and submit your organization profile for FieldLance review. Your Field Worker account remains separate."
+    : poem
+      ? "Review partners, govern access and coordinate trusted field operations across FieldLance."
+      : scope === "personal"
+        ? "Find field work, build verified experience and grow your earnings."
+        : projectScope
+          ? `${human(projectScopeAssignment?.role || "project_staff")} · project-scoped operations and field delivery.`
+          : "Manage projects, recruitment, field workers and delivery from one accountable organization workspace.";
   if (loading)
     return (
       <div className="setup" role="status">
@@ -531,27 +551,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
         <div className="content" id="workspace-content" tabIndex={-1}>
           <div className="heading">
             <div>
-              <span className="eyebrow">PEOPLE AT THE HEART OF IMPACT</span>
-              <h1>
-                {page === "Overview"
-                  ? poem
-                    ? "Operate the field network with confidence."
-                    : scope === "personal"
-                      ? "Your next opportunity starts here."
-                      : projectScope
-                        ? projectScopeProject?.title || "Project workspace"
-                        : "Build the field team your project needs."
-                  : page}
-              </h1>
-              <p>
-                {poem
-                  ? "Review partners, govern access and coordinate trusted field operations across FieldLance."
-                  : scope === "personal"
-                    ? "Find field work, build verified experience and grow your earnings."
-                    : projectScope
-                      ? `${human(projectScopeAssignment?.role || "project_staff")} · project-scoped operations and field delivery.`
-                      : "Manage projects, recruitment, field workers and delivery from one accountable organization workspace."}
-              </p>
+              <span className="eyebrow">{pageEyebrow}</span>
+              <h1>{pageTitle}</h1>
+              <p>{pageDescription}</p>
             </div>
             {page === "Partner NGOs" && ngos && (
               <button
@@ -705,6 +707,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 setScope(organizationId);
                 change("Overview");
               }}
+              onBackToDashboard={() => change("Overview")}
             />
           )}
           {page === "NGO applications" && ngos && validScope && (
@@ -735,9 +738,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
               <div className="org-grid">
                 {orgs.map((o) => (
                   <section className="panel org" key={o.id}>
-                    <Building2 size={26} />
+                    <div className="org-card-heading">
+                      <OrganizationLogoImage name={o.name} path={o.logo_path || null} updatedAt={o.logo_updated_at || null} size="card" />
+                      <div><h2>{o.name}</h2><small>{o.registration_number || "Partner organization"}</small></div>
+                    </div>
                     <Badge value={o.status} />
-                    <h2>{o.name}</h2>
                     <p>{o.programs || "Programs not yet specified"}</p>
                     <dl>
                       <dt>Areas</dt>

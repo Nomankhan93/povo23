@@ -4,6 +4,7 @@ import type { Geo } from "../geography/model";
 import { areaCaption } from "../geography/areaSelection";
 import { Badge, Field, human } from "../../shared/ui/FormFields";
 import { PartnerNgoDocuments } from "./PartnerNgoApplication";
+import { OrganizationLogoImage } from "./OrganizationLogo";
 
 type Application =
   import("../../lib/supabase/database.types").Database["public"]["Tables"]["partner_ngo_applications"]["Row"];
@@ -86,7 +87,7 @@ export function PartnerNgoApplicationsReview({
             <tbody>
               {rows.map((a) => (
                 <tr key={a.id}>
-                  <td>{a.organization_name || "Draft application"}</td>
+                  <td><div className="ngo-review-organization-cell"><OrganizationLogoImage name={a.organization_name || "Organization"} path={a.logo_path} updatedAt={a.logo_updated_at} size="card"/><span>{a.organization_name || "Draft application"}</span></div></td>
                   <td>{a.representative_name || "—"}</td>
                   <td><Badge value={a.status} /></td>
                   <td>{a.submitted_at ? new Date(a.submitted_at).toLocaleDateString() : "—"}</td>
@@ -101,7 +102,7 @@ export function PartnerNgoApplicationsReview({
 
       {selected && <>
         <section className="panel detail">
-          <div className="panel-title"><div><span className="eyebrow">APPLICATION REVIEW</span><h2>{selected.organization_name || "Incomplete application"}</h2></div><Badge value={selected.status} /></div>
+          <div className="panel-title"><div className="ngo-review-heading-with-logo"><OrganizationLogoImage name={selected.organization_name || "Organization"} path={selected.logo_path} updatedAt={selected.logo_updated_at} size="review"/><div><span className="eyebrow">APPLICATION REVIEW</span><h2>{selected.organization_name || "Incomplete application"}</h2></div></div><Badge value={selected.status} /></div>
           <dl className="ngo-application-summary">
             <dt>Registration</dt><dd>{selected.registration_number || "—"}</dd>
             <dt>Legal type</dt><dd>{selected.legal_type || "—"}</dd>
