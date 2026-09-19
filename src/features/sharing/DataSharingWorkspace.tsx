@@ -48,7 +48,7 @@ const inThirtyDays = () => {
   d.setUTCDate(d.getUTCDate() + 30);
   return d.toISOString().slice(0, 10);
 };
-const ben = (n: number) => `POEM-BEN-${String(n).padStart(8, "0")}`;
+const ben = (n: number) => `FL-BEN-${String(n).padStart(8, "0")}`;
 
 export function DataSharingWorkspace({
   organization,
@@ -184,7 +184,7 @@ export function DataSharingWorkspace({
       p_fields: decision === "approve" ? fields : [],
       p_note: text(f, "note"),
       p_version: request.version,
-    }), decision === "approve" ? "Request approved by the source NGO and sent to POEM." : "Request rejected by the source NGO.");
+    }), decision === "approve" ? "Request approved by the source NGO and sent to FieldLance." : "Request rejected by the source NGO.");
   }
 
   async function reviewPoem(e: FormEvent<HTMLFormElement>, request: Request) {
@@ -199,7 +199,7 @@ export function DataSharingWorkspace({
       p_expires_at: decision === "approve" ? isoEnd(expiry) : null,
       p_note: text(f, "note"),
       p_version: request.version,
-    }), decision === "approve" ? "POEM authorized the time-limited sharing grant." : "POEM rejected the sharing request.");
+    }), decision === "approve" ? "FieldLance authorized the time-limited sharing grant." : "FieldLance rejected the sharing request.");
   }
 
 
@@ -235,7 +235,7 @@ export function DataSharingWorkspace({
 
     {organization && <section className="panel detail">
       <h2>Request beneficiary coordination access</h2>
-      <p>Choose one of your NGO's beneficiary records. POEM only reveals partner organizations linked to the same canonical identity. Raw surveys, documents, evidence and internal notes are never shared by this workflow.</p>
+      <p>Choose one of your NGO's beneficiary records. FieldLance only reveals partner organizations linked to the same canonical identity. Raw surveys, documents, evidence and internal notes are never shared by this workflow.</p>
       <form onSubmit={create}>
         <fieldset disabled={busy}>
           <div className="form-grid">
@@ -268,7 +268,7 @@ export function DataSharingWorkspace({
 
     {organization && <section className="panel detail">
       <h2>Requests your NGO must review</h2>
-      <p>Approval only sends the request to POEM for final authorization. You may reduce the requested field scope.</p>
+      <p>Approval only sends the request to FieldLance for final authorization. You may reduce the requested field scope.</p>
       {!inbound.length && <p>No requests for your NGO.</p>}
       {inbound.map((r) => <article className="document-row" key={r.id}>
         <div className="panel-title"><strong>{orgName(r.requesting_organization_id)}</strong><Badge value={r.status} /></div>
@@ -284,14 +284,14 @@ export function DataSharingWorkspace({
           </fieldset>
         </form>}
         {r.source_note && <p><strong>Source note:</strong> {r.source_note}</p>}
-        {r.poem_note && <p><strong>POEM note:</strong> {r.poem_note}</p>}
+        {r.poem_note && <p><strong>FieldLance note:</strong> {r.poem_note}</p>}
       </article>)}
     </section>}
 
     {manage && <section className="panel detail">
-      <h2>POEM final authorization queue</h2>
-      <p>POEM may only authorize a subset already approved by the source NGO, and may shorten the requested validity window.</p>
-      {!poemQueue.length && <p>No requests awaiting POEM authorization.</p>}
+      <h2>FieldLance final authorization queue</h2>
+      <p>FieldLance may only authorize a subset already approved by the source NGO, and may shorten the requested validity window.</p>
+      {!poemQueue.length && <p>No requests awaiting FieldLance authorization.</p>}
       {poemQueue.map((r) => <article className="document-row" key={r.id}>
         <div className="panel-title"><strong>{orgName(r.requesting_organization_id)} → {orgName(r.source_organization_id)}</strong><Badge value={r.status} /></div>
         <p>{r.purpose}</p>
@@ -301,7 +301,7 @@ export function DataSharingWorkspace({
           <fieldset disabled={busy}>
             <div className="detail-fields">{(r.source_approved_fields || []).map((value) => <label key={value}><input type="checkbox" name={value} defaultChecked /> {label(value)}</label>)}</div>
             <label className="field">Grant expiry<input name="expiry" type="date" required defaultValue={new Date(r.requested_expires_at).toISOString().slice(0,10)} /></label>
-            <label className="field">POEM authorization note<textarea name="note" required minLength={5} maxLength={1000} /></label>
+            <label className="field">FieldLance authorization note<textarea name="note" required minLength={5} maxLength={1000} /></label>
             <div className="actions"><button className="primary" name="decision" value="approve">Authorize selected fields</button><button className="secondary" name="decision" value="reject">Reject request</button></div>
           </fieldset>
         </form>

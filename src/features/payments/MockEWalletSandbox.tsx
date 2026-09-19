@@ -17,7 +17,7 @@ export function MockEWalletSandbox(){
  async function run(task:()=>Promise<unknown>,message:string){setBusy(true);setError('');setNotice('');try{await task();setNotice(message);refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
  if(loading&&!data.wallets.length&&!data.withdrawals.length)return <p role="status">Loading mock e-wallet sandbox…</p>;
  return <section className="ewallet-workspace">
-  <div className="panel-title"><div><span className="eyebrow">POEM ADMIN · DEVELOPMENT ONLY</span><h2>Mock E-Wallet Sandbox</h2></div><Badge value="mock only"/></div>
+  <div className="panel-title"><div><span className="eyebrow">FieldLance ADMIN · DEVELOPMENT ONLY</span><h2>Mock E-Wallet Sandbox</h2></div><Badge value="mock only"/></div>
   <div className="notice warning"><strong>No live money movement:</strong> these controls simulate JazzCash/Easypaisa ownership checks, the {data.activation_hold_hours}-hour activation hold and provider callbacks for development testing. End users cannot invoke provider outcomes.</div>
   {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
   <div className="actions"><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh sandbox</button></div>

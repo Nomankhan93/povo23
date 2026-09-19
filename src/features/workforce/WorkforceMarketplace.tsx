@@ -314,7 +314,7 @@ export function WorkforceMarketplace({
     <section className="panel detail workforce-marketplace">
       <div className="panel-title">
         <div>
-          <h2>{mode === "personal" ? (personalView === "opportunities" ? "Available Opportunities" : personalView === "applications" ? "My Applications" : personalView === "assigned" ? "My Assigned Surveys" : "Volunteer marketplace") : mode === "ngo" ? "NGO workforce marketplace" : mode === "project" ? "Project recruitment" : "POEM workforce management"}</h2>
+          <h2>{mode === "personal" ? (personalView === "opportunities" ? "Available Opportunities" : personalView === "applications" ? "My Applications" : personalView === "assigned" ? "My Assigned Surveys" : "Volunteer marketplace") : mode === "ngo" ? "NGO workforce marketplace" : mode === "project" ? "Project recruitment" : "FieldLance workforce management"}</h2>
           <p>
             {mode === "personal"
               ? (personalView === "opportunities" ? "Browse published project recruitment without granting permanent NGO profile access." : personalView === "applications" ? "Track application decisions and withdraw applications that are still pending or shortlisted." : personalView === "assigned" ? "Accept formal offers and open survey work only after assignment activation." : "Apply for survey work and accept formal assignment terms before field access starts.")
@@ -474,7 +474,7 @@ export function WorkforceMarketplace({
                 <label className="field">Start<input name="start" type="date" defaultValue={chosenProject.start_date} required /></label>
                 <label className="field">End<input name="end" type="date" defaultValue={chosenProject.end_date} required /></label>
               </div>
-              <label className="field">Terms / deliverables<textarea name="terms" minLength={5} maxLength={3000} required defaultValue="Complete assigned field surveys according to POEM data-quality, consent and project rules." /></label>
+              <label className="field">Terms / deliverables<textarea name="terms" minLength={5} maxLength={3000} required defaultValue="Complete assigned field surveys according to FieldLance data-quality, consent and project rules." /></label>
               <div className="actions"><button type="button" className="secondary" onClick={() => setOffer(null)}>Cancel</button><button className="primary" disabled={busy}>Send formal offer</button></div>
             </form>}
           </div>
@@ -556,7 +556,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
     {complete && (mode === "ngo" || mode === "project") && <form className="review" onSubmit={(e) => {
       e.preventDefault();const f=new FormData(e.currentTarget);
       const feedback: Json={professionalism:Number(val(f,"professionalism")),communication:Number(val(f,"communication")),field_discipline:Number(val(f,"discipline")),data_quality:Number(val(f,"quality")),task_completion:Number(val(f,"completion"))};
-      void act(() => rpc("complete_work_assignment",{p_id:a.id,p_feedback:feedback,p_note:val(f,"note"),p_version:a.version}),"Assignment completed and added to verified POEM work history.");
+      void act(() => rpc("complete_work_assignment",{p_id:a.id,p_feedback:feedback,p_note:val(f,"note"),p_version:a.version}),"Assignment completed and added to verified FieldLance work history.");
     }}>
       <h4>Structured completion feedback</h4>
       <div className="form-grid">{[["professionalism","Professionalism"],["communication","Communication"],["discipline","Field discipline"],["quality","Data quality"],["completion","Task completion"]].map(([name,label]) => <label className="field" key={name}>{label}<select name={name} defaultValue="5">{[1,2,3,4,5].map((n)=><option key={n} value={n}>{n} / 5</option>)}</select></label>)}</div>

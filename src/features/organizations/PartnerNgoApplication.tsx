@@ -187,7 +187,7 @@ export function PartnerNgoDocuments({
       <div className="panel-title">
         <div>
           <h3>Supporting documents</h3>
-          <span>Private to the applicant and authorized POEM NGO reviewers.</span>
+          <span>Private to the applicant and authorized FieldLance NGO reviewers.</span>
         </div>
       </div>
       <p>
@@ -223,7 +223,7 @@ export function PartnerNgoDocuments({
             </div>
             <Badge value={d.review_status} />
           </div>
-          {d.review_note && <p>POEM review: {d.review_note}</p>}
+          {d.review_note && <p>FieldLance review: {d.review_note}</p>}
           <div className="document-actions">
             {d.state === "ready" && <button className="secondary" disabled={busy} onClick={() => download(d)}>Download</button>}
             {editable && d.state === "uploading" && (
@@ -398,11 +398,11 @@ export function PartnerNgoApplication({
   if (!application) {
     return (
       <section className="panel detail ngo-application-intro">
-        <span className="eyebrow">PARTNER WITH POEM</span>
+        <span className="eyebrow">PARTNER WITH FieldLance</span>
         <h2>Apply as a Partner NGO</h2>
         <p>
-          Your POEM login remains a personal account. Complete the organization application,
-          add supporting documents and submit it for POEM review. Approval activates the NGO
+          Your FieldLance login remains a personal account. Complete the organization application,
+          add supporting documents and submit it for FieldLance review. Approval activates the NGO
           workspace and makes you its first Partner NGO Admin.
         </p>
         {error && <div className="notice error" role="alert">{error}</div>}
@@ -422,10 +422,10 @@ export function PartnerNgoApplication({
           <Badge value={application.status} />
         </div>
         <p>
-          Account creation itself does not grant NGO access. POEM activates an organization
+          Account creation itself does not grant NGO access. FieldLance activates an organization
           only after this completed application and its evidence are reviewed.
         </p>
-        {application.review_note && <div className={application.status === "approved" ? "notice success" : "notice warning"}><strong>POEM review:</strong> {application.review_note}</div>}
+        {application.review_note && <div className={application.status === "approved" ? "notice success" : "notice warning"}><strong>FieldLance review:</strong> {application.review_note}</div>}
         {error && <div className="notice error" role="alert">{error}</div>}
         {message && <div className="notice success" role="status">{message}</div>}
         {application.status === "approved" && (
@@ -480,20 +480,20 @@ export function PartnerNgoApplication({
 
       {["draft", "changes_requested"].includes(application.status) && (
         <section className="panel detail">
-          <h3>Submit for POEM approval</h3>
+          <h3>Submit for FieldLance approval</h3>
           <p>
             Submit only after the NGO profile is complete and registration/legal proof is uploaded.
-            After submission, the application is locked while POEM reviews it.
+            After submission, the application is locked while FieldLance reviews it.
           </p>
           <div className="actions">
-            <button className="primary" disabled={busy} onClick={() => action(() => rpc("submit_partner_ngo_application", { p_id: application.id, p_version: application.version }), "Application submitted for POEM review.")}>Submit application</button>
+            <button className="primary" disabled={busy} onClick={() => action(() => rpc("submit_partner_ngo_application", { p_id: application.id, p_version: application.version }), "Application submitted for FieldLance review.")}>Submit application</button>
             <button className="secondary" disabled={busy} onClick={() => window.confirm("Withdraw this application?") && action(() => rpc("withdraw_partner_ngo_application", { p_id: application.id, p_version: application.version }), "Application withdrawn.")}>Withdraw</button>
           </div>
         </section>
       )}
       {application.status === "submitted" && (
         <section className="panel detail">
-          <h3>Under POEM review</h3>
+          <h3>Under FieldLance review</h3>
           <p>Your profile and documents are locked while the review is in progress.</p>
           <button className="secondary" disabled={busy} onClick={() => window.confirm("Withdraw this submitted application?") && action(() => rpc("withdraw_partner_ngo_application", { p_id: application.id, p_version: application.version }), "Application withdrawn.")}>Withdraw application</button>
         </section>

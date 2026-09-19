@@ -1,4 +1,4 @@
-import {PoemBrand} from "../../components/ui/PoemBrand";
+import {FieldLanceBrand} from "../../components/ui/FieldLanceBrand";
 import {rememberFieldOwner} from '../surveys/offlineSurveyStore';
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -32,20 +32,20 @@ const entryCopy: Record<WorkspaceEntryIntent, EntryCopy> = {
   volunteer: {
     label: "Volunteer",
     destination: "Continue to your Volunteer workspace.",
-    storyHeading: "Build experience that matters.",
-    storyBody: "Discover meaningful field opportunities, build a verified work history and grow your professional profile through real community work.",
+    storyHeading: "Find field work. Build experience. Earn.",
+    storyBody: "Discover surveys, outreach, assessments, monitoring and data-collection assignments. Build verified experience while contributing to real community impact.",
   },
   ngo: {
     label: "Partner NGO",
     destination: "Continue to your Partner NGO workspace or application.",
-    storyHeading: "Find trusted people for meaningful work.",
-    storyBody: "Recruit volunteers, coordinate field delivery and manage organization work through one accountable operational workspace.",
+    storyHeading: "Build reliable field teams.",
+    storyBody: "Connect with verified workers and volunteers for surveys, outreach, assessments, monitoring, data collection and other field assignments — all in one accountable workspace.",
   },
   poem: {
-    label: "POEM staff",
-    destination: "Continue to POEM Administration.",
-    storyHeading: "Operate the network with clarity.",
-    storyBody: "Review partners, govern access and monitor field operations across the POEM network from one trusted platform.",
+    label: "FieldLance staff",
+    destination: "Continue to FieldLance Administration.",
+    storyHeading: "Operate the field-work network with clarity.",
+    storyBody: "Review partners, govern access, monitor delivery and coordinate trusted field operations across the FieldLance network.",
   },
 };
 
@@ -195,16 +195,16 @@ export function Auth({
 
   const signupEntry = entry === "poem" ? "volunteer" : entry;
   const heading = mode === "signup"
-    ? "Create your POEM account"
+    ? "Create your FieldLance account"
     : mode === "forgot"
       ? "Reset your password"
       : mode === "reset"
         ? "Choose a new password"
-        : "Sign in to POEM";
+        : "Sign in to FieldLance";
 
   const description = mode === "signup"
     ? signupEntry === "ngo"
-      ? "Create your personal POEM account, then continue the Partner NGO application after sign-in."
+      ? "Create your personal FieldLance account, then continue the Partner NGO application after sign-in."
       : "Build your volunteer profile and start accessing available opportunities."
     : mode === "forgot"
       ? "Enter your account email and we will send a secure reset link if it is registered."
@@ -216,7 +216,7 @@ export function Auth({
     ? [
         [Building2, "Recruit and manage field teams"],
         [CheckCircle, "Run approved projects and opportunities"],
-        [ShieldCheck, "POEM-governed organization access"],
+        [ShieldCheck, "FieldLance-governed organization access"],
       ] as const
     : entry === "poem"
       ? [
@@ -226,16 +226,16 @@ export function Auth({
         ] as const
       : [
           [UserRound, "Build your professional volunteer profile"],
-          [CheckCircle, "Keep POEM-verified work history"],
+          [CheckCircle, "Keep FieldLance-verified work history"],
           [ShieldCheck, "Apply through scoped NGO recruitment"],
         ] as const;
 
   return (
     <div className="auth-shell auth-shell-premium">
-      <section className="auth-story" aria-label="POEM account benefits">
-        <PoemBrand compact />
+      <section className="auth-story" aria-label="FieldLance account benefits">
+        <FieldLanceBrand compact />
         <div className="auth-story-main">
-          <span className="eyebrow">PEOPLE • PURPOSE • IMPACT</span>
+          <span className="eyebrow">FIELD OPPORTUNITIES • REAL EARNINGS • REAL IMPACT</span>
           <h1>{entryCopy[entry].storyHeading}</h1>
           <p>{entryCopy[entry].storyBody}</p>
           <div className="auth-points">
@@ -244,16 +244,16 @@ export function Auth({
             ))}
           </div>
         </div>
-        <small className="auth-story-footer">© {new Date().getFullYear()} POEM</small>
+        <small className="auth-story-footer">© {new Date().getFullYear()} FieldLance</small>
       </section>
 
       <section className="auth-form">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><PoemBrand compact /></div>
-          <span className="eyebrow">WELCOME TO POEM</span>
+          <div className="mobile-auth-brand"><FieldLanceBrand compact /></div>
+          <span className="eyebrow">WELCOME TO FieldLance</span>
 
           {!recovery && mode !== "forgot" && (
-            <div className="auth-entry-tabs" role="tablist" aria-label="Choose POEM workspace">
+            <div className="auth-entry-tabs" role="tablist" aria-label="Choose FieldLance workspace">
               {(Object.keys(entryCopy) as WorkspaceEntryIntent[]).map((value) => (
                 <button
                   type="button"
@@ -338,7 +338,7 @@ export function Auth({
           {mode === "login" ? (
             entry !== "poem" && (
               <div className="auth-bottom">
-                <span>{entry === "ngo" ? "Representing an NGO?" : "New to POEM?"}</span>{" "}
+                <span>{entry === "ngo" ? "Representing an NGO?" : "New to FieldLance?"}</span>{" "}
                 <button type="button" onClick={() => switchMode("signup")}>
                   Create an account
                 </button>
@@ -359,7 +359,7 @@ export function Auth({
 
           <div className="auth-account-note">
             <Info size={16} aria-hidden="true" />
-            <span>One POEM account can access multiple authorized workspaces.</span>
+            <span>One FieldLance account can access multiple authorized workspaces.</span>
           </div>
         </div>
       </section>

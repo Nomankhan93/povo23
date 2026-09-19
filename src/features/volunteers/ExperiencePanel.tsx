@@ -162,30 +162,30 @@ export function ExperiencePanel({
       </div>
       <p>
         {organization
-          ? "Confirm only external or previous work your NGO can substantiate. POEM project work is recorded automatically from platform evidence."
+          ? "Confirm only external or previous work your NGO can substantiate. FieldLance project work is recorded automatically from platform evidence."
           : readonly
-            ? "POEM-recorded field work is shown separately from NGO-confirmed previous or external experience."
-            : "POEM survey work updates automatically from your project assignments and reviewed survey responses. Add previous or external work separately below."}
+            ? "FieldLance-recorded field work is shown separately from NGO-confirmed previous or external experience."
+            : "FieldLance survey work updates automatically from your project assignments and reviewed survey responses. Add previous or external work separately below."}
       </p>
       {!organization && (
         <div className="experience-platform">
           <div className="panel-title">
             <div>
-              <h3>POEM verified work</h3>
-              <p>Live project history from POEM assignments and survey-review evidence. These records cannot be edited manually.</p>
+              <h3>FieldLance verified work</h3>
+              <p>Live project history from FieldLance assignments and survey-review evidence. These records cannot be edited manually.</p>
             </div>
           </div>
-          {platformBusy && <p role="status">Loading POEM work history…</p>}
+          {platformBusy && <p role="status">Loading FieldLance work history…</p>}
           {platformRows.map((e) => {
             const statusLabel = e.workflow_status === "completed"
-              ? "POEM verified"
+              ? "FieldLance verified"
               : e.verified
-                ? "POEM verified activity"
+                ? "FieldLance verified activity"
                 : e.workflow_status === "in_progress"
                   ? "In progress"
                   : e.workflow_status === "cancelled"
                     ? "Recorded history"
-                    : "POEM recorded";
+                    : "FieldLance recorded";
             return (
               <article className="document-row" key={`poem-${e.id}`}>
                 <div className="document-heading">
@@ -208,14 +208,14 @@ export function ExperiencePanel({
               </article>
             );
           })}
-          {!platformBusy && !platformRows.length && <p>No POEM project work recorded yet.</p>}
+          {!platformBusy && !platformRows.length && <p>No FieldLance project work recorded yet.</p>}
           <div className="actions">
-            <button className="secondary" disabled={platformBusy || !platformPage} onClick={() => setPlatformPage((n) => n - 1)}>Previous POEM work</button>
-            <button className="secondary" disabled={platformBusy || !platformMore} onClick={() => setPlatformPage((n) => n + 1)}>Next 50 POEM projects</button>
+            <button className="secondary" disabled={platformBusy || !platformPage} onClick={() => setPlatformPage((n) => n - 1)}>Previous FieldLance work</button>
+            <button className="secondary" disabled={platformBusy || !platformMore} onClick={() => setPlatformPage((n) => n + 1)}>Next 50 FieldLance projects</button>
           </div>
           <hr />
           <h3>Previous / external experience</h3>
-          <p>{readonly ? "Entries below were separately confirmed by their respective NGOs." : "Add experience completed outside POEM, then optionally request confirmation from that NGO."}</p>
+          <p>{readonly ? "Entries below were separately confirmed by their respective NGOs." : "Add experience completed outside FieldLance, then optionally request confirmation from that NGO."}</p>
         </div>
       )}
       {error && (

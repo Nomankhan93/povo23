@@ -527,7 +527,7 @@ export function SurveyProjectDetail({
       {people.map((p) => (
         <article key={p.id} className="document-row">
           <strong>
-            POEM-BEN-{String(p.registry_no).padStart(8, "0")} · {p.full_name}
+            FL-BEN-{String(p.registry_no).padStart(8, "0")} · {p.full_name}
           </strong>
           <p>
             {p.birth_date || "Birth date unknown"} · {p.identity_status}

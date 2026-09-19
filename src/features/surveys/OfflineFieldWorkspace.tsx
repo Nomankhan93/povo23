@@ -1,4 +1,4 @@
-import {PoemBrand} from "../../components/ui/PoemBrand";
+import {FieldLanceBrand} from "../../components/ui/FieldLanceBrand";
 import {EmptyState,StatusBadge} from "../../components/ui/WorkflowOverview";
 import {useCallback,useEffect,useState} from 'react';
 import {db,rpc} from '../../lib/supabase/client';
@@ -45,7 +45,7 @@ export function OfflineFieldWorkspace({ownerId,back}:{ownerId:string;back:()=>vo
  }
  const expired=selected&&(Date.now()>=Date.parse(selected.valid_until)||Boolean(selected.blocked));
  return <main className="panel detail field-workspace">
-   <PoemBrand compact/><h1>Offline field workspace</h1><OfflineShellStatus/><p role="status"><StatusBadge tone={online?"success":"warning"}>{online?"Connected":"Offline"}</StatusBadge> {online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
+   <FieldLanceBrand compact/><h1>Offline field workspace</h1><OfflineShellStatus/><p role="status"><StatusBadge tone={online?"success":"warning"}>{online?"Connected":"Offline"}</StatusBadge> {online?'Online — sync rechecks server access':'Offline — collecting against a downloaded snapshot'}</p>
    <div className="actions"><button type="button" disabled={collect||busy} onClick={back}>Main workspace</button><button type="button" disabled={collect||busy} onClick={()=>void logout()}>Lock and sign out</button></div>
    <SurveySyncStatus userId={ownerId}/>
    {error&&<p role="alert" className="notice error">{error}</p>}{notice&&<p role="status">{notice}</p>}
@@ -65,7 +65,7 @@ export function OfflineFieldWorkspace({ownerId,back}:{ownerId:string;back:()=>vo
    {inventory?.receipts.map(r=><p className="device-record synced" key={r.id}>Synchronized · response {r.responseId} · {new Date(r.updatedAt).toLocaleString()}</p>)}
    {inventory&&!inventory.drafts.length&&!inventory.queue.length&&!inventory.receipts.length&&<EmptyState>No device surveys yet. Start from a downloaded project.</EmptyState>}
    <h2>Device attachments</h2>{!files.length&&<EmptyState>No attachments stored on this device.</EmptyState>}{files.map(f=><p className="device-record" key={f.id}>{f.filename} · {f.state} · {Math.round(f.offset/f.size*100)}% server-confirmed{f.error&&` — ${f.error}`}</p>)}
-   <p>Sync runs while POEM is open, on reconnection and from Sync now. Closing the app pauses uploads; reopen to resume. Background Sync support is not required.</p>
+   <p>Sync runs while FieldLance is open, on reconnection and from Sync now. Closing the app pauses uploads; reopen to resume. Background Sync support is not required.</p>
    <div className="actions"><button disabled={busy||collect} onClick={()=>void action(async()=>{await cleanupAcknowledgedAttachments(ownerId);await clearFieldReceipts(ownerId);setNotice('Acknowledged device copies cleaned. Server records remain unchanged.')})}>Clean acknowledged copies</button><button className="danger-action" disabled={busy||collect} onClick={()=>{if(window.prompt('This permanently removes ALL your downloaded projects, drafts, queued surveys and device attachments from this browser. Type ERASE to confirm.')==='ERASE')void action(async()=>{await eraseOwnerFieldData(ownerId);setSelected(null);setNotice('Your device copies were erased. Server records are unchanged.')})}}>Erase my device data</button></div>
  </main>;
 }

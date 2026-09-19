@@ -100,7 +100,7 @@ export function EWalletWithdrawalWorkspace(){
   if(loading&&!summary)return <p role="status">Loading e-wallets and withdrawal balance…</p>;
   return <section className="ewallet-workspace">
     <div className="panel-title"><div><span className="eyebrow">PAYOUT METHODS</span><h2>JazzCash & Easypaisa</h2></div><Badge value="manual + mock"/></div>
-    <div className="notice"><strong>Current provider mode:</strong> wallet ownership verification is still simulated until live provider APIs are connected. POEM Finance can process approved withdrawals manually through JazzCash/Easypaisa and record the external transaction reference, while the mock sandbox remains available for development testing.</div>
+    <div className="notice"><strong>Current provider mode:</strong> wallet ownership verification is still simulated until live provider APIs are connected. FieldLance Finance can process approved withdrawals manually through JazzCash/Easypaisa and record the external transaction reference, while the mock sandbox remains available for development testing.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
     <div className="actions"><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh balance</button></div>
 
@@ -115,7 +115,7 @@ export function EWalletWithdrawalWorkspace(){
       {!wallets.rows.length&&<EmptyState>No e-wallet linked yet. Add JazzCash or Easypaisa below.</EmptyState>}
       <div className="ewallet-grid">{wallets.rows.map(wallet=><article className="document-row ewallet-card" key={wallet.id}>
         <div className="panel-title"><div><strong>{providerLabel(wallet.provider)}</strong><p>{wallet.account_masked} · {wallet.account_title}</p></div><Badge value={wallet.status}/></div>
-        <p>{wallet.is_default?'Default payout wallet · ':''}{wallet.status==='verified'?'Mock ownership check passed by POEM Admin.':'Awaiting or failed mock ownership verification.'}</p>
+        <p>{wallet.is_default?'Default payout wallet · ':''}{wallet.status==='verified'?'Mock ownership check passed by FieldLance Admin.':'Awaiting or failed mock ownership verification.'}</p>
         {wallet.status==='verified'&&!wallet.withdrawal_eligible&&wallet.withdrawal_eligible_at&&<p className="notice">Security hold active. Withdrawal eligibility begins after {when(wallet.withdrawal_eligible_at)}. The mock admin sandbox can bypass this hold only for development testing.</p>}
         {wallet.withdrawal_eligible&&<p className="notice success">Eligible for withdrawal.</p>}
         <div className="actions">
@@ -127,7 +127,7 @@ export function EWalletWithdrawalWorkspace(){
         <label className="field">E-wallet type<select value={provider} onChange={e=>setProvider(e.target.value as 'jazzcash'|'easypaisa')}><option value="jazzcash" disabled={!canAddJazzCash}>JazzCash</option><option value="easypaisa" disabled={!canAddEasypaisa}>Easypaisa</option></select></label>
         <label className="field">Full name of payee<input name="account_title" required minLength={2} maxLength={120} autoComplete="name"/></label>
         <label className="field">Wallet mobile number<input name="account_number" required inputMode="tel" placeholder="03XXXXXXXXX" autoComplete="tel"/></label>
-      </div><p>The account title should match your POEM account name. Mock verification checks only that name match; it does not prove ownership of the live wallet number. A verified wallet enters a {wallets.activation_hold_hours}-hour withdrawal security hold.</p><button className="primary">Save e-wallet</button></fieldset></form>}
+      </div><p>The account title should match your FieldLance account name. Mock verification checks only that name match; it does not prove ownership of the live wallet number. A verified wallet enters a {wallets.activation_hold_hours}-hour withdrawal security hold.</p><button className="primary">Save e-wallet</button></fieldset></form>}
     </section>
 
     <section className="panel detail"><h3>Transaction PIN</h3><p>A 6-digit transaction PIN protects withdrawal requests. The PIN is hashed server-side and never returned to the browser. Five failed checks temporarily lock PIN-protected actions for 15 minutes.</p>
@@ -153,9 +153,9 @@ export function EWalletWithdrawalWorkspace(){
 
     <section className="panel detail"><h3>Withdrawal history</h3>{!withdrawals.length&&<EmptyState>No withdrawal requests yet.</EmptyState>}
       {withdrawals.map(w=><article className="document-row" key={w.id}><div className="panel-title"><div><strong>PKR {money(w.amount)} · {providerLabel(w.provider)} {w.account_masked_snapshot}</strong><p>{new Date(w.requested_at).toLocaleString()} · {w.allocation_count} payable allocation{w.allocation_count===1?'':'s'}</p></div><Badge value={w.status}/></div>
-        <p>POEM reference: {w.provider_reference} · Processing mode: {w.provider_mode==='manual'?'Manual provider settlement':'Mock sandbox'}.</p>{w.settlement_reference&&<p>Provider settlement reference: <strong>{w.settlement_reference}</strong></p>}{w.reversal_reference&&<p>Provider reversal reference: <strong>{w.reversal_reference}</strong></p>}{w.failure_message&&<p className="notice error">{w.failure_message}</p>}
+        <p>FieldLance reference: {w.provider_reference} · Processing mode: {w.provider_mode==='manual'?'Manual provider settlement':'Mock sandbox'}.</p>{w.settlement_reference&&<p>Provider settlement reference: <strong>{w.settlement_reference}</strong></p>}{w.reversal_reference&&<p>Provider reversal reference: <strong>{w.reversal_reference}</strong></p>}{w.failure_message&&<p className="notice error">{w.failure_message}</p>}
         <div className="actions">{w.status==='requested'&&<button className="secondary" disabled={busy} onClick={()=>void run(()=>call('cancel_my_e_wallet_withdrawal',{p_withdrawal:w.id,p_version:w.version}),'Withdrawal cancelled and reserved earnings released.')}>Cancel request</button>}</div>
-        {['requested','approved','processing'].includes(w.status)&&<p className="notice">POEM Finance/Admin controls approval and provider settlement. You cannot mark your own withdrawal paid.</p>}
+        {['requested','approved','processing'].includes(w.status)&&<p className="notice">FieldLance Finance/Admin controls approval and provider settlement. You cannot mark your own withdrawal paid.</p>}
       </article>)}
     </section>
   </section>;

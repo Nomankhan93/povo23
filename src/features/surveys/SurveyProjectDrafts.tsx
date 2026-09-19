@@ -201,7 +201,7 @@ export function SurveyProjectDrafts({
       });
       setEditor((current) => ({ ...current, version }));
       setDirty(false);
-      setMessage("Project draft saved. It remains non-operational until POEM approves it.");
+      setMessage("Project draft saved. It remains non-operational until FieldLance approves it.");
       setRev((n) => n + 1);
     } catch (e) {
       setError((e as Error).message);
@@ -213,7 +213,7 @@ export function SurveyProjectDrafts({
   async function submitDraft() {
     if (!ngoMode) return;
     if (dirty || !editor.version) {
-      setError("Save this project draft before submitting it to POEM.");
+      setError("Save this project draft before submitting it to FieldLance.");
       return;
     }
     setBusy(true);
@@ -221,7 +221,7 @@ export function SurveyProjectDrafts({
     setMessage("");
     try {
       await rpc("submit_project_draft", { p_id: editor.id, p_version: editor.version });
-      setMessage("Project submitted to POEM. This revision is locked while it is under review.");
+      setMessage("Project submitted to FieldLance. This revision is locked while it is under review.");
       resetEditor();
       setRev((n) => n + 1);
     } catch (e) {
@@ -268,7 +268,7 @@ export function SurveyProjectDrafts({
           <h3>{ngoMode ? "Project drafts" : "NGO project review queue"}</h3>
           <p>
             {ngoMode
-              ? "Draft and submit a project using a POEM library template or your NGO's approved template. Only POEM approval creates an active operational project."
+              ? "Draft and submit a project using a FieldLance library template or your NGO's approved template. Only FieldLance approval creates an active operational project."
               : "Review submitted NGO project envelopes. Approval atomically materializes the existing operational survey project; no parallel project system is created."}
           </p>
         </div>
@@ -325,7 +325,7 @@ export function SurveyProjectDrafts({
                 <article className="document-row" key={draft.id}>
                   <strong>{draft.title || "Untitled project draft"}</strong>
                   <span> · {statusLabel(draft.review_status)} · revision {draft.version}</span>
-                  {draft.review_note && <p>Latest POEM note: {draft.review_note}</p>}
+                  {draft.review_note && <p>Latest FieldLance note: {draft.review_note}</p>}
                   {draft.approved_project_id && <p>Operational project created: {draft.approved_project_id}</p>}
                   {history.length > 0 && <details><summary>Review history</summary><ul>{history.map((event) => <li key={event.id}>{statusLabel(event.action)} · {event.note || "No note"}</li>)}</ul></details>}
                   {editable && <button type="button" disabled={busy} onClick={() => openDraft(draft)}>Open draft</button>}
@@ -347,7 +347,7 @@ export function SurveyProjectDrafts({
                   <option value="">Choose template</option>
                   {templates.map((template) => (
                     <option key={template.id} value={template.id}>
-                      {template.name} · v{template.version}{template.organization_id ? " · NGO" : " · POEM"}
+                      {template.name} · v{template.version}{template.organization_id ? " · NGO" : " · FieldLance"}
                     </option>
                   ))}
                 </select>
@@ -381,7 +381,7 @@ export function SurveyProjectDrafts({
             <p role="status">{dirty ? "Unsaved changes" : editor.version ? "Saved project draft" : "New project draft"} · Approval is required before field operations can start.</p>
             <div className="actions">
               <button type="button" disabled={busy} onClick={() => void saveDraft()}>Save draft</button>
-              <button className="primary" type="button" disabled={busy || dirty || !editor.version} onClick={() => void submitDraft()}>Submit to POEM</button>
+              <button className="primary" type="button" disabled={busy || dirty || !editor.version} onClick={() => void submitDraft()}>Submit to FieldLance</button>
             </div>
           </fieldset>
         </div>

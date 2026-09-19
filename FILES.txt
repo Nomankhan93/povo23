@@ -42,6 +42,7 @@ docs/PHASE-2.19.1.md
 docs/PHASE-2.19.2.md
 docs/PHASE-2.19.3.md
 docs/PHASE-2.19.4.md
+docs/PHASE-2.19.5.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -101,6 +102,7 @@ docs/UPGRADE-2.19.1.md
 docs/UPGRADE-2.19.2.md
 docs/UPGRADE-2.19.3.md
 docs/UPGRADE-2.19.4.md
+docs/UPGRADE-2.19.5.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -150,6 +152,7 @@ docs/VALIDATION-2.19.1.md
 docs/VALIDATION-2.19.2.md
 docs/VALIDATION-2.19.3.md
 docs/VALIDATION-2.19.4.md
+docs/VALIDATION-2.19.5.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -172,6 +175,10 @@ package-lock.json
 package.json
 PROJECT_ANALYSIS_CONTEXT.txt
 project-tree.txt
+public/apple-touch-icon.png
+public/fieldlance-icon-192.png
+public/fieldlance-icon-512.png
+public/manifest.webmanifest
 README.md
 scripts/bootstrap-admin.mjs
 scripts/build-field-worker.mjs
@@ -182,6 +189,7 @@ scripts/local-env.mjs
 scripts/schema-test-db.mjs
 scripts/test-area-operations.mjs
 scripts/test-area-picker.mjs
+scripts/test-branding2195.mjs
 scripts/test-capture-client.mjs
 scripts/test-correctness276.mjs
 scripts/test-current-state-stabilization.mjs
@@ -242,11 +250,12 @@ scripts/test-template-library.mjs
 scripts/test-workflow-ui2111.mjs
 src/app/App.tsx
 src/app/AppShell.tsx
+src/app/brand.ts
 src/app/version.ts
-src/assets/brand/poem-emblem.jpeg
-src/assets/brand/poem-wordmark.jpeg
+src/assets/brand/fieldlance-icon.png
+src/assets/brand/fieldlance-wordmark.png
+src/components/ui/FieldLanceBrand.tsx
 src/components/ui/Pager.tsx
-src/components/ui/PoemBrand.tsx
 src/components/ui/WorkflowOverview.tsx
 src/features/assistance/AssistanceLedgerWorkspace.tsx
 src/features/assistance/AssistancePanel.tsx
@@ -378,5 +387,6 @@ supabase/migrations/20261009000110_beneficiary_case_request_stabilization.sql
 supabase/migrations/20261009000200_assistance_distribution_planning.sql
 supabase/migrations/20261009000300_assistance_ledger_duplicate_controls.sql
 supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
+supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
 tsconfig.json
 vite.config.ts

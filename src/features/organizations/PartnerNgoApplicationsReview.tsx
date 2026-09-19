@@ -120,7 +120,7 @@ export function PartnerNgoApplicationsReview({
 
         {selected.status === "submitted" && (
           <section className="panel detail">
-            <h3>POEM decision</h3>
+            <h3>FieldLance decision</h3>
             <p>
               Approving creates an active Partner NGO, copies the structured operating areas/programs,
               and activates the applicant as the first NGO Admin. Every current application document
@@ -147,7 +147,7 @@ export function PartnerNgoApplicationsReview({
                 </select>
               </Field>
               <Field label="Review note"><textarea name="note" required minLength={3} maxLength={2000} /></Field>
-              <button className="primary" disabled={busy}>Save POEM decision</button>
+              <button className="primary" disabled={busy}>Save FieldLance decision</button>
             </form>
           </section>
         )}

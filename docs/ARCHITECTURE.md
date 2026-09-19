@@ -1,6 +1,6 @@
-# Current architecture note — POEM 2.19.4
+# Current architecture note — FieldLance 2.19.5
 
-## 2.19.4 frontend foundation architecture
+## 2.19.5 FieldLance brand architecture
 
 2.19.4 is intentionally migration-free. The existing AppShell, role/scope computation, database/RLS/RPC boundaries and feature workspaces remain in place. The release only corrects grouped-navigation coverage, centralizes the duplicated pagination primitive and removes code/assets confirmed to have no runtime references.
 
@@ -24,7 +24,7 @@ A requested next-follow-up date creates a new scheduled child follow-up linked t
 
 `close_beneficiary_case` records a structured closure category/summary/reason. `reopen_beneficiary_case` reopens to `open` and clears only the current closure fields. `beneficiary_case_lifecycle_events` captures immutable close/reopen history so reopening never erases the prior decision. The older `update_beneficiary_case` signature remains compatible but now uses the same closure blockers; the 2.19.3 UI uses the dedicated lifecycle RPCs.
 
-POEM survey authority, NGO Admin and Project Manager continue through existing `can_manage_project` scope. Area Focal remains outside broad case/follow-up mutation authority. Follow-up/revision/lifecycle tables are not directly granted to authenticated browser users. No follow-up or closure RPC posts finance journals, creates worker payables, changes wallets/withdrawals, or mutates delivered-assistance facts.
+FieldLance survey authority, NGO Admin and Project Manager continue through existing `can_manage_project` scope. Area Focal remains outside broad case/follow-up mutation authority. Follow-up/revision/lifecycle tables are not directly granted to authenticated browser users. No follow-up or closure RPC posts finance journals, creates worker payables, changes wallets/withdrawals, or mutates delivered-assistance facts.
 
 ## 2.19.2 assistance ledger / duplicate-control architecture
 
@@ -32,11 +32,11 @@ POEM survey authority, NGO Admin and Project Manager continue through existing `
 
 The controlled execution RPC locks the distribution plan, approved request, open case, active assessed need and canonical beneficiary before evaluating duplicate support and inserting the ledger row. Support kind/category/program and approved cash amount or goods/service quantity/unit are copied from the approved request. Browser input is limited to actual delivery description/date, funding source, evidence reference, optional next-eligibility date and—when authorized—an override reason.
 
-Duplicate evaluation uses the canonical beneficiary identity. An unexpired same-category `next_eligible_on` or same-day same-kind same amount/quantity is blocking; nearby same-category assistance is advisory context. Existing `can_manage_project` authority controls which matching records are returned. Protected matches are counted only as a review requirement and their source details are not returned. Project Manager cannot override blockers; NGO Admin may override only fully visible blockers; protected blockers require POEM survey authority.
+Duplicate evaluation uses the canonical beneficiary identity. An unexpired same-category `next_eligible_on` or same-day same-kind same amount/quantity is blocking; nearby same-category assistance is advisory context. Existing `can_manage_project` authority controls which matching records are returned. Protected matches are counted only as a review requirement and their source details are not returned. Project Manager cannot override blockers; NGO Admin may override only fully visible blockers; protected blockers require FieldLance survey authority.
 
 One active recorded delivery per plan and assistance request is enforced by partial unique indexes. Voiding `assistance_entries` marks the provenance link void, keeps historical evidence, triggers existing need re-review behavior and permits a corrected replacement. A plan with an active recorded delivery cannot be cancelled until that assistance row is voided. Legacy `record_assistance` remains for genuine unplanned/historical support, but it cannot bypass a ready plan or canonical same-day/eligibility duplicate blockers. A blocking exception must move through the case/request distribution workflow so override authority and provenance are explicit.
 
-`assistance_ledger` is a scoped read RPC for POEM survey authority, NGO Admin and Project Manager. It returns authorized `assistance_entries` plus derived plan/request/case linkage while keeping internal duplicate snapshots RPC-private. Area Focal remains outside the case/delivery management boundary. No 2.19.2 path creates worker payables, posts finance journals, changes e-wallet balances or executes provider settlement.
+`assistance_ledger` is a scoped read RPC for FieldLance survey authority, NGO Admin and Project Manager. It returns authorized `assistance_entries` plus derived plan/request/case linkage while keeping internal duplicate snapshots RPC-private. Area Focal remains outside the case/delivery management boundary. No 2.19.2 path creates worker payables, posts finance journals, changes e-wallet balances or executes provider settlement.
 
 ## 2.19.1 assistance distribution planning architecture
 
@@ -44,7 +44,7 @@ One active recorded delivery per plan and assistance request is enforced by part
 
 `assistance_distribution_plans` is anchored to exactly one approved `assistance_requests` row and snapshots that approved request version for audit. One non-cancelled plan is allowed per request. Cancelled plans remain immutable operational history and permit a replacement only while the request itself remains approved. The plan lifecycle is `draft`, `scheduled`, `ready`, `cancelled`; there is deliberately no `delivered` status in 2.19.1.
 
-Guarded RPCs enforce project scope, active-NGO state, open-case state for create/edit/schedule/readiness, optimistic versions and plan/request cancellation ordering. Project Manager uses the same least-privilege `can_manage_project` boundary as 2.19.0 cases. NGO Admin and POEM survey authority retain their existing broader project authority. Area Focal receives no case/distribution-plan table or RPC access in this phase.
+Guarded RPCs enforce project scope, active-NGO state, open-case state for create/edit/schedule/readiness, optimistic versions and plan/request cancellation ordering. Project Manager uses the same least-privilege `can_manage_project` boundary as 2.19.0 cases. NGO Admin and FieldLance survey authority retain their existing broader project authority. Area Focal receives no case/distribution-plan table or RPC access in this phase.
 
 The planning row stores mode, venue/location label, responsible-party label, instructions and schedule. `responsible_party` is descriptive operational metadata only; it is not an authorization assignment and does not bypass project membership/RLS. The case geography is stamped into the plan to preserve operational provenance.
 
@@ -69,7 +69,7 @@ The authoritative chain remains: project compensation snapshot → `work_payable
 
 The withdrawal lifecycle now includes `approved`. Reservations remain active for `requested`, `approved` and `processing`. `e_wallet_manual_operations` stores immutable approval/processing/settlement/failure/reversal history with idempotent request IDs and provider-scoped external transaction references. A singleton payout policy supplies server-enforced minimum, maximum, daily and dual-control thresholds.
 
-The POEM finance workspace reads through guarded queue/reconciliation RPCs. Reconciliation checks allocation totals, payment and reversal events, `finance_payable_event_links`, and manual provider references. This is provider readiness, not a fake API integration: the operator still executes the real transfer outside POEM until an official JazzCash/Easypaisa adapter is connected.
+The FieldLance finance workspace reads through guarded queue/reconciliation RPCs. Reconciliation checks allocation totals, payment and reversal events, `finance_payable_event_links`, and manual provider references. This is provider readiness, not a fake API integration: the operator still executes the real transfer outside FieldLance until an official JazzCash/Easypaisa adapter is connected.
 
 ## 2.18.1 e-wallet / withdrawal stabilization architecture
 
@@ -89,7 +89,7 @@ Provider mode is `mock` only. JazzCash/Easypaisa live API requests, provider-iss
 
 ## 2.17.2 payable → finance bridge architecture
 
-POEM keeps two intentionally separate accounting layers. `work_payable_*` is the worker-entitlement subledger; `finance_accounts` / `finance_journals` / `finance_postings` is the immutable central double-entry ledger. 2.17.2 links them without recalculating worker entitlement.
+FieldLance keeps two intentionally separate accounting layers. `work_payable_*` is the worker-entitlement subledger; `finance_accounts` / `finance_journals` / `finance_postings` is the immutable central double-entry ledger. 2.17.2 links them without recalculating worker entitlement.
 
 The bridge is event-sourced and append-only:
 
@@ -97,20 +97,20 @@ The bridge is event-sourced and append-only:
 
 Project funding buckets remain aggregate controls. Approval moves reserved funding to committed, payment moves committed to spent, reversals restore the prior bucket, and entitlement reduction releases only unused commitment. `reserved + committed + spent` therefore remains the funded project envelope for the currency.
 
-Historical monetary payable events are not silently rewritten. Authorized NGO Admin / POEM finance users can replay missing bridge links through reconciliation RPCs. New monetary events bridge automatically in the same database transaction, so an unfunded approval rolls back rather than creating an unrepresented financial obligation.
+Historical monetary payable events are not silently rewritten. Authorized NGO Admin / FieldLance finance users can replay missing bridge links through reconciliation RPCs. New monetary events bridge automatically in the same database transaction, so an unfunded approval rolls back rather than creating an unrepresented financial obligation.
 
 Provider settlement remains outside this phase. 2.18 may add JazzCash/provider clearing on top of the same finance journal system; it must not mutate historical bridge journals or replace worker payables.
 
 ## 2.17.0 finance-core architecture
 
-POEM now has two intentionally separate accounting layers:
+FieldLance now has two intentionally separate accounting layers:
 
 1. **Worker entitlement subledger** — existing `work_payable_units`, `work_payable_events`, receipts and contract amendments determine worker entitlement and payment history.
 2. **Central double-entry finance ledger** — `finance_accounts`, `finance_journals` and `finance_postings` record money/accounting movement without recalculating worker entitlement.
 
 A finance journal is immutable after posting and must balance (`debits = credits`) in one currency. Account balances are computed from postings using the account class normal side; no mutable organization/project balance column exists. Organization journals may use system clearing accounts plus accounts from that organization, but may not cross into another NGO or another project's scoped account. Corrections are new reversal journals linked to the original.
 
-2.17.0 deliberately exposes only a POEM finance-administration generic write surface. 2.17.1 will add constrained project funding/reservation actions for NGO workflows; 2.17.2 will add the idempotent `work_payable_event → finance_journal` bridge.
+2.17.0 deliberately exposes only a FieldLance finance-administration generic write surface. 2.17.1 will add constrained project funding/reservation actions for NGO workflows; 2.17.2 will add the idempotent `work_payable_event → finance_journal` bridge.
 
 
 2.16.1 extends the existing project/workforce/payable architecture rather than adding a parallel compensation subsystem. `survey_projects` now stores structured compensation defaults and optimistic `compensation_version`. These defaults describe **future work offers** only; they are not a cash balance or funding reservation.
@@ -119,9 +119,9 @@ A finance journal is immutable after posting and must balance (`debits = credits
 
 The existing `work_payable_units` / `work_payable_events` subsystem remains authoritative. `sync_survey_payable()` continues to create `per_verified_survey` units from independently approved responses using unique `response_id`; 2.16.1 only enriches `payable_snapshot()` with compensation provenance. No second payable generator, balance table or provider-transfer model is introduced.
 
-Authorization remains layered: NGO Admin / POEM survey-management authority can change project compensation defaults; Project Manager can read/use the defaults and manage recruitment/assignment offers but cannot change the project's compensation commitment; Area Focal receives no compensation-plan authority. 2.16.0 soft target/capacity/offline behavior remains unchanged.
+Authorization remains layered: NGO Admin / FieldLance survey-management authority can change project compensation defaults; Project Manager can read/use the defaults and manage recruitment/assignment offers but cannot change the project's compensation commitment; Area Focal receives no compensation-plan authority. 2.16.0 soft target/capacity/offline behavior remains unchanged.
 
-# Previous architecture note — POEM 2.16.0
+# Previous architecture note — FieldLance 2.16.0
 
 2.16.0 keeps `survey_projects` as the operational source of truth and adds project-level `required_volunteers`, `recruitment_status` and optimistic `recruitment_version`. Approved-response progress and committed-volunteer counts are derived from existing `survey_responses`, `work_assignments` and `survey_assignments`; no parallel counter ledger is introduced.
 
@@ -129,28 +129,28 @@ The recruitment gate is deliberately **soft for field collection**. Effective re
 
 Project Manager and NGO Admin can read/update the global recruitment plan through guarded RPCs. Area Focal Person remains geography-scoped for operational monitoring/review and does not receive project-wide recruitment-plan authority. Existing workforce opportunity/application/assignment tables and the existing payable subsystem remain authoritative; compensation defaults are deferred to 2.16.1.
 
-# Previous architecture note — POEM 2.15.1
+# Previous architecture note — FieldLance 2.15.1
 
-2.15.1 adds `survey_project_drafts` and append-only `survey_project_review_events` as approval/workflow state. These rows are not operational projects. Active NGO Admin membership is the organization ownership boundary; POEM review remains `can_manage_surveys()`.
+2.15.1 adds `survey_project_drafts` and append-only `survey_project_review_events` as approval/workflow state. These rows are not operational projects. Active NGO Admin membership is the organization ownership boundary; FieldLance review remains `can_manage_surveys()`.
 
-Approval calls the existing `create_survey_project()` inside the review transaction and stores the resulting `approved_project_id`. Existing `survey_projects.status` remains strictly operational (`active`/`closed`), so collection, recruitment, governance, offline capture, work assignments and payables do not need draft-state branches. Direct POEM project creation is additionally hardened so a project may use only a POEM-owned template or a template owned by the same NGO.
+Approval calls the existing `create_survey_project()` inside the review transaction and stores the resulting `approved_project_id`. Existing `survey_projects.status` remains strictly operational (`active`/`closed`), so collection, recruitment, governance, offline capture, work assignments and payables do not need draft-state branches. Direct FieldLance project creation is additionally hardened so a project may use only a FieldLance-owned template or a template owned by the same NGO.
 
-# Previous architecture note — POEM 2.15.0
-Template self-service extends `survey_template_drafts` with organization ownership and review state. `survey_templates` remains the immutable published artifact and now preserves optional NGO ownership plus `source_draft_id`. `survey_template_review_events` is append-only workflow history. NGO authorization is organization-scoped through active `ngo_admin` membership; POEM review remains `can_manage_surveys()`. Project staff roles from 2.14 receive no template authority.
+# Previous architecture note — FieldLance 2.15.0
+Template self-service extends `survey_template_drafts` with organization ownership and review state. `survey_templates` remains the immutable published artifact and now preserves optional NGO ownership plus `source_draft_id`. `survey_template_review_events` is append-only workflow history. NGO authorization is organization-scoped through active `ngo_admin` membership; FieldLance review remains `can_manage_surveys()`. Project staff roles from 2.14 receive no template authority.
 
 The application-side starter library remains a source for creating drafts; it is not migrated into a parallel marketplace. Project self-service is deferred to 2.15.1 and must materialize approved requests into the existing `survey_projects` operational table rather than overloading current `active/closed` operational status.
 
-# Previous architecture note — POEM 2.14.2
+# Previous architecture note — FieldLance 2.14.2
 
 2.14.2 stabilizes the project-scoped operational workspace on the 2.14 authorization layer. Project dashboards, response queues, status filters and assignment-area coverage query only rows allowed by existing RLS. Project staff never become global NGO Admin by implication.
 
 **Current 2.14.2:** Project Managers receive project-wide operational monitoring/review and existing assignment controls; Area Focal Persons receive geography-scoped monitoring/review without assignment-management UI. Direct project navigation and revoked-workspace fallback are browser-stabilized. No new database migration is added.
 
-POEM remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
+FieldLance remains a React/TypeScript modular monolith backed by Supabase/PostgreSQL. Current domains include authentication, organizations, volunteers, surveys, registry/canonical identity, assistance/needs, controlled sharing, verification/governance, offline field reliability, workforce recruitment and payable accounting. Historical phase notes below are retained for provenance; later migrations and release notes take precedence.
 
 Public recruitment browsing is independent of permanent NGO full-profile sharing. Since 2.13.1 the user-facing permanent sharing control is retired: applications carry bounded recruitment snapshots, while live NGO access to a volunteer profile is tied to explicit invitation/assignment relationships. The historical `profile_shares` table/RPC is retained only as a compatibility surface and current rows are cleared by the 2.13.1 migration. Volunteer profile publication remains separate from independent identity verification.
 
-POEM work experience is now derived from authoritative survey-project records instead of copied into a second platform-experience table. `work_experience_history()` combines survey assignments, workforce assignment state, project/template metadata and current survey-review outcomes. Manual/external `volunteer_experiences` remain separate. Authorized third-party profile readers receive only POEM work backed by approved surveys or completed assignments; recruitment snapshots include at most 10 bounded verified work summaries.
+FieldLance work experience is now derived from authoritative survey-project records instead of copied into a second platform-experience table. `work_experience_history()` combines survey assignments, workforce assignment state, project/template metadata and current survey-review outcomes. Manual/external `volunteer_experiences` remain separate. Authorized third-party profile readers receive only FieldLance work backed by approved surveys or completed assignments; recruitment snapshots include at most 10 bounded verified work summaries.
 
 ## Consolidated 2.13.3 baseline
 
@@ -215,7 +215,7 @@ The Auth session uses the official Supabase client's browser session persistence
 - `src/Phase12.tsx`: geography, document and notification UI.
 - `scripts/test-phase12.mjs`: applies the original migration, creates legacy data, upgrades, and tests PostgreSQL and Storage RLS policies.
 
-Document flow: reserve → upload bytes → finalize metadata → POEM review. Interrupted uploads can be finalized if bytes exist, or removed and retried. Removal changes metadata first, deletes bytes through Storage, then retains a deleted-history row. Document review is independent from profile publication. No direct deletion of Storage SQL rows in application code.
+Document flow: reserve → upload bytes → finalize metadata → FieldLance review. Interrupted uploads can be finalized if bytes exist, or removed and retried. Removal changes metadata first, deletes bytes through Storage, then retains a deleted-history row. Document review is independent from profile publication. No direct deletion of Storage SQL rows in application code.
 
 Current profile publishing requires the configured mandatory profile fields and Taluka / Tehsil / Subdivision, but it does not require admin approval or documents. Private documents have their own review status and never unpublish an active profile. Legacy profile-review RPCs remain only for backward compatibility.
 
@@ -225,11 +225,11 @@ Server MIME/size restrictions and client magic-byte checks are not malware scann
 
 ## Current profile publication (2.7.4)
 
-Volunteer profile lifecycle is now **Draft → Active** through the volunteer's own publish action. Published edits go live immediately after server validation. The historical database value `verified` is retained as the active/marketplace-ready state for compatibility with existing survey/workforce authorization; the UI labels it **Active** and it no longer means POEM approved the profile. Work experience confirmation and private-document review remain separate workflows. Profile photos use a private Storage bucket and inherit the same authorized profile-read scope.
+Volunteer profile lifecycle is now **Draft → Active** through the volunteer's own publish action. Published edits go live immediately after server validation. The historical database value `verified` is retained as the active/marketplace-ready state for compatibility with existing survey/workforce authorization; the UI labels it **Active** and it no longer means FieldLance approved the profile. Work experience confirmation and private-document review remain separate workflows. Profile photos use a private Storage bucket and inherit the same authorized profile-read scope.
 
 ## Subsequent foundation work
 
-Phase 1.3 delivers directory pagination, generated public-schema types and Volunteer Manager / NGO Manager / Auditor roles. Configurable geography levels/import, pagination of supporting lists, Registry Manager and project-specific consent/data policies remain open. Legacy POEM Admins retain broad access. Organization invitations may follow registered-account membership assignment.
+Phase 1.3 delivers directory pagination, generated public-schema types and Volunteer Manager / NGO Manager / Auditor roles. Configurable geography levels/import, pagination of supporting lists, Registry Manager and project-specific consent/data policies remain open. Legacy FieldLance Admins retain broad access. Organization invitations may follow registered-account membership assignment.
 
 ## Survey/registry pilot after volunteer foundation
 
@@ -241,7 +241,7 @@ Apply migrations to a dedicated cloud project, configure exact redirect URLs and
 
 ## Phase 2.5 collaboration boundary
 
-The canonical identity layer remains POEM-controlled. Partner organizations coordinate through three new relational records rather than receiving cross-project table permissions:
+The canonical identity layer remains FieldLance-controlled. Partner organizations coordinate through three new relational records rather than receiving cross-project table permissions:
 
 - `data_access_requests`: requesting NGO, source NGO, canonical person, purpose, requested field allowlist and two-step review state.
 - `data_access_grants`: source-specific approved field allowlist, canonical version snapshot, validity window and revocation state.
@@ -273,8 +273,8 @@ A volunteer continues to use one account across organizations. Applications and 
 
 The workforce candidate RPC returns aggregate history only. It does not disclose which other NGO produced an approved survey or verified experience. Match labels are coarse discovery aids, not an employment ranking, and no automatic level promotion occurs in this phase.
 
-## POEM 2.13 — Partner NGO onboarding
+## FieldLance 2.13 — Partner NGO onboarding
 
 Partner NGO onboarding is a separate approval workflow rather than direct creation of an active `organizations` record. `partner_ngo_applications` holds the representative's draft/review lifecycle and structured programs/operating areas. `partner_ngo_application_documents` holds private evidence metadata; bytes live in the private `poem-ngo-applications` bucket.
 
-Approval is the boundary that creates the active organization and first `ngo_admin` membership. A personal POEM account remains the human identity; POEM does not create or encourage shared NGO credentials.
+Approval is the boundary that creates the active organization and first `ngo_admin` membership. A personal FieldLance account remains the human identity; FieldLance does not create or encourage shared NGO credentials.

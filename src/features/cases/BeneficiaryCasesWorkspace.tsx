@@ -303,7 +303,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
           <CancelRequest request={request} busy={busy} run={run}/>
         </div>}
         {request.status==='submitted'&&<>
-          {detail.can_approve_requests?<form onSubmit={event=>reviewRequest(event,request)}><label className="field">Review note<textarea name="note" required minLength={5} maxLength={2000}/></label><div className="actions"><button className="primary" name="decision" value="approve" disabled={busy}>Approve</button><button className="secondary" name="decision" value="reject" disabled={busy}>Reject</button></div></form>:<p><strong>Awaiting NGO Admin / POEM survey approval.</strong></p>}
+          {detail.can_approve_requests?<form onSubmit={event=>reviewRequest(event,request)}><label className="field">Review note<textarea name="note" required minLength={5} maxLength={2000}/></label><div className="actions"><button className="primary" name="decision" value="approve" disabled={busy}>Approve</button><button className="secondary" name="decision" value="reject" disabled={busy}>Reject</button></div></form>:<p><strong>Awaiting NGO Admin / FieldLance survey approval.</strong></p>}
           <CancelRequest request={request} busy={busy} run={run}/>
         </>}
         <DistributionPlans request={request} plans={detail.distribution_plans.filter(plan=>plan.request_id===request.id)} deliveries={detail.deliveries.filter(delivery=>delivery.request_id===request.id)} busy={busy} run={run}/>
@@ -453,7 +453,7 @@ function DeliveryRecorder({plan,busy,run}:{plan:DistributionPlan;busy:boolean;ru
     try{setPreview(await call('assistance_duplicate_support_preview',{p_plan:plan.id,p_delivered:delivered}) as DuplicatePreview)}catch(e){setPreview(null);setCheckError((e as Error).message)}finally{setChecking(false)}
   }
   return <details className="survey-question" open><summary>Record delivered assistance</summary>
-    <p>2.19.2 first checks the canonical beneficiary for same-category support. Protected cross-NGO details are not disclosed; a protected blocker requires POEM review.</p>
+    <p>2.19.2 first checks the canonical beneficiary for same-category support. Protected cross-NGO details are not disclosed; a protected blocker requires FieldLance review.</p>
     {checkError&&<p className="notice error" role="alert">{checkError}</p>}
     <form onSubmit={event=>{event.preventDefault();const formEl=event.currentTarget,form=new FormData(formEl);void run(()=>call('record_assistance_distribution_delivery',{p_plan:plan.id,p_assistance:deliveryId,p_description:val(form,'description'),p_delivered:delivered,p_funding:val(form,'funding'),p_evidence:val(form,'evidence'),p_next:val(form,'next')||null,p_duplicate_override_reason:val(form,'override')||null,p_plan_version:plan.version}),'Delivered assistance recorded in the authoritative ledger.').then(result=>{if(result!==null){formEl.reset();setDelivered(today);setPreview(null);setDeliveryId(crypto.randomUUID())}})}}>
       <fieldset disabled={busy||checking}>
@@ -465,7 +465,7 @@ function DeliveryRecorder({plan,busy,run}:{plan:DistributionPlan;busy:boolean;ru
           <strong>{preview.blocking_count?`${preview.blocking_count} blocking duplicate-support signal(s).`:'No blocking duplicate-support signal found.'}</strong>
           <p>{preview.recent_count} recent same-category record(s) considered. {preview.protected_blocking_count?`${preview.protected_blocking_count} blocker(s) are protected outside your current project authority.`:''}</p>
           {!!preview.visible_matches.length&&<details><summary>Visible assistance matches</summary>{preview.visible_matches.map(match=><p key={match.assistance_id}>{match.delivered_on} · {match.organization_name} · {match.project_title} · {match.program}{match.eligibility_overlap?` · next eligible ${match.next_eligible_on}`:''}{match.exact_same_day?' · same-day amount/quantity match':''}</p>)}</details>}
-          {preview.poem_review_required&&<p>POEM duplicate-support review is required. Protected source details remain hidden here.</p>}
+          {preview.poem_review_required&&<p>FieldLance duplicate-support review is required. Protected source details remain hidden here.</p>}
         </div>}
         {preview &&
           (preview.blocking_count ?? 0) > 0 &&

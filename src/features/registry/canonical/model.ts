@@ -8,6 +8,6 @@ export type Preview = { source_a: Source; source_b: Source; canonical_a: Identit
 export type Candidate = { id:string; full_name:string; birth_date:string|null; project_title:string; organization_name:string; signals:string[]; stale:boolean; status:string|null; same_canonical:boolean };
 export type Section = "sources" | "history" | "merges" | "assistance" | "decisions";
 export type Page<T> = { rows:T[]; has_more:boolean };
-export const beneficiary = (n:number) => `POEM-BEN-${String(n).padStart(8,"0")}`;
+export const beneficiary = (n:number) => `FL-BEN-${String(n).padStart(8,"0")}`;
 export const date = (s:string|null|undefined) => s ? new Date(s).toLocaleString() : "—";
 export const identityLabel = (c:Identity) => c.identity_status === "merged" ? "Merged record" : c.review_required ? "Review required" : "Current identity";

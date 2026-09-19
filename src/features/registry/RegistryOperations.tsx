@@ -20,7 +20,7 @@ export type Candidate = {
   stale: boolean;
 };
 export const text = (f: FormData, k: string) => String(f.get(k) || "").trim();
-export const ben = (n: number) => "POEM-BEN-" + String(n).padStart(8, "0");
+export const ben = (n: number) => "FL-BEN-" + String(n).padStart(8, "0");
 export const label = (s: string) => s.replaceAll("_", " ");
 export function RegistryOperations({
   personId,

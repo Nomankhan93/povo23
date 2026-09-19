@@ -85,7 +85,7 @@ function openDatabase() {
       if (!value.objectStoreNames.contains("drafts")) value.createObjectStore("drafts", { keyPath: "id" });
       if (!value.objectStoreNames.contains("queue")) value.createObjectStore("queue", { keyPath: "id" });
     };
-    open.onblocked = () => { database=null;reject(new Error("Close other POEM tabs to upgrade offline storage")); };
+    open.onblocked = () => { database=null;reject(new Error("Close other FieldLance tabs to upgrade offline storage")); };
     open.onsuccess = () => { open.result.onversionchange=()=>{open.result.close();database=null};resolve(open.result); };
     open.onerror = () => reject(open.error || new Error("Could not open encrypted device storage"));
   });

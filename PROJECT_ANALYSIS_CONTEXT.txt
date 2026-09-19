@@ -1,10 +1,10 @@
-===== POEM PROJECT ANALYSIS CONTEXT =====
+===== FieldLance PROJECT ANALYSIS CONTEXT =====
 Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.19.4
-Package: poem-phase1-1
+Release: 2.19.5
+Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
 Supabase CLI package: 2.100.0
@@ -12,14 +12,14 @@ Supabase CLI package: 2.100.0
 ===== ARCHITECTURE =====
 React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/PostgREST/Storage.
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
-Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
+Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.19.4 PRODUCT BOUNDARIES =====
-- One personal POEM account can access multiple authorized workspaces.
+===== CURRENT 2.19.5 PRODUCT BOUNDARIES =====
+- One personal FieldLance account can access multiple authorized workspaces.
 - 2.19.0 adds beneficiary cases/requests; 2.19.1 adds planning-only distribution plans; 2.19.2 records controlled delivery into assistance_entries with canonical duplicate-support controls; 2.19.3 adds structured follow-up, outcomes and controlled close/reopen lifecycle history.
-- 2.19.4 is migration-free frontend foundation stabilization: grouped navigation coverage is corrected, duplicate Pager implementations are consolidated, and confirmed dead frontend files are removed without changing authorization or workflow semantics.
+- 2.19.4 stabilized the frontend foundation. 2.19.5 completes the user-facing FieldLance rebrand and product positioning while preserving historical database identifiers and compatibility.
 - Case intake requires approved survey provenance; one assessed need can belong to only one active case at a time.
-- POEM survey authority, NGO Admin and Project Manager manage cases/requests/plans/follow-ups within existing project scope; only NGO Admin / POEM survey authority approve or reject requests. Area Focal remains outside broad case/planning/delivery/follow-up mutation authority.
+- FieldLance survey authority, NGO Admin and Project Manager manage cases/requests/plans/follow-ups within existing project scope; only NGO Admin / FieldLance survey authority approve or reject requests. Area Focal remains outside broad case/planning/delivery/follow-up mutation authority.
 - Assistance-request approval means approved for planning only. A ready plan still is not delivery; 2.19.2 creates assistance_entries through guarded delivery recording, and 2.19.3 requires structured post-delivery follow-up/outcome evidence before controlled case closure.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
@@ -29,30 +29,30 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Worker payable accounting, verified organization funding, project reservation and payable-to-finance reconciliation exist; 2.18.2 adds guarded manual JazzCash/Easypaisa settlement and provider reconciliation without live provider API custody.
 - Project Manager and Area Focal Person workspaces include RLS-filtered operational metrics, area coverage, recent response queues and direct review navigation; broad NGO administration remains separate.
 - Active NGO Admins can create organization-owned survey-template drafts and use immutable approved NGO template versions.
-- Active NGO Admins can stage organization-owned project drafts; POEM approval materializes exactly one existing operational survey_projects row.
-- Project drafts can use POEM-owned templates or approved templates owned by the same NGO; cross-NGO private template reuse is rejected server-side.
-- POEM survey managers retain direct project creation and receive guarded template/project review queues with changes-request/reject/approve decisions.
+- Active NGO Admins can stage organization-owned project drafts; FieldLance approval materializes exactly one existing operational survey_projects row.
+- Project drafts can use FieldLance-owned templates or approved templates owned by the same NGO; cross-NGO private template reuse is rejected server-side.
+- FieldLance survey managers retain direct project creation and receive guarded template/project review queues with changes-request/reject/approve decisions.
 - Project approved-response targets are soft operational controls: target reach closes new recruitment/offers but does not reject existing/offline survey synchronization.
 - Project-level required-volunteer capacity is separate from the survey target and counts distinct committed volunteers across current formal/direct assignments.
 - NGO Admin and Project Manager can increase target/capacity or manually close/reopen recruitment; Area Focal remains scoped monitoring/review only.
-- Projects now carry structured compensation defaults for future work; NGO Admin / POEM survey-management authority can change them while Project Manager is read-only for the financial commitment.
+- Projects now carry structured compensation defaults for future work; NGO Admin / FieldLance survey-management authority can change them while Project Manager is read-only for the financial commitment.
 - New recruitment opportunities snapshot project compensation; later project-rate changes do not mutate historical opportunities.
 - Formal work assignments inherit the authoritative opportunity/project snapshot and remain immutable; existing payable generation continues to use approved-response uniqueness rather than a second accounting engine.
 - Finance Core now uses immutable `finance_accounts`, `finance_journals` and `finance_postings`; journal debits and credits must balance in one currency and balances are derived from postings.
 - Existing worker payable tables remain the authoritative entitlement subledger; 2.17.2 bridges monetary payable events idempotently into aggregate project reserved/committed/spent finance buckets.
-- Generic finance mutation is POEM admin/super-admin only; NGO Admin may reserve/release verified own-organization funds only through constrained project-funding RPCs; project operational roles do not inherit finance authority.
+- Generic finance mutation is FieldLance admin/super-admin only; NGO Admin may reserve/release verified own-organization funds only through constrained project-funding RPCs; project operational roles do not inherit finance authority.
 - Verified funding sources/receipts and payable-finance links are immutable. Available/reserved/committed/spent values are derived from standardized finance accounts rather than editable balance columns.
 - New monetary payable events bridge atomically; insufficient reserved funding blocks financial approval. Historical unbridged events are detectable and replayable through constrained reconciliation RPCs.
 - Personal payout methods in 2.18.2 remain limited to JazzCash and Easypaisa e-wallets; bank accounts / IBAN payout paths are intentionally excluded.
-- E-wallet binding stores normalized account data behind RPC-only tables, returns masked account numbers to the UI, enforces one active wallet number per provider across POEM accounts, and uses pending/verified/rejected/suspended/unlinked lifecycle states.
+- E-wallet binding stores normalized account data behind RPC-only tables, returns masked account numbers to the UI, enforces one active wallet number per provider across FieldLance accounts, and uses pending/verified/rejected/suspended/unlinked lifecycle states.
 - Transaction PINs are server-hashed with the Supabase pgcrypto API; plaintext PINs are never persisted or returned. Five failed protected checks create a 15-minute lock.
 - Newly verified wallets have a 24-hour withdrawal activation hold; the mock admin may explicitly bypass it only for development tests. Withdrawal requests reserve exact approved-but-unpaid payable allocations so the same entitlement cannot fund concurrent withdrawals.
-- Wallet verification still uses the clearly labelled POEM-Admin-only mock sandbox. Withdrawal execution can remain mock for development or be approved into a guarded manual provider path where POEM records the real JazzCash/Easypaisa transaction reference after out-of-band payment; no live API credential is embedded.
+- Wallet verification still uses the clearly labelled FieldLance-Admin-only mock sandbox. Withdrawal execution can remain mock for development or be approved into a guarded manual provider path where FieldLance records the real JazzCash/Easypaisa transaction reference after out-of-band payment; no live API credential is embedded.
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 53
-Migration head: 20261009000400_case_followup_outcomes_closure.sql
+Ordered migration files: 54
+Migration head: 20261009000500_fieldlance_brand_compatibility.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -108,12 +108,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000200_assistance_distribution_planning.sql
 - 20261009000300_assistance_ledger_duplicate_controls.sql
 - 20261009000400_case_followup_outcomes_closure.sql
+- 20261009000500_fieldlance_brand_compatibility.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 60
-TypeScript/TSX source files: 79
-Markdown docs: 164
-Inventory files (excluding local/build/temp/backup state): 382
+Test scripts (scripts/test-*.mjs): 61
+TypeScript/TSX source files: 80
+Markdown docs: 167
+Inventory files (excluding local/build/temp/backup state): 392
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -136,10 +137,10 @@ npm run test:operations
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
 2.19.3 completes the currently scoped beneficiary assistance lifecycle from assessed need through delivered support, structured follow-up/outcome and controlled close/reopen history.
-2.19.4 stabilizes the frontend foundation before screenshot-driven UI/UX work; large AppShell/CSS/routing refactors remain deferred until concrete UX issues are reviewed.
+2.19.5 establishes the final FieldLance identity before screenshot-driven UI/UX work; large AppShell/routing refactors remain deferred until concrete UX issues are reviewed.
 Audit the validated 2.19.3 state before choosing the next product phase; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.
 
 ===== INVENTORY EXCLUSIONS =====
-.git/, node_modules/, dist/, .poem-patch-backups/, supabase/.temp/, supabase/.branches/, local .env files, logs and temporary test directories are intentionally excluded.
+.git/, node_modules/, dist/, .poem-patch-backups/, .fieldlance-patch-backups/, supabase/.temp/, supabase/.branches/, local .env files, logs and temporary test directories are intentionally excluded.

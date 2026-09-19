@@ -54,7 +54,7 @@ export function App() {
     return (
       <div className="setup">
         <HeartHandshake size={42} />
-        <h1>Connect your POEM workspace</h1>
+        <h1>Connect your FieldLance workspace</h1>
         <p>
           Copy <code>.env.example</code> to <code>.env.local</code> and enter
           your Supabase URL and public key, then restart the development server.
@@ -69,7 +69,7 @@ export function App() {
   if (!ready)
     return (
       <div className="setup" role="status">
-        Opening POEM…
+        Opening FieldLance…
       </div>
     );
   return session && !recovery && localStorage.getItem("poem-field-locked")!=="yes" ? (

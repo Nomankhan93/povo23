@@ -14,16 +14,16 @@ const css = readFileSync('src/styles/design-system.css', 'utf8');
 await ok('auth keeps one account while presenting three workspace destinations', async () => {
   assert.match(auth, /Volunteer/);
   assert.match(auth, /Partner NGO/);
-  assert.match(auth, /POEM staff/);
-  assert.match(auth, /One POEM account can access multiple authorized workspaces/);
-  assert.match(auth, /Sign in to POEM/);
+  assert.match(auth, /FieldLance staff/);
+  assert.match(auth, /Choose FieldLance workspace/i);
+  assert.match(auth, /Sign in to FieldLance/i);
 });
 
 await ok('auth uses role-specific operational storytelling without changing account semantics', async () => {
-  assert.match(auth, /Build experience that matters/);
-  assert.match(auth, /Find trusted people for meaningful work/);
-  assert.match(auth, /Operate the network with clarity/);
-  assert.match(auth, /Create your personal POEM account/);
+  assert.match(auth, /Find field work\. Build experience\. Earn\./i);
+  assert.match(auth, /Build reliable field teams\./i);
+  assert.match(auth, /Operate the field-work network with clarity\./i);
+  assert.match(auth, /Create your FieldLance account/i);
 });
 
 await ok('authentication controls are concise and accessible', async () => {
@@ -39,7 +39,9 @@ await ok('authentication controls are concise and accessible', async () => {
 
 await ok('premium auth styling uses a 43 57 split enterprise primary and white fields', async () => {
   assert.match(css, /43%\) minmax\(0,57%\)/);
-  assert.match(css, /#3b5ccc/i);
+  assert.match(css, /--fieldlance-blue:#0a78d8/i);
+    assert.match(css, /--fieldlance-green:#00b96f/i);
+    assert.match(css, /--fieldlance-navy:#071a32/i);
   assert.match(css, /\.auth-shell-premium input\{[^}]*background:#fff/);
   assert.match(css, /auth-account-note/);
   assert.match(css, /auth-primary-action/);

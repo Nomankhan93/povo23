@@ -127,7 +127,7 @@ export function Directory({
       <p>
         {organization
           ? "Only volunteers currently sharing with this NGO appear here. Selection does not create a contract or assignment."
-          : "Search the authorized POEM volunteer network."}
+          : "Search the authorized FieldLance volunteer network."}
       </p>
       <form onSubmit={apply}>
         <div className="form-grid">

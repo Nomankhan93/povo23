@@ -1,4 +1,4 @@
-import {PoemBrand} from "../components/ui/PoemBrand";
+import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {navigationGroups,WorkflowOverview} from "../components/ui/WorkflowOverview";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -270,7 +270,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           setScope(staffRole ? "poem" : "personal");
           setPageState("Overview");
           if (!staffRole)
-            setNotice("This account does not have POEM staff access. Your personal workspace is open instead.");
+            setNotice("This account does not have FieldLance staff access. Your personal workspace is open instead.");
         } else {
           setScope((old) => old || defaultScope);
         }
@@ -417,7 +417,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       <div className="setup">
         <ShieldCheck size={40} />
         <h1>Account suspended</h1>
-        <p>Contact POEM to request a review. Data access has been disabled.</p>
+        <p>Contact FieldLance to request a review. Data access has been disabled.</p>
         <button onClick={logout}>Sign out</button>
       </div>
     );
@@ -427,7 +427,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
         <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
-        <PoemBrand />
+        <FieldLanceBrand />
         <div className="workspace-select">
           <label htmlFor="scope">WORKSPACE</label>
           <select
@@ -439,7 +439,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               change(next.startsWith("project:") ? "Project workspace" : "Overview");
             }}
           >
-            {admin && <option value="poem">POEM administration</option>}
+            {admin && <option value="poem">FieldLance administration</option>}
             <option value="personal">My Volunteer Workspace</option>
             {myOrgs.map((o) => (
               <option key={o.id} value={o.id}>
@@ -485,7 +485,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             {(account.full_name || account.email)[0].toUpperCase()}
           </span>
           <div>
-            <strong>{account.full_name || "POEM member"}</strong>
+            <strong>{account.full_name || "FieldLance member"}</strong>
             <small>{human(account.platform_role)}</small>
           </div>
         </div>
@@ -511,7 +511,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           </span>
           <div className="header-tools">
             <button type="button" className="secondary" onClick={openField}>Offline field</button><SurveySyncStatus userId={session.user.id} />
-            <span className="release">POEM {APP_VERSION}</span>
+            <span className="release">FieldLance {APP_VERSION}</span>
           </div>
         </header>
         <div className="content" id="workspace-content" tabIndex={-1}>
@@ -528,7 +528,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                     ? "Build your profile, apply to open projects and grow your verified work history."
                     : projectScope
                       ? `${projectScopeProject?.title || "Project"} · ${human(projectScopeAssignment?.role || "project_staff")} · database-scoped operations.`
-                      : "Manage your NGO projects, recruitment and volunteers connected through POEM workflows."}
+                      : "Manage your NGO projects, recruitment and volunteers connected through FieldLance workflows."}
               </p>
             </div>
             {page === "Partner NGOs" && ngos && (
@@ -958,8 +958,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </section>
           )}
           <footer>
-            <span>POEM · Volunteer Network</span>
-            <span>POEM {APP_VERSION} · Survey and registry operations.</span>
+            <span>FieldLance · Volunteer Network</span>
+            <span>FieldLance {APP_VERSION} · Survey and registry operations.</span>
           </footer>
         </div>
       </main>

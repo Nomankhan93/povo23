@@ -98,7 +98,7 @@ export function Documents({
       if (uploaded.error) throw uploaded.error;
       await rpc("finish_document_upload", { p_id: d.id });
       form.reset();
-    }, "Document uploaded for POEM review.");
+    }, "Document uploaded for FieldLance review.");
   }
   async function download(d: Row) {
     await action(async () => {
@@ -133,7 +133,7 @@ export function Documents({
     <section className="panel detail">
       <h2>Private documents</h2>
       <p>
-        Visible only to the volunteer and authorized POEM admins. NGO profile
+        Visible only to the volunteer and authorized FieldLance admins. NGO profile
         sharing does not include these files. PDF, JPG or PNG; maximum 5 MiB
         each, 20 current files.
       </p>
@@ -196,7 +196,7 @@ export function Documents({
               {d.review_status}
             </span>
           </div>
-          {d.review_note && <p>POEM review: {d.review_note}</p>}
+          {d.review_note && <p>FieldLance review: {d.review_note}</p>}
           <div className="document-actions">
             {d.state === "ready" && (
               <button
@@ -271,7 +271,7 @@ export function Documents({
         <div className="empty">
           <h3>No documents uploaded</h3>
           <p>
-            Upload supporting evidence if POEM requests it. Identity documents
+            Upload supporting evidence if FieldLance requests it. Identity documents
             are optional.
           </p>
         </div>

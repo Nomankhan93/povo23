@@ -21,10 +21,10 @@ await ok('package and lockfile versions match', async () => {
 });
 
 await ok('current release headings follow package version', async () => {
-  assert.equal(firstLine('README.md'), `# Current release: POEM ${version}`);
-  assert.equal(firstLine('docs/ARCHITECTURE.md'), `# Current architecture note — POEM ${version}`);
-  assert.equal(firstLine('docs/PERMISSIONS.md'), `# Current permissions note — POEM ${version}`);
-  assert.equal(firstLine('docs/RELEASE-CHECKLIST.md'), `# Current release checklist — POEM ${version}`);
+  assert.equal(firstLine('README.md'), `# Current release: FieldLance ${version}`);
+  assert.equal(firstLine('docs/ARCHITECTURE.md'), `# Current architecture note — FieldLance ${version}`);
+  assert.equal(firstLine('docs/PERMISSIONS.md'), `# Current permissions note — FieldLance ${version}`);
+  assert.equal(firstLine('docs/RELEASE-CHECKLIST.md'), `# Current release checklist — FieldLance ${version}`);
 });
 
 await ok('current release has phase upgrade and validation docs', async () => {
@@ -58,4 +58,4 @@ await ok('2.13.3 consolidation adds no database migration', async () => {
   }
 });
 
-console.log(`\n${passed} release consistency scenarios passed for POEM ${version}.`);
+console.log(`\n${passed} release consistency scenarios passed for FieldLance ${version}.`);

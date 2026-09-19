@@ -1,30 +1,30 @@
-# Current release: POEM 2.19.4
+# Current release: FieldLance 2.19.5
 
-Frontend Foundation Stabilization. See [release notes](docs/PHASE-2.19.4.md), [WSL upgrade](docs/UPGRADE-2.19.4.md) and [validation](docs/VALIDATION-2.19.4.md).
+Complete FieldLance rebrand and product positioning. See [release notes](docs/PHASE-2.19.5.md), [WSL upgrade](docs/UPGRADE-2.19.5.md) and [validation](docs/VALIDATION-2.19.5.md).
 
-POEM 2.19.4 is a migration-free frontend/repository cleanup on top of the validated 2.19.3 beneficiary lifecycle. It fixes confirmed navigation coverage, consolidates duplicate pagination UI, removes verified dead assets/components and adds a focused regression test. It deliberately does not redesign AppShell, CSS/theme, routes, database/RLS/RPCs, finance/payments or beneficiary workflows; screenshot-driven UI/UX work follows after this foundation patch.
+FieldLance 2.19.5 is the complete user-facing rebrand and positioning release on top of the validated 2.19.4 frontend foundation. FieldLance is a field-work marketplace connecting organizations with verified people for surveys, community outreach, assessments, monitoring, data collection and other field assignments, while enabling workers and volunteers to build experience and earn income. Historical database identifiers and migrations remain compatible.
 
-## 2.19.4 release rules
+## 2.19.5 release rules
 
-- No database migration is added; migration head remains `20261009000400_case_followup_outcomes_closure.sql`.
+- One forward-only compatibility migration is added: `20261009000500_fieldlance_brand_compatibility.sql`. It changes no historical table/column/status names and keeps legacy `POEM-BEN-` search compatibility while new UI identifiers use `FL-BEN-`.
 - Existing 2.19.0–2.19.3 beneficiary/assistance/follow-up architecture remains unchanged.
 - `Recruitment` and `Withdrawal operations` are included in grouped sidebar navigation when the existing role/scope logic exposes them.
 - Needs and Survey modules use one shared `src/components/ui/Pager.tsx` implementation.
-- Confirmed unreferenced `src/features/volunteers/ReviewForm.tsx` and `public/favicon.svg` are removed; the branded POEM emblem remains the favicon.
-- `npm run test:frontend-foundation` guards the cleanup and verifies that 2.19.4 stays migration-free.
-- Large AppShell decomposition, URL/deep-link navigation, CSS-system consolidation, native-dialog replacement and visual redesign are intentionally deferred to screenshot-driven stabilization so working UX is not redesigned blindly.
+- Confirmed unreferenced `src/features/volunteers/ReviewForm.tsx` and `public/favicon.svg` are removed; the branded FieldLance emblem remains the favicon.
+- `npm run test:frontend-foundation` still guards the 2.19.4 cleanup; `npm run test:branding` guards the FieldLance identity, assets, offline shell and beneficiary-prefix compatibility.
+- Large AppShell decomposition, URL/deep-link navigation, native-dialog replacement and screen-level visual redesign remain deferred to the screenshot-driven stabilization phase. 2.19.5 only applies the final FieldLance identity and palette foundation.
 
 ## Current product boundaries
 
 - The validated `approved survey → beneficiary need → case → approved request → distribution plan → duplicate review → assistance_entries → follow-up → outcome → closure` lifecycle remains unchanged.
 - PostgreSQL RLS and guarded RPCs remain the security boundary; sidebar visibility is presentation only.
 - Payment/finance architecture remains frozen except for future explicitly scoped defects/provider integrations.
-- 2.19.4 changes frontend organization only; it does not create or mutate operational records differently.
+- 2.19.5 changes product identity/positioning and beneficiary display-prefix compatibility only; it does not change operational authorization, finance/payment behavior or beneficiary workflow semantics.
 
 
 ## Historical foundation notes
 
-# POEM Phase 2.3
+# FieldLance Phase 2.3
 
 Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL. Designed for local WSL development with a local Supabase Docker stack. Independent of the earlier Sites-backed source snapshot.
 
@@ -46,28 +46,28 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 
 - Email/password signup, confirmation, login, logout and password recovery.
 - Safe signup defaults: new accounts are volunteers; client metadata cannot grant admin access.
-- POEM Super Admin / POEM Admin, NGO Admin memberships and volunteer workspaces.
+- FieldLance Super Admin / FieldLance Admin, NGO Admin memberships and volunteer workspaces.
 - CV-style profile drafts, submissions, review feedback and L0/L1 verification display.
 - Editing invalidates previous approval; optimistic version checks reject stale saves/reviews.
-- Partner NGO self-onboarding, private registration evidence, POEM approval, operational status and assignment of registered accounts to organizations.
+- Partner NGO self-onboarding, private registration evidence, FieldLance approval, operational status and assignment of registered accounts to organizations.
 - One account can belong to multiple NGOs; explicit workspace switching.
 - Recruitment/application snapshots plus project/assignment-scoped NGO profile access; the old permanent profile-sharing control is not exposed in the current UI.
 - Database-enforced permissions, active-account checks, protected RPC mutations and audit events.
 - Admin geography manager and cascading volunteer location selection.
-- Private PDF/JPG/PNG volunteer documents with upload recovery, removal and POEM review.
+- Private PDF/JPG/PNG volunteer documents with upload recovery, removal and FieldLance review.
 - Verification checklist and document-review gates; evidence changes invalidate approval.
 - In-app notifications with recipient-only read access.
 - Local first-Super-Admin bootstrap helper, `.env.example`, locked npm dependencies and validation scripts.
 
 ## Important boundaries
 
-- This is a development foundation. It is not the full POEM roadmap or a certified production release.
-- App accounts are active after email confirmation. Volunteer profiles are self-published/active; independent verification is separate. NGO memberships are assigned through the current POEM/NGO administration rules. Account suspension is separate from profile publication and identity verification.
+- This is a development foundation. It is not the full FieldLance roadmap or a certified production release.
+- App accounts are active after email confirmation. Volunteer profiles are self-published/active; independent verification is separate. NGO memberships are assigned through the current FieldLance/NGO administration rules. Account suspension is separate from profile publication and identity verification.
 - Legacy database profile status `verified` means active/published profile in compatibility code; independent identity verification, completed training and performance are separate concepts.
-- NGO “active” is operational approval. POEM 2.13 stores private onboarding evidence and records the application decision, while independent organization verification remains a separate governance concept.
-- Volunteer recruitment access is application/assignment-scoped in the current UI. Beneficiary coordination remains a separate explicit source-NGO approval plus POEM authorization workflow with field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
+- NGO “active” is operational approval. FieldLance 2.13 stores private onboarding evidence and records the application decision, while independent organization verification remains a separate governance concept.
+- Volunteer recruitment access is application/assignment-scoped in the current UI. Beneficiary coordination remains a separate explicit source-NGO approval plus FieldLance authorization workflow with field allowlist, expiry and revocation. Past viewed/copied data cannot be recalled.
 - Volunteer profiles now use the project-supplied Pakistan Province/Territory → Division → District → Taluka/Tehsil/Subdivision reference hierarchy. Islamabad skips Division. Union Council is manual/optional and full address is mandatory. Admin geography tools remain available for controlled maintenance; existing approvals survive upgrade until edited/reviewed.
-- Survey builder and project-scoped provisional person/household registry are included. POEM survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Workforce payable accounting is included, but custodial account balances/payment-provider transfer, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
+- Survey builder and project-scoped provisional person/household registry are included. FieldLance survey managers also have a canonical cross-project identity foundation with explainable candidate review and reversible merges. Phase 2.5 adds controlled partner-NGO coordination summaries. Phase 2.6 adds encrypted device drafts and queued reconnect sync after a project/form has loaded; cold-start offline navigation, offline documents/photos and full PWA caching are still not included. Workforce payable accounting is included, but custodial account balances/payment-provider transfer, automatic performance scoring, bulk beneficiary export and SMS/email notifications beyond Auth are not included.
 - No migration/import from the older Cloudflare/Sites database is included.
 - Volunteer directory uses server-side filters and 50-record pages with authorized counts. Supporting UI lists still cap at 500 accounts/organizations, 1,000 memberships and 100 events; keep the operational pilot within those supporting-list caps.
 - Database revocation takes effect on the next request; already rendered data is not remotely erased. Refresh the UI after account, membership, organization or grant changes.
@@ -94,7 +94,7 @@ npm run build
 npm run test:local
 ```
 
-POEM 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. POEM 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. POEM 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring. POEM 2.7 adds an embedded PostgreSQL marketplace/assignment lifecycle suite. POEM 2.7.1 adds seeded Pakistan geography and profile-location regression checks. POEM 2.7.2 adds runtime profile/geography regression coverage and strict non-ICT district-parent validation.
+FieldLance 2.4.2 keeps `npm run test:operations` fixture teardown canonical-registry-aware. FieldLance 2.5 adds a dedicated embedded PostgreSQL sharing/RLS suite. FieldLance 2.6 adds structural regression checks for encrypted IndexedDB drafts/queue semantics and global field-sync wiring. FieldLance 2.7 adds an embedded PostgreSQL marketplace/assignment lifecycle suite. FieldLance 2.7.1 adds seeded Pakistan geography and profile-location regression checks. FieldLance 2.7.2 adds runtime profile/geography regression coverage and strict non-ICT district-parent validation.
 
 The first three were run in the build environment. `npm test` runs the real SQL migration and RLS workflows using embedded PostgreSQL (PGlite) with a simulated Auth schema and JWT subject. The 26 foundation tests, 19 document/geography regression tests 22 Phase 1.3 tests 28 Phase 1.4 tests 20 Phase 2.1 tests 23 Phase 2.2 tests and 25 Phase 2.3 tests simulate Auth and Storage metadata; they do not verify actual Auth or Storage HTTP services. `test:local` verifies real local Auth/API and private Storage upload/download/removal once Docker is running; it is supplied for local execution and was not run in this environment.
 

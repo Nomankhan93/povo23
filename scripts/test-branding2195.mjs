@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {existsSync,readFileSync,readdirSync} from 'node:fs';
+const read=p=>readFileSync(p,'utf8');
+let passed=0;
+const ok=(name,fn)=>{fn();passed++;console.log('PASS '+name)};
+
+ok('package identity is FieldLance 2.19.5',()=>{const p=JSON.parse(read('package.json'));assert.equal(p.name,'fieldlance-platform');assert.equal(p.version,'2.19.5');assert.equal(p.scripts['test:branding'],'node scripts/test-branding2195.mjs')});
+ok('browser metadata uses FieldLance identity and tagline',()=>{const h=read('index.html');assert.match(h,/FieldLance — Field Opportunities\. Real Earnings\. Real Impact\./);assert.match(h,/manifest\.webmanifest/);assert.match(h,/fieldlance-icon-192\.png/);assert.doesNotMatch(h,/POEM/)});
+ok('supplied FieldLance brand assets replace POEM assets',()=>{for(const p of ['src/assets/brand/fieldlance-icon.png','src/assets/brand/fieldlance-wordmark.png','public/fieldlance-icon-192.png','public/fieldlance-icon-512.png','public/apple-touch-icon.png'])assert.equal(existsSync(p),true,p);assert.equal(existsSync('src/assets/brand/poem-emblem.jpeg'),false);assert.equal(existsSync('src/assets/brand/poem-wordmark.jpeg'),false)});
+ok('runtime brand component uses FieldLance assets',()=>{const s=read('src/components/ui/FieldLanceBrand.tsx');assert.match(s,/fieldlance-wordmark\.png/);assert.match(s,/fieldlance-icon\.png/);assert.match(s,/BRAND_TAGLINE/);assert.equal(existsSync('src/components/ui/PoemBrand.tsx'),false)});
+ok('runtime UI contains no uppercase POEM product copy',()=>{const files=[];const walk=d=>{for(const e of readdirSync(d,{withFileTypes:true})){const p=d+'/'+e.name;if(e.isDirectory())walk(p);else if(/\.(ts|tsx)$/.test(p))files.push(p)}};walk('src');for(const p of files)assert.doesNotMatch(read(p),/\bPOEM\b/,p)});
+ok('auth positioning presents the FieldLance marketplace promise',()=>{const s=read('src/features/auth/Auth.tsx');assert.match(s,/WELCOME TO FieldLance/);assert.match(s,/FieldLance staff/);assert.match(s,/Find field work\. Build experience\. Earn\./);assert.match(s,/Build reliable field teams/)});
+ok('beneficiary display prefix is FL-BEN',()=>{for(const p of ['src/features/sharing/DataSharingWorkspace.tsx','src/features/registry/RegistryOperations.tsx','src/features/registry/canonical/model.ts','src/features/registry/canonical/CanonicalWorkbench.tsx','src/features/surveys/SurveyProjectDetail.tsx'])assert.doesNotMatch(read(p),/POEM-BEN-/);assert.match(read('src/features/registry/canonical/model.ts'),/FL-BEN-/)});
+ok('forward migration accepts legacy and FieldLance beneficiary prefixes',()=>{const s=read('supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql');assert.match(s,/\^\(FL-BEN-\|POEM-BEN-\)/);assert.match(s,/— FL-BEN-/);assert.match(s,/FieldLance survey management permission required/)});
+ok('offline shell uses FieldLance cache and branded static assets',()=>{const b=read('scripts/build-field-worker.mjs');assert.match(b,/fieldlance-field-shell-/);assert.match(b,/manifest\.webmanifest/);assert.match(b,/fieldlance-icon-512\.png/);assert.match(b,/poem-field-shell-/);assert.doesNotMatch(b,/favicon\.svg/)});
+ok('manifest describes FieldLance standalone identity',()=>{const m=JSON.parse(read('public/manifest.webmanifest'));assert.equal(m.name,'FieldLance');assert.equal(m.short_name,'FieldLance');assert.equal(m.description,'Field Opportunities. Real Earnings. Real Impact.');assert.equal(m.icons.length,2)});
+console.log(`\n${passed} FieldLance 2.19.5 branding scenarios passed.`);

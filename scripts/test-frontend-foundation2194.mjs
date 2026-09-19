@@ -40,17 +40,18 @@ ok('confirmed dead volunteer review component is removed', () => {
 ok('unused legacy favicon is removed while branded favicon remains', () => {
   assert.equal(existsSync('public/favicon.svg'), false);
   const html = read('index.html');
-  assert.match(html, /poem-emblem\.jpeg/);
+  assert.match(html, /fieldlance-icon-192\.png/);
   assert.doesNotMatch(html, /favicon\.svg/);
   assert.doesNotMatch(read('scripts/build-field-worker.mjs'), /favicon\.svg/);
   assert.doesNotMatch(read('scripts/test-field-worker211.mjs'), /favicon\.svg/);
 });
 
-ok('frontend foundation release remains migration-free', () => {
+ok('2.19.4 frontend foundation itself introduced no migration', () => {
   const migrations = read('FILES.txt')
     .split(/\r?\n/)
     .filter((path) => path.startsWith('supabase/migrations/') && path.endsWith('.sql'));
-  assert.equal(migrations.at(-1), 'supabase/migrations/20261009000400_case_followup_outcomes_closure.sql');
+  assert.ok(migrations.includes('supabase/migrations/20261009000400_case_followup_outcomes_closure.sql'));
+  assert.equal(migrations.some((path) => /frontend.*foundation/i.test(path)), false);
 });
 
-console.log(`\n${passed} POEM 2.19.4 frontend foundation scenarios passed.`);
+console.log(`\n${passed} FieldLance 2.19.4 frontend foundation scenarios passed.`);

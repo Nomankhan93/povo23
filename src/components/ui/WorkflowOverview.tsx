@@ -14,9 +14,9 @@ export function WorkflowOverview({staff,personal,profileStatus,unread,allowed,on
   ['My profile','Your volunteer profile','Update your skills, availability and sharing preferences.'],
   ['Survey projects','Your survey work','Open projects and continue assigned field work.'],
   ['Workforce payables','Your earnings','View pending claims, approved amounts and payment history.'],
-  ['E-Wallets & withdrawals','Your payout methods','Link JazzCash or Easypaisa, set your transaction PIN and request withdrawals. POEM Admin controls mock provider outcomes during development.'],
+  ['E-Wallets & withdrawals','Your payout methods','Link JazzCash or Easypaisa, set your transaction PIN and request withdrawals. FieldLance Admin controls mock provider outcomes during development.'],
   ['Invitations','Work invitations','Review invitations and choose your next assignment.'],
-  ['Partner NGO application','Represent an NGO','Apply for a Partner NGO workspace using your existing personal POEM account.']
+  ['Partner NGO application','Represent an NGO','Apply for a Partner NGO workspace using your existing personal FieldLance account.']
  ]:[
   ['Survey projects','Survey operations','Open projects, assignments and survey responses.'],
   ['Verification','Review work','Open the verification workspace for available reviews.'],
@@ -30,7 +30,7 @@ export function WorkflowOverview({staff,personal,profileStatus,unread,allowed,on
  ];
  return <>
   <section className="workspace-summary" aria-label="Workspace summary">
-   <div><span className="eyebrow">YOUR WORKSPACE</span><h2>{staff?'POEM operations':personal?'Ready for your next assignment?':'NGO operations'}</h2><p>{personal?'Published profile changes go live immediately. Admin approval is not required.':'Choose an action below. Available records and actions depend on your role and workspace.'}</p></div>
+   <div><span className="eyebrow">YOUR WORKSPACE</span><h2>{staff?'FieldLance operations':personal?'Ready for your next assignment?':'NGO operations'}</h2><p>{personal?'Published profile changes go live immediately. Admin approval is not required.':'Choose an action below. Available records and actions depend on your role and workspace.'}</p></div>
    <div className="summary-metrics"><div><span>Unread notifications</span><strong>{unread}</strong><button className="link" onClick={()=>onNavigate('Notifications')}>Open notifications</button></div>{personal&&<div><span>Profile status</span><StatusBadge>{profileStatus}</StatusBadge></div>}</div>
   </section>
   <section aria-label="Workspace actions" className="workflow-grid">{tasks.filter(([page])=>allowed.includes(page)).map(([page,title,description])=><article className="workflow-card" key={page}><h3>{title}</h3><p>{description}</p><button className="secondary" onClick={()=>onNavigate(page)}>Open {page.toLowerCase()} <span aria-hidden="true">→</span></button></article>)}<article className="workflow-card field-card"><span className="eyebrow">ON YOUR DEVICE</span><h3>Field workspace</h3><p>Download assigned projects, continue device drafts and check synchronization.</p><button className="primary" onClick={onField}>Open offline field</button></article></section>

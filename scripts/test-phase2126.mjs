@@ -252,7 +252,7 @@ try {
 
   await ok('work experience UI separates automatic POEM history from previous experience', async () => {
     const source = readFileSync('src/features/volunteers/ExperiencePanel.tsx', 'utf8');
-    assert.match(source, /POEM verified work/);
+    assert.match(source, /FieldLance verified work/);
     assert.match(source, /work_experience_history/);
     assert.match(source, /Previous \/ external experience/);
     assert.match(source, /Add previous experience/);

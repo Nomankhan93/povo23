@@ -1,6 +1,6 @@
-# Current release checklist — POEM 2.19.4
+# Current release checklist — FieldLance 2.19.5
 
-## POEM 2.19.4 acceptance
+## FieldLance 2.19.5 acceptance
 
 - [ ] No migration is added; migration head remains `20261009000400_case_followup_outcomes_closure.sql`.
 - [ ] `npm run test:frontend-foundation` passes all frontend-foundation scenarios.
@@ -13,7 +13,7 @@
 
 
 
-## POEM 2.19.3 acceptance
+## FieldLance 2.19.3 acceptance
 
 - [ ] `20261009000400_case_followup_outcomes_closure.sql` applies after `20261009000300_assistance_ledger_duplicate_controls.sql`.
 - [ ] Existing `00100`, `00110`, `00200` and `00300` migrations remain byte-identical.
@@ -34,7 +34,7 @@
 - [ ] Browser QA covers overdue/due/upcoming queue, outcome completion, next follow-up, closure blockers, close and reopen.
 - [ ] Local/remote migration histories match before cloud deployment.
 
-## POEM 2.19.2 acceptance
+## FieldLance 2.19.2 acceptance
 
 - [ ] `20261009000300_assistance_ledger_duplicate_controls.sql` applies after `20261009000200_assistance_distribution_planning.sql`.
 - [ ] Existing `00100`, `00110` and `00200` migration files remain byte-identical.
@@ -47,7 +47,7 @@
 - [ ] One active recorded delivery per plan/request is enforced; voided history permits a corrected replacement.
 - [ ] Project Manager cannot override blocking duplicate signals.
 - [ ] NGO Admin can override only fully visible own-authority blockers with reason.
-- [ ] Protected cross-project/cross-NGO blockers require POEM review without exposing protected source details.
+- [ ] Protected cross-project/cross-NGO blockers require FieldLance review without exposing protected source details.
 - [ ] Ready planned support cannot bypass plan provenance via legacy `record_assistance`.
 - [ ] Assistance ledger is scoped and identifies planned versus historical/unplanned entries.
 - [ ] Active delivered plan cannot be cancelled until its ledger entry is voided.
@@ -55,7 +55,7 @@
 - [ ] Browser QA covers duplicate preview, no-conflict delivery, override roles, void/replacement and ledger filters.
 - [ ] Local/remote migration histories match before cloud deployment.
 
-## POEM 2.19.1 acceptance
+## FieldLance 2.19.1 acceptance
 
 - [ ] `20261009000200_assistance_distribution_planning.sql` applies after `20261009000110_beneficiary_case_request_stabilization.sql`.
 - [ ] Existing 2.19.0 case/request migrations remain byte-identical.
@@ -74,7 +74,7 @@
 - [ ] Browser QA confirms planning copy never describes `scheduled` or `ready` as delivered support.
 - [ ] Local/remote migration histories match before cloud deployment.
 
-## POEM 2.19.0 acceptance
+## FieldLance 2.19.0 acceptance
 
 - [ ] `20261009000100_beneficiary_cases_assistance_requests.sql` applies after the 2.18.3 database head `00930`.
 - [ ] `npm run types:generate` / `npm run types:check` are green.
@@ -84,15 +84,15 @@
 - [ ] Case intake requires an approved survey response for the same project beneficiary.
 - [ ] One assessed need cannot be actively linked to multiple cases.
 - [ ] Project Manager can create/manage/submit but cannot approve/reject assistance requests.
-- [ ] NGO Admin / POEM survey authority can approve/reject submitted requests.
+- [ ] NGO Admin / FieldLance survey authority can approve/reject submitted requests.
 - [ ] Approved request does not create a delivered-assistance entry.
 - [ ] Submitted/approved requests and pending linked needs block unsafe case closure.
 - [ ] Area Focal, collectors, other NGOs and anonymous users cannot access the new management boundary.
-- [ ] Browser QA covers POEM, NGO Admin and Project Manager case/request workspaces.
+- [ ] Browser QA covers FieldLance, NGO Admin and Project Manager case/request workspaces.
 - [ ] `git diff --check` is green before cloud push.
 
 
-## POEM 2.18.3 acceptance
+## FieldLance 2.18.3 acceptance
 
 - [ ] No new migration is introduced; migration head remains `20261008000930_withdrawal_operations_manual_settlement.sql`.
 - [ ] `npm run types:generate` and `npm run types:check` are green.
@@ -101,14 +101,14 @@
 - [ ] `scripts/test-phase2181.mjs` compares activation timestamps by value, not Date object identity.
 - [ ] `scripts/test-phase2182.mjs` does not directly query `e_wallet_withdrawals`; it reads through personal/admin RPCs.
 - [ ] Authenticated direct SELECT on sensitive e-wallet/payment tables remains denied.
-- [ ] Volunteer/NGO/project operational roles cannot execute POEM finance/provider operations.
+- [ ] Volunteer/NGO/project operational roles cannot execute FieldLance finance/provider operations.
 - [ ] Manual settlement, failure and reversal continue reconciling to exact payable allocations and finance bridge links.
 - [ ] JazzCash/Easypaisa remain the only payout providers; no bank/IBAN or fake live API path exists.
-- [ ] Browser QA covers volunteer withdrawal, POEM wallet verification, Finance manual settlement, failure/reversal and matched reconciliation.
+- [ ] Browser QA covers volunteer withdrawal, FieldLance wallet verification, Finance manual settlement, failure/reversal and matched reconciliation.
 - [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations`, `git diff --check` all pass before cloud push.
 
 
-## POEM 2.18.2 acceptance
+## FieldLance 2.18.2 acceptance
 
 - [ ] `20261008000920_ewallet_withdrawal_stabilization.sql` is applied and 2.18.1 tests are green.
 - [ ] `20261008000930_withdrawal_operations_manual_settlement.sql` applies locally.
@@ -124,7 +124,7 @@
 - [ ] JazzCash/Easypaisa remain the only payout methods; no bank/IBAN path or fake live API is added.
 - [ ] Full preflight/local/operations regression and `git diff --check` are green before cloud push.
 
-## POEM 2.18.1 acceptance
+## FieldLance 2.18.1 acceptance
 
 - [ ] `20261008000910_ewallet_default_owner_fix.sql` is present/applied before 2.18.1.
 - [ ] `20261008000920_ewallet_withdrawal_stabilization.sql` applies after 00910.
@@ -132,7 +132,7 @@
 - [ ] Run `npm run types:generate`, then `npm run preflight`.
 - [ ] `node scripts/test-phase218.mjs` and `node scripts/test-phase2181.mjs` pass.
 - [ ] Verification event keys cannot authorize a different wallet/outcome for the same provider.
-- [ ] New verified wallets have a 24-hour withdrawal hold; only POEM Admin can use the labelled mock activation override.
+- [ ] New verified wallets have a 24-hour withdrawal hold; only FieldLance Admin can use the labelled mock activation override.
 - [ ] Five failed transaction-PIN checks persist and create a 15-minute lock; correct PIN cannot bypass an active lock.
 - [ ] Authenticated clients cannot execute the old `configure_withdrawal_pin` mutation RPC.
 - [ ] Withdrawal request-id lookup/allocation is serialized per account.
@@ -143,7 +143,7 @@
 - [ ] No bank/IBAN payout path and no live JazzCash/Easypaisa credential/API is introduced.
 - [ ] `npm run test:local`, `npm run test:operations`, historical 2.17/2.18 regressions and `git diff --check` are green before cloud push.
 
-## POEM 2.18.0 acceptance
+## FieldLance 2.18.0 acceptance
 
 - [ ] `20261008000610_finance_rls_helper_execute_fix.sql`, 2.17.1 funding and 2.17.2 payable-finance bridge are applied and green before 2.18.0.
 - [ ] `20261008000900_ewallet_mock_withdrawal_sandbox.sql` applies after the 2.17.2 migration head.
@@ -151,7 +151,7 @@
 - [ ] `node scripts/test-phase218.mjs` passes all e-wallet / mock-withdrawal scenarios.
 - [ ] Only JazzCash and Easypaisa are supported; no bank-account/IBAN payout UI or schema exists.
 - [ ] Authenticated users cannot directly read/write wallet, PIN, withdrawal-allocation or provider-event tables.
-- [ ] Wallet numbers returned to the UI are masked; mock verification is POEM-Admin-only and clearly states it is not live ownership proof.
+- [ ] Wallet numbers returned to the UI are masked; mock verification is FieldLance-Admin-only and clearly states it is not live ownership proof.
 - [ ] Transaction PIN is six digits and stored only as a server-side cryptographic verifier.
 - [ ] Withdrawal requests reserve exact unpaid payable allocations and prevent double withdrawal/concurrent monetary payable mutation.
 - [ ] Mock success creates existing `work_payable_events` payment entries exactly once and 2.17.2 moves Committed → Spent.
@@ -161,7 +161,7 @@
 - [ ] No live JazzCash/Easypaisa API endpoint, credential, callback secret or fake production integration is embedded.
 - [ ] `npm run test:local`, `npm run test:operations`, prior 2.17 regressions and `git diff --check` are green before cloud push.
 
-## POEM 2.17.2 acceptance
+## FieldLance 2.17.2 acceptance
 
 - [ ] `20261008000610_finance_rls_helper_execute_fix.sql` is present before project funding/bridge validation.
 - [ ] `20261008000700_project_funding_reservation.sql` applies and 2.17.1 funding tests pass.
@@ -178,7 +178,7 @@
 - [ ] No JazzCash/provider or withdrawal flow is introduced in 2.17.2.
 - [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
 
-## POEM 2.17.0 acceptance
+## FieldLance 2.17.0 acceptance
 
 - [ ] `20261008000500_recruitment_discovery_compatibility_fix.sql` is present/applied (2.16.1 compatibility follow-up).
 - [ ] `20261008000600_finance_core_double_entry_ledger.sql` applies after the current 2.16.1 chain.
@@ -209,7 +209,7 @@
 - [ ] 2.16.0 soft target/offline synchronization behavior remains unchanged.
 - [ ] `npm run test:local`, `npm run test:operations`, prior 2.14/2.15/2.16.0 regressions and `git diff --check` are green before cloud push.
 
-# Previous release checklist — POEM 2.16.0
+# Previous release checklist — FieldLance 2.16.0
 
 - [ ] `20261008000300_project_targets_recruitment_capacity.sql` applies after the 2.15.1 project-self-service migration.
 - [ ] Run `npm run types:generate` after the new migration, then `npm run preflight`.
@@ -225,34 +225,34 @@
 - [ ] `npm run test:local`, `npm run test:operations`, and 2.14/2.15 regression suites remain green before cloud push.
 - [ ] `git diff --check` is clean before commit.
 
-# Previous release checklist — POEM 2.15.1
+# Previous release checklist — FieldLance 2.15.1
 
 - [ ] `20261008000200_ngo_project_self_service.sql` applies after the 2.15.0 template migration.
 - [ ] `node scripts/test-phase2151.mjs` passes all NGO project-draft/approval scenarios.
 - [ ] Active NGO Admins can save incomplete organization-owned project drafts and another active Admin of the same NGO can continue them.
 - [ ] Other NGOs and ordinary members cannot read or mutate those drafts.
-- [ ] Only POEM-owned templates and same-NGO approved templates can be selected; cross-NGO private template reuse is denied by the database.
+- [ ] Only FieldLance-owned templates and same-NGO approved templates can be selected; cross-NGO private template reuse is denied by the database.
 - [ ] Submitted drafts lock editing; changes-requested drafts reopen; rejected/approved drafts remain locked.
-- [ ] POEM approval creates exactly one active `survey_projects` row and stores `approved_project_id`; retry is idempotent.
-- [ ] Direct POEM `create_survey_project()` also enforces template ownership.
+- [ ] FieldLance approval creates exactly one active `survey_projects` row and stores `approved_project_id`; retry is idempotent.
+- [ ] Direct FieldLance `create_survey_project()` also enforces template ownership.
 - [ ] Project Manager and Area Focal Person permissions remain unchanged from 2.14.
 - [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
 - [ ] `git diff --check` is clean before commit.
 
-# Previous release checklist — POEM 2.15.0
+# Previous release checklist — FieldLance 2.15.0
 
 - [ ] `20261008000100_ngo_template_self_service.sql` applies locally after the 2.14.2 migration head.
 - [ ] `node scripts/test-phase215.mjs` passes all NGO template ownership/review scenarios.
 - [ ] NGO Admin can create from blank/starter/published template and another active Admin of the same NGO can continue an editable draft.
 - [ ] Submitted drafts lock editing; changes-requested drafts reopen; rejected/approved revisions stay locked.
-- [ ] POEM approval atomically publishes one immutable NGO-owned template and records source/review history.
+- [ ] FieldLance approval atomically publishes one immutable NGO-owned template and records source/review history.
 - [ ] Other NGOs, ordinary members, Project Managers and Area Focal Persons do not receive template-authoring/review authority.
-- [ ] Existing POEM private draft direct publication still works.
+- [ ] Existing FieldLance private draft direct publication still works.
 - [ ] `npm run preflight`, `npm run test:local`, `npm run test:operations` pass before cloud push.
 
-# Previous release checklist — POEM 2.14.2
+# Previous release checklist — FieldLance 2.14.2
 
-## POEM 2.14.2 acceptance
+## FieldLance 2.14.2 acceptance
 
 - [ ] `node scripts/test-phase214.mjs`, `test-phase2141.mjs` and `test-phase2142.mjs` pass.
 - [ ] `npm run preflight`, `npm run test:local` and `npm run test:operations` pass.
@@ -276,7 +276,7 @@
 - [ ] `node scripts/test-phase2131.mjs` and `node scripts/test-phase2132.mjs` pass.
 - [ ] `npm run preflight` passes.
 - [ ] With local Supabase running, `npm run test:local` and `npm run test:operations` pass.
-- [ ] Browser acceptance confirms Volunteer / Partner NGO / POEM Staff sign-in destinations, NGO onboarding routing, password visibility controls, reset flow and compact mobile authentication layout.
+- [ ] Browser acceptance confirms Volunteer / Partner NGO / FieldLance Staff sign-in destinations, NGO onboarding routing, password visibility controls, reset flow and compact mobile authentication layout.
 - [ ] `git diff --check` is clean before commit.
 
 2.13.3 adds no business feature, migration, RLS change or auth-routing behavior. The remaining sections are historical release checks retained for regression context.
@@ -285,7 +285,7 @@ Before cloud migration or deployment:
 - `npm run preflight` passes.
 - `npm run test:local` passes against local Supabase Auth/Storage.
 - `npm run test:operations` passes.
-- Auth visibly offers **Volunteer**, **Partner NGO** and **POEM staff** sign-in destinations.
+- Auth visibly offers **Volunteer**, **Partner NGO** and **FieldLance staff** sign-in destinations.
 - Partner NGO sign-in with an approved `ngo_admin` membership opens that NGO workspace automatically.
 - Partner NGO sign-in without active NGO membership opens **Partner NGO application** instead of a blank/non-NGO workspace.
 - Approved onboarding screen has an **Open NGO workspace** action.
@@ -346,7 +346,7 @@ Both a full standalone package and a safe upgrade patch are supplied. Use UPGRAD
 - Volunteer selects district, uploads PDF/JPG/PNG and cannot overwrite uploaded bytes.
 - Incomplete upload can be finalized or removed; failed removal can be retried.
 - Other volunteer and NGO (even with profile grant) cannot download or list private files.
-- POEM admin rejects an evidence document, volunteer sees feedback and notification.
+- FieldLance admin rejects an evidence document, volunteer sees feedback and notification.
 - Document review remains separate from profile publication.
 - Changing/removing evidence does not unpublish the volunteer profile; stale document review versions are still rejected.
 - Removal confirmation is shown; bytes disappear while document history remains.
@@ -362,13 +362,13 @@ git init -b main
 git add .
 git status --short
 git diff --cached --stat
-git commit -m "Build POEM Phase 1.2 standalone foundation"
+git commit -m "Build FieldLance Phase 1.2 standalone foundation"
 ```
 
 Confirm `.env.local` and `node_modules/` do not appear in staged files. After creating your intended EMPTY remote repository, replace the URL before running:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_POEM_REPOSITORY.git
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_FieldLance_REPOSITORY.git
 git push -u origin main
 ```
 
@@ -378,11 +378,11 @@ Do not point this new project at the earlier `Volunteer` or JAS repository unles
 
 - NGO B can request only for its own canonically-linked beneficiary record.
 - NGO A sees the incoming request and can approve a strict subset or reject it.
-- POEM can approve only a subset of NGO A's approved fields and cannot extend expiry.
+- FieldLance can approve only a subset of NGO A's approved fields and cannot extend expiry.
 - NGO B sees no NGO A raw survey, needs, assistance rows, documents or evidence through normal project access.
 - Approved summary omits all fields outside the grant.
 - Viewing the summary creates a `data_access_events.summary_viewed` record.
-- Source NGO or POEM revocation blocks the next summary call.
+- Source NGO or FieldLance revocation blocks the next summary call.
 - Canonical identity/version/link change blocks an old grant and requires new authorization.
 
 
@@ -413,14 +413,14 @@ Do not point this new project at the earlier `Volunteer` or JAS repository unles
 - Structured completion feedback stores five 1–5 categories but does not automatically change volunteer level/score.
 - Closing a survey project cancels unresolved workforce operations and active field access.
 
-## POEM 2.13
+## FieldLance 2.13
 
 - [ ] `20261005000000_work_experience_target_ambiguity_fix.sql` applies locally.
 - [ ] `20261005000100_partner_ngo_self_onboarding.sql` applies locally.
 - [ ] `node scripts/test-phase213.mjs` passes.
 - [ ] Personal account can save a Partner NGO draft.
 - [ ] Submission requires legal proof, program and structured operating area.
-- [ ] POEM reviewer can download/review evidence and request changes.
+- [ ] FieldLance reviewer can download/review evidence and request changes.
 - [ ] Approval creates one active NGO and active first `ngo_admin` membership.
 - [ ] Applicant can switch into approved NGO workspace after refresh.
 - [ ] Unrelated authenticated/anonymous users cannot read onboarding records or Storage objects.

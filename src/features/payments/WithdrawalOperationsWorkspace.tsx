@@ -48,8 +48,8 @@ export function WithdrawalOperationsWorkspace(){
   if(loading&&!queue)return <p role="status">Loading withdrawal operations…</p>;
   const policy=queue?.policy;
   return <section className="ewallet-workspace">
-    <div className="panel-title"><div><span className="eyebrow">POEM FINANCE</span><h2>Withdrawal Operations</h2></div><Badge value="manual + mock"/></div>
-    <div className="notice"><strong>Manual settlement:</strong> POEM can pay a verified JazzCash/Easypaisa wallet through the provider app/portal, then record the real external transaction reference here. The system posts the existing payable allocations and finance bridge automatically; balances are never edited manually.</div>
+    <div className="panel-title"><div><span className="eyebrow">FieldLance FINANCE</span><h2>Withdrawal Operations</h2></div><Badge value="manual + mock"/></div>
+    <div className="notice"><strong>Manual settlement:</strong> FieldLance can pay a verified JazzCash/Easypaisa wallet through the provider app/portal, then record the real external transaction reference here. The system posts the existing payable allocations and finance bridge automatically; balances are never edited manually.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
 
     {policy&&<section className="panel detail"><div className="panel-title"><div><span className="eyebrow">CONTROL LIMITS</span><h3>Payout policy</h3></div><Badge value={policy.manual_settlement_enabled?'manual enabled':'manual disabled'}/></div>
@@ -75,7 +75,7 @@ export function WithdrawalOperationsWorkspace(){
       {!queue?.rows.length&&<EmptyState>No withdrawals match the current filters.</EmptyState>}
       {queue?.rows.map(w=>{const d=draft(w.id),rec=recById.get(w.id);return <article className="document-row" key={w.id}>
         <div className="panel-title"><div><strong>{w.currency} {money(w.amount)} · {label(w.provider)} {w.account_masked_snapshot}</strong><p>{w.user_name||w.user_id} · requested {when(w.requested_at)}</p></div><div className="actions"><Badge value={w.status}/><Badge value={w.provider_mode}/>{rec&&<Badge value={rec.matched?'matched':'review'}/>}</div></div>
-        <p>POEM reference: {w.provider_reference} · {w.allocation_count} reserved payable allocation{w.allocation_count===1?'':'s'}.</p>
+        <p>FieldLance reference: {w.provider_reference} · {w.allocation_count} reserved payable allocation{w.allocation_count===1?'':'s'}.</p>
         {w.settlement_reference&&<p>Provider settlement reference: <strong>{w.settlement_reference}</strong></p>}{w.reversal_reference&&<p>Provider reversal reference: <strong>{w.reversal_reference}</strong></p>}
         {w.failure_message&&<p className="notice error">{w.failure_code}: {w.failure_message}</p>}{rec&&!rec.matched&&<p className="notice error">Reconciliation issue: {rec.issue}</p>}
 

@@ -283,7 +283,7 @@ export function SurveyForm({
                 <option value="">New person</option>
                 {people.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.full_name} · POEM-BEN-{String(p.registry_no).padStart(8, "0")}
+                    {p.full_name} · FL-BEN-{String(p.registry_no).padStart(8, "0")}
                   </option>
                 ))}
               </select>

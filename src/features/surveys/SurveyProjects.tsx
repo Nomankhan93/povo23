@@ -203,7 +203,7 @@ export function SurveyProjects({
                   .filter((t) => Boolean(createOrganization) && (t.organization_id === null || t.organization_id === createOrganization))
                   .map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.name} · v{t.version}{t.organization_id ? " · NGO" : " · POEM"}
+                      {t.name} · v{t.version}{t.organization_id ? " · NGO" : " · FieldLance"}
                     </option>
                   ))}
               </select>

@@ -207,7 +207,7 @@ export function SurveyTemplates({
       if (errors.length) throw new Error(errors.join(" "));
       if (ngoMode) {
         await rpc("submit_template_draft", { p_id: draftId, p_version: version });
-        setMessage("Submitted to POEM for review. This revision is locked until POEM requests changes or decides it.");
+        setMessage("Submitted to FieldLance for review. This revision is locked until FieldLance requests changes or decides it.");
       } else {
         await rpc("publish_template_draft", { p_id: draftId, p_version: version });
         setMessage("Published. Existing versions and their projects remain unchanged.");
@@ -254,7 +254,7 @@ export function SurveyTemplates({
   };
 
   if (!manage && !organization) {
-    return <section className="panel detail"><p role="alert">An NGO workspace or POEM survey-management workspace is required.</p></section>;
+    return <section className="panel detail"><p role="alert">An NGO workspace or FieldLance survey-management workspace is required.</p></section>;
   }
 
   return (
@@ -262,8 +262,8 @@ export function SurveyTemplates({
       <h2>{ngoMode ? "NGO survey templates" : "Survey templates"}</h2>
       <p>
         {ngoMode
-          ? "Create organization-owned drafts with the existing POEM template builder. POEM approval publishes an immutable version; submitted drafts cannot be edited unless changes are requested."
-          : "POEM-authored drafts can still publish directly. NGO submissions use a separate review queue and publish only after an explicit POEM decision."}
+          ? "Create organization-owned drafts with the existing FieldLance template builder. FieldLance approval publishes an immutable version; submitted drafts cannot be edited unless changes are requested."
+          : "FieldLance-authored drafts can still publish directly. NGO submissions use a separate review queue and publish only after an explicit FieldLance decision."}
       </p>
       <div className="actions">
         <button type="button" disabled={busy} aria-pressed={tab === "mine"} onClick={() => setTab("mine")}>My templates</button>
@@ -304,7 +304,7 @@ export function SurveyTemplates({
 
       {tab === "library" && (
         <div>
-          <p>Read-only starter templates. “Use template” creates a new editable {ngoMode ? "NGO-owned" : "POEM-owned"} draft; the starter library itself remains application-managed.</p>
+          <p>Read-only starter templates. “Use template” creates a new editable {ngoMode ? "NGO-owned" : "FieldLance-owned"} draft; the starter library itself remains application-managed.</p>
           {templateLibrary.map((t) => (
             <article className="document-row" key={t.id}>
               <h3>{t.name}</h3>
@@ -317,11 +317,11 @@ export function SurveyTemplates({
       )}
 
       <div hidden={tab !== "mine"}>
-        <h3>{ngoMode ? "Organization drafts" : "Saved POEM drafts and publication recovery"}</h3>
+        <h3>{ngoMode ? "Organization drafts" : "Saved FieldLance drafts and publication recovery"}</h3>
         <p>
           {ngoMode
             ? "Draft ownership belongs to the NGO, not one individual admin. Another active NGO Admin can continue an editable organization draft."
-            : "Your latest POEM author drafts. NGO submissions are handled in the review queue."}
+            : "Your latest FieldLance author drafts. NGO submissions are handled in the review queue."}
         </p>
         {drafts.map((draft) => {
           const editable = ngoMode ? editableNgoStatus(draft.review_status) && !draft.published_id : !draft.published_id;
@@ -330,7 +330,7 @@ export function SurveyTemplates({
             <article className="document-row" key={draft.id}>
               <strong>{draft.name || "Untitled draft"}</strong>
               <span> · {draft.published_id ? "Published" : statusLabel(draft.review_status)} · revision {draft.version}</span>
-              {draft.review_note && <p>Latest POEM note: {draft.review_note}</p>}
+              {draft.review_note && <p>Latest FieldLance note: {draft.review_note}</p>}
               {history.length > 0 && <details><summary>Review history</summary><ul>{history.map((event) => <li key={event.id}>{statusLabel(event.action)} · {event.note || "No note"}</li>)}</ul></details>}
               {editable && <button type="button" disabled={busy} onClick={() => openDraft(draft.name, draft.questions as unknown as Question[], draft.source, draft.id, draft.version)}>Open saved draft</button>}
             </article>
@@ -379,7 +379,7 @@ export function SurveyTemplates({
               <button className="secondary" type="button" disabled={qs.length >= 50 || busy} onClick={() => { setDirty(true); setQs((q) => [...q, { id: "q_" + crypto.randomUUID().replaceAll("-", ""), label: "", type: "text", required: false }]); }}>Add question</button>
               <button type="button" onClick={() => void saveDraft()}>Save draft</button>
               <button type="button" onClick={() => setPreview((p) => !p)}>Preview form</button>
-              <button className="primary" disabled={busy || !qs.length || dirty || !version}>{ngoMode ? "Submit to POEM" : "Publish immutable version"}</button>
+              <button className="primary" disabled={busy || !qs.length || dirty || !version}>{ngoMode ? "Submit to FieldLance" : "Publish immutable version"}</button>
             </div>
           </fieldset>
         </form>
@@ -389,7 +389,7 @@ export function SurveyTemplates({
         {rows.map((t) => (
           <article className="document-row" key={t.id}>
             <strong>{t.name} · v{t.version}</strong>
-            <p>{(t.questions as unknown as Question[]).length} questions{t.organization_id ? " · NGO-owned" : " · POEM-owned"}</p>
+            <p>{(t.questions as unknown as Question[]).length} questions{t.organization_id ? " · NGO-owned" : " · FieldLance-owned"}</p>
             <button className="secondary" disabled={busy} onClick={() => openDraft(t.name, t.questions as unknown as Question[], { published_template_id: t.id })}>Use as next-version draft</button>
           </article>
         ))}

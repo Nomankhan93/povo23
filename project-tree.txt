@@ -44,6 +44,7 @@
 ./docs/PHASE-2.19.2.md
 ./docs/PHASE-2.19.3.md
 ./docs/PHASE-2.19.4.md
+./docs/PHASE-2.19.5.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -103,6 +104,7 @@
 ./docs/UPGRADE-2.19.2.md
 ./docs/UPGRADE-2.19.3.md
 ./docs/UPGRADE-2.19.4.md
+./docs/UPGRADE-2.19.5.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -152,6 +154,7 @@
 ./docs/VALIDATION-2.19.2.md
 ./docs/VALIDATION-2.19.3.md
 ./docs/VALIDATION-2.19.4.md
+./docs/VALIDATION-2.19.5.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -175,6 +178,10 @@
 ./PROJECT_ANALYSIS_CONTEXT.txt
 ./project-tree.txt
 ./public
+./public/apple-touch-icon.png
+./public/fieldlance-icon-192.png
+./public/fieldlance-icon-512.png
+./public/manifest.webmanifest
 ./README.md
 ./scripts
 ./scripts/bootstrap-admin.mjs
@@ -186,6 +193,7 @@
 ./scripts/schema-test-db.mjs
 ./scripts/test-area-operations.mjs
 ./scripts/test-area-picker.mjs
+./scripts/test-branding2195.mjs
 ./scripts/test-capture-client.mjs
 ./scripts/test-correctness276.mjs
 ./scripts/test-current-state-stabilization.mjs
@@ -248,15 +256,16 @@
 ./src/app
 ./src/app/App.tsx
 ./src/app/AppShell.tsx
+./src/app/brand.ts
 ./src/app/version.ts
 ./src/assets
 ./src/assets/brand
-./src/assets/brand/poem-emblem.jpeg
-./src/assets/brand/poem-wordmark.jpeg
+./src/assets/brand/fieldlance-icon.png
+./src/assets/brand/fieldlance-wordmark.png
 ./src/components
 ./src/components/ui
+./src/components/ui/FieldLanceBrand.tsx
 ./src/components/ui/Pager.tsx
-./src/components/ui/PoemBrand.tsx
 ./src/components/ui/WorkflowOverview.tsx
 ./src/features
 ./src/features/assistance
@@ -417,6 +426,7 @@
 ./supabase/migrations/20261009000200_assistance_distribution_planning.sql
 ./supabase/migrations/20261009000300_assistance_ledger_duplicate_controls.sql
 ./supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
+./supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

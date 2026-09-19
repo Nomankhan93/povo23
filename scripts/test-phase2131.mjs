@@ -116,13 +116,14 @@ try {
     assert.equal((await rows('select user_id from public.volunteer_profiles where user_id=$1', [ids.volunteer])).length, 0);
   });
 
-  await ok('auth explicitly offers Volunteer Partner NGO and POEM staff destinations', async () => {
+  await ok('auth explicitly offers Volunteer Partner NGO and FieldLance staff destinations', async () => {
     const auth = readFileSync('src/features/auth/Auth.tsx', 'utf8');
     const intent = readFileSync('src/features/auth/entryIntent.ts', 'utf8');
     assert.match(auth, /Continue to your Partner NGO workspace or application/i);
     assert.match(auth, /Continue to your Volunteer workspace/i);
-    assert.match(auth, /POEM staff/);
-    assert.match(auth, /One POEM account can access multiple authorized workspaces/i);
+    assert.match(auth, /FieldLance staff/);
+    assert.match(auth, /Choose FieldLance workspace/i);
+    assert.match(auth, /Create your FieldLance account/i);
     assert.match(intent, /poem-workspace-entry-intent/);
     assert.match(intent, /consumeWorkspaceEntryIntent/);
   });

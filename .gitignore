@@ -11,3 +11,6 @@ supabase/.branches/
 .poem-patch-backups/
 .library-test-*/
 *.before-*-fix
+
+# Local patch backups
+.fieldlance-patch-backups/
