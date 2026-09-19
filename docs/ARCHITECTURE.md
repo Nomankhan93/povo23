@@ -1,4 +1,31 @@
-# Current architecture note — POEM 2.19.1
+# Current architecture note — POEM 2.19.3
+
+
+## 2.19.3 follow-up / outcomes / closure architecture
+
+2.19.3 starts only after existing case/request/distribution/delivery architecture. `beneficiary_case_followups` is an RPC-only operational record for scheduled contact, completed outcome assessment or cancellation. It may point to an actively linked assessed need and/or a current recorded planned delivery, but it does not replace `beneficiary_needs` or `assistance_entries`.
+
+Completion records a structured outcome (`resolved`, `partially_resolved`, `unresolved`, `further_assistance_required`, `referred`, `unable_to_verify`), observations, optional beneficiary feedback, next action and optional next follow-up. When a follow-up is linked to an assessed need, the operator may explicitly select an existing need status; the RPC validates outcome/status consistency and retains the existing `met` requirement for recorded linked assistance. No automatic eligibility or impact decision is inferred.
+
+A requested next-follow-up date creates a new scheduled child follow-up linked to the completed parent. This makes future work visible in the scoped follow-up queue and keeps closure rules based on actual outstanding records instead of free-text dates.
+
+`app_private.beneficiary_case_closure_blockers` derives closure eligibility. Closure is denied while the case has draft/submitted assistance requests, approved requests without a recorded current delivery, non-cancelled plans without delivery, linked needs still open/in-progress/needs-review, scheduled follow-ups, or recorded planned deliveries without at least one completed linked follow-up. Because assistance requests have no separate fulfilled status, an approved request with a valid recorded delivery is treated as operationally satisfied for closure rather than blocking forever.
+
+`close_beneficiary_case` records a structured closure category/summary/reason. `reopen_beneficiary_case` reopens to `open` and clears only the current closure fields. `beneficiary_case_lifecycle_events` captures immutable close/reopen history so reopening never erases the prior decision. The older `update_beneficiary_case` signature remains compatible but now uses the same closure blockers; the 2.19.3 UI uses the dedicated lifecycle RPCs.
+
+POEM survey authority, NGO Admin and Project Manager continue through existing `can_manage_project` scope. Area Focal remains outside broad case/follow-up mutation authority. Follow-up/revision/lifecycle tables are not directly granted to authenticated browser users. No follow-up or closure RPC posts finance journals, creates worker payables, changes wallets/withdrawals, or mutates delivered-assistance facts.
+
+## 2.19.2 assistance ledger / duplicate-control architecture
+
+2.19.2 connects a ready `assistance_distribution_plans` row to the existing `assistance_entries` delivered-support source of truth. `assistance_distribution_deliveries` is an RPC-only provenance/link table, not a second assistance ledger. It records plan/request/case/need lineage, duplicate-review snapshot and any authorized override while the actual delivered support remains in `assistance_entries`.
+
+The controlled execution RPC locks the distribution plan, approved request, open case, active assessed need and canonical beneficiary before evaluating duplicate support and inserting the ledger row. Support kind/category/program and approved cash amount or goods/service quantity/unit are copied from the approved request. Browser input is limited to actual delivery description/date, funding source, evidence reference, optional next-eligibility date and—when authorized—an override reason.
+
+Duplicate evaluation uses the canonical beneficiary identity. An unexpired same-category `next_eligible_on` or same-day same-kind same amount/quantity is blocking; nearby same-category assistance is advisory context. Existing `can_manage_project` authority controls which matching records are returned. Protected matches are counted only as a review requirement and their source details are not returned. Project Manager cannot override blockers; NGO Admin may override only fully visible blockers; protected blockers require POEM survey authority.
+
+One active recorded delivery per plan and assistance request is enforced by partial unique indexes. Voiding `assistance_entries` marks the provenance link void, keeps historical evidence, triggers existing need re-review behavior and permits a corrected replacement. A plan with an active recorded delivery cannot be cancelled until that assistance row is voided. Legacy `record_assistance` remains for genuine unplanned/historical support, but it cannot bypass a ready plan or canonical same-day/eligibility duplicate blockers. A blocking exception must move through the case/request distribution workflow so override authority and provenance are explicit.
+
+`assistance_ledger` is a scoped read RPC for POEM survey authority, NGO Admin and Project Manager. It returns authorized `assistance_entries` plus derived plan/request/case linkage while keeping internal duplicate snapshots RPC-private. Area Focal remains outside the case/delivery management boundary. No 2.19.2 path creates worker payables, posts finance journals, changes e-wallet balances or executes provider settlement.
 
 ## 2.19.1 assistance distribution planning architecture
 

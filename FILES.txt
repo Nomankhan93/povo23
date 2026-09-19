@@ -39,6 +39,8 @@ docs/PHASE-2.18.2.md
 docs/PHASE-2.18.3.md
 docs/PHASE-2.19.0.md
 docs/PHASE-2.19.1.md
+docs/PHASE-2.19.2.md
+docs/PHASE-2.19.3.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -95,6 +97,8 @@ docs/UPGRADE-2.18.2.md
 docs/UPGRADE-2.18.3.md
 docs/UPGRADE-2.19.0.md
 docs/UPGRADE-2.19.1.md
+docs/UPGRADE-2.19.2.md
+docs/UPGRADE-2.19.3.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -141,6 +145,8 @@ docs/VALIDATION-2.18.2.md
 docs/VALIDATION-2.18.3.md
 docs/VALIDATION-2.19.0.md
 docs/VALIDATION-2.19.1.md
+docs/VALIDATION-2.19.2.md
+docs/VALIDATION-2.19.3.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -213,6 +219,8 @@ scripts/test-phase2182.mjs
 scripts/test-phase2183.mjs
 scripts/test-phase219.mjs
 scripts/test-phase2191.mjs
+scripts/test-phase2192.mjs
+scripts/test-phase2193.mjs
 scripts/test-phase22.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
@@ -236,6 +244,7 @@ src/assets/brand/poem-emblem.jpeg
 src/assets/brand/poem-wordmark.jpeg
 src/components/ui/PoemBrand.tsx
 src/components/ui/WorkflowOverview.tsx
+src/features/assistance/AssistanceLedgerWorkspace.tsx
 src/features/assistance/AssistancePanel.tsx
 src/features/audit/EventList.tsx
 src/features/auth/AccountAccess.tsx
@@ -366,5 +375,7 @@ supabase/migrations/20261008000930_withdrawal_operations_manual_settlement.sql
 supabase/migrations/20261009000100_beneficiary_cases_assistance_requests.sql
 supabase/migrations/20261009000110_beneficiary_case_request_stabilization.sql
 supabase/migrations/20261009000200_assistance_distribution_planning.sql
+supabase/migrations/20261009000300_assistance_ledger_duplicate_controls.sql
+supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
 tsconfig.json
 vite.config.ts

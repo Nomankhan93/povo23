@@ -1,30 +1,31 @@
-# Current release: POEM 2.19.1
+# Current release: POEM 2.19.3
 
-Assistance Distribution Planning. See [release notes](docs/PHASE-2.19.1.md), [WSL upgrade](docs/UPGRADE-2.19.1.md) and [validation](docs/VALIDATION-2.19.1.md).
+Follow-up, Outcomes & Case Closure. See [release notes](docs/PHASE-2.19.3.md), [WSL upgrade](docs/UPGRADE-2.19.3.md) and [validation](docs/VALIDATION-2.19.3.md).
 
-POEM 2.19.1 extends the 2.19.0 case/request workflow so an **approved assistance request** can become one controlled operational distribution plan, be scheduled/rescheduled, marked ready, or cancelled. Planning remains separate from actual delivery: this release does not create `assistance_entries`, does not move project finance, and does not use worker payment/e-wallet infrastructure.
+POEM 2.19.3 extends the validated 2.19.2 delivered-assistance workflow with structured beneficiary follow-up, human-recorded outcomes, closure eligibility and immutable close/reopen history. It does not replace canonical beneficiary identity, `beneficiary_needs`, `assistance_entries`, duplicate-support controls, worker payables, project finance or e-wallet settlement.
 
-## 2.19.1 release rules
+## 2.19.3 release rules
 
-- New forward migration: `20261009000200_assistance_distribution_planning.sql`.
-- Existing `20261009000100` and `20261009000110` migrations remain immutable.
-- `assistance_requests` remains the approval source; only `approved` requests may enter distribution planning.
-- One request may have at most one non-cancelled plan at a time; cancelled plans remain audit history and may be replaced while the request is still approved.
-- Distribution lifecycle is `draft → scheduled → ready` or `cancelled`. None of those states means assistance was delivered.
-- POEM survey authority, NGO Admin and Project Manager may manage plans through project-scoped RPCs; Area Focal remains outside case/distribution management in this phase.
-- An approved request cannot be cancelled until its active distribution plan is cancelled first.
-- `assistance_entries` remains the actual delivered-assistance ledger.
-- Worker payables, project finance, JazzCash/Easypaisa wallet/withdrawal architecture and payment settlement remain unchanged.
-- `npm run test:distribution` runs the 2.19.1 planning regression suite.
+- New forward migration: `20261009000400_case_followup_outcomes_closure.sql`.
+- Existing `00100`, `00110`, `00200` and `00300` migrations remain immutable.
+- `beneficiary_case_followups` records scheduled/completed/cancelled follow-up work and structured outcomes; it is not an assistance ledger.
+- A completed follow-up may update its actively linked assessed need only through an explicit human-selected existing need status.
+- A supplied next-follow-up date creates a real scheduled child follow-up, so future work is visible in the operational queue rather than hidden in narrative text.
+- Case closure is blocked by draft/submitted requests, approved requests without recorded delivery, active undelivered plans, pending linked needs, scheduled follow-ups, or recorded planned deliveries without a completed linked follow-up.
+- An approved request that already has a current recorded delivery no longer blocks closure merely because its request status remains `approved`.
+- Structured closure records category/summary/reason. Reopening clears current closure fields but immutable lifecycle history preserves the prior closure.
+- Area Focal receives no broad case/follow-up mutation authority. Existing POEM survey authority, NGO Admin and Project Manager project scope remains the management boundary.
+- Follow-up/lifecycle tables are RPC-only to browser roles; case detail/queue RPCs return bounded operational views.
+- `npm run test:followup` runs the 2.19.3 follow-up/outcome/closure suite.
+- Worker payables, finance journals, JazzCash/Easypaisa wallets/withdrawals and provider settlement remain unchanged.
 
 ## Current product boundaries
 
-- Case intake and request approval remain exactly as established in 2.19.0.
-- Distribution plans snapshot the approved request version for audit, but do not duplicate beneficiary identity as a mutable registry.
-- Operational plan details include mode, venue/location label, responsible person/team, instructions, schedule and readiness state.
-- Scheduling/readiness require an open case and an active NGO; cancellation remains possible so operations can unwind safely.
-- The responsible-party label is operational metadata only; it does not grant account access or new project authority.
-- Actual distribution execution, `assistance_entries` creation/fulfilment, duplicate-support controls, outcomes and case-closure automation remain later 2.19 phases.
+- `approved survey → beneficiary need → case → approved request → distribution plan → duplicate review → assistance_entries → follow-up → outcome → closure` is the controlled beneficiary-assistance lifecycle.
+- `assistance_entries` remains the delivered-support source of truth; follow-up completion does not create/edit delivery facts or create a second support ledger. Existing explicit void correction remains guarded, and planned assistance tied to a closed case must be reopened before correction.
+- Outcomes are human-recorded operational assessments, not automatic eligibility or impact scoring.
+- Closure/reopening is reversible at the case lifecycle level while historical events remain immutable.
+- Duplicate-support controls from 2.19.2 continue to govern corrected/new assistance after reopening or further-assistance outcomes.
 - Payment core remains frozen at the validated 2.18.3 provider-neutral manual/mock baseline until official provider APIs are available.
 
 ## Historical foundation notes

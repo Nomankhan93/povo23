@@ -1,4 +1,29 @@
-# Current permissions note — POEM 2.19.1
+# Current permissions note — POEM 2.19.3
+
+
+## 2.19.3 follow-up / outcomes / closure permissions
+
+- **POEM Survey/Data authority:** may schedule/complete/cancel follow-ups, record outcomes, close/reopen cases and use the scoped follow-up queue across existing survey-management authority.
+- **NGO Admin:** same operations for the NGO's own authorized projects.
+- **Project Manager:** same case/follow-up lifecycle operations for assigned projects through existing `can_manage_project`; this does not grant NGO-wide administration or finance authority.
+- **Area Focal Person:** no broad case/follow-up/closure mutation authority is added in 2.19.3.
+- **Other NGOs / collectors / volunteers:** no cross-organization case follow-up or closure authority.
+- **Direct tables:** `beneficiary_case_followups`, follow-up revisions and lifecycle events are RPC-only to browser roles. Bounded data is returned through case detail/follow-up queue RPCs.
+- **Need outcome changes:** only a follow-up actively linked to that case need may request a need-status update, and existing `met` assistance requirements still apply.
+- **Closure:** allowed only after server-derived blockers are zero; the browser cannot self-declare a case closure-eligible.
+- **Payments/finance:** no new authority over worker payables, project finance, e-wallets or withdrawal settlement.
+
+## 2.19.2 assistance ledger / duplicate-control permissions
+
+- **POEM survey authority:** may review canonical duplicate conflicts across its existing survey-management scope, record ready planned deliveries, view the scoped ledger and document protected-conflict overrides.
+- **NGO Admin:** may record ready deliveries and view the assistance ledger for own-organization projects. A duplicate blocker may be overridden only when every blocker is within the NGO Admin's existing project authority; protected blockers require POEM review.
+- **Project Manager:** may record a no-blocker ready delivery and view the ledger only for actively assigned projects. Project Manager cannot override a blocking duplicate signal and gains no cross-NGO detail.
+- **Area Focal Person:** receives no case/request/plan/delivery/ledger management access in 2.19.2.
+- **Other NGO / unrelated staff / volunteers:** no delivery or ledger access outside existing project authority.
+- **Authenticated browser clients:** `assistance_distribution_deliveries` is RPC-only. Internal duplicate snapshots are not directly selectable.
+- **Service role:** database maintenance only; never exposed to browser clients.
+
+Existing `assistance_entries` RLS remains authoritative for the delivered ledger. Planned-delivery RPCs do not grant finance, payable, wallet, withdrawal or provider-settlement authority. Cross-NGO assistance detail continues to require the separate controlled data-sharing subsystem; duplicate controls may return only a POEM-review-required signal when a blocking source is protected.
 
 ## 2.19.1 assistance distribution planning permissions
 

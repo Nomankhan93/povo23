@@ -28,6 +28,57 @@ created_at?: string;
 };
 Relationships: [];
 };
+assistance_distribution_deliveries: {
+Row: {
+assistance_id: string;
+plan_id: string;
+request_id: string;
+case_id: string;
+need_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+duplicate_snapshot: Json;
+duplicate_override_reason: string | null;
+status: string;
+recorded_by: string;
+recorded_at: string;
+voided_at: string | null;
+};
+Insert: {
+assistance_id: string;
+plan_id: string;
+request_id: string;
+case_id: string;
+need_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+duplicate_snapshot: Json;
+duplicate_override_reason?: string | null;
+status?: string;
+recorded_by: string;
+recorded_at?: string;
+voided_at?: string | null;
+};
+Update: {
+assistance_id?: string;
+plan_id?: string;
+request_id?: string;
+case_id?: string;
+need_id?: string;
+organization_id?: string;
+project_id?: string;
+person_id?: string;
+duplicate_snapshot?: Json;
+duplicate_override_reason?: string | null;
+status?: string;
+recorded_by?: string;
+recorded_at?: string;
+voided_at?: string | null;
+};
+Relationships: [];
+};
 assistance_distribution_plan_revisions: {
 Row: {
 plan_id: string;
@@ -391,6 +442,159 @@ created_at?: string;
 };
 Relationships: [];
 };
+beneficiary_case_followup_revisions: {
+Row: {
+followup_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+followup_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+followup_id?: string;
+version?: number;
+snapshot?: Json;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
+beneficiary_case_followups: {
+Row: {
+id: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+need_id: string | null;
+assistance_id: string | null;
+parent_followup_id: string | null;
+followup_type: string;
+due_on: string;
+status: string;
+outcome_status: string | null;
+observations: string | null;
+beneficiary_feedback: string | null;
+next_action: string | null;
+next_follow_up_on: string | null;
+last_reason: string;
+version: number;
+created_by: string;
+created_at: string;
+updated_by: string;
+updated_at: string;
+completed_by: string | null;
+completed_at: string | null;
+cancelled_by: string | null;
+cancelled_at: string | null;
+cancellation_reason: string | null;
+};
+Insert: {
+id: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+need_id?: string | null;
+assistance_id?: string | null;
+parent_followup_id?: string | null;
+followup_type: string;
+due_on: string;
+status?: string;
+outcome_status?: string | null;
+observations?: string | null;
+beneficiary_feedback?: string | null;
+next_action?: string | null;
+next_follow_up_on?: string | null;
+last_reason: string;
+version?: number;
+created_by: string;
+created_at?: string;
+updated_by: string;
+updated_at?: string;
+completed_by?: string | null;
+completed_at?: string | null;
+cancelled_by?: string | null;
+cancelled_at?: string | null;
+cancellation_reason?: string | null;
+};
+Update: {
+id?: string;
+case_id?: string;
+organization_id?: string;
+project_id?: string;
+person_id?: string;
+need_id?: string | null;
+assistance_id?: string | null;
+parent_followup_id?: string | null;
+followup_type?: string;
+due_on?: string;
+status?: string;
+outcome_status?: string | null;
+observations?: string | null;
+beneficiary_feedback?: string | null;
+next_action?: string | null;
+next_follow_up_on?: string | null;
+last_reason?: string;
+version?: number;
+created_by?: string;
+created_at?: string;
+updated_by?: string;
+updated_at?: string;
+completed_by?: string | null;
+completed_at?: string | null;
+cancelled_by?: string | null;
+cancelled_at?: string | null;
+cancellation_reason?: string | null;
+};
+Relationships: [];
+};
+beneficiary_case_lifecycle_events: {
+Row: {
+id: number;
+case_id: string;
+event_type: string;
+case_version: number;
+closure_category: string | null;
+summary: string;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+id?: number;
+case_id: string;
+event_type: string;
+case_version: number;
+closure_category?: string | null;
+summary: string;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+id?: number;
+case_id?: string;
+event_type?: string;
+case_version?: number;
+closure_category?: string | null;
+summary?: string;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
 beneficiary_case_need_revisions: {
 Row: {
 case_id: string;
@@ -503,6 +707,8 @@ updated_at: string;
 closed_by: string | null;
 closed_at: string | null;
 closure_reason: string | null;
+closure_category: string | null;
+closure_summary: string | null;
 };
 Insert: {
 id: string;
@@ -528,6 +734,8 @@ updated_at?: string;
 closed_by?: string | null;
 closed_at?: string | null;
 closure_reason?: string | null;
+closure_category?: string | null;
+closure_summary?: string | null;
 };
 Update: {
 id?: string;
@@ -553,6 +761,8 @@ updated_at?: string;
 closed_by?: string | null;
 closed_at?: string | null;
 closure_reason?: string | null;
+closure_category?: string | null;
+closure_summary?: string | null;
 };
 Relationships: [];
 };
@@ -3540,6 +3750,19 @@ p_project?: string | null;
 p_status?: string | null;
 p_limit?: number | null;
 }; Returns: Json };
+assistance_duplicate_support_preview: { Args: {
+p_plan: string | null;
+p_delivered: string | null;
+}; Returns: Json };
+assistance_ledger: { Args: {
+p_organization?: string | null;
+p_project?: string | null;
+p_status?: string | null;
+p_category?: string | null;
+p_from?: string | null;
+p_to?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 authorize_data_access_request: { Args: {
 p_request: string | null;
 p_decision: string | null;
@@ -3585,6 +3808,15 @@ p_kind: string | null;
 beneficiary_case_detail: { Args: {
 p_case: string | null;
 }; Returns: Json };
+beneficiary_case_followup_queue: { Args: {
+p_organization?: string | null;
+p_project?: string | null;
+p_status?: string | null;
+p_type?: string | null;
+p_due_from?: string | null;
+p_due_to?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 beneficiary_case_intake_options: { Args: {
 p_organization?: string | null;
 p_project?: string | null;
@@ -3603,6 +3835,11 @@ p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
 cancel_assistance_request: { Args: {
+p_id: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+cancel_beneficiary_case_followup: { Args: {
 p_id: string | null;
 p_reason: string | null;
 p_version: number | null;
@@ -3645,11 +3882,29 @@ p_assignment: string | null;
 p_day: string | null;
 p_note: string | null;
 }; Returns: string };
+close_beneficiary_case: { Args: {
+p_case: string | null;
+p_category: string | null;
+p_summary: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 close_opportunity: { Args: {
 p_id: string | null;
 }; Returns: undefined };
 close_survey_project: { Args: {
 p_id: string | null;
+}; Returns: undefined };
+complete_beneficiary_case_followup: { Args: {
+p_id: string | null;
+p_outcome: string | null;
+p_observations: string | null;
+p_feedback: string | null;
+p_next_action: string | null;
+p_next_follow_up: string | null;
+p_need_status: string | null;
+p_reason: string | null;
+p_version: number | null;
 }; Returns: undefined };
 complete_work_assignment: { Args: {
 p_id: string | null;
@@ -3712,6 +3967,15 @@ p_title: string | null;
 p_summary: string | null;
 p_priority: string | null;
 p_follow_up: string | null;
+p_reason: string | null;
+}; Returns: string };
+create_beneficiary_case_followup: { Args: {
+p_id: string | null;
+p_case: string | null;
+p_need: string | null;
+p_assistance: string | null;
+p_type: string | null;
+p_due_on: string | null;
 p_reason: string | null;
 }; Returns: string };
 create_beneficiary_need: { Args: {
@@ -4005,6 +4269,17 @@ p_funding: string | null;
 p_evidence: string | null;
 p_next: string | null;
 }; Returns: string };
+record_assistance_distribution_delivery: { Args: {
+p_plan: string | null;
+p_assistance: string | null;
+p_description: string | null;
+p_delivered: string | null;
+p_funding: string | null;
+p_evidence: string | null;
+p_next: string | null;
+p_duplicate_override_reason: string | null;
+p_plan_version: number | null;
+}; Returns: string };
 record_organization_funding: { Args: {
 p_source: string | null;
 p_amount: number | null;
@@ -4021,6 +4296,11 @@ p_amount: number | null;
 p_idempotency_key: string | null;
 p_reason: string | null;
 }; Returns: string };
+reopen_beneficiary_case: { Args: {
+p_case: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 request_e_wallet_withdrawal: { Args: {
 p_wallet: string | null;
 p_amount: number | null;

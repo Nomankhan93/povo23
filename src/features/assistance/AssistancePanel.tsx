@@ -103,8 +103,9 @@ export function AssistancePanel({
       {message && <p role="status">{message}</p>} <h3>Assistance timeline</h3>
       <p>
         Recorded deliveries for this person in this project. Voided entries
-        remain in history. Recording requires at least one approved survey; it
-        does not verify identity or execute payment.
+        remain in history. Use this form only for genuine unplanned/historical
+        support; a ready controlled distribution plan must be delivered from
+        Beneficiary cases so duplicate-support review and plan linkage are preserved.
       </p>
       {!busy && !entries.length && <p>No assistance entries on this page.</p>}
       {entries.map((a) => (
@@ -196,7 +197,7 @@ export function AssistancePanel({
         </button>
       </div>
       <details className="survey-question">
-        <summary>Record delivered assistance</summary>
+        <summary>Record unplanned / historical assistance</summary>
         <form onSubmit={record}>
           <fieldset disabled={busy}>
             <div className="form-grid">

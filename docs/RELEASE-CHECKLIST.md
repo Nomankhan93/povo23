@@ -1,4 +1,47 @@
-# Current release checklist — POEM 2.19.1
+# Current release checklist — POEM 2.19.3
+
+
+## POEM 2.19.3 acceptance
+
+- [ ] `20261009000400_case_followup_outcomes_closure.sql` applies after `20261009000300_assistance_ledger_duplicate_controls.sql`.
+- [ ] Existing `00100`, `00110`, `00200` and `00300` migrations remain byte-identical.
+- [ ] `npm run types:generate` / `npm run types:check` are green.
+- [ ] `npm run test:followup` passes all 2.19.3 follow-up/outcome/closure scenarios.
+- [ ] `npm run test:assistance`, `npm run test:distribution` and `npm run test:cases` remain green.
+- [ ] `npm run preflight`, `npm run test:payments`, `npm run test:local` and `npm run test:operations` remain green.
+- [ ] Project Manager can manage follow-up/outcome/closure only inside assigned project scope; Area Focal and other NGOs remain denied.
+- [ ] Follow-up can reference only an active case need and/or a current recorded planned delivery from that same case.
+- [ ] Completed outcome uses optimistic versioning and immutable follow-up revisions.
+- [ ] Optional next-follow-up creates a visible scheduled child follow-up.
+- [ ] Approved requests with a current recorded delivery do not block closure solely because request status stays `approved`.
+- [ ] Draft/submitted requests, approved-without-delivery requests, undelivered active plans, unresolved linked needs, scheduled follow-ups and delivered assistance without completed follow-up all block closure.
+- [ ] Structured close/reopen history survives reopening.
+- [ ] Planned delivered-assistance correction is blocked while its linked case is closed and succeeds only after explicit reopening.
+- [ ] 2.19.3 creates no delivered-assistance row; existing explicit void/correction behavior is preserved and planned-delivery correction now requires reopening a linked closed case first.
+- [ ] No worker payable, finance, wallet, withdrawal or provider settlement path is added.
+- [ ] Browser QA covers overdue/due/upcoming queue, outcome completion, next follow-up, closure blockers, close and reopen.
+- [ ] Local/remote migration histories match before cloud deployment.
+
+## POEM 2.19.2 acceptance
+
+- [ ] `20261009000300_assistance_ledger_duplicate_controls.sql` applies after `20261009000200_assistance_distribution_planning.sql`.
+- [ ] Existing `00100`, `00110` and `00200` migration files remain byte-identical.
+- [ ] `npm run types:generate` / `npm run types:check` are green.
+- [ ] `npm run test:assistance` passes all 2.19.2 ledger/duplicate-support scenarios.
+- [ ] `npm run test:distribution` and `npm run test:cases` remain green.
+- [ ] `npm run preflight`, `npm run test:payments`, `npm run test:local` and `npm run test:operations` remain green.
+- [ ] Only ready plans with approved requests/open cases/active needs can record controlled delivery.
+- [ ] Planned delivery copies approved request support terms server-side into `assistance_entries`.
+- [ ] One active recorded delivery per plan/request is enforced; voided history permits a corrected replacement.
+- [ ] Project Manager cannot override blocking duplicate signals.
+- [ ] NGO Admin can override only fully visible own-authority blockers with reason.
+- [ ] Protected cross-project/cross-NGO blockers require POEM review without exposing protected source details.
+- [ ] Ready planned support cannot bypass plan provenance via legacy `record_assistance`.
+- [ ] Assistance ledger is scoped and identifies planned versus historical/unplanned entries.
+- [ ] Active delivered plan cannot be cancelled until its ledger entry is voided.
+- [ ] No worker payable, finance, wallet, withdrawal or provider settlement path is added.
+- [ ] Browser QA covers duplicate preview, no-conflict delivery, override roles, void/replacement and ledger filters.
+- [ ] Local/remote migration histories match before cloud deployment.
 
 ## POEM 2.19.1 acceptance
 
