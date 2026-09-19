@@ -1,4 +1,11 @@
-# Current architecture note — FieldLance 2.22.0
+# Current architecture note — FieldLance 2.23.0
+## 2.23.0 Tasks, SLA & Escalation Center
+
+FieldLance 2.23.0 adds a persisted operational task layer over existing authoritative workflows. `operational_tasks` stores coordination state, `operational_task_sla_policies` stores due/escalation policy, and `operational_task_events` keeps task history. Tasks reference the source module/entity rather than copying its business state.
+
+Derived task triggers cover Organization applications, Field Worker profile/application review, assignment offers, survey review, beneficiary follow-up and withdrawal operations. Existing source tables/RPCs remain authoritative; completing a Task Center item cannot approve a survey, select a worker, settle a withdrawal or close a beneficiary case.
+
+`TaskCenter.tsx` is shared across personal, Organization, Project and FieldLance Staff scopes. Queue reads and mutations use guarded RPCs; navigation simply opens the authoritative source workspace.
 
 ## 2.22.0 FieldLance Staff Operations architecture
 

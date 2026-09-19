@@ -2017,6 +2017,144 @@ created_at?: string;
 };
 Relationships: [];
 };
+operational_task_events: {
+Row: {
+id: number;
+task_id: string;
+actor_id: string | null;
+action: string;
+note: string;
+snapshot: Json;
+created_at: string;
+};
+Insert: {
+id?: number;
+task_id: string;
+actor_id?: string | null;
+action: string;
+note?: string;
+snapshot?: Json;
+created_at?: string;
+};
+Update: {
+id?: number;
+task_id?: string;
+actor_id?: string | null;
+action?: string;
+note?: string;
+snapshot?: Json;
+created_at?: string;
+};
+Relationships: [];
+};
+operational_task_sla_policies: {
+Row: {
+task_type: string;
+label: string;
+default_due_hours: number;
+escalation_level_2_hours: number;
+escalation_level_3_hours: number;
+active: boolean;
+updated_at: string;
+};
+Insert: {
+task_type: string;
+label: string;
+default_due_hours: number;
+escalation_level_2_hours: number;
+escalation_level_3_hours: number;
+active?: boolean;
+updated_at?: string;
+};
+Update: {
+task_type?: string;
+label?: string;
+default_due_hours?: number;
+escalation_level_2_hours?: number;
+escalation_level_3_hours?: number;
+active?: boolean;
+updated_at?: string;
+};
+Relationships: [];
+};
+operational_tasks: {
+Row: {
+id: string;
+task_type: string;
+title: string;
+description: string;
+source_kind: string;
+source_ref: string;
+source_page: string;
+organization_id: string | null;
+project_id: string | null;
+assigned_to: string | null;
+assigned_role: string | null;
+priority: string;
+status: string;
+due_at: string;
+escalation_level: number;
+created_by: string | null;
+completed_by: string | null;
+completed_at: string | null;
+last_note: string;
+metadata: Json;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+task_type: string;
+title: string;
+description?: string;
+source_kind?: string;
+source_ref: string;
+source_page?: string;
+organization_id?: string | null;
+project_id?: string | null;
+assigned_to?: string | null;
+assigned_role?: string | null;
+priority?: string;
+status?: string;
+due_at: string;
+escalation_level?: number;
+created_by?: string | null;
+completed_by?: string | null;
+completed_at?: string | null;
+last_note?: string;
+metadata?: Json;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+task_type?: string;
+title?: string;
+description?: string;
+source_kind?: string;
+source_ref?: string;
+source_page?: string;
+organization_id?: string | null;
+project_id?: string | null;
+assigned_to?: string | null;
+assigned_role?: string | null;
+priority?: string;
+status?: string;
+due_at?: string;
+escalation_level?: number;
+created_by?: string | null;
+completed_by?: string | null;
+completed_at?: string | null;
+last_note?: string;
+metadata?: Json;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 organization_areas: {
 Row: {
 organization_id: string;
@@ -4024,6 +4162,17 @@ p_external_reference: string | null;
 p_currency: string | null;
 p_note?: string | null;
 }; Returns: string };
+create_operational_task: { Args: {
+p_title: string | null;
+p_description: string | null;
+p_task_type: string | null;
+p_organization: string | null;
+p_project: string | null;
+p_priority: string | null;
+p_due_at: string | null;
+p_source_page: string | null;
+p_assign_to_me?: boolean | null;
+}; Returns: string };
 create_opportunity: { Args: {
 p_org: string | null;
 p_title: string | null;
@@ -4172,6 +4321,12 @@ p_note: string | null;
 offline_capture_upload_complete: { Args: {
 p_id: string | null;
 }; Returns: boolean };
+operational_task_queue: { Args: {
+p_view?: string | null;
+p_organization?: string | null;
+p_project?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 partner_ngo_document_download_path: { Args: {
 p_id: string | null;
 }; Returns: string };
@@ -4298,6 +4453,8 @@ p_amount: number | null;
 p_idempotency_key: string | null;
 p_memo: string | null;
 }; Returns: string };
+refresh_operational_task_escalations: { Args: {
+}; Returns: number };
 registry_match_candidates: { Args: {
 p_person: string | null;
 }; Returns: Json };
@@ -4786,6 +4943,14 @@ p_status: string | null;
 p_follow_up: string | null;
 p_reason: string | null;
 p_version: number | null;
+}; Returns: undefined };
+update_operational_task: { Args: {
+p_id: string | null;
+p_version: number | null;
+p_action: string | null;
+p_priority?: string | null;
+p_due_at?: string | null;
+p_note?: string | null;
 }; Returns: undefined };
 verification_subjects: { Args: {
 p_kind: string | null;

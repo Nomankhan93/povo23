@@ -1,4 +1,23 @@
-# Current release checklist — FieldLance 2.22.0
+# Current release checklist — FieldLance 2.23.0
+
+## FieldLance 2.23.0 acceptance
+
+- [ ] Package and lockfile report `2.23.0`.
+- [ ] Local migration head is `20261009000700_tasks_sla_escalation_center.sql` and matches Remote only after validated `db push`.
+- [ ] `npm run types:check`, `npm run test:task-center`, `npm run preflight`, `npm run test:local` and `npm run test:operations` pass.
+- [ ] Task/SLA/event tables have RLS; authenticated clients cannot directly mutate them.
+- [ ] My Tasks, Team Tasks, Due Today, Overdue, Escalated and Completed queues work in authorized scopes.
+- [ ] Derived tasks appear for Organization application, Field Worker profile/application, assignment offer, survey review, case follow-up and withdrawal workflows.
+- [ ] Completing a task does not mutate the linked source workflow state.
+- [ ] Field Worker sees only assigned/personal task authority; Organization/Project queues respect existing scope; Staff queues remain role-aware.
+- [ ] Escalation level changes follow persisted SLA policy and do not create duplicate active tasks for the same source action.
+- [ ] Manual tasks are available only through guarded RPCs for authorized managers.
+- [ ] 2.19.7–2.22 workspace/recruitment regressions remain green under the new migration head.
+- [ ] Desktop/tablet/mobile Task Center QA shows no horizontal overflow and source links return to the authoritative module.
+
+## 2.23.0 Tasks, SLA & Escalation Center
+
+FieldLance 2.23.0 adds a persisted operational task layer over existing authoritative workflows. Tasks carry source references, assignee/team context, priority, due time, SLA escalation level and audit history. RLS/RPC checks keep Field Worker tasks personal, Organization/Project tasks scoped, and FieldLance Staff queues role-aware. Completing a Task Center item does not approve, reject, settle or close the linked source workflow.
 
 ## FieldLance 2.22.0 acceptance
 

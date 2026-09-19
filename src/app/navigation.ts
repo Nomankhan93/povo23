@@ -3,7 +3,7 @@ export type NavigationGroup = { label: string; pages: readonly string[] };
 export const navigationGroups: readonly NavigationGroup[] = [
   {
     label: "Overview",
-    pages: ["Overview", "My profile", "Work experience", "Private documents"],
+    pages: ["Overview", "Task Center", "My profile", "Work experience", "Private documents"],
   },
   {
     label: "Work & earnings",
@@ -66,6 +66,7 @@ export const workspaceLabels = {
 
 export const personalNavigationLabels: Readonly<Record<string, string>> = {
   Overview: "Home",
+  "Task Center": "Tasks",
   "Work experience": "Verified work history",
   Invitations: "Invitations & offers",
   "Workforce payables": "Earnings & payables",
@@ -78,6 +79,7 @@ export function workspacePageLabel(page: string, personal: boolean) {
 
 export const organizationNavigationLabels: Readonly<Record<string, string>> = {
   Overview: "Home",
+  "Task Center": "Tasks & SLA",
   Volunteers: "Field Workers",
   "Survey projects": "Projects",
   "Project team": "Team & access",
@@ -96,6 +98,7 @@ export function organizationPageLabel(page: string) {
 
 export const staffNavigationLabels: Readonly<Record<string, string>> = {
   Overview: "Operations home",
+  "Task Center": "Tasks & escalations",
   Volunteers: "Field Workers",
   "NGO applications": "Organization applications",
   "Partner NGOs": "Organizations",

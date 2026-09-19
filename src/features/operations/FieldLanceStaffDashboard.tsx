@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   CircleDollarSign,
   ClipboardCheck,
+  ClipboardList,
   FileCheck2,
   HeartHandshake,
   RefreshCw,
@@ -197,6 +198,7 @@ export function FieldLanceStaffDashboard({
                 : { eyebrow: "NETWORK STATUS", title: "No urgent queue is dominating Staff Operations", copy: "Use this workspace to monitor partners, Field Workers, projects, recruitment, delivery and finance while keeping decisions in their authoritative modules.", page: "Activity", button: "Review audit trail" };
 
   const quickActions: Array<[string, string, string, LucideIcon]> = [];
+  quickActions.push(["Task Center", "Tasks & escalations", "Cross-workspace SLA and overdue action", ClipboardList]);
   if (canReviewOrganizations) quickActions.push(["NGO applications", "Organization approvals", "Review onboarding and evidence", Building2]);
   if (canReviewFieldWorkers) quickActions.push(["Volunteers", "Field Worker review", "Profiles, evidence and verification", UserCheck]);
   quickActions.push(["Survey projects", "Project network", "Projects across active organizations", BriefcaseBusiness]);

@@ -25,7 +25,7 @@ await ok('2.19.7 release exposes the Partner NGO onboarding regression command a
   );
   assert.equal(pkg.scripts['test:ngo-application'], 'node scripts/test-partner-ngo-application2197.mjs');
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1), '20261009000600_partner_ngo_application_experience.sql');
+  assert.ok(migrations.includes('20261009000600_partner_ngo_application_experience.sql'));
 });
 
 await ok('application UI is a five-step guided flow with structured registration designation programs and review', async () => {

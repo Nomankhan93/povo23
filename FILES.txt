@@ -50,6 +50,7 @@ docs/PHASE-2.2.md
 docs/PHASE-2.20.0.md
 docs/PHASE-2.21.0.md
 docs/PHASE-2.22.0.md
+docs/PHASE-2.23.0.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
@@ -116,6 +117,7 @@ docs/UPGRADE-2.2.md
 docs/UPGRADE-2.20.0.md
 docs/UPGRADE-2.21.0.md
 docs/UPGRADE-2.22.0.md
+docs/UPGRADE-2.23.0.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.4.1.md
@@ -172,6 +174,7 @@ docs/VALIDATION-2.19.8.md
 docs/VALIDATION-2.20.0.md
 docs/VALIDATION-2.21.0.md
 docs/VALIDATION-2.22.0.md
+docs/VALIDATION-2.23.0.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -269,6 +272,7 @@ scripts/test-sidebar-profile-grouping.mjs
 scripts/test-stabilization.mjs
 scripts/test-staff-operations2220.mjs
 scripts/test-survey-save276.mjs
+scripts/test-task-center2230.mjs
 scripts/test-template-library.mjs
 scripts/test-visual-system2196.mjs
 scripts/test-workflow-ui2111.mjs
@@ -302,6 +306,7 @@ src/features/needs/NeedDetail.tsx
 src/features/needs/NeedsPanel.tsx
 src/features/notifications/Notifications.tsx
 src/features/operations/FieldLanceStaffDashboard.tsx
+src/features/operations/TaskCenter.tsx
 src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
 src/features/organizations/NgoOperations.tsx
@@ -419,5 +424,6 @@ supabase/migrations/20261009000300_assistance_ledger_duplicate_controls.sql
 supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
 supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
 supabase/migrations/20261009000600_partner_ngo_application_experience.sql
+supabase/migrations/20261009000700_tasks_sla_escalation_center.sql
 tsconfig.json
 vite.config.ts

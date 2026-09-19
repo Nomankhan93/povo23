@@ -5,6 +5,7 @@ import {
   BellRing,
   BriefcaseBusiness,
   CheckCircle2,
+  ClipboardList,
   CircleDollarSign,
   Clock3,
   FileCheck2,
@@ -430,6 +431,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
           </div>
           <div className="field-worker-readiness-list">
             <button onClick={() => onNavigate("My profile")}><UserRound size={17} /><span><strong>Profile</strong><small>{completeness}% complete</small></span><ArrowRight size={14} /></button>
+            <button onClick={() => onNavigate("Task Center")}><ClipboardList size={17} /><span><strong>Tasks</strong><small>Due work, SLA and escalations</small></span><ArrowRight size={14} /></button>
             <button onClick={() => onNavigate("Notifications")}><BellRing size={17} /><span><strong>Notifications</strong><small>{unread ? `${unread} unread` : "You're up to date"}</small></span><ArrowRight size={14} /></button>
             <button onClick={() => onNavigate("Private documents")}><ShieldCheck size={17} /><span><strong>Private documents</strong><small>Manage protected verification files</small></span><ArrowRight size={14} /></button>
             <button onClick={onField}><Sparkles size={17} /><span><strong>Offline field</strong><small>Drafts, queue and synchronization</small></span><ArrowRight size={14} /></button>

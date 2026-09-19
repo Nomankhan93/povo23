@@ -1,26 +1,26 @@
-# Current release: FieldLance 2.22.0
+# Current release: FieldLance 2.23.0
 
-FieldLance Staff Operations UX. See [release notes](docs/PHASE-2.22.0.md), [WSL upgrade](docs/UPGRADE-2.22.0.md) and [validation](docs/VALIDATION-2.22.0.md).
+Tasks, SLA & Escalation Center. See [release notes](docs/PHASE-2.23.0.md), [WSL upgrade](docs/UPGRADE-2.23.0.md) and [validation](docs/VALIDATION-2.23.0.md).
 
-FieldLance 2.22.0 gives authorized FieldLance Staff a dedicated Operations Home over existing organization, Field Worker, project, recruitment, survey, case, assistance and finance sources. It adds no database migration and does not move operational decisions out of their existing guarded workspaces.
+FieldLance 2.23.0 adds a shared operational Task Center with SLA, due-date and escalation tracking for Field Workers, Organizations, Project teams and FieldLance Staff. Tasks reference existing authoritative workflows; completing a task never approves, rejects, settles or closes the source workflow.
 
-## 2.22.0 release rules
+## 2.23.0 release rules
 
-- **No database migration:** migration head remains `20261009000600_partner_ngo_application_experience.sql`.
-- FieldLance Staff Overview now summarizes active organizations/projects, recruitment pressure, survey review pressure, active cases and role-scoped finance attention.
-- Priority queues route Staff to existing Organization application, Field Worker review, Verification, Recruitment, Cases and Withdrawal workspaces; the Home dashboard performs no mutation itself.
-- Staff navigation is curated by the existing platform-role capabilities (`volunteers`, `ngos`, `surveyManage`, `financeManage`, `superAdmin`) and never grants backend authority.
-- Public Staff labels use FieldLance terminology while stable internal page identifiers and historical `poem` scope compatibility remain unchanged.
-- Personal-only Field Worker pages are not mixed into the FieldLance Staff sidebar.
-- Finance attention uses the existing guarded withdrawal/reconciliation RPCs; direct sensitive e-wallet table access is not introduced.
-- Existing Field Worker 2.20 and Organization 2.21 dashboards remain separate and unchanged in authority.
+- **Forward migration:** `20261009000700_tasks_sla_escalation_center.sql`; do not edit any previously applied migration.
+- Adds `operational_tasks`, `operational_task_sla_policies` and immutable `operational_task_events` with RLS and RPC-only mutation.
+- Derives actionable tasks from Organization applications, Field Worker profile/application review, assignment offers, survey review, beneficiary follow-ups and withdrawal operations.
+- My Tasks / Team Tasks / Due Today / Overdue / Escalated / Completed views are available according to workspace authority.
+- Escalation levels are driven by persisted SLA policy and can be refreshed without changing the source workflow.
+- Manual coordination tasks are allowed only for authorized Organization/Project/FieldLance managers and never create parallel approval/payment state.
+- Field Worker, Organization and FieldLance Staff dashboards link into Task Center while retaining their existing dedicated home experiences.
+- Existing 2.19–2.22 recruitment, case, assistance, finance and workspace authorization remains authoritative.
 
 ## Current product boundaries
 
 - PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; dashboard/navigation state is never treated as permission.
 - Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
 - No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or editable finance balance source is added.
-- The next planned development phase is **2.23 Tasks / SLA / Escalation Center** after 2.22 validation.
+- The next planned development phase is **2.24 Notifications & Communication Center** after 2.23 validation.
 
 ## Historical foundation notes
 

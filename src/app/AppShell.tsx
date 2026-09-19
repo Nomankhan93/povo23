@@ -8,6 +8,7 @@ import {
   Bell,
   Building2,
   CreditCard,
+  ClipboardList,
   HeartHandshake,
   KeyRound,
   LayoutDashboard,
@@ -37,6 +38,7 @@ import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerN
 import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
 import { OrganizationDashboard } from "../features/organizations/OrganizationDashboard";
 import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
+import { TaskCenter } from "../features/operations/TaskCenter";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
@@ -347,6 +349,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
   const standardNav = [
     ["Overview", LayoutDashboard],
+    ["Task Center", ClipboardList],
     ["My profile", UserRound],
     ...(!poem
       ? [
@@ -384,6 +387,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
   const organizationNav = ([
     ["Overview", LayoutDashboard],
+    ["Task Center", ClipboardList],
     ["Survey projects", ShieldCheck],
     ["Project team", Users],
     ["Workforce marketplace", Users],
@@ -401,6 +405,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
   const staffNav = ([
     ["Overview", LayoutDashboard],
+    ["Task Center", ClipboardList],
     ...(volunteers ? [["Volunteers", Users]] : []),
     ...(ngos ? [["NGO applications", Building2]] : []),
     ["Partner NGOs", Building2],
@@ -417,6 +422,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const nav = projectScope
     ? ([
         ["Project workspace", LayoutDashboard],
+        ["Task Center", ClipboardList],
         ["Survey projects", ShieldCheck],
         ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
         ["Notifications", Bell],
@@ -1048,6 +1054,16 @@ export function Workspace({ session, openField }: { session: Session; openField:
               organization={poem || scope === "personal" ? null : scope}
               manage={surveyManage}
               orgs={orgs as any}
+            />
+          )}
+          {page === "Task Center" && validScope && (
+            <TaskCenter
+              key={`tasks-${scope}`}
+              mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
+              organizationId={organizationWorkspace ? scope : null}
+              projectId={projectScopeId}
+              canCreate={Boolean(organizationWorkspace || (projectScope && canManageProjectAssignments) || (poem && ["admin", "super_admin"].includes(account.platform_role)))}
+              onNavigate={change}
             />
           )}
           {page === "Notifications" && (

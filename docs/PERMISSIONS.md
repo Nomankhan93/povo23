@@ -1,4 +1,13 @@
-# Current permissions note — FieldLance 2.22.0
+# Current permissions note — FieldLance 2.23.0
+## 2.23.0 Tasks, SLA & Escalation Center
+
+- Field Workers can read/manage tasks assigned to themselves; this does not grant Organization/Project access.
+- Organization Admins and authorized Project managers can read/manage tasks inside their existing organization/project authority.
+- FieldLance Admin/Super Admin can operate cross-platform queues; specialist Staff roles only receive mapped operational task categories.
+- Auditors may read authorized task state but cannot mutate it through the guarded task RPC.
+- Authenticated clients have no direct INSERT/UPDATE/DELETE grants on task, SLA-policy or task-event tables.
+- Task completion is coordination state only. Source workflow decisions remain guarded by their existing RLS/RPC rules.
+- Withdrawal tasks expose coordination metadata through authorized task queues; wallet balances and settlement remain in the finance/payment subsystem.
 
 ## 2.22.0 FieldLance Staff Operations permissions
 

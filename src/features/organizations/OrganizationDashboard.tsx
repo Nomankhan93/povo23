@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   CircleDollarSign,
   ClipboardCheck,
+  ClipboardList,
   FileCheck2,
   HeartHandshake,
   RefreshCw,
@@ -311,6 +312,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
         <section className="organization-card organization-quick-access">
           <div className="organization-card-heading"><div><span className="eyebrow">QUICK ACCESS</span><h3>Run daily operations</h3></div><ShieldCheck size={20} /></div>
           <div className="organization-action-grid">
+            <button onClick={() => onNavigate("Task Center")}><ClipboardList size={17} /><span><strong>Tasks & SLA</strong><small>Team work, due dates and escalations</small></span><ArrowRight size={14} /></button>
             <button onClick={() => onNavigate("Workforce marketplace")}><Users size={17} /><span><strong>Recruitment</strong><small>Opportunities, applications and assignments</small></span><ArrowRight size={14} /></button>
             <button onClick={() => onNavigate("Project team")}><Users size={17} /><span><strong>Team & access</strong><small>Project staff and operational roles</small></span><ArrowRight size={14} /></button>
             <button onClick={() => onNavigate("Survey projects")}><ClipboardCheck size={17} /><span><strong>Projects & surveys</strong><small>Delivery, collection and review</small></span><ArrowRight size={14} /></button>
