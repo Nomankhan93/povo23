@@ -1,4 +1,23 @@
-# Current release checklist — POEM 2.19.0
+# Current release checklist — POEM 2.19.1
+
+## POEM 2.19.1 acceptance
+
+- [ ] `20261009000200_assistance_distribution_planning.sql` applies after `20261009000110_beneficiary_case_request_stabilization.sql`.
+- [ ] Existing 2.19.0 case/request migrations remain byte-identical.
+- [ ] `npm run types:generate` succeeds after the new migration.
+- [ ] `npm run test:distribution` passes all 2.19.1 distribution-planning scenarios.
+- [ ] `npm run test:cases` still passes all 2.19.0 regression scenarios.
+- [ ] `npm run preflight`, `npm run test:payments`, `npm run test:local` and `npm run test:operations` pass.
+- [ ] Project Manager can create/edit/schedule/ready/cancel a plan in the assigned project but cannot approve assistance requests.
+- [ ] Area Focal cannot read or mutate plan tables/RPC queues.
+- [ ] Other NGO cannot read or mutate another organization’s plans.
+- [ ] Only approved requests can create plans; one non-cancelled plan per request is enforced.
+- [ ] Cancelling an approved request is blocked until its active plan is cancelled.
+- [ ] Draft/scheduled edits and scheduling use optimistic versions and revision history.
+- [ ] Scheduled/ready states remain planning-only; no `assistance_entries` row is created automatically.
+- [ ] Payment/payable/finance/e-wallet regression suites remain unchanged and green.
+- [ ] Browser QA confirms planning copy never describes `scheduled` or `ready` as delivered support.
+- [ ] Local/remote migration histories match before cloud deployment.
 
 ## POEM 2.19.0 acceptance
 

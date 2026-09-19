@@ -28,6 +28,135 @@ created_at?: string;
 };
 Relationships: [];
 };
+assistance_distribution_plan_revisions: {
+Row: {
+plan_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+plan_id: string;
+version: number;
+snapshot: Json;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+plan_id?: string;
+version?: number;
+snapshot?: Json;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
+assistance_distribution_plans: {
+Row: {
+id: string;
+plan_no: number;
+request_id: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+need_id: string;
+geography_id: string;
+request_version: number;
+request_snapshot: Json;
+distribution_mode: string;
+location_label: string;
+responsible_party: string;
+instructions: string;
+scheduled_start: string | null;
+scheduled_end: string | null;
+status: string;
+last_reason: string;
+version: number;
+created_by: string;
+created_at: string;
+updated_by: string;
+updated_at: string;
+scheduled_by: string | null;
+scheduled_at: string | null;
+ready_by: string | null;
+ready_at: string | null;
+cancelled_by: string | null;
+cancelled_at: string | null;
+cancellation_reason: string | null;
+};
+Insert: {
+id: string;
+plan_no?: number;
+request_id: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+person_id: string;
+need_id: string;
+geography_id: string;
+request_version: number;
+request_snapshot: Json;
+distribution_mode: string;
+location_label: string;
+responsible_party: string;
+instructions: string;
+scheduled_start?: string | null;
+scheduled_end?: string | null;
+status?: string;
+last_reason: string;
+version?: number;
+created_by: string;
+created_at?: string;
+updated_by: string;
+updated_at?: string;
+scheduled_by?: string | null;
+scheduled_at?: string | null;
+ready_by?: string | null;
+ready_at?: string | null;
+cancelled_by?: string | null;
+cancelled_at?: string | null;
+cancellation_reason?: string | null;
+};
+Update: {
+id?: string;
+plan_no?: number;
+request_id?: string;
+case_id?: string;
+organization_id?: string;
+project_id?: string;
+person_id?: string;
+need_id?: string;
+geography_id?: string;
+request_version?: number;
+request_snapshot?: Json;
+distribution_mode?: string;
+location_label?: string;
+responsible_party?: string;
+instructions?: string;
+scheduled_start?: string | null;
+scheduled_end?: string | null;
+status?: string;
+last_reason?: string;
+version?: number;
+created_by?: string;
+created_at?: string;
+updated_by?: string;
+updated_at?: string;
+scheduled_by?: string | null;
+scheduled_at?: string | null;
+ready_by?: string | null;
+ready_at?: string | null;
+cancelled_by?: string | null;
+cancelled_at?: string | null;
+cancellation_reason?: string | null;
+};
+Relationships: [];
+};
 assistance_entries: {
 Row: {
 id: string;
@@ -3405,6 +3534,12 @@ p_areas: (string)[] | null;
 p_starts: string | null;
 p_ends: string | null;
 }; Returns: string };
+assistance_distribution_plan_queue: { Args: {
+p_organization?: string | null;
+p_project?: string | null;
+p_status?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 authorize_data_access_request: { Args: {
 p_request: string | null;
 p_decision: string | null;
@@ -3462,6 +3597,11 @@ p_status?: string | null;
 p_priority?: string | null;
 p_limit?: number | null;
 }; Returns: Json };
+cancel_assistance_distribution_plan: { Args: {
+p_id: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 cancel_assistance_request: { Args: {
 p_id: string | null;
 p_reason: string | null;
@@ -3540,6 +3680,15 @@ p_household: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+create_assistance_distribution_plan: { Args: {
+p_id: string | null;
+p_request: string | null;
+p_mode: string | null;
+p_location: string | null;
+p_responsible: string | null;
+p_instructions: string | null;
+p_reason: string | null;
+}; Returns: string };
 create_assistance_request: { Args: {
 p_id: string | null;
 p_case: string | null;
@@ -3719,6 +3868,11 @@ p_kind: string | null;
 p_offset: number | null;
 p_limit: number | null;
 }; Returns: Json };
+mark_assistance_distribution_plan_ready: { Args: {
+p_id: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
@@ -4141,6 +4295,13 @@ p_questions: Json | null;
 p_source: Json | null;
 p_version: number | null;
 }; Returns: number };
+schedule_assistance_distribution_plan: { Args: {
+p_id: string | null;
+p_start: string | null;
+p_end: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
 search_canonical_registry: { Args: {
 p_query: string | null;
 p_state: string | null;
@@ -4287,6 +4448,15 @@ p_query: string | null;
 }; Returns: Json };
 unlink_my_e_wallet: { Args: {
 p_wallet: string | null;
+}; Returns: undefined };
+update_assistance_distribution_plan: { Args: {
+p_id: string | null;
+p_mode: string | null;
+p_location: string | null;
+p_responsible: string | null;
+p_instructions: string | null;
+p_reason: string | null;
+p_version: number | null;
 }; Returns: undefined };
 update_assistance_request: { Args: {
 p_id: string | null;

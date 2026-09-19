@@ -8,6 +8,9 @@ const call=rpc as unknown as Call;
 const title=(value:string)=>value.replaceAll('_',' ');
 const money=(value:string|number|null)=>value===null?'—':new Intl.NumberFormat('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value));
 const val=(form:FormData,key:string)=>String(form.get(key)||'').trim();
+const isoFromLocal=(form:FormData,key:string)=>{const raw=val(form,key);if(!raw)return null;const parsed=new Date(raw);if(Number.isNaN(parsed.getTime()))throw new Error('Valid distribution date/time required.');return parsed.toISOString()};
+const localDateTime=(value:string|null)=>{if(!value)return '';const d=new Date(value),pad=(n:number)=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const dateTime=(value:string|null)=>value?new Date(value).toLocaleString():'not scheduled';
 
 type ProjectOption={id:string;title:string;organization_id:string;organization_name:string;status:string;geography_id:string};
 type PersonOption={id:string;registry_no:number;full_name:string;birth_date:string|null;household_id:string;household_label:string;open_cases:number};
@@ -31,6 +34,17 @@ type AssistanceRequest={
   requested_amount_pkr:string|null;requested_quantity:string|null;requested_unit:string|null;urgency:string;desired_by:string|null;status:string;version:number;
   last_reason:string;review_note:string|null;created_at:string;submitted_at:string|null;reviewed_at:string|null;
 };
+type DistributionPlan={
+  id:string;plan_no:number;request_id:string;case_id:string;organization_id:string;project_id:string;person_id:string;need_id:string;geography_id:string;
+  request_version:number;distribution_mode:'distribution_site'|'home_delivery'|'service_referral'|'field_visit'|'other';location_label:string;responsible_party:string;instructions:string;
+  scheduled_start:string|null;scheduled_end:string|null;status:'draft'|'scheduled'|'ready'|'cancelled';last_reason:string;version:number;created_at:string;updated_at:string;cancellation_reason:string|null;
+};
+type DistributionQueueRow={
+  id:string;plan_no:number;request_id:string;request_no:number;case_id:string;case_no:number;organization_id:string;organization_name:string;project_id:string;project_title:string;
+  person_id:string;beneficiary_name:string;registry_no:number;kind:string;category:string;program:string;urgency:string;distribution_mode:string;location_label:string;responsible_party:string;
+  scheduled_start:string|null;scheduled_end:string|null;status:string;version:number;updated_at:string;
+};
+type DistributionQueue={rows:DistributionQueueRow[];summary:Record<string,number>;limit:number};
 type CaseDetail={
   case:CaseData;
   person:{id:string;registry_no:number;full_name:string;birth_date:string|null;household_id:string};
@@ -40,12 +54,14 @@ type CaseDetail={
   needs:LinkedNeed[];
   available_needs:NeedOption[];
   requests:AssistanceRequest[];
+  distribution_plans:DistributionPlan[];
   case_history:Array<{version:number;reason:string;recorded_at:string}>;
   can_approve_requests:boolean;
 };
 
 export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{organization?:string|null;projectId?:string|null}){
   const [queue,setQueue]=useState<Queue>({rows:[],summary:{},limit:100});
+  const [planQueue,setPlanQueue]=useState<DistributionQueue>({rows:[],summary:{},limit:100});
   const [baseIntake,setBaseIntake]=useState<Intake>({projects:[],people:[],responses:[],needs:[]});
   const [personIntake,setPersonIntake]=useState<Intake>({projects:[],people:[],responses:[],needs:[]});
   const [selectedProject,setSelectedProject]=useState(projectId||'');
@@ -54,6 +70,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
   const [detail,setDetail]=useState<CaseDetail|null>(null);
   const [status,setStatus]=useState('');
   const [priority,setPriority]=useState('');
+  const [planStatus,setPlanStatus]=useState('');
   const [kind,setKind]=useState<'cash'|'goods'|'service'>('cash');
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
@@ -72,14 +89,15 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
     Promise.all([
       call('beneficiary_case_queue',{p_organization:organization,p_project:projectId,p_status:status||null,p_priority:priority||null,p_limit:100}),
       call('beneficiary_case_intake_options',{p_organization:organization,p_project:projectId,p_person:null}),
-    ]).then(([q,i])=>{
+      call('assistance_distribution_plan_queue',{p_organization:organization,p_project:projectId,p_status:planStatus||null,p_limit:100}),
+    ]).then(([q,i,pq])=>{
       if(!live)return;
-      const next=i as Intake;setQueue(q as Queue);setBaseIntake(next);
+      const next=i as Intake;setQueue(q as Queue);setPlanQueue(pq as DistributionQueue);setBaseIntake(next);
       if(projectId)setSelectedProject(projectId);
       else setSelectedProject(current=>current&&next.projects.some(p=>p.id===current)?current:(next.projects[0]?.id||''));
     }).catch(e=>{if(live)setError((e as Error).message)}).finally(()=>{if(live)setLoading(false)});
     return()=>{live=false};
-  },[organization,projectId,status,priority,revision]);
+  },[organization,projectId,status,priority,planStatus,revision]);
 
   useEffect(()=>{
     if(!selectedProject){setBaseIntake(v=>({...v,people:[]}));setSelectedPerson('');return}
@@ -125,16 +143,17 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
   const activeNeeds=useMemo(()=>detail?.needs.filter(n=>n.link_active)||[],[detail]);
   const linkableNeeds=useMemo(()=>detail?.available_needs.filter(n=>!n.active_case_id||n.active_case_id===detail.case.id)||[],[detail]);
 
-  return <section className="registry-operations" aria-label="Beneficiary cases and assistance requests">
-    <div className="panel-title"><div><span className="eyebrow">ASSISTANCE OPERATIONS</span><h2>Beneficiary cases & assistance requests</h2></div><Badge value="2.19.0"/></div>
-    <div className="notice"><strong>Case/request is not delivery.</strong> Assessed needs remain in the needs registry. Approved assistance requests authorize planning only; they do not create <code>assistance_entries</code> or claim that support was delivered.</div>
+  return <section className="registry-operations" aria-label="Beneficiary cases, assistance requests and distribution planning">
+    <div className="panel-title"><div><span className="eyebrow">ASSISTANCE OPERATIONS</span><h2>Beneficiary cases, requests & distribution plans</h2></div><Badge value="2.19.1"/></div>
+    <div className="notice"><strong>Planning is not delivery.</strong> Approved requests can now become controlled distribution plans, but scheduling/readiness still does not create <code>assistance_entries</code>, move project finance, pay a beneficiary, or claim that support was delivered.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
     <div className="stats">
       <article className="stat"><div>Total cases</div><b>{queue.summary.total??0}</b></article>
-      <article className="stat"><div>Open</div><b>{queue.summary.open??0}</b></article>
-      <article className="stat"><div>High priority open</div><b>{queue.summary.high_priority_open??0}</b></article>
       <article className="stat"><div>Requests awaiting review</div><b>{queue.summary.submitted_requests??0}</b></article>
-      <article className="stat"><div>Approved for planning</div><b>{queue.summary.approved_requests??0}</b></article>
+      <article className="stat"><div>Approved awaiting plan</div><b>{planQueue.summary.awaiting_plan??0}</b></article>
+      <article className="stat"><div>Draft plans</div><b>{planQueue.summary.draft??0}</b></article>
+      <article className="stat"><div>Scheduled</div><b>{planQueue.summary.scheduled??0}</b></article>
+      <article className="stat"><div>Ready</div><b>{planQueue.summary.ready??0}</b></article>
     </div>
 
     <section className="panel detail">
@@ -150,6 +169,18 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
         <p>{row.priority} priority · {row.active_needs} active need(s) · {row.submitted_requests} awaiting review · {row.approved_requests} approved</p>
         <p>{row.summary}</p>
         <button className="secondary" onClick={()=>setSelectedCase(row.id)}>Open case</button>
+      </article>)}
+    </section>
+
+    <section className="panel detail" aria-label="Distribution planning queue">
+      <div className="panel-title"><div><h3>Distribution planning queue</h3><p>Approved request → plan → schedule → ready. Delivery is recorded later through the existing assistance ledger.</p></div><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh</button></div>
+      <label className="field">Plan status<select value={planStatus} onChange={e=>setPlanStatus(e.target.value)}><option value="">All</option><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="ready">Ready</option><option value="cancelled">Cancelled</option></select></label>
+      {!loading&&!planQueue.rows.length&&<EmptyState>No distribution plans match this scope/filter.</EmptyState>}
+      {planQueue.rows.map(plan=><article className="document-row" key={plan.id}>
+        <div className="panel-title"><div><strong>DP-{plan.plan_no} · AR-{plan.request_no} · {plan.program}</strong><p>{plan.beneficiary_name} · BEN-{plan.registry_no} · {plan.project_title}</p></div><Badge value={plan.status}/></div>
+        <p>{title(plan.distribution_mode)} · {plan.location_label} · Responsible: {plan.responsible_party}</p>
+        <p>Schedule: {dateTime(plan.scheduled_start)}{plan.scheduled_end?` → ${dateTime(plan.scheduled_end)}`:''}</p>
+        <button className="secondary" onClick={()=>setSelectedCase(plan.case_id)}>Open case</button>
       </article>)}
     </section>
 
@@ -230,7 +261,9 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
           {detail.can_approve_requests?<form onSubmit={event=>reviewRequest(event,request)}><label className="field">Review note<textarea name="note" required minLength={5} maxLength={2000}/></label><div className="actions"><button className="primary" name="decision" value="approve" disabled={busy}>Approve</button><button className="secondary" name="decision" value="reject" disabled={busy}>Reject</button></div></form>:<p><strong>Awaiting NGO Admin / POEM survey approval.</strong></p>}
           <CancelRequest request={request} busy={busy} run={run}/>
         </>}
-        {request.status==='approved'&&detail.can_approve_requests&&<CancelRequest request={request} busy={busy} run={run}/>} 
+        <DistributionPlans request={request} plans={detail.distribution_plans.filter(plan=>plan.request_id===request.id)} busy={busy} run={run}/>
+        {request.status==='approved'&&detail.can_approve_requests&&!detail.distribution_plans.some(plan=>plan.request_id===request.id&&plan.status!=='cancelled')&&<CancelRequest request={request} busy={busy} run={run}/>} 
+        {request.status==='approved'&&detail.can_approve_requests&&detail.distribution_plans.some(plan=>plan.request_id===request.id&&plan.status!=='cancelled')&&<p><strong>Cancel the active distribution plan before cancelling this approved request.</strong></p>}
       </article>)}
 
       {detail.case.status==='open'&&activeNeeds.length>0&&<details className="survey-question"><summary>Create assistance request</summary>
@@ -263,3 +296,50 @@ function CancelRequest({request,busy,run}:{request:AssistanceRequest;busy:boolea
     <label className="field">Cancellation reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="secondary" disabled={busy}>Cancel request</button>
   </form>;
 }
+
+function DistributionPlans({request,plans,busy,run}:{request:AssistanceRequest;plans:DistributionPlan[];busy:boolean;run:(task:()=>Promise<unknown>,message:string)=>Promise<unknown>}){
+  const active=plans.find(plan=>plan.status!=='cancelled');
+  return <section aria-label={`Distribution planning for AR-${request.request_no}`}>
+    <h5>Distribution planning</h5>
+    {!plans.length&&request.status!=='approved'&&<p>Distribution planning becomes available only after this assistance request is approved.</p>}
+    {plans.map(plan=><DistributionPlanCard key={plan.id} plan={plan} busy={busy} run={run}/>)}
+    {request.status==='approved'&&!active&&<details className="survey-question"><summary>Create distribution plan</summary>
+      <p>This creates an operational plan only. It does not record delivery or create an assistance ledger entry.</p>
+      <form onSubmit={event=>{event.preventDefault();const formEl=event.currentTarget,form=new FormData(formEl),id=crypto.randomUUID();void run(()=>call('create_assistance_distribution_plan',{p_id:id,p_request:request.id,p_mode:val(form,'mode'),p_location:val(form,'location'),p_responsible:val(form,'responsible'),p_instructions:val(form,'instructions'),p_reason:val(form,'reason')}),'Draft distribution plan created.').then(result=>{if(result!==null)formEl.reset()})}}>
+        <fieldset disabled={busy}>
+          <div className="form-grid">
+            <label className="field">Distribution mode<select name="mode" defaultValue="distribution_site"><option value="distribution_site">Distribution site</option><option value="home_delivery">Home delivery</option><option value="service_referral">Service referral</option><option value="field_visit">Field visit</option><option value="other">Other</option></select></label>
+            <label className="field">Location / venue<input name="location" required minLength={2} maxLength={300}/></label>
+            <label className="field">Responsible person / team<input name="responsible" required minLength={2} maxLength={160}/></label>
+          </div>
+          <label className="field">Instructions<textarea name="instructions" required minLength={5} maxLength={2000}/></label>
+          <label className="field">Planning reason<textarea name="reason" required minLength={5} maxLength={2000}/></label>
+          <button className="primary">Create draft plan</button>
+        </fieldset>
+      </form>
+    </details>}
+  </section>;
+}
+
+function DistributionPlanCard({plan,busy,run}:{plan:DistributionPlan;busy:boolean;run:(task:()=>Promise<unknown>,message:string)=>Promise<unknown>}){
+  return <article className="document-row">
+    <div className="panel-title"><div><strong>DP-{plan.plan_no}</strong><p>{title(plan.distribution_mode)} · {plan.location_label}</p></div><Badge value={plan.status}/></div>
+    <p>Responsible: {plan.responsible_party} · Schedule: {dateTime(plan.scheduled_start)}{plan.scheduled_end?` → ${dateTime(plan.scheduled_end)}`:''} · v{plan.version}</p>
+    <p>{plan.instructions}</p><p>Last reason: {plan.last_reason}{plan.cancellation_reason?` · Cancelled: ${plan.cancellation_reason}`:''}</p>
+    {(plan.status==='draft'||plan.status==='scheduled')&&<details className="survey-question"><summary>Edit plan details</summary>
+      <form key={`edit-${plan.id}-${plan.version}`} onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('update_assistance_distribution_plan',{p_id:plan.id,p_mode:val(form,'mode'),p_location:val(form,'location'),p_responsible:val(form,'responsible'),p_instructions:val(form,'instructions'),p_reason:val(form,'reason'),p_version:plan.version}),'Distribution plan details updated.')}}>
+        <fieldset disabled={busy}><div className="form-grid">
+          <label className="field">Mode<select name="mode" defaultValue={plan.distribution_mode}><option value="distribution_site">Distribution site</option><option value="home_delivery">Home delivery</option><option value="service_referral">Service referral</option><option value="field_visit">Field visit</option><option value="other">Other</option></select></label>
+          <label className="field">Location / venue<input name="location" required minLength={2} maxLength={300} defaultValue={plan.location_label}/></label>
+          <label className="field">Responsible person / team<input name="responsible" required minLength={2} maxLength={160} defaultValue={plan.responsible_party}/></label>
+        </div><label className="field">Instructions<textarea name="instructions" required minLength={5} maxLength={2000} defaultValue={plan.instructions}/></label><label className="field">Edit reason<textarea name="reason" required minLength={5} maxLength={2000}/></label><button className="secondary">Save plan details</button></fieldset>
+      </form>
+    </details>}
+    {(plan.status==='draft'||plan.status==='scheduled')&&<form key={`schedule-${plan.id}-${plan.version}`} onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('schedule_assistance_distribution_plan',{p_id:plan.id,p_start:isoFromLocal(form,'start'),p_end:isoFromLocal(form,'end'),p_reason:val(form,'reason'),p_version:plan.version}),plan.status==='draft'?'Distribution plan scheduled.':'Distribution plan rescheduled.')}}>
+      <fieldset disabled={busy}><div className="form-grid"><label className="field">Start<input name="start" type="datetime-local" required defaultValue={localDateTime(plan.scheduled_start)}/></label><label className="field">End (optional)<input name="end" type="datetime-local" defaultValue={localDateTime(plan.scheduled_end)}/></label></div><label className="field">Schedule reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="primary">{plan.status==='draft'?'Schedule plan':'Reschedule plan'}</button></fieldset>
+    </form>}
+    {plan.status==='scheduled'&&<form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('mark_assistance_distribution_plan_ready',{p_id:plan.id,p_reason:val(form,'reason'),p_version:plan.version}),'Distribution plan marked ready.')}}><label className="field">Readiness reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="primary" disabled={busy}>Mark ready</button></form>}
+    {plan.status!=='cancelled'&&<form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('cancel_assistance_distribution_plan',{p_id:plan.id,p_reason:val(form,'reason'),p_version:plan.version}),'Distribution plan cancelled.')}}><label className="field">Cancellation reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="secondary" disabled={busy}>Cancel plan</button></form>}
+  </article>;
+}
+

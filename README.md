@@ -1,27 +1,30 @@
-# Current release: POEM 2.19.0
+# Current release: POEM 2.19.1
 
-Beneficiary Cases & Assistance Requests. See [release notes](docs/PHASE-2.19.0.md), [WSL upgrade](docs/UPGRADE-2.19.0.md) and [validation](docs/VALIDATION-2.19.0.md).
+Assistance Distribution Planning. See [release notes](docs/PHASE-2.19.1.md), [WSL upgrade](docs/UPGRADE-2.19.1.md) and [validation](docs/VALIDATION-2.19.1.md).
 
-POEM 2.19.0 adds a human-reviewed case/request layer between assessed beneficiary needs and the existing delivered-assistance ledger. It does not create a second beneficiary registry and does not convert an approved request into a delivery record.
+POEM 2.19.1 extends the 2.19.0 case/request workflow so an **approved assistance request** can become one controlled operational distribution plan, be scheduled/rescheduled, marked ready, or cancelled. Planning remains separate from actual delivery: this release does not create `assistance_entries`, does not move project finance, and does not use worker payment/e-wallet infrastructure.
 
-## 2.19.0 release rules
+## 2.19.1 release rules
 
-- New migration: `20261009000100_beneficiary_cases_assistance_requests.sql`.
-- `beneficiary_needs` remains the assessed-needs source of truth.
+- New forward migration: `20261009000200_assistance_distribution_planning.sql`.
+- Existing `20261009000100` and `20261009000110` migrations remain immutable.
+- `assistance_requests` remains the approval source; only `approved` requests may enter distribution planning.
+- One request may have at most one non-cancelled plan at a time; cancelled plans remain audit history and may be replaced while the request is still approved.
+- Distribution lifecycle is `draft → scheduled → ready` or `cancelled`. None of those states means assistance was delivered.
+- POEM survey authority, NGO Admin and Project Manager may manage plans through project-scoped RPCs; Area Focal remains outside case/distribution management in this phase.
+- An approved request cannot be cancelled until its active distribution plan is cancelled first.
 - `assistance_entries` remains the actual delivered-assistance ledger.
-- Existing needs/assistance are preserved; migration performs no inferred backfill.
-- POEM survey authority, NGO Admin and Project Manager may manage cases/requests; only NGO Admin / POEM survey authority may approve or reject requests.
-- Area Focal receives no beneficiary-case access in 2.19.0.
-- A request approval means approved for planning only; no delivery, payment, impact or eligibility claim is created.
-- `npm run test:cases` runs the 2.19.0 case/request regression suite.
+- Worker payables, project finance, JazzCash/Easypaisa wallet/withdrawal architecture and payment settlement remain unchanged.
+- `npm run test:distribution` runs the 2.19.1 planning regression suite.
 
 ## Current product boundaries
 
-- Case management is project/person scoped and starts from an approved source survey.
-- A pending assessed need may belong to only one active beneficiary case at a time.
-- Assistance requests support cash, goods and service intent with immutable revision history.
-- Case closure is blocked while submitted/approved requests or pending linked needs remain.
-- Cross-NGO duplicate-support coordination and request-to-distribution execution remain later 2.19 phases.
+- Case intake and request approval remain exactly as established in 2.19.0.
+- Distribution plans snapshot the approved request version for audit, but do not duplicate beneficiary identity as a mutable registry.
+- Operational plan details include mode, venue/location label, responsible person/team, instructions, schedule and readiness state.
+- Scheduling/readiness require an open case and an active NGO; cancellation remains possible so operations can unwind safely.
+- The responsible-party label is operational metadata only; it does not grant account access or new project authority.
+- Actual distribution execution, `assistance_entries` creation/fulfilment, duplicate-support controls, outcomes and case-closure automation remain later 2.19 phases.
 - Payment core remains frozen at the validated 2.18.3 provider-neutral manual/mock baseline until official provider APIs are available.
 
 ## Historical foundation notes

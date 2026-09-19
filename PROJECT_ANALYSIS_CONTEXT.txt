@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.19.0
+Release: 2.19.1
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,12 +14,12 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.19.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.19.1 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
-- 2.19.0 adds project/person-scoped beneficiary cases and assistance requests between assessed needs and delivered assistance; it does not create a second registry or delivery ledger.
+- 2.19.0 adds project/person-scoped beneficiary cases and assistance requests between assessed needs and delivered assistance; 2.19.1 adds planning-only assistance_distribution_plans after approved requests.
 - Case intake requires approved survey provenance; one assessed need can belong to only one active case at a time.
-- POEM survey authority, NGO Admin and Project Manager manage cases/submit requests; only NGO Admin / POEM survey authority approve or reject requests. Area Focal is outside this boundary in 2.19.0.
-- Assistance-request approval means approved for planning only and never creates assistance_entries, payment, eligibility or impact claims.
+- POEM survey authority, NGO Admin and Project Manager manage cases/requests and 2.19.1 distribution plans; only NGO Admin / POEM survey authority approve or reject requests. Area Focal remains outside the case/planning boundary.
+- Assistance-request approval means approved for planning only. A 2.19.1 plan may be draft, scheduled, ready or cancelled; none of those states creates assistance_entries, payment, eligibility or impact claims.
 - Volunteer profiles self-publish after server validation; independent identity verification is separate.
 - Partner NGO onboarding is supported; approval creates the organization and first NGO Admin membership.
 - Open recruitment uses application-scoped profile snapshots; live NGO volunteer access is project/assignment/invitation scoped.
@@ -50,8 +50,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 50
-Migration head: 20261009000110_beneficiary_case_request_stabilization.sql
+Ordered migration files: 51
+Migration head: 20261009000200_assistance_distribution_planning.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -104,12 +104,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261008000930_withdrawal_operations_manual_settlement.sql
 - 20261009000100_beneficiary_cases_assistance_requests.sql
 - 20261009000110_beneficiary_case_request_stabilization.sql
+- 20261009000200_assistance_distribution_planning.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 56
+Test scripts (scripts/test-*.mjs): 57
 TypeScript/TSX source files: 80
-Markdown docs: 152
-Inventory files (excluding local/build/temp/backup state): 365
+Markdown docs: 155
+Inventory files (excluding local/build/temp/backup state): 370
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -117,6 +118,9 @@ npm run release:consistency
 npm run preflight
 npx supabase start
 npx supabase migration up --local
+npm run test:distribution
+npm run test:cases
+npm run test:payments
 npm run test:local
 npm run test:operations
 
@@ -126,8 +130,8 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.19.1 — Assistance Approval & Distribution Planning should consume approved 2.19.0 requests and create explicit plans before any delivered-assistance entry is recorded.
-2.19.2 should mature assistance-ledger / duplicate-support controls using canonical identity and controlled sharing without exposing broad cross-NGO beneficiary data.
+2.19.2 — Assistance Ledger & Duplicate-Support Controls should connect controlled execution/ledger workflows to existing assistance_entries and canonical identity without broad cross-NGO exposure.
+2.19.3 should add follow-up, outcomes and case closure after assistance execution semantics are established.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.
 

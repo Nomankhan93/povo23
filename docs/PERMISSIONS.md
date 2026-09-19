@@ -1,16 +1,20 @@
-# Current permissions note — POEM 2.19.0
+# Current permissions note — POEM 2.19.1
+
+## 2.19.1 assistance distribution planning permissions
+
+- **POEM survey authority:** may view/manage cases, approved requests and distribution plans across its existing survey-management scope.
+- **NGO Admin:** may view/manage its organization projects/cases/requests/plans and retains request approval/rejection authority.
+- **Project Manager:** may create/edit/schedule/mark-ready/cancel distribution plans only for an actively assigned project; this does not grant NGO-wide admin or request-approval authority.
+- **Area Focal Person:** receives no beneficiary-case/request/distribution-plan table or RPC access in 2.19.1. Area-scoped distribution execution remains deferred until explicitly designed.
+- **Other NGO / unrelated project staff / volunteers:** no planning access unless separately authorized by an existing project-management role.
+- **Authenticated browser clients:** plan tables are select-only through RLS; all plan mutation is RPC-only.
+- **Service role:** retains database maintenance privileges; it is never exposed to the browser.
+
+An active distribution plan blocks cancellation of its approved assistance request. Cancelling the plan first releases that operational guard; request cancellation still follows the 2.19.0 authority rule (approved requests require NGO Admin or POEM survey authority). Responsible-party text on a plan is informational and grants no access.
 
 ## 2.19.0 beneficiary case / assistance-request permissions
 
-- **POEM survey authority (`super_admin` / `admin` / `survey_manager`):** may manage cases/needs links/requests across authorized projects and approve/reject submitted assistance requests.
-- **NGO Admin:** may manage cases/requests for own organization projects and approve/reject submitted requests.
-- **Project Manager:** may manage cases, link/unlink assessed needs, create/edit/submit/cancel eligible requests for the assigned project, but cannot approve/reject requests or cancel an already-approved request.
-- **Area Focal Person:** receives no beneficiary-case/request table or RPC access in 2.19.0; geography-scoped case monitoring is intentionally deferred until separately designed.
-- **Volunteer/collector:** receives no case/request management access.
-- **Other NGOs:** cannot read or operate another organization's cases/requests.
-- **Direct writes:** authenticated roles receive SELECT-only access through RLS to the new case/request history tables; all mutation occurs through guarded RPCs.
-- **Delivery boundary:** approval creates no `assistance_entries`, no payment, no automatic eligibility/impact claim and no cross-NGO data disclosure.
-
+The 2.19.0 split remains unchanged: POEM survey authority, NGO Admin and Project Manager manage cases/requests; only NGO Admin / POEM survey authority approve or reject requests.
 
 ## 2.18.3 consolidated payment permission boundary
 

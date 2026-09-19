@@ -1,15 +1,20 @@
-# Current architecture note — POEM 2.19.0
+# Current architecture note — POEM 2.19.1
+
+## 2.19.1 assistance distribution planning architecture
+
+2.19.1 adds a planning-only operational layer after 2.19.0 request approval: `approved survey → beneficiary_needs → beneficiary case → approved assistance request → assistance_distribution_plans → future delivery → assistance_entries`. It does not alter canonical beneficiary identity, assessed-needs ownership or the delivered-assistance ledger.
+
+`assistance_distribution_plans` is anchored to exactly one approved `assistance_requests` row and snapshots that approved request version for audit. One non-cancelled plan is allowed per request. Cancelled plans remain immutable operational history and permit a replacement only while the request itself remains approved. The plan lifecycle is `draft`, `scheduled`, `ready`, `cancelled`; there is deliberately no `delivered` status in 2.19.1.
+
+Guarded RPCs enforce project scope, active-NGO state, open-case state for create/edit/schedule/readiness, optimistic versions and plan/request cancellation ordering. Project Manager uses the same least-privilege `can_manage_project` boundary as 2.19.0 cases. NGO Admin and POEM survey authority retain their existing broader project authority. Area Focal receives no case/distribution-plan table or RPC access in this phase.
+
+The planning row stores mode, venue/location label, responsible-party label, instructions and schedule. `responsible_party` is descriptive operational metadata only; it is not an authorization assignment and does not bypass project membership/RLS. The case geography is stamped into the plan to preserve operational provenance.
+
+Request cancellation is forward-hardened so an approved request cannot be cancelled while a non-cancelled plan exists. The plan must be cancelled first. No 2.19.1 RPC inserts `assistance_entries`, creates worker payables, posts finance journals, changes wallet balances or settles withdrawals. Actual assistance execution/ledger linkage and duplicate-support controls remain 2.19.2+.
 
 ## 2.19.0 beneficiary case / assistance-request architecture
 
-2.19.0 introduces an operational case layer without changing the identity, needs or delivery sources of truth. `beneficiary_cases` is anchored to one project-scoped `registry_persons` record and an approved source `survey_responses` revision; it stores an intake identity snapshot for audit, not a second mutable identity profile.
-
-`beneficiary_case_needs` explicitly groups existing `beneficiary_needs`. One assessed need can be actively managed by only one case at a time. `assistance_requests` reference an active linked need and carry cash/goods/service planning intent with revision history. Request approval is intentionally separate from `assistance_entries`: approval authorizes planning but never records delivery.
-
-The role split is deliberate: POEM survey authority, NGO Admin and Project Manager can manage project cases and submit requests; NGO Admin / POEM survey authority alone can approve/reject. Area Focal is outside the 2.19.0 case-management boundary. Direct writes remain denied and guarded RPCs enforce project scope, active-NGO state, source provenance, optimistic versions and closure rules.
-
-The future chain is `approved request → distribution planning/execution → assistance_entries`; 2.19.0 stops before distribution. Cross-NGO duplicate-support coordination remains a later phase and must reuse canonical identity / controlled sharing rather than exposing canonical IDs in NGO case rows.
-
+2.19.0 introduced the operational case/request layer without changing the identity, needs or delivery sources of truth. `beneficiary_cases` remains anchored to a project-scoped beneficiary and approved survey provenance; `assistance_requests` remains the human-reviewed authorization record consumed by 2.19.1 planning.
 
 ## 2.18.3 payments release consolidation
 
