@@ -1,6 +1,8 @@
-# Validation index — FieldLance 2.19.7
+# Validation index — FieldLance 2.19.8
 
-Current release validation: [VALIDATION-2.19.7.md](VALIDATION-2.19.7.md).
+Current release validation: [VALIDATION-2.19.8.md](VALIDATION-2.19.8.md).
+
+Previous Partner NGO application validation: [FieldLance 2.19.7](VALIDATION-2.19.7.md).
 
 Previous visual-system validation: [FieldLance 2.19.6](VALIDATION-2.19.6.md).
 

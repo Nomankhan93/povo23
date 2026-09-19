@@ -159,13 +159,26 @@ try {
     assert.equal(canonical.review_required, false);
   });
 
-  await ok('workforce component restores personal pages and removes merge placeholder duplication', async () => {
+  await ok('workforce component preserves Field Worker marketplace navigation and recruitment UX', async () => {
+    const shell = readFileSync(new URL('../src/app/AppShell.tsx', import.meta.url), 'utf8');
     const source = readFileSync(new URL('../src/features/workforce/WorkforceMarketplace.tsx', import.meta.url), 'utf8');
-    for (const marker of ['Available Opportunities', 'My Applications', 'My Assigned Surveys', '{mode === "personal" && (', 'Open to all active volunteers']) {
-      assert(source.includes(marker), `missing UI marker: ${marker}`);
+
+    for (const label of ['Available Opportunities', 'My Applications', 'My Assigned Surveys']) {
+      assert(shell.includes(label), `missing Field Worker navigation label: ${label}`);
     }
+
+    for (const marker of [
+      'Available opportunities',
+      'My applications',
+      'My assigned surveys',
+      '{mode === "personal" ? (',
+      'Open to all Field Workers',
+    ]) {
+      assert(source.includes(marker), `missing marketplace UI marker: ${marker}`);
+    }
+
     assert.equal(source.includes('// ...existing code...'), false);
-    assert.equal((source.match(/<h3>Find active volunteers<\/h3>/g) || []).length, 1);
+    assert.equal((source.match(/<h3>Find Field Workers<\/h3>/g) || []).length, 1);
     assert.equal((source.match(/<h3>Recruitment opportunities<\/h3>/g) || []).length, 1);
   });
 

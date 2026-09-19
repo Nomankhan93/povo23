@@ -12,7 +12,17 @@ async function ok(name, fn) {
 
 await ok('2.19.7 release exposes the Partner NGO onboarding regression command and forward migration', async () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.equal(pkg.version, '2.19.7');
+  const [versionMajor, versionMinor, versionPatch] = pkg.version
+    .split('-')[0]
+    .split('.')
+    .map(Number);
+
+  assert.ok(
+    versionMajor > 2 ||
+      (versionMajor === 2 && versionMinor > 19) ||
+      (versionMajor === 2 && versionMinor === 19 && versionPatch >= 7),
+    `Expected FieldLance >= 2.19.7, received ${pkg.version}`,
+  );
   assert.equal(pkg.scripts['test:ngo-application'], 'node scripts/test-partner-ngo-application2197.mjs');
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
   assert.equal(migrations.at(-1), '20261009000600_partner_ngo_application_experience.sql');

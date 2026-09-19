@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, FileCheck2, Filter, MapPin, Search, Send, UsersRound } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database, Json } from "../../lib/supabase/database.types";
 import { geographyPath, type Geo } from "../geography/model";
 import { AreaSelector } from "../geography/AreaSelector";
-import { human } from "../../shared/ui/FormFields";
+import { Badge, human } from "../../shared/ui/FormFields";
+import { OrganizationLogoImage } from "../organizations/OrganizationLogo";
 
 type Tables = Database["public"]["Tables"];
 type Project = Tables["survey_projects"]["Row"];
@@ -13,7 +15,9 @@ type Assignment = Tables["work_assignments"]["Row"];
 type SurveyAssignment = Tables["survey_assignments"]["Row"];
 type Mode = "personal" | "ngo" | "project" | "poem";
 type PersonalView = "opportunities" | "applications" | "assigned" | "all";
-type Org = { id: string; name: string; status: string };
+type OrganizationView = "opportunities" | "applications" | "field_workers" | "assignments";
+type ApplicationFilter = "all" | "pending" | "shortlisted" | "selected" | "rejected";
+type Org = { id: string; name: string; status: string; logo_path?: string | null; logo_updated_at?: string | null };
 type AvailableRow = Pick<Opportunity, "id" | "organization_id" | "title" | "description" | "geography_id" | "start_date" | "end_date" | "reply_by" | "payment_type" | "payment_note" | "status" | "survey_project_id" | "required_volunteers" | "required_skill" | "required_language" | "created_at" | "work_mode" | "compensation_type" | "currency" | "rate" | "compensation_note" | "compensation_snapshot_version"> & {
   organization_name: string;
   project_title: string;
@@ -103,7 +107,9 @@ export function WorkforceMarketplace({
     [busy, setBusy] = useState(true),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
-    [revision, setRevision] = useState(0);
+    [revision, setRevision] = useState(0),
+    [organizationView, setOrganizationView] = useState<OrganizationView>("opportunities"),
+    [applicationFilter, setApplicationFilter] = useState<ApplicationFilter>("all");
 
   async function load() {
     setBusy(true);
@@ -291,6 +297,7 @@ export function WorkforceMarketplace({
 
   const projectMap = useMemo(() => new Map(projects.map((p) => [p.id, p])), [projects]);
   const orgMap = useMemo(() => new Map(orgs.map((o) => [o.id, o.name])), [orgs]);
+  const orgById = useMemo(() => new Map(orgs.map((o) => [o.id, o])), [orgs]);
   const activeProjects = projects.filter((p) => p.status === "active");
   const chosenProject = projectMap.get(projectId);
   const chosenCreateProject = projectMap.get(createProjectId);
@@ -309,220 +316,346 @@ export function WorkforceMarketplace({
   const showOpportunities = mode !== "personal" || personalView === "all" || personalView === "opportunities";
   const showApplications = mode !== "personal" || personalView === "all" || personalView === "applications";
   const showAssigned = mode !== "personal" || personalView === "all" || personalView === "assigned";
+  const openOpportunityCount = opportunities.filter((o) => o.publication_state === "published" && o.status === "open" && o.applications_open).length;
+  const pendingApplicationCount = applications.filter((a) => a.status === "pending").length;
+  const offeredAssignmentCount = assignments.filter((a) => a.status === "offered").length;
+  const activeAssignmentCount = assignments.filter((a) => a.status === "active").length;
+  const filteredApplications = applicationFilter === "all" ? applications : applications.filter((a) => a.status === applicationFilter);
+
+  function selectOrganizationView(next: OrganizationView) {
+    setOrganizationView(next);
+    setOffer(null);
+    if (next !== "field_workers") setCandidates([]);
+  }
+
+  const organizationHeading = mode === "ngo"
+    ? "Organization recruitment"
+    : mode === "project"
+      ? "Project recruitment"
+      : "Workforce operations";
+  const organizationCopy = mode === "ngo"
+    ? "Publish opportunities, review Field Worker applications and activate accountable project assignments."
+    : mode === "project"
+      ? "Recruit and manage Field Workers within this authorized project scope."
+      : "Oversee recruitment, applications and assignments across authorized organizations.";
 
   return (
-    <section className="panel detail workforce-marketplace">
-      <div className="panel-title">
-        <div>
-          <h2>{mode === "personal" ? (personalView === "opportunities" ? "Available Opportunities" : personalView === "applications" ? "My Applications" : personalView === "assigned" ? "My Assigned Surveys" : "Volunteer marketplace") : mode === "ngo" ? "NGO workforce marketplace" : mode === "project" ? "Project recruitment" : "FieldLance workforce management"}</h2>
-          <p>
-            {mode === "personal"
-              ? (personalView === "opportunities" ? "Browse published project recruitment without granting permanent NGO profile access." : personalView === "applications" ? "Track application decisions and withdraw applications that are still pending or shortlisted." : personalView === "assigned" ? "Accept formal offers and open survey work only after assignment activation." : "Apply for survey work and accept formal assignment terms before field access starts.")
-              : mode === "ngo"
-                ? "Recruit active local volunteers, review applications and manage formal project assignments."
-                : mode === "project"
-                  ? "Manage recruitment, applications and assignment offers only for this authorized project."
-                  : "Manage and oversee recruitment, applications and assignments across partner NGOs."}
-          </p>
-        </div>
-        {mode !== "personal" && <button className="primary" onClick={() => { setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>Create project opportunity</button>}
-      </div>
+    <section className="panel detail workforce-marketplace workforce-marketplace-v2">
       {error && <p className="notice error" role="alert">{error}</p>}
       {message && <p className="notice success" role="status">{message}</p>}
-      {busy && <p role="status">Loading workforce records…</p>}
+      {busy && <p className="workforce-loading" role="status">Loading workforce records…</p>}
 
-      {mode === "personal" && (
+      {mode === "personal" ? (
         <>
+          <WorkerJourney active={personalView} />
+          <div className="workforce-metric-grid" aria-label="Field Worker marketplace summary">
+            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open opportunities" value={availableTotal} detail="Published work you can explore" />
+            <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} still in recruitment`} />
+            <WorkforceMetric icon={<Send size={18} />} label="Offers" value={offeredAssignmentCount} detail="Awaiting your decision" />
+            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount + directSurveyAssignments.length} detail="Survey access currently active" />
+          </div>
+
           {showOpportunities && <>
-            <h3>Available Opportunities</h3>
-            <div className="form-grid">
-              <label className="field">NGO<select value={orgFilter} onChange={(e) => { setOrgFilter(e.target.value); setAvailablePage(0); }}><option value="">All NGOs</option>{orgs.filter((o)=>o.status==="active").map((o)=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
-              <label className="field">Paid / unpaid<select value={paymentFilter} onChange={(e)=>{ setPaymentFilter(e.target.value); setAvailablePage(0); }}><option value="">Any</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select></label>
-              <label className="field">Skill<input value={skillFilter} maxLength={100} onChange={(e)=>{ setSkillFilter(e.target.value); setAvailablePage(0); }} placeholder="e.g. Data Collection" /></label>
-              <label className="field">Work date<input type="date" value={workDateFilter} onChange={(e)=>{ setWorkDateFilter(e.target.value); setAvailablePage(0); }} /></label>
-              <label className="field">Deadline on/before<input type="date" value={deadlineFilter} onChange={(e)=>{ setDeadlineFilter(e.target.value); setAvailablePage(0); }} /></label>
+            <div className="workforce-section-heading">
+              <div><span className="eyebrow">DISCOVER WORK</span><h3>Available opportunities</h3><p>Published opportunities from active organizations. Applying shares only an application-scoped recruitment snapshot.</p></div>
+              <span className="workforce-count">{availableTotal} available</span>
             </div>
-            <AreaSelector rows={geographies} value={areaFilter || null} onChange={(id) => { setAreaFilter(id || ""); setAvailablePage(0); }} title="Opportunity area filter" />
-            {available.map((o) => (
-              <article className="document-row" key={o.id}>
-                <strong>{o.title}</strong>
-                <p>{o.organization_name} · {o.project_title}</p>
-                <p>{o.description}</p>
-                <p>{geographyPath(o.geography_id, geographies).map((n)=>n.name).join(" / ")} · {o.start_date} → {o.end_date}</p>
-                <p>{opportunityCompensation(o)} · {o.required_volunteers} position(s) · Apply by {new Date(o.reply_by).toLocaleString()}</p>
-                <p>{o.visibility === "invite_only" ? "Invite only" : "Open to all active volunteers"}{o.visibility === "area" ? " · Work is based in the selected area" : ""}{o.eligibility_note ? ` · ${o.eligibility_note}` : ""}</p>
-                {(o.required_skill || o.required_language) && <p>Criteria: {o.required_skill || "Any skill"} · {o.required_language || "Any language"}</p>}
-                {o.visibility === "area" && !o.area_match && <p className="notice">Work area is outside your current profile location. You may still apply if you can work there.</p>}
-                {!o.can_apply && o.eligibility_reason && <p className="notice">{o.eligibility_reason}</p>}
-                {o.application_status ? <span className="badge">Application: {human(o.application_status)}</span> : o.invitation_status ? <span className="badge">Invitation: {human(o.invitation_status)} — respond from Invitations.</span> : (
-                  <button className="primary" disabled={busy || !o.can_apply} onClick={() => setApplying(o)}>Apply</button>
-                )}
-              </article>
-            ))}
-            {!available.length && !busy && <p>No published opportunities match these filters. Draft, closed and expired recruitment is not shown.</p>}
-            {availableTotal > 0 && <div className="actions">
+            <div className="workforce-filter-card">
+              <div className="workforce-filter-title"><Filter size={17} /><strong>Filter opportunities</strong></div>
+              <div className="workforce-filter-grid">
+                <label className="field">Organization<select value={orgFilter} onChange={(e) => { setOrgFilter(e.target.value); setAvailablePage(0); }}><option value="">All organizations</option>{orgs.filter((o)=>o.status==="active").map((o)=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
+                <label className="field">Payment<select value={paymentFilter} onChange={(e)=>{ setPaymentFilter(e.target.value); setAvailablePage(0); }}><option value="">Paid or volunteer</option><option value="paid">Paid</option><option value="unpaid">Volunteer / unpaid</option></select></label>
+                <label className="field">Skill<input value={skillFilter} maxLength={100} onChange={(e)=>{ setSkillFilter(e.target.value); setAvailablePage(0); }} placeholder="e.g. Data collection" /></label>
+                <label className="field">Work date<input type="date" value={workDateFilter} onChange={(e)=>{ setWorkDateFilter(e.target.value); setAvailablePage(0); }} /></label>
+                <label className="field">Apply by<input type="date" value={deadlineFilter} onChange={(e)=>{ setDeadlineFilter(e.target.value); setAvailablePage(0); }} /></label>
+              </div>
+              <AreaSelector rows={geographies} value={areaFilter || null} onChange={(id) => { setAreaFilter(id || ""); setAvailablePage(0); }} title="Work area" />
+            </div>
+            <div className="workforce-card-grid">
+              {available.map((o) => {
+                const org = orgById.get(o.organization_id);
+                const location = geographyPath(o.geography_id, geographies).map((n)=>n.name).join(" / ");
+                return <article className="workforce-opportunity-card" key={o.id}>
+                  <div className="workforce-card-header">
+                    <OrganizationLogoImage name={o.organization_name} path={org?.logo_path} updatedAt={org?.logo_updated_at} size="card" />
+                    <div className="workforce-card-title"><span>{o.organization_name}</span><h4>{o.title}</h4><small>{o.project_title}</small></div>
+                    <Badge value={o.work_mode === "paid" ? "paid" : "active"} />
+                  </div>
+                  <p className="workforce-card-description">{o.description}</p>
+                  <div className="workforce-chip-row">
+                    <span>{o.work_mode === "paid" ? "Paid field work" : "Volunteer opportunity"}</span>
+                    {o.required_skill && <span>{o.required_skill}</span>}
+                    {o.required_language && <span>{o.required_language}</span>}
+                  </div>
+                  <div className="workforce-meta-grid">
+                    <WorkforceMeta icon={<MapPin size={15} />} label="Work area" value={location || "Area not listed"} />
+                    <WorkforceMeta icon={<CalendarDays size={15} />} label="Work dates" value={`${shortDate(o.start_date)} – ${shortDate(o.end_date)}`} />
+                    <WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={opportunityCompensation(o)} />
+                    <WorkforceMeta icon={<UsersRound size={15} />} label="Positions" value={`${o.required_volunteers} Field Worker${o.required_volunteers === 1 ? "" : "s"}`} />
+                    <WorkforceMeta icon={<Clock3 size={15} />} label="Apply by" value={new Date(o.reply_by).toLocaleString()} />
+                  </div>
+                  {o.eligibility_note && <p className="workforce-helper"><strong>Selection note:</strong> {o.eligibility_note}</p>}
+                  {o.visibility === "area" && !o.area_match && <p className="notice">This work area is outside your current profile location. You may still apply if you can work there.</p>}
+                  {!o.can_apply && o.eligibility_reason && <p className="notice">{o.eligibility_reason}</p>}
+                  <div className="workforce-card-actions">
+                    <span className="workforce-deadline">{o.visibility === "invite_only" ? "Invite only" : "Open recruitment"}</span>
+                    {o.application_status ? <Badge value={o.application_status} /> : o.invitation_status ? <span className="badge pending">Invitation {human(o.invitation_status)} · respond from Invitations</span> : (
+                      <button className="primary" disabled={busy || !o.can_apply} onClick={() => setApplying(o)}>Apply <ArrowRight size={15} /></button>
+                    )}
+                  </div>
+                </article>;
+              })}
+            </div>
+            {!available.length && !busy && <WorkforceEmpty icon={<Search size={22} />} title="No matching opportunities" copy="No published opportunities match these filters. Draft, closed and expired recruitment is not shown." />}
+            {availableTotal > 0 && <div className="workforce-pagination">
               <button className="secondary" disabled={busy || availablePage === 0} onClick={() => setAvailablePage((p) => Math.max(0, p - 1))}>Previous</button>
-              <span>Page {availablePage + 1} of {availablePages} · {availableTotal} opportunity{availableTotal === 1 ? "" : "s"}</span>
+              <span>Page {availablePage + 1} of {availablePages} · {availableTotal} opportunit{availableTotal === 1 ? "y" : "ies"}</span>
               <button className="secondary" disabled={busy || availablePage + 1 >= availablePages} onClick={() => setAvailablePage((p) => p + 1)}>Next</button>
             </div>}
           </>}
 
-          {applying && <form className="review" onSubmit={submitApplication}>
-            <h3>Apply — {applying.title}</h3>
-            <p>The receiving NGO will see an application snapshot containing: your name, phone, area/location, education, skills, languages, experience, availability, work preferences, transport/smartphone availability, preferred areas, bio, profile publication status and profile version. Private documents and beneficiary/survey data are not shared. This does not create a permanent NGO profile-sharing grant.</p>
+          {applying && <form className="workforce-inline-form" onSubmit={submitApplication}>
+            <div className="workforce-section-heading compact"><div><span className="eyebrow">APPLICATION</span><h3>Apply — {applying.title}</h3><p>{applying.organization_name} will receive an application-scoped recruitment snapshot only. Private documents and beneficiary/survey data are not shared.</p></div></div>
             <label className="field">Availability for this assignment<textarea name="availability" required minLength={3} maxLength={1000} defaultValue="Available during the listed project dates." /></label>
-            <label className="field">Short message<textarea name="message" maxLength={2000} placeholder="Why are you interested / suitable?" /></label>
-            <label className="field"><span><input name="consent" type="checkbox" required /> I consent to share the recruitment profile snapshot described above with {applying.organization_name} for this application.</span></label>
+            <label className="field">Short message<textarea name="message" maxLength={2000} placeholder="Why are you interested or suitable for this field assignment?" /></label>
+            <label className="workforce-consent"><input name="consent" type="checkbox" required /><span>I consent to share my recruitment profile snapshot with <strong>{applying.organization_name}</strong> for this application. This does not grant permanent full-profile access.</span></label>
             <div className="actions"><button type="button" className="secondary" onClick={()=>setApplying(null)}>Cancel</button><button className="primary" disabled={busy}>Submit application</button></div>
           </form>}
 
           {showApplications && <>
-            <h3>My Applications</h3>
-            {applications.map((a) => (
-              <article className="document-row" key={a.id}>
-                <strong>{a.opportunity_title} · {human(a.status)}</strong>
-                <p>{a.organization_name} · {a.project_title}</p>
-                <p>Availability: {a.availability || "Not recorded"}</p>
-                {a.note && <p>Message: {a.note}</p>}
-                {a.review_note && <p>NGO review: {a.review_note}</p>}
-                <p>Recruitment profile consent: {a.profile_share_consent ? "Granted for this application snapshot" : "Legacy application"}</p>
-                {a.status === "pending" || a.status === "shortlisted" ? <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw</button> : null}
-              </article>
-            ))}
-            {!applications.length && !busy && <p>You have not applied to any opportunities yet.</p>}
+            <div className="workforce-section-heading">
+              <div><span className="eyebrow">RECRUITMENT PROGRESS</span><h3>My applications</h3><p>Track every application from submission through selection. Formal survey access starts only after you accept an assignment offer.</p></div>
+              <span className="workforce-count">{applications.length} total</span>
+            </div>
+            <div className="workforce-list">
+              {applications.map((a) => {
+                const org = orgById.get(a.organization_id);
+                return <article className="workforce-application-card" key={a.id}>
+                  <div className="workforce-card-header">
+                    <OrganizationLogoImage name={a.organization_name} path={org?.logo_path} updatedAt={org?.logo_updated_at} size="card" />
+                    <div className="workforce-card-title"><span>{a.organization_name}</span><h4>{a.opportunity_title}</h4><small>{a.project_title}</small></div>
+                    <Badge value={a.status} />
+                  </div>
+                  <RecruitmentProgress status={a.status} />
+                  <div className="workforce-application-copy"><p><strong>Availability:</strong> {a.availability || "Not recorded"}</p>{a.note && <p><strong>Your message:</strong> {a.note}</p>}{a.review_note && <p><strong>Organization review:</strong> {a.review_note}</p>}</div>
+                  <div className="workforce-card-actions"><span>{applicationNextStep(a.status)}</span>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div>
+                </article>;
+              })}
+            </div>
+            {!applications.length && !busy && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications yet" copy="When you apply to a published opportunity, its recruitment status will appear here." />}
           </>}
 
           {showAssigned && <>
-            <h3>My Assigned Surveys</h3>
-            {assignments.map((a) => (
-              <article className="document-row" key={a.id}>
-                <strong>{a.project_title} · {human(a.status)}</strong>
-                <p>{a.organization_name}{a.opportunity_title ? ` · ${a.opportunity_title}` : ""}</p>
-                <p>{a.start_date} → {a.end_date} · Target {a.target_surveys} surveys · {money(a)}</p>
-                <p>{a.terms_note}</p>
-                {a.status === "offered" && <div className="actions">
-                  <button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button>
-                  <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button>
-                </div>}
-                {a.status === "active" && <p className="notice success">Survey access is active. Open Survey projects to conduct assigned surveys.</p>}
-              </article>
-            ))}
-            {directSurveyAssignments.map((sa) => {
-              const p = projectMap.get(sa.project_id);
-              return <article className="document-row" key={`direct-${sa.project_id}`}>
-                <strong>{p?.title || sa.project_id} · Active direct assignment</strong>
-                <p>{p ? (orgMap.get(p.organization_id) || p.organization_id) : "Survey project"}</p>
-                <p className="notice success">Operational survey access is active. This direct assignment is separate from a formal Workforce contract/offer.</p>
-              </article>;
-            })}
-            {!assignments.length && !directSurveyAssignments.length && !busy && <p>No survey assignments or offers yet.</p>}
+            <div className="workforce-section-heading">
+              <div><span className="eyebrow">ASSIGNMENTS</span><h3>My assigned surveys</h3><p>Review formal offers, accept the work terms, then open active survey assignments for field collection.</p></div>
+              <span className="workforce-count">{assignments.length + directSurveyAssignments.length} record{assignments.length + directSurveyAssignments.length === 1 ? "" : "s"}</span>
+            </div>
+            <div className="workforce-list">
+              {assignments.map((a) => (
+                <article className="workforce-assignment-card" key={a.id}>
+                  <div className="workforce-assignment-top"><div><span>{a.organization_name}</span><h4>{a.project_title}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
+                  <div className="workforce-meta-grid three">
+                    <WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} />
+                    <WorkforceMeta icon={<FileCheck2 size={15} />} label="Survey target" value={`${a.target_surveys} surveys`} />
+                    <WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={money(a)} />
+                  </div>
+                  <p className="workforce-helper"><strong>Terms:</strong> {a.terms_note}</p>
+                  {a.status === "offered" && <div className="workforce-offer-callout"><div><strong>Formal assignment offer</strong><p>Accept to activate this assignment and its survey access. Compensation and terms are frozen for this offer.</p></div><div className="actions"><button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button><button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button></div></div>}
+                  {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Survey access is active. Open Survey projects to conduct assigned surveys.</p>}
+                  {a.status === "completed" && <p className="notice success">Completed assignment is retained in your verified FieldLance work history.</p>}
+                </article>
+              ))}
+              {directSurveyAssignments.map((sa) => {
+                const project = projectMap.get(sa.project_id);
+                return <article className="workforce-assignment-card" key={`direct-${sa.project_id}`}>
+                  <div className="workforce-assignment-top"><div><span>{project ? (orgMap.get(project.organization_id) || project.organization_id) : "Survey project"}</span><h4>{project?.title || sa.project_id}</h4><small>Direct operational assignment</small></div><Badge value="active" /></div>
+                  <p className="notice success">Survey access is active. This direct assignment remains separate from the formal marketplace contract/offer lifecycle.</p>
+                </article>;
+              })}
+            </div>
+            {!assignments.length && !directSurveyAssignments.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No assignments or offers yet" copy="After an organization selects you and sends a formal offer, it will appear here for acceptance." />}
           </>}
         </>
-      )}
-
-      {mode !== "personal" && create && (
-        <form onSubmit={createOpportunity} className="review">
-          <h3>Publish survey-project opportunity</h3>
-          <div className="form-grid">
-            {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenCreateProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select required value={createProjectId} onChange={(e) => { const id=e.target.value; setCreateProjectId(id); setCreateArea(projectMap.get(id)?.geography_id || null); }}><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
-            <label className="field">Opportunity title<input name="title" required minLength={3} maxLength={150} /></label>
-            <label className="field">Positions<input name="positions" type="number" min={1} max={5000} defaultValue={1} required /></label>
-            <label className="field">Start<input key={`start-${createProjectId}`} name="start" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.start_date || ""} required /></label>
-            <label className="field">End<input key={`end-${createProjectId}`} name="end" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.end_date || ""} required /></label>
-            <label className="field">Application deadline<input name="reply" type="datetime-local" required /></label>
-            <label className="field">Project compensation<input readOnly value={projectCompensation(chosenCreateProject)} /></label>
-            <label className="field">Recruitment access<select name="visibility" defaultValue="area"><option value="all">Open to all volunteers</option><option value="area">Open to all volunteers — work in selected area</option><option value="invite_only">Invite only</option></select></label>
-            <label className="field">Publication<select name="publication" defaultValue="published"><option value="published">Publish now</option><option value="draft">Save as draft</option></select></label>
-            <label className="field">Required skill (optional)<input name="skill" maxLength={100} /></label>
-            <label className="field">Required language (optional)<input name="language" maxLength={100} /></label>
-          </div>
-          <AreaSelector rows={geographies} value={createArea} onChange={setCreateArea} title="Recruitment work area" />
-          {chosenCreateProject && <p className="notice">The recruitment work area must stay within {chosenCreateProject.title}'s configured project area. Compensation is snapshotted from the project defaults when this opportunity is created; later project-rate changes do not alter this opportunity.</p>}
-          <label className="field">Expected field tasks<textarea name="description" minLength={10} maxLength={4000} required /></label>
-          <label className="field">Eligibility note<textarea name="eligibility_note" maxLength={1000} placeholder="Optional qualifications, travel expectations or selection notes." /></label>
-          <div className="actions"><button className="secondary" type="button" onClick={() => { setCreate(false); setCreateProjectId(""); setCreateArea(null); }}>Cancel</button><button className="primary" disabled={busy || !createProjectId || !createArea}>Save recruitment</button></div>
-        </form>
-      )}
-
-      {mode !== "personal" && (
+      ) : (
         <>
-          <div>
-            <h3>Find active volunteers</h3>
-            <form onSubmit={findCandidates}>
+          <div className="workforce-org-hero">
+            <div><span className="eyebrow">RECRUITMENT HUB</span><h2>{organizationHeading}</h2><p>{organizationCopy}</p></div>
+            <button className="primary" onClick={() => { selectOrganizationView("opportunities"); setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>{create ? "Close form" : "+ Create opportunity"}</button>
+          </div>
+
+          <div className="workforce-metric-grid" aria-label="Organization recruitment summary">
+            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Active opportunities" value={openOpportunityCount} detail={`${opportunities.length} total recruitment records`} />
+            <WorkforceMetric icon={<FileCheck2 size={18} />} label="New applications" value={pendingApplicationCount} detail={`${applications.length} applications received`} />
+            <WorkforceMetric icon={<Send size={18} />} label="Pending offers" value={offeredAssignmentCount} detail="Awaiting Field Worker response" />
+            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Field Workers currently activated" />
+          </div>
+
+          <div className="workforce-tabs" role="tablist" aria-label="Recruitment workspace sections">
+            {([
+              ["opportunities", "Opportunities", opportunities.length],
+              ["applications", "Applications", applications.length],
+              ["field_workers", "Find Field Workers", candidates.length],
+              ["assignments", "Assignments", assignments.length],
+            ] as const).map(([id, label, count]) => <button key={id} role="tab" aria-selected={organizationView === id} className={organizationView === id ? "active" : ""} onClick={() => selectOrganizationView(id)}>{label}<span>{count}</span></button>)}
+          </div>
+
+          {organizationView === "opportunities" && <>
+            {create && (
+              <form onSubmit={createOpportunity} className="workforce-inline-form workforce-create-opportunity">
+                <div className="workforce-section-heading compact"><div><span className="eyebrow">NEW RECRUITMENT</span><h3>Create project opportunity</h3><p>Publish field work from an active survey project. Compensation is inherited and snapshotted from project defaults.</p></div></div>
+                <div className="form-grid">
+                  {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenCreateProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select required value={createProjectId} onChange={(e) => { const id=e.target.value; setCreateProjectId(id); setCreateArea(projectMap.get(id)?.geography_id || null); }}><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
+                  <label className="field">Opportunity title<input name="title" required minLength={3} maxLength={150} /></label>
+                  <label className="field">Positions<input name="positions" type="number" min={1} max={5000} defaultValue={1} required /></label>
+                  <label className="field">Start<input key={`start-${createProjectId}`} name="start" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.start_date || ""} required /></label>
+                  <label className="field">End<input key={`end-${createProjectId}`} name="end" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.end_date || ""} required /></label>
+                  <label className="field">Application deadline<input name="reply" type="datetime-local" required /></label>
+                  <label className="field">Project compensation<input readOnly value={projectCompensation(chosenCreateProject)} /></label>
+                  <label className="field">Recruitment access<select name="visibility" defaultValue="area"><option value="all">Open to all Field Workers</option><option value="area">Open to all Field Workers — selected work area</option><option value="invite_only">Invite only</option></select></label>
+                  <label className="field">Publication<select name="publication" defaultValue="published"><option value="published">Publish now</option><option value="draft">Save as draft</option></select></label>
+                  <label className="field">Required skill (optional)<input name="skill" maxLength={100} /></label>
+                  <label className="field">Required language (optional)<input name="language" maxLength={100} /></label>
+                </div>
+                <AreaSelector rows={geographies} value={createArea} onChange={setCreateArea} title="Recruitment work area" />
+                {chosenCreateProject && <p className="notice">The work area must stay within {chosenCreateProject.title}&apos;s configured project area. Compensation is snapshotted now; later project-rate changes do not alter this opportunity.</p>}
+                <label className="field">Expected field tasks<textarea name="description" minLength={10} maxLength={4000} required /></label>
+                <label className="field">Selection / eligibility note<textarea name="eligibility_note" maxLength={1000} placeholder="Optional qualifications, travel expectations or selection notes." /></label>
+                <div className="actions"><button className="secondary" type="button" onClick={() => { setCreate(false); setCreateProjectId(""); setCreateArea(null); }}>Cancel</button><button className="primary" disabled={busy || !createProjectId || !createArea}>Save recruitment</button></div>
+              </form>
+            )}
+            <div className="workforce-section-heading"><div><span className="eyebrow">PUBLISHED WORK</span><h3>Recruitment opportunities</h3><p>Manage draft, open and closed recruitment without affecting applications already received.</p></div><span className="workforce-count">{opportunities.length} total</span></div>
+            <div className="workforce-card-grid">
+              {opportunities.map((o) => {
+                const project = projectMap.get(o.survey_project_id || "");
+                const location = geographyPath(o.geography_id, geographies).map((n)=>n.name).join(" / ");
+                const applicationCount = applications.filter((a) => a.opportunity_id === o.id).length;
+                return <article className="workforce-opportunity-card organization" key={o.id}>
+                  <div className="workforce-card-header"><div className="workforce-card-icon"><BriefcaseBusiness size={19} /></div><div className="workforce-card-title"><span>{project?.title || "Survey project"}</span><h4>{o.title}</h4><small>{location || "Area not listed"}</small></div><Badge value={opportunityState(o)} /></div>
+                  <p className="workforce-card-description">{o.description}</p>
+                  <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Positions" value={`${o.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} received`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Deadline" value={new Date(o.reply_by).toLocaleString()} /></div>
+                  <div className="workforce-chip-row"><span>{opportunityCompensation(o)}</span>{o.required_skill && <span>{o.required_skill}</span>}{o.required_language && <span>{o.required_language}</span>}</div>
+                  <div className="workforce-card-actions"><span>{human(o.visibility)} recruitment</span><div className="actions">
+                    {applicationCount > 0 && <button className="secondary" onClick={() => { setApplicationFilter("all"); selectOrganizationView("applications"); }}>View applicants</button>}
+                    {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
+                    {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
+                    {o.publication_state === "published" && o.status === "open" && !o.applications_open && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Applications reopened.")}>Reopen applications</button>}
+                  </div></div>
+                </article>;
+              })}
+            </div>
+            {!opportunities.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No recruitment opportunities yet" copy="Create an opportunity from an active survey project so eligible Field Workers can discover and apply." action={<button className="primary" onClick={() => setCreate(true)}>+ Create opportunity</button>} />}
+          </>}
+
+          {organizationView === "applications" && <>
+            <div className="workforce-section-heading"><div><span className="eyebrow">REVIEW PIPELINE</span><h3>{mode === "poem" ? "Applications across organizations" : "Field Worker applications"}</h3><p>Review application-scoped profile snapshots, shortlist candidates, select them and send formal assignment offers.</p></div><span className="workforce-count">{applications.length} total</span></div>
+            <div className="workforce-filter-pills" aria-label="Application status filters">
+              {(["all","pending","shortlisted","selected","rejected"] as ApplicationFilter[]).map((status) => <button key={status} className={applicationFilter === status ? "active" : ""} onClick={() => setApplicationFilter(status)}>{status === "all" ? "All" : human(status)} <span>{status === "all" ? applications.length : applications.filter((a)=>a.status===status).length}</span></button>)}
+            </div>
+            <div className="workforce-list">
+              {filteredApplications.map((a) => {
+                const snapshot = (a.profile_snapshot || {}) as Record<string, unknown>;
+                const skills = readableSnapshot(snapshot.skills);
+                const languages = readableSnapshot(snapshot.languages);
+                return <article className="workforce-application-card organization" key={a.id}>
+                  <div className="workforce-card-header"><div className="workforce-avatar">{initials(a.volunteer_name)}</div><div className="workforce-card-title"><span>{a.opportunity_title}</span><h4>{a.volunteer_name}</h4><small>{a.project_title}{mode === "poem" ? ` · ${orgMap.get(a.organization_id) || a.organization_name}` : ""}</small></div><Badge value={a.status} /></div>
+                  <RecruitmentProgress status={a.status} organization />
+                  <div className="workforce-candidate-facts"><span><strong>Skills</strong>{skills || "Not listed"}</span><span><strong>Languages</strong>{languages || "Not listed"}</span><span><strong>Availability</strong>{a.availability || "Not recorded"}</span></div>
+                  {a.note && <p className="workforce-helper"><strong>Applicant message:</strong> {a.note}</p>}
+                  {a.review_note && <p className="workforce-helper"><strong>Review note:</strong> {a.review_note}</p>}
+                  {a.profile_share_consent && <details className="workforce-profile-snapshot"><summary>View application profile snapshot</summary><pre className="survey-json">{JSON.stringify(a.profile_snapshot, null, 2)}</pre></details>}
+                  {["pending", "shortlisted", "selected"].includes(a.status) && <div className="workforce-card-actions"><span>{applicationNextStep(a.status, true)}</span><div className="actions">
+                    {a.status !== "shortlisted" && a.status !== "selected" && <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "shortlisted")}>Shortlist</button>}
+                    {a.status !== "selected" && <button className="primary" disabled={busy} onClick={() => reviewApplication(a, "selected")}>Select</button>}
+                    <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "rejected")}>Reject</button>
+                    {a.status === "selected" && <button className="primary" disabled={busy} onClick={() => {
+                      setProjectId(a.survey_project_id);
+                      const details=(a.profile_snapshot || {}) as Record<string,string>;
+                      setOffer({user_id:a.user_id,details,geography_id:typeof details.geography_id === "string" ? details.geography_id : null,shortlist_status:null,approved_surveys:0,reviewed_surveys:0,approval_rate:null,completed_assignments:0,verified_experiences:0,source_kind:"application",source_id:a.id,match_label:"selected_application"});
+                    }}>Send assignment offer</button>}
+                  </div></div>}
+                </article>;
+              })}
+            </div>
+            {!filteredApplications.length && !busy && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications in this view" copy={applications.length ? "Choose another pipeline filter to see other applicants." : "Applications will appear here when Field Workers apply to published opportunities."} />}
+            {offer && chosenProject && offer.source_kind === "application" && <AssignmentOfferForm offer={offer} project={chosenProject} compensation={offerCompensation} busy={busy} onCancel={() => setOffer(null)} onSubmit={offerAssignment} />}
+          </>}
+
+          {organizationView === "field_workers" && <>
+            <div className="workforce-section-heading"><div><span className="eyebrow">DIRECT RECRUITMENT</span><h3>Find Field Workers</h3><p>Search eligible Field Workers for a project. Formal assignment still requires an accepted application, invitation or selected shortlist source.</p></div></div>
+            <form onSubmit={findCandidates} className="workforce-search-card">
               <div className="form-grid">
                 {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select value={projectId} onChange={(e) => { setProjectId(e.target.value); setCandidates([]); setOffer(null); }} required><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
-                <label className="field">Name / skill / language<input value={query} maxLength={100} onChange={(e) => setQuery(e.target.value)} /></label>
+                <label className="field">Name / skill / language<div className="workforce-search-input"><Search size={16} /><input value={query} maxLength={100} onChange={(e) => setQuery(e.target.value)} placeholder="Search Field Workers" /></div></label>
               </div>
-              <button className="secondary" disabled={busy || !projectId}>Search candidates</button>
+              <button className="primary" disabled={busy || !projectId}>Search Field Workers</button>
             </form>
-            {candidates.map((c) => {
-              const d = c.details || {};
-              return <article className="document-row" key={c.user_id}>
-                <strong>{d.full_name || c.user_id} · {human(c.match_label === "local_verified" ? "active_profile" : c.match_label)}</strong>
-                <p>{d.skills || "Skills not listed"} · {d.languages || "Languages not listed"}</p>
-                <p>Approved surveys: {c.approved_surveys} · Reviewed: {c.reviewed_surveys} · Approval rate: {c.approval_rate === null ? "Insufficient data" : `${c.approval_rate}%`} · Completed assignments: {c.completed_assignments} · Verified experience entries: {c.verified_experiences}</p>
-                <p>Selection source: {c.source_kind ? human(c.source_kind) : "No accepted application/invitation or selected shortlist yet"}</p>
-                <button className="primary" disabled={busy || !c.source_kind} onClick={() => setOffer(c)}>Offer assignment</button>
-              </article>;
-            })}
-            {offer && chosenProject && <form onSubmit={offerAssignment} className="review">
-              <h3>Assignment terms for {offer.details.full_name || offer.user_id}</h3>
-              <p>Project: {chosenProject.title}. Compensation is inherited from the recruitment opportunity snapshot (or the current project default for a direct shortlist offer) and is immutable when offered. Volunteer acceptance confirms that frozen contract.</p>
-              <p className="notice"><strong>Contract compensation:</strong> {offerCompensation}</p>
-              <div className="form-grid">
-                <label className="field">Survey target<input name="target" type="number" min={1} max={1000000} required /></label>
-                <label className="field">Start<input name="start" type="date" defaultValue={chosenProject.start_date} required /></label>
-                <label className="field">End<input name="end" type="date" defaultValue={chosenProject.end_date} required /></label>
-              </div>
-              <label className="field">Terms / deliverables<textarea name="terms" minLength={5} maxLength={3000} required defaultValue="Complete assigned field surveys according to FieldLance data-quality, consent and project rules." /></label>
-              <div className="actions"><button type="button" className="secondary" onClick={() => setOffer(null)}>Cancel</button><button className="primary" disabled={busy}>Send formal offer</button></div>
-            </form>}
-          </div>
+            <div className="workforce-card-grid candidates">
+              {candidates.map((c) => {
+                const details = c.details || {};
+                return <article className="workforce-candidate-card" key={c.user_id}>
+                  <div className="workforce-card-header"><div className="workforce-avatar">{initials(details.full_name || c.user_id)}</div><div className="workforce-card-title"><span>{human(c.match_label === "local_verified" ? "active_profile" : c.match_label)}</span><h4>{details.full_name || c.user_id}</h4><small>{details.skills || "Skills not listed"}</small></div>{c.source_kind ? <Badge value="selected" /> : <span className="badge pending">Discovery only</span>}</div>
+                  <div className="workforce-candidate-facts"><span><strong>Languages</strong>{details.languages || "Not listed"}</span><span><strong>Approved surveys</strong>{c.approved_surveys}</span><span><strong>Approval rate</strong>{c.approval_rate === null ? "Insufficient data" : `${c.approval_rate}%`}</span><span><strong>Completed assignments</strong>{c.completed_assignments}</span><span><strong>Verified experience</strong>{c.verified_experiences}</span></div>
+                  <p className="workforce-helper"><strong>Selection source:</strong> {c.source_kind ? human(c.source_kind) : "No accepted application/invitation or selected shortlist yet"}</p>
+                  <div className="workforce-card-actions"><span>{c.source_kind ? "Eligible for formal offer" : "Use the recruitment lifecycle before assignment"}</span><button className="primary" disabled={busy || !c.source_kind} onClick={() => setOffer(c)}>Offer assignment</button></div>
+                </article>;
+              })}
+            </div>
+            {!candidates.length && !busy && <WorkforceEmpty icon={<UsersRound size={22} />} title="Search the Field Worker network" copy="Choose an active project and search by name, skill or language. Discovery does not grant permanent access to a worker's full private profile." />}
+            {offer && chosenProject && offer.source_kind !== "application" && <AssignmentOfferForm offer={offer} project={chosenProject} compensation={offerCompensation} busy={busy} onCancel={() => setOffer(null)} onSubmit={offerAssignment} />}
+          </>}
 
-          <div>
-            <h3>Recruitment opportunities</h3>
-            {opportunities.map((o)=><article className="document-row" key={o.id}>
-              <strong>{o.title} · {o.publication_state === "draft" ? "Draft" : o.status !== "open" ? "Opportunity closed" : o.applications_open ? "Applications open" : "Applications closed"}</strong>
-              <p>{projectMap.get(o.survey_project_id || "")?.title || o.survey_project_id} · {human(o.visibility)} · deadline {new Date(o.reply_by).toLocaleString()}</p>
-              <p>{o.required_volunteers} position(s) · {opportunityCompensation(o)}{o.eligibility_note ? ` · ${o.eligibility_note}` : ""}</p>
-              <div className="actions">
-                {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
-                {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
-                {o.publication_state === "published" && o.status === "open" && !o.applications_open && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Applications reopened.")}>Reopen applications</button>}
-              </div>
-            </article>)}
-            {!opportunities.length && <p>No project recruitment has been created in this workspace.</p>}
-          </div>
+          {organizationView === "assignments" && <>
+            <div className="workforce-section-heading"><div><span className="eyebrow">DELIVERY TEAM</span><h3>{mode === "poem" ? "Assignment oversight" : "Project assignments"}</h3><p>Offers become active only after Field Worker acceptance. Completion creates verified FieldLance work history.</p></div><span className="workforce-count">{assignments.length} total</span></div>
+            <div className="workforce-list">
+              {assignments.map((a) => <AssignmentCard key={a.id} assignment={a} project={projectMap.get(a.survey_project_id)} orgName={orgMap.get(a.organization_id)} mode={mode} busy={busy} act={act} />)}
+            </div>
+            {!assignments.length && !busy && <WorkforceEmpty icon={<CheckCircle2 size={22} />} title="No assignments yet" copy="Select an applicant or eligible recruited Field Worker, send an offer, and the assignment will appear here." />}
+          </>}
 
-          <h3>{mode === "poem" ? "Applications across partner NGOs" : "Project applications"}</h3>
-          {applications.map((a) => <article className="document-row" key={a.id}>
-            <strong>{a.volunteer_name} · {human(a.status)}</strong>
-            <p>{projectMap.get(a.survey_project_id)?.title || a.survey_project_id} · {orgMap.get(a.organization_id) || a.organization_id}</p>
-            {a.availability && <p>Availability: {a.availability}</p>}{a.note && <p>Volunteer: {a.note}</p>}{a.review_note && <p>Review: {a.review_note}</p>}
-            {a.profile_share_consent && <details><summary>Recruitment profile shared for this application</summary><pre className="survey-json">{JSON.stringify(a.profile_snapshot, null, 2)}</pre></details>}
-            {["pending", "shortlisted", "selected"].includes(a.status) && <div className="actions">
-              {(["shortlisted", "selected", "rejected"] as const).map((status) => <button key={status} className={status === "selected" ? "primary" : "secondary"} disabled={busy || a.status === "selected" && status !== "rejected"} onClick={() => {
-                const note = window.prompt(`Review note for ${human(status)}:`, status === "selected" ? "Selected for a formal assignment offer." : "Reviewed by project recruitment administrator.");
-                if (note) void act(() => rpc("review_work_application", { p_id: a.id, p_status: status, p_note: note, p_version: a.version }), `Application marked ${human(status)}.`);
-              }}>{human(status)}</button>)}
-              {a.status === "selected" && <button className="primary" disabled={busy} onClick={()=>{
-                setProjectId(a.survey_project_id);
-                const d=(a.profile_snapshot || {}) as Record<string,string>;
-                setOffer({user_id:a.user_id,details:d,geography_id:typeof d.geography_id === "string" ? d.geography_id : null,shortlist_status:null,approved_surveys:0,reviewed_surveys:0,approval_rate:null,completed_assignments:0,verified_experiences:0,source_kind:"application",source_id:a.id,match_label:"selected_application"});
-              }}>Offer assignment</button>}
-            </div>}
-          </article>)}
-          {!applications.length && <p>No applications in this workspace.</p>}
-
-          <h3>{mode === "poem" ? "Assignment oversight" : "Project assignments"}</h3>
-          {assignments.map((a) => <AssignmentCard key={a.id} assignment={a} project={projectMap.get(a.survey_project_id)} orgName={orgMap.get(a.organization_id)} mode={mode} busy={busy} act={act} />)}
-          {!assignments.length && <p>No workforce assignments in this workspace.</p>}
+          {opportunities.length > 0 && <p className="workforce-footnote">{opportunities.length} linked project opportunit{opportunities.length === 1 ? "y" : "ies"}. Closing recruitment blocks only new applications; existing applications remain reviewable.</p>}
         </>
       )}
-
-      {mode !== "personal" && opportunities.length > 0 && <p>Linked project opportunities: {opportunities.length}. Closing recruitment blocks only new applications; existing applications remain reviewable.</p>}
     </section>
   );
+
+  function reviewApplication(application: Application, status: "shortlisted" | "selected" | "rejected") {
+    const note = window.prompt(`Review note for ${human(status)}:`, status === "selected" ? "Selected for a formal assignment offer." : "Reviewed by project recruitment administrator.");
+    if (note) void act(() => rpc("review_work_application", { p_id: application.id, p_status: status, p_note: note, p_version: application.version }), `Application marked ${human(status)}.`);
+  }
+}
+
+function WorkforceMetric({ icon, label, value, detail }: { icon: ReactNode; label: string; value: number; detail: string }) {
+  return <article className="workforce-metric"><div className="workforce-metric-icon">{icon}</div><div><strong>{value}</strong><span>{label}</span><small>{detail}</small></div></article>;
+}
+
+function WorkforceMeta({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return <div className="workforce-meta"><span>{icon}</span><div><small>{label}</small><strong>{value}</strong></div></div>;
+}
+
+function WorkforceEmpty({ icon, title, copy, action }: { icon: ReactNode; title: string; copy: string; action?: ReactNode }) {
+  return <div className="workforce-empty"><div>{icon}</div><h4>{title}</h4><p>{copy}</p>{action}</div>;
+}
+
+function WorkerJourney({ active }: { active: PersonalView }) {
+  const activeIndex = active === "opportunities" ? 0 : active === "applications" ? 1 : active === "assigned" ? 3 : 0;
+  const steps = [["Discover", "Browse open work"], ["Apply", "Send your snapshot"], ["Selection", "Organization reviews"], ["Assigned", "Accept & work"]] as const;
+  return <div className="workforce-journey" aria-label="Field Worker recruitment lifecycle">{steps.map(([label, copy], index) => <div key={label} className={index <= activeIndex ? "active" : ""}><span>{index + 1}</span><div><strong>{label}</strong><small>{copy}</small></div>{index < steps.length - 1 && <ArrowRight size={15} />}</div>)}</div>;
+}
+
+function RecruitmentProgress({ status, organization = false }: { status: string; organization?: boolean }) {
+  const activeThrough = status === "shortlisted" ? 1 : status === "selected" ? 2 : 0;
+  const labels = organization ? ["Applied", "Shortlisted", "Selected", "Offer"] : ["Applied", "Shortlisted", "Selected", "Offer / assignment"];
+  return <div className={`recruitment-progress ${status === "rejected" || status === "withdrawn" ? "stopped" : ""}`}>{labels.map((label, index) => <span key={label} className={index <= activeThrough ? "active" : ""}><i>{index < activeThrough ? "✓" : index + 1}</i>{label}</span>)}</div>;
+}
+
+function AssignmentOfferForm({ offer, project, compensation, busy, onCancel, onSubmit }: { offer: Candidate; project: Project; compensation: string; busy: boolean; onCancel: () => void; onSubmit: (e: FormEvent<HTMLFormElement>) => void }) {
+  return <form onSubmit={onSubmit} className="workforce-inline-form workforce-offer-form">
+    <div className="workforce-section-heading compact"><div><span className="eyebrow">FORMAL OFFER</span><h3>Assignment terms for {offer.details.full_name || offer.user_id}</h3><p>Project: {project.title}. Compensation is inherited from the recruitment opportunity snapshot or project default and becomes immutable when offered.</p></div></div>
+    <p className="notice"><strong>Contract compensation:</strong> {compensation}</p>
+    <div className="form-grid"><label className="field">Survey target<input name="target" type="number" min={1} max={1000000} required /></label><label className="field">Start<input name="start" type="date" defaultValue={project.start_date} required /></label><label className="field">End<input name="end" type="date" defaultValue={project.end_date} required /></label></div>
+    <label className="field">Terms / deliverables<textarea name="terms" minLength={5} maxLength={3000} required defaultValue="Complete assigned field surveys according to FieldLance data-quality, consent and project rules." /></label>
+    <div className="actions"><button type="button" className="secondary" onClick={onCancel}>Cancel</button><button className="primary" disabled={busy}>Send formal offer</button></div>
+  </form>;
 }
 
 function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
@@ -534,34 +667,67 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
   act: (fn: () => Promise<unknown>, success: string) => Promise<boolean>;
 }) {
   const [complete, setComplete] = useState(false);
-  return <article className="document-row">
-    <strong>{a.volunteer_name} · {human(a.status)}</strong>
-    <p>{a.project_title || project?.title || a.survey_project_id} · {a.organization_name || orgName || a.organization_id}</p>
-    <p>{a.start_date} → {a.end_date} · Target {a.target_surveys} · {money(a)}</p>
-    <p>Compensation source: {human(a.compensation_source)}{a.compensation_source_version ? ` v${a.compensation_source_version}` : ""}{a.compensation_note_snapshot ? ` · ${a.compensation_note_snapshot}` : ""}</p>
-    <p>{a.terms_note}</p>
-    {a.completion_note && <p>Completion: {a.completion_note}</p>}
-    {a.cancellation_note && <p>Cancellation: {a.cancellation_note}</p>}
-    {(mode === "ngo" || mode === "project") && a.status === "active" && <div className="actions">
-      <button className="primary" disabled={busy} onClick={() => setComplete((v) => !v)}>Complete assignment</button>
-      <button className="secondary" disabled={busy} onClick={() => {
-        const note=window.prompt("Cancellation reason:","Assignment cancelled by project administrator.");
-        if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment cancelled and survey access revoked.");
-      }}>Cancel assignment</button>
-    </div>}
-    {mode !== "personal" && a.status === "offered" && <button className="secondary" disabled={busy} onClick={() => {
-      const note=window.prompt("Cancellation reason:","Assignment offer withdrawn by project administrator.");
-      if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment offer cancelled.");
-    }}>Withdraw offer</button>}
-    {complete && (mode === "ngo" || mode === "project") && <form className="review" onSubmit={(e) => {
+  return <article className="workforce-assignment-card organization">
+    <div className="workforce-assignment-top"><div><span>{a.organization_name || orgName || a.organization_id}</span><h4>{a.project_title || project?.title || a.survey_project_id}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
+    <div className="workforce-meta-grid three"><WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Survey target" value={`${a.target_surveys} surveys`} /><WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={money(a)} /></div>
+    <p className="workforce-helper"><strong>Field Worker:</strong> {a.volunteer_name}</p>
+    <p className="workforce-helper"><strong>Terms:</strong> {a.terms_note}</p>
+    <p className="workforce-helper"><strong>Compensation source:</strong> {human(a.compensation_source)}{a.compensation_source_version ? ` v${a.compensation_source_version}` : ""}{a.compensation_note_snapshot ? ` · ${a.compensation_note_snapshot}` : ""}</p>
+    {a.completion_note && <p className="notice success">Completion: {a.completion_note}</p>}
+    {a.cancellation_note && <p className="notice">Cancellation: {a.cancellation_note}</p>}
+    <div className="workforce-card-actions"><span>{assignmentNextStep(a.status)}</span><div className="actions">
+      {(mode === "ngo" || mode === "project") && a.status === "active" && <><button className="primary" disabled={busy} onClick={() => setComplete((v) => !v)}>Complete assignment</button><button className="secondary" disabled={busy} onClick={() => { const note=window.prompt("Cancellation reason:","Assignment cancelled by project administrator."); if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment cancelled and survey access revoked."); }}>Cancel assignment</button></>}
+      {mode !== "personal" && a.status === "offered" && <button className="secondary" disabled={busy} onClick={() => { const note=window.prompt("Cancellation reason:","Assignment offer withdrawn by project administrator."); if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment offer cancelled."); }}>Withdraw offer</button>}
+    </div></div>
+    {complete && (mode === "ngo" || mode === "project") && <form className="workforce-completion-form" onSubmit={(e) => {
       e.preventDefault();const f=new FormData(e.currentTarget);
       const feedback: Json={professionalism:Number(val(f,"professionalism")),communication:Number(val(f,"communication")),field_discipline:Number(val(f,"discipline")),data_quality:Number(val(f,"quality")),task_completion:Number(val(f,"completion"))};
       void act(() => rpc("complete_work_assignment",{p_id:a.id,p_feedback:feedback,p_note:val(f,"note"),p_version:a.version}),"Assignment completed and added to verified FieldLance work history.");
-    }}>
-      <h4>Structured completion feedback</h4>
-      <div className="form-grid">{[["professionalism","Professionalism"],["communication","Communication"],["discipline","Field discipline"],["quality","Data quality"],["completion","Task completion"]].map(([name,label]) => <label className="field" key={name}>{label}<select name={name} defaultValue="5">{[1,2,3,4,5].map((n)=><option key={n} value={n}>{n} / 5</option>)}</select></label>)}</div>
-      <label className="field">Completion note<textarea name="note" minLength={5} maxLength={3000} required /></label>
-      <button className="primary" disabled={busy}>Confirm completion</button>
-    </form>}
+    }}><h4>Structured completion feedback</h4><div className="form-grid">{[["professionalism","Professionalism"],["communication","Communication"],["discipline","Field discipline"],["quality","Data quality"],["completion","Task completion"]].map(([name,label]) => <label className="field" key={name}>{label}<select name={name} defaultValue="5">{[1,2,3,4,5].map((n)=><option key={n} value={n}>{n} / 5</option>)}</select></label>)}</div><label className="field">Completion note<textarea name="note" minLength={5} maxLength={3000} required /></label><button className="primary" disabled={busy}>Confirm completion</button></form>}
   </article>;
+}
+
+function opportunityState(o: Opportunity) {
+  if (o.publication_state === "draft") return "draft";
+  if (o.status !== "open") return "closed";
+  return o.applications_open ? "active" : "closed";
+}
+
+function shortDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function initials(value: string) {
+  return value.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "FW";
+}
+
+function readableSnapshot(value: unknown) {
+  if (Array.isArray(value)) return value.filter((item) => typeof item === "string").join(", ");
+  return typeof value === "string" ? value : "";
+}
+
+function applicationNextStep(status: string, organization = false) {
+  if (organization) {
+    if (status === "pending") return "Review the application and profile snapshot";
+    if (status === "shortlisted") return "Decide whether to select this Field Worker";
+    if (status === "selected") return "Send a formal assignment offer";
+    if (status === "rejected") return "Application closed";
+    return human(status);
+  }
+  if (status === "pending") return "Waiting for organization review";
+  if (status === "shortlisted") return "Shortlisted · organization is reviewing your application";
+  if (status === "selected") return "Selected · wait for a formal assignment offer";
+  if (status === "rejected") return "Application was not selected";
+  if (status === "withdrawn") return "Application withdrawn";
+  return human(status);
+}
+
+function assignmentNextStep(status: string) {
+  if (status === "offered") return "Waiting for Field Worker acceptance";
+  if (status === "active") return "Field work is active";
+  if (status === "completed") return "Completed and recorded in work history";
+  if (status === "declined") return "Offer declined";
+  if (status === "cancelled" || status === "canceled") return "Assignment cancelled";
+  return human(status);
 }

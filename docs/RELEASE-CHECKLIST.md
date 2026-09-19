@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.19.7
+# Current release checklist — FieldLance 2.19.8
+
+## FieldLance 2.19.8 acceptance
+
+- [ ] Package and lockfile report `2.19.8`.
+- [ ] No migration is added; Local/Remote head remains `20261009000600`.
+- [ ] `npm run test:workforce-marketplace` passes all 2.19.8 source/lifecycle regressions.
+- [ ] Field Worker Available Opportunities shows published work across authorized active organizations and supports organization/payment/skill/date/area filtering.
+- [ ] Applying uses application-scoped snapshot consent and does not create permanent profile sharing.
+- [ ] My Applications shows recruitment progress and existing withdraw behavior for eligible statuses.
+- [ ] Organization marketplace shows Opportunities, Applications, Find Field Workers and Assignments tabs with summary metrics.
+- [ ] Organization can shortlist/select/reject through existing review RPCs and selected workers can receive formal offers.
+- [ ] My Assigned Surveys shows formal offers; accepting an offer activates survey access under existing server rules.
+- [ ] Existing direct assignments remain clearly distinguished from marketplace contracts.
+- [ ] Approved organization logos render on worker-facing opportunity/application cards with initials fallback.
+- [ ] Desktop/mobile browser QA has no horizontal overflow in cards, tabs, metrics, filters or recruitment progress.
+- [ ] `npm run preflight`, payments, local auth/storage and operations regressions remain green.
 
 ## FieldLance 2.19.7 acceptance
 

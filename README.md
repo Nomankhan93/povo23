@@ -1,27 +1,27 @@
-# Current release: FieldLance 2.19.7
+# Current release: FieldLance 2.19.8
 
-FieldLance Partner NGO Application Experience. See [release notes](docs/PHASE-2.19.7.md), [WSL upgrade](docs/UPGRADE-2.19.7.md) and [validation](docs/VALIDATION-2.19.7.md).
+FieldLance Workforce Marketplace UX. See [release notes](docs/PHASE-2.19.8.md), [WSL upgrade](docs/UPGRADE-2.19.8.md) and [validation](docs/VALIDATION-2.19.8.md).
 
-FieldLance 2.19.7 turns the existing Partner NGO self-onboarding workflow into a guided five-step application while preserving the established organization-approval, RLS and document-review architecture. It adds structured registration/designation choices, program-area chips, a review/readiness step, a post-submit success modal and a private organization-logo lifecycle that is copied to the approved organization profile.
+FieldLance 2.19.8 redesigns the existing recruitment marketplace around one explicit lifecycle on both sides: **published opportunity → Field Worker application → organization review/selection → formal assignment offer → Field Worker acceptance → active survey assignment**. The release reuses the existing recruitment tables, RLS and RPCs and adds no database migration.
 
-## 2.19.7 release rules
+## 2.19.8 release rules
 
-- **Forward-only migration:** `20261009000600_partner_ngo_application_experience.sql` follows the 2.19.5 branding-compatibility migration; historical migrations remain untouched.
-- The existing `partner_ngo_applications`, operating-area arrays, program arrays, application-document table and review RPC workflow remain authoritative; no second onboarding system is introduced.
-- Organization logos use the private `fieldlance-organization-logos` bucket, deterministic owner/application paths and guarded storage policies. Draft logos remain private to the applicant and FieldLance reviewers; an approved active organization logo is readable to active authenticated platform users.
-- Logo upload accepts JPG, PNG and WebP up to 2 MiB. The application remains valid without a logo.
-- Organization application UX is now: **Organization → Operating Areas → Programs → Documents → Review**.
-- Registration type and representative designation are structured selectors with an Other/custom path. Program areas are a structured multi-select with custom tags while continuing to persist the existing `program_names text[]` contract.
-- Final submission now requires an explicit registration type in addition to the existing organization/contact/area/program/legal-proof requirements.
-- The success modal appears only after the submit RPC succeeds; failed submission keeps the application editable and shows an error instead.
-- Approval continues to create exactly one active organization and first NGO Admin membership through the existing guarded review RPC. The application logo is synchronized to that organization during approval.
-- FieldLance 2.19.6 visual-system/navigation foundations remain in force. The next screen-level UX phase is the Field Worker marketplace experience.
+- **No database migration:** migration head remains `20261009000600_partner_ngo_application_experience.sql`.
+- Field Workers discover published/open opportunities from active organizations through the existing `available_work_opportunities` RPC; draft, closed and expired recruitment remains hidden.
+- Applying continues to use an application-scoped recruitment profile snapshot. Permanent/full organization profile sharing is not introduced.
+- Organization recruitment is reorganized into **Opportunities → Applications → Find Field Workers → Assignments** with operational summary cards and clear pipeline state.
+- Selection still uses the existing `review_work_application` RPC. A selected Field Worker is not active survey staff until a formal assignment offer is created and accepted.
+- Formal assignment compensation continues to inherit the authoritative opportunity/project snapshot; 2.19.8 does not change payable, wallet or finance semantics.
+- Field Worker **My Assigned Surveys** shows formal offers and active assignments; survey access becomes active only after assignment acceptance or through an existing explicit direct survey assignment.
+- Approved organization logos are reused on Field Worker opportunity/application presentation.
+- Direct assignment/invitation paths remain compatible, while published opportunities and applications stay the first-class marketplace path.
+- FieldLance 2.19.7 Partner NGO application/security behavior remains unchanged.
 
 ## Current product boundaries
 
 - Partner NGO onboarding remains one personal-account workflow with private draft evidence, explicit FieldLance review and organization activation only after approval.
 - PostgreSQL RLS, guarded RPCs and Storage policies remain the security boundary; the five-step UI does not grant authority.
-- Existing beneficiary/case/assistance, workforce/payable, finance and JazzCash/Easypaisa payment architecture is unchanged by 2.19.7.
+- Existing beneficiary/case/assistance, workforce/payable, finance and JazzCash/Easypaisa payment architecture is unchanged by 2.19.8.
 - Existing internal `poem_*` compatibility identifiers remain untouched unless the new organization-logo surface requires a new FieldLance-named identifier.
 
 ## Historical foundation notes

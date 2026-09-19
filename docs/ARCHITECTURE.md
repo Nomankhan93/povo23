@@ -1,4 +1,12 @@
-# Current architecture note — FieldLance 2.19.7
+# Current architecture note — FieldLance 2.19.8
+
+## 2.19.8 Workforce Marketplace architecture
+
+2.19.8 is a frontend-only marketplace release. It keeps `work_opportunities`, `work_applications`, `work_assignments`, `survey_assignments` and the existing recruitment RPC/RLS model authoritative. No new registry, parallel assignment model or migration is introduced.
+
+The Field Worker lifecycle is presented as discover → apply → selection → assigned. `available_work_opportunities` remains the server-side discovery boundary, `apply_work_opportunity` creates the application-scoped profile snapshot, `review_work_application` records organization decisions, `create_work_assignment` freezes formal assignment terms, and `respond_work_assignment` activates accepted offers. Existing direct survey assignments remain visible as an explicitly separate operational path.
+
+Organization mode is reorganized into Opportunities, Applications, Find Field Workers and Assignments views. These are presentation views over existing scoped queries and RPCs; switching tabs does not expand authorization. Approved organization logo paths already introduced in 2.19.7 are reused for worker-facing marketplace identity.
 
 ## 2.19.7 Partner NGO application architecture
 

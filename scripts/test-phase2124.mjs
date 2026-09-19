@@ -430,10 +430,10 @@ try {
     assert(workforce.includes('.from("survey_assignments")'));
     assert(workforce.includes('if (ok) setApplying(null)'));
     assert(workforce.includes('Existing applications remain reviewable'));
-    assert(workforce.includes('{mode === "personal" && ('));
-    assert(workforce.includes('Open to all active volunteers'));
+    assert(workforce.includes('{mode === "personal" ? ('));
+    assert(workforce.includes('Open to all Field Workers'));
     assert(!workforce.includes('// ...existing code...'));
-    assert.equal((workforce.match(/<h3>Find active volunteers<\/h3>/g) || []).length, 1);
+    assert.equal((workforce.match(/<h3>Find Field Workers<\/h3>/g) || []).length, 1);
     assert(invitations.includes('.is("survey_project_id", null)'));
   });
 

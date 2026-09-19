@@ -1,4 +1,12 @@
-# Current permissions note — FieldLance 2.19.7
+# Current permissions note — FieldLance 2.19.8
+
+## 2.19.8 marketplace permissions
+
+- Field Workers may discover only opportunities returned by the existing `available_work_opportunities` authorization/filtering RPC.
+- Applying shares only the existing application-scoped recruitment snapshot; no permanent/full NGO profile grant is created by the 2.19.8 UI.
+- Organization/Project recruitment actions continue to depend on existing RLS and guarded RPC authorization. Frontend tabs and buttons are not a security boundary.
+- Selection does not activate survey access. Formal assignment access begins only after the worker accepts an authorized assignment offer, except for already-supported explicit direct survey assignments.
+- 2.19.8 changes no beneficiary, finance, payable, wallet, payment-provider or Partner NGO approval permissions.
 
 ## 2.19.7 Partner NGO application permissions
 
