@@ -142,12 +142,14 @@ function OrganizationReview({
   draft,
   areas,
   programs,
+  documents,
   geographies,
 }: {
   application: Application;
   draft: Draft;
   areas: string[];
   programs: string[];
+  documents: Document[];
   geographies: Geo[];
 }) {
   return (
@@ -186,6 +188,21 @@ function OrganizationReview({
         <span className="eyebrow">PROGRAM AREAS</span>
         <div className="ngo-review-tags">
           {programs.length ? programs.map((program) => <span key={program}>{program}</span>) : <em>No program areas selected.</em>}
+        </div>
+      </section>
+      <section className="ngo-review-card ngo-review-card-wide">
+        <span className="eyebrow">SUPPORTING DOCUMENTS</span>
+        <div className="ngo-review-documents">
+          {documents.length ? documents.map((document) => (
+            <article key={document.id}>
+              <span className="ngo-review-document-icon"><FileCheck2 size={17}/></span>
+              <div>
+                <strong>{document.file_name}</strong>
+                <small>{human(document.kind)} · {(document.byte_size / 1024).toFixed(0)} KiB</small>
+              </div>
+              <Badge value={document.state === "ready" ? document.review_status : document.state} />
+            </article>
+          )) : <em>No supporting documents uploaded.</em>}
         </div>
       </section>
       <section className="ngo-review-card ngo-review-card-wide">
@@ -341,6 +358,65 @@ export function PartnerNgoDocuments({
     }, "Supporting document removed.");
   }
 
+  async function replaceDocument(d: Document, replacement: File) {
+    if (!window.confirm(`Replace ${d.file_name} with ${replacement.name}?`)) return;
+
+    setBusy(true);
+    setError("");
+    setMessage("");
+    let replacementReady = false;
+
+    try {
+      const mime = await validateFile(replacement);
+      const next = await rpc("begin_partner_ngo_document_upload", {
+        p_application: application.id,
+        p_name: replacement.name,
+        p_type: mime,
+        p_bytes: replacement.size,
+        p_kind: d.kind,
+      });
+      if (
+        !next ||
+        typeof next !== "object" ||
+        Array.isArray(next) ||
+        typeof next.id !== "string" ||
+        typeof next.object_path !== "string"
+      )
+        throw Error("Invalid NGO document reservation response");
+
+      const uploaded = await db!.storage
+        .from("poem-ngo-applications")
+        .upload(next.object_path, replacement, {
+          contentType: mime,
+          cacheControl: "0",
+          upsert: false,
+        });
+      if (uploaded.error) throw uploaded.error;
+
+      await rpc("finish_partner_ngo_document_upload", { p_id: next.id });
+      replacementReady = true;
+
+      const oldPath = await rpc("begin_partner_ngo_document_delete", { p_id: d.id });
+      const removed = await db!.storage.from("poem-ngo-applications").remove([oldPath]);
+      if (removed.error) throw removed.error;
+      await rpc("finish_partner_ngo_document_delete", { p_id: d.id });
+
+      await load();
+      await onChanged();
+      setMessage("Supporting document replaced.");
+    } catch (e) {
+      const detail = (e as Error).message;
+      setError(
+        replacementReady
+          ? `Replacement uploaded, but the previous document still needs removal: ${detail}. Retry removal on the previous item.`
+          : detail,
+      );
+      await load().catch(() => {});
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function chooseDroppedFile(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDragging(false);
@@ -417,6 +493,21 @@ export function PartnerNgoDocuments({
               {d.state === "ready" && <button className="secondary" type="button" disabled={busy} onClick={() => void download(d)}>Download</button>}
               {editable && d.state === "uploading" && (
                 <button className="secondary" type="button" disabled={busy} onClick={() => void action(() => rpc("finish_partner_ngo_document_upload", { p_id: d.id }), "Upload finalized.")}>Finalize</button>
+              )}
+              {editable && d.state === "ready" && (
+                <label className={`secondary ngo-document-replace${busy ? " disabled" : ""}`}>
+                  Replace
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    disabled={busy}
+                    onChange={(e) => {
+                      const replacement = e.target.files?.[0] || null;
+                      e.currentTarget.value = "";
+                      if (replacement) void replaceDocument(d, replacement);
+                    }}
+                  />
+                </label>
               )}
               {editable && <button className="link danger-link" type="button" disabled={busy} onClick={() => void remove(d)}>{d.state === "deleting" ? "Retry removal" : "Remove"}</button>}
             </div>
@@ -743,6 +834,7 @@ export function PartnerNgoApplication({
   }
 
   const filteredPrograms = programOptions.filter((program) => normalized(program).includes(normalized(programSearch)));
+  const statusBadgeValue = application?.status === "submitted" ? "under_review" : application?.status || "draft";
   const statusLabel = application?.status === "submitted" ? "Under review" : application ? human(application.status) : "Draft";
 
   if (loading) return <p role="status">Loading Partner NGO application…</p>;
@@ -772,9 +864,10 @@ export function PartnerNgoApplication({
           <p>Your organization will be activated after FieldLance reviews this application and the required documents.</p>
         </div>
         <div className="ngo-application-status-meta">
-          <Badge value={application.status} />
+          <Badge value={statusBadgeValue} />
           {editable && <span>{completion}% complete · {remaining ? `${remaining} required ${remaining === 1 ? "item" : "items"} remaining` : "ready to submit"}</span>}
-          {!editable && <span>{statusLabel}</span>}
+          {!editable && application.status === "submitted" && <span>FieldLance review in progress</span>}
+          {!editable && application.status !== "submitted" && <span>{statusLabel}</span>}
         </div>
       </section>
 
@@ -994,13 +1087,13 @@ export function PartnerNgoApplication({
             <Send aria-hidden="true" />
           </div>
 
-          <OrganizationReview application={application} draft={draft} areas={areas} programs={programs} geographies={geographies} />
+          <OrganizationReview application={application} draft={draft} areas={areas} programs={programs} documents={documents} geographies={geographies} />
 
           <div className="ngo-review-edit-links">
             <button type="button" className="link" onClick={() => setStep(0)}>Edit organization details</button>
             <button type="button" className="link" onClick={() => setStep(1)}>Edit operating areas</button>
             <button type="button" className="link" onClick={() => setStep(2)}>Edit programs</button>
-            <button type="button" className="link" onClick={() => setStep(3)}>Review documents</button>
+            <button type="button" className="link" onClick={() => setStep(3)}>Edit documents</button>
           </div>
 
           <section className="ngo-readiness-card">

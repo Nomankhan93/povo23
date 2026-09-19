@@ -42,6 +42,26 @@ await ok('successful server submission produces the explicit FieldLance success 
   assert.match(source, /await rpc\("submit_partner_ngo_application"/);
 });
 
+await ok('2.19.7 completion hotfix shows supporting documents on Review with edit and replacement controls', async () => {
+  const source = read('src/features/organizations/PartnerNgoApplication.tsx');
+  assert.match(source, /SUPPORTING DOCUMENTS/);
+  assert.match(source, /documents=\{documents\}/);
+  assert.match(source, />Edit documents<\/button>/);
+  assert.match(source, /async function replaceDocument/);
+  assert.match(source, />\s*Replace\s*/);
+  assert.match(source, /p_kind: d\.kind/);
+  assert.match(source, /Replacement uploaded, but the previous document still needs removal/);
+});
+
+await ok('2.19.7 completion hotfix consistently presents submitted applications as Under review to applicants', async () => {
+  const source = read('src/features/organizations/PartnerNgoApplication.tsx');
+  assert.match(source, /statusBadgeValue = application\?\.status === "submitted" \? "under_review"/);
+  assert.match(source, /<Badge value=\{statusBadgeValue\} \/>/);
+  assert.match(source, /FieldLance review in progress/);
+  const styles = read('src/styles/design-system.css');
+  assert.match(styles, /\.badge\.under_review/);
+});
+
 await ok('organization logo UI validates image types and reuses the approved logo in review and organization presentation', async () => {
   const logo = read('src/features/organizations/OrganizationLogo.tsx');
   const review = read('src/features/organizations/PartnerNgoApplicationsReview.tsx');
