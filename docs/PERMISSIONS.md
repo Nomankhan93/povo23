@@ -1,4 +1,16 @@
-# Current permissions note — POEM 2.18.3
+# Current permissions note — POEM 2.19.0
+
+## 2.19.0 beneficiary case / assistance-request permissions
+
+- **POEM survey authority (`super_admin` / `admin` / `survey_manager`):** may manage cases/needs links/requests across authorized projects and approve/reject submitted assistance requests.
+- **NGO Admin:** may manage cases/requests for own organization projects and approve/reject submitted requests.
+- **Project Manager:** may manage cases, link/unlink assessed needs, create/edit/submit/cancel eligible requests for the assigned project, but cannot approve/reject requests or cancel an already-approved request.
+- **Area Focal Person:** receives no beneficiary-case/request table or RPC access in 2.19.0; geography-scoped case monitoring is intentionally deferred until separately designed.
+- **Volunteer/collector:** receives no case/request management access.
+- **Other NGOs:** cannot read or operate another organization's cases/requests.
+- **Direct writes:** authenticated roles receive SELECT-only access through RLS to the new case/request history tables; all mutation occurs through guarded RPCs.
+- **Delivery boundary:** approval creates no `assistance_entries`, no payment, no automatic eligibility/impact claim and no cross-NGO data disclosure.
+
 
 ## 2.18.3 consolidated payment permission boundary
 

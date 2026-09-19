@@ -1,4 +1,22 @@
-# Current release checklist — POEM 2.18.3
+# Current release checklist — POEM 2.19.0
+
+## POEM 2.19.0 acceptance
+
+- [ ] `20261009000100_beneficiary_cases_assistance_requests.sql` applies after the 2.18.3 database head `00930`.
+- [ ] `npm run types:generate` / `npm run types:check` are green.
+- [ ] `npm run test:cases` passes all 2.19.0 case/request scenarios.
+- [ ] Full `npm run preflight`, `npm run test:local`, `npm run test:operations` remain green.
+- [ ] Upgrade preserves existing `beneficiary_needs` and `assistance_entries` byte-for-byte and creates no inferred cases/requests.
+- [ ] Case intake requires an approved survey response for the same project beneficiary.
+- [ ] One assessed need cannot be actively linked to multiple cases.
+- [ ] Project Manager can create/manage/submit but cannot approve/reject assistance requests.
+- [ ] NGO Admin / POEM survey authority can approve/reject submitted requests.
+- [ ] Approved request does not create a delivered-assistance entry.
+- [ ] Submitted/approved requests and pending linked needs block unsafe case closure.
+- [ ] Area Focal, collectors, other NGOs and anonymous users cannot access the new management boundary.
+- [ ] Browser QA covers POEM, NGO Admin and Project Manager case/request workspaces.
+- [ ] `git diff --check` is green before cloud push.
+
 
 ## POEM 2.18.3 acceptance
 

@@ -17,10 +17,17 @@ const deny=(fn,re=/permission|finance administration|POEM Admin|not authorized/i
 try{
   await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3::jsonb)',[worker,'worker2183@example.test',JSON.stringify({full_name:'Release QA Worker'})]);
 
-  await ok('2.18.3 is migration-free and freezes the payment database head at 00930',async()=>{
+  await ok('2.18.3 is migration-free and retains its payment database boundary at 00930',async()=>{
     const migrations=readdirSync('supabase/migrations').filter(x=>x.endsWith('.sql')).sort();
-    assert.equal(migrations.at(-1),'20261008000930_withdrawal_operations_manual_settlement.sql');
-    assert.equal(migrations.some(x=>x.includes('2183')||x.includes('00940')),false);
+    assert.ok(
+      migrations.includes('20261008000930_withdrawal_operations_manual_settlement.sql'),
+      '2.18.3 payment boundary migration 00930 must remain present',
+    );
+    assert.equal(
+      migrations.some(x=>x.includes('2183')||x.includes('00940')),
+      false,
+      '2.18.3 must remain migration-free',
+    );
   });
 
   await ok('authenticated browser role has no direct SELECT on sensitive payout tables',async()=>{
@@ -76,7 +83,8 @@ try{
 
   await ok('package exposes one canonical payment release regression command through 2.18.3',async()=>{
     const pkg=JSON.parse(readFileSync('package.json','utf8'));
-    assert.equal(pkg.version,'2.18.3');
+    const phaseDoc=readFileSync('docs/PHASE-2.18.3.md','utf8');
+    assert.match(phaseDoc,/2\.18\.3/);
     assert.match(pkg.scripts['test:payments'],/test-phase217\.mjs/);
     assert.match(pkg.scripts['test:payments'],/test-phase2183\.mjs/);
     for(const phase of ['217','2171','2172','218','2181','2182','2183'])assert.match(pkg.scripts['test:payments'],new RegExp(`test-phase${phase}\\.mjs`));

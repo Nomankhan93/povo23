@@ -39,6 +39,7 @@
 ./docs/PHASE-2.18.1.md
 ./docs/PHASE-2.18.2.md
 ./docs/PHASE-2.18.3.md
+./docs/PHASE-2.19.0.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -57,6 +58,7 @@
 ./docs/PHASE-2.9.md
 ./docs/RELEASE-CHECKLIST.md
 ./docs/SETUP-WSL.md
+./docs/STABILIZATION-2.19.0.md
 ./docs/STABILIZATION-2.3.1.md
 ./docs/STABILIZATION-SCOPE-CHECK.sql
 ./docs/UPGRADE-1.2.md
@@ -92,6 +94,7 @@
 ./docs/UPGRADE-2.18.1.md
 ./docs/UPGRADE-2.18.2.md
 ./docs/UPGRADE-2.18.3.md
+./docs/UPGRADE-2.19.0.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -136,6 +139,7 @@
 ./docs/VALIDATION-2.18.1.md
 ./docs/VALIDATION-2.18.2.md
 ./docs/VALIDATION-2.18.3.md
+./docs/VALIDATION-2.19.0.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -208,6 +212,7 @@
 ./scripts/test-phase2181.mjs
 ./scripts/test-phase2182.mjs
 ./scripts/test-phase2183.mjs
+./scripts/test-phase219.mjs
 ./scripts/test-phase22.mjs
 ./scripts/test-phase23.mjs
 ./scripts/test-phase24.mjs
@@ -246,6 +251,8 @@
 ./src/features/auth/AccountAccess.tsx
 ./src/features/auth/Auth.tsx
 ./src/features/auth/entryIntent.ts
+./src/features/cases
+./src/features/cases/BeneficiaryCasesWorkspace.tsx
 ./src/features/finance
 ./src/features/finance/ProjectFundingWorkspace.tsx
 ./src/features/geography
@@ -391,6 +398,8 @@
 ./supabase/migrations/20261008000910_ewallet_default_owner_fix.sql
 ./supabase/migrations/20261008000920_ewallet_withdrawal_stabilization.sql
 ./supabase/migrations/20261008000930_withdrawal_operations_manual_settlement.sql
+./supabase/migrations/20261009000100_beneficiary_cases_assistance_requests.sql
+./supabase/migrations/20261009000110_beneficiary_case_request_stabilization.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

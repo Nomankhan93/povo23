@@ -40,6 +40,7 @@ const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFund
 const EWalletWithdrawalWorkspace = lazy(()=>import("../features/payments/EWalletWithdrawalWorkspace").then(m=>({default:m.EWalletWithdrawalWorkspace})));
 const MockEWalletSandbox = lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox})));
 const WithdrawalOperationsWorkspace = lazy(()=>import("../features/payments/WithdrawalOperationsWorkspace").then(m=>({default:m.WithdrawalOperationsWorkspace})));
+const BeneficiaryCasesWorkspace = lazy(()=>import("../features/cases/BeneficiaryCasesWorkspace").then(m=>({default:m.BeneficiaryCasesWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
 const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
 const CanonicalWorkbench = lazy(() => import("../features/registry/canonical/CanonicalWorkbench").then(m => ({ default: m.CanonicalWorkbench })));
@@ -357,6 +358,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Survey templates", ShieldCheck]] : []),
     ...(surveyManage ? [["Canonical registry", ShieldCheck]] : []),
+    ...(surveyManage || (!poem && scope !== "personal" && !projectScope) ? [["Beneficiary cases", HeartHandshake]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
     ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
@@ -376,7 +378,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ? ([
         ["Project workspace", LayoutDashboard],
         ["Survey projects", ShieldCheck],
-        ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users]] : []),
+        ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users], ["Beneficiary cases", HeartHandshake]] : []),
         ["Notifications", Bell],
         ["Activity", Activity],
       ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
@@ -927,6 +929,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Project governance" && validScope && (surveyManage || (!poem && scope !== "personal")) && <Suspense fallback={<p>Loading governance…</p>}><ProjectGovernance key={scope} manage={surveyManage} organization={poem?null:scope}/></Suspense>}
           {page === "Canonical registry" && validScope && surveyManage && (
             <Suspense fallback={<p>Loading canonical registry…</p>}><CanonicalWorkbench /></Suspense>
+          )}
+          {page === "Beneficiary cases" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
+            <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}><BeneficiaryCasesWorkspace key={`cases-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId}/></Suspense>
           )}
           {page === "Data sharing" && validScope && (surveyManage || (!poem && scope !== "personal")) && (
             <DataSharingWorkspace

@@ -58,7 +58,7 @@ try {
   ]);
   const d = (
     await rows(
-      "select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,((now() at time zone 'UTC')::date+30)::text after_end,(((now() at time zone 'UTC')::date + interval '23 hours'))::timestamptz::text reply_by,(now()+interval '365 days')::text expiry",
+      "select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+1)::text opportunity_start,((now() at time zone 'UTC')::date+14)::text end_date,((now() at time zone 'UTC')::date+30)::text after_end,(now()+interval '1 hour')::text reply_by,(now()+interval '365 days')::text expiry",
     )
   )[0];
   const project = await call('create_survey_project', [
@@ -131,7 +131,7 @@ try {
       'Legacy direct opportunity',
       'Existing invitation workflow must remain private by default.',
       localDistrict,
-      d.today,
+      d.opportunity_start,
       d.end_date,
       d.reply_by,
       'unpaid',
@@ -157,7 +157,7 @@ try {
       'Local field recruitment',
       'Collect household surveys throughout the selected district.',
       localDistrict,
-      d.today,
+      d.opportunity_start,
       d.end_date,
       d.reply_by,
       'unpaid',
@@ -279,7 +279,7 @@ try {
       'Open statewide interest opportunity',
       'Recruit suitable volunteers regardless of their registered home district.',
       localDistrict,
-      d.today,
+      d.opportunity_start,
       d.end_date,
       d.reply_by,
       'paid',
@@ -293,7 +293,7 @@ try {
     ]);
     assert.equal((await rows('select id from public.work_opportunities where id=$1', [allOpportunity])).length, 1);
     await as('outside');
-    const r = await call('available_work_opportunities', [0, org, null, 'paid', 'Data', d.today, null]);
+    const r = await call('available_work_opportunities', [0, org, null, 'paid', 'Data', d.opportunity_start, null]);
     const row = r.rows.find((x) => x.id === allOpportunity);
     assert(row);
     assert.equal(row.can_apply, true);
@@ -415,7 +415,7 @@ try {
     await as('late');
     let r = await call('available_work_opportunities', [0, null, localDistrict, null, '', d.after_end, null]);
     assert.equal(r.total, 0);
-    r = await call('available_work_opportunities', [0, org, localDistrict, null, 'Collection', d.today, d.end_date]);
+    r = await call('available_work_opportunities', [0, org, localDistrict, null, 'Collection', d.opportunity_start, d.end_date]);
     assert(r.total >= 1);
     assert.equal((await rows('select * from public.work_opportunities')).length, 0);
   });

@@ -1,26 +1,28 @@
-# Current release: POEM 2.18.3
+# Current release: POEM 2.19.0
 
-Payments Release Consolidation & Operations QA. See [release notes](docs/PHASE-2.18.3.md), [WSL upgrade](docs/UPGRADE-2.18.3.md) and [validation](docs/VALIDATION-2.18.3.md).
+Beneficiary Cases & Assistance Requests. See [release notes](docs/PHASE-2.19.0.md), [WSL upgrade](docs/UPGRADE-2.19.0.md) and [validation](docs/VALIDATION-2.19.0.md).
 
-POEM 2.18.3 freezes the provider-independent payment core after runtime stabilization. It adds no database migration and no new money-movement architecture. Instead it consolidates the discovered 2.18 regression fixes, adds one payment-suite command, formalizes permission/reconciliation QA, and makes the current JazzCash/Easypaisa manual + mock workflow the release baseline until official provider APIs are available.
+POEM 2.19.0 adds a human-reviewed case/request layer between assessed beneficiary needs and the existing delivered-assistance ledger. It does not create a second beneficiary registry and does not convert an approved request into a delivery record.
 
-## 2.18.3 release rules
+## 2.19.0 release rules
 
-- Database migration head remains `20261008000930_withdrawal_operations_manual_settlement.sql`; 2.18.3 adds no migration.
-- `npm run test:payments` runs the complete 2.17.0 → 2.18.3 finance/payment regression chain.
-- Historical 2.18 UI tests assert behavior/labels rather than one obsolete copy phrase.
-- 2.18.2 tests read sensitive withdrawal state only through authorized RPCs; direct authenticated table access remains denied.
-- JazzCash and Easypaisa remain the only payout methods. Mock and manual provider modes are supported; live provider APIs are not claimed.
-- Existing `work_payable_*` and immutable finance journals remain the payment/accounting sources of truth.
-- Payment core is considered freeze-ready only after payment suite, full preflight, local auth/operations tests and browser QA are green.
+- New migration: `20261009000100_beneficiary_cases_assistance_requests.sql`.
+- `beneficiary_needs` remains the assessed-needs source of truth.
+- `assistance_entries` remains the actual delivered-assistance ledger.
+- Existing needs/assistance are preserved; migration performs no inferred backfill.
+- POEM survey authority, NGO Admin and Project Manager may manage cases/requests; only NGO Admin / POEM survey authority may approve or reject requests.
+- Area Focal receives no beneficiary-case access in 2.19.0.
+- A request approval means approved for planning only; no delivery, payment, impact or eligibility claim is created.
+- `npm run test:cases` runs the 2.19.0 case/request regression suite.
 
 ## Current product boundaries
 
-- Mock wallet verification is a development/testing aid, not live provider ownership verification.
-- Manual settlement records a real external JazzCash/Easypaisa transaction reference but does not call provider APIs.
-- Wallet/PIN/withdrawal/provider-operation tables remain RPC-only to browser roles and return masked wallet data.
-- Bank/IBAN payout methods remain deferred.
-- Future JazzCash/Easypaisa adapters must reuse the existing guarded allocation, idempotency, settlement and reconciliation boundaries.
+- Case management is project/person scoped and starts from an approved source survey.
+- A pending assessed need may belong to only one active beneficiary case at a time.
+- Assistance requests support cash, goods and service intent with immutable revision history.
+- Case closure is blocked while submitted/approved requests or pending linked needs remain.
+- Cross-NGO duplicate-support coordination and request-to-distribution execution remain later 2.19 phases.
+- Payment core remains frozen at the validated 2.18.3 provider-neutral manual/mock baseline until official provider APIs are available.
 
 ## Historical foundation notes
 

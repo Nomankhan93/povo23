@@ -1,4 +1,15 @@
-# Current architecture note — POEM 2.18.3
+# Current architecture note — POEM 2.19.0
+
+## 2.19.0 beneficiary case / assistance-request architecture
+
+2.19.0 introduces an operational case layer without changing the identity, needs or delivery sources of truth. `beneficiary_cases` is anchored to one project-scoped `registry_persons` record and an approved source `survey_responses` revision; it stores an intake identity snapshot for audit, not a second mutable identity profile.
+
+`beneficiary_case_needs` explicitly groups existing `beneficiary_needs`. One assessed need can be actively managed by only one case at a time. `assistance_requests` reference an active linked need and carry cash/goods/service planning intent with revision history. Request approval is intentionally separate from `assistance_entries`: approval authorizes planning but never records delivery.
+
+The role split is deliberate: POEM survey authority, NGO Admin and Project Manager can manage project cases and submit requests; NGO Admin / POEM survey authority alone can approve/reject. Area Focal is outside the 2.19.0 case-management boundary. Direct writes remain denied and guarded RPCs enforce project scope, active-NGO state, source provenance, optimistic versions and closure rules.
+
+The future chain is `approved request → distribution planning/execution → assistance_entries`; 2.19.0 stops before distribution. Cross-NGO duplicate-support coordination remains a later phase and must reuse canonical identity / controlled sharing rather than exposing canonical IDs in NGO case rows.
+
 
 ## 2.18.3 payments release consolidation
 
