@@ -1,6 +1,23 @@
-# Current release checklist — FieldLance 2.19.8
+# Current release checklist — FieldLance 2.21.0
+
+## FieldLance 2.21.0 acceptance
+
+- [ ] Package and lockfile report `2.21.0`.
+- [ ] No migration is added; Local/Remote head remains `20261009000600`.
+- [ ] `npm run test:organization-workspace` passes all 2.21.0 Organization workspace regressions.
+- [ ] Organization Overview renders the dedicated Organization Home; personal Overview still renders Field Worker Home and FieldLance Staff/Project Overview behavior remains intact.
+- [ ] Organization metrics show active projects, open opportunities, new applications, active Field Workers, submitted surveys and active cases from existing sources.
+- [ ] Next-action priority covers application review, selected candidates awaiting offers, due case follow-ups, missing recruitment and project startup.
+- [ ] Organization sidebar excludes personal-only profile/work-history/wallet pages and uses presentation labels without renaming internal page IDs.
+- [ ] Recruitment keeps the 2.19.8 lifecycle and survey access still activates only after accepted formal assignment.
+- [ ] Beneficiary, assistance, payable and finance summaries are read-only; all mutations remain in existing guarded workspaces.
+- [ ] Approved organization logo/identity renders with fallback and no Partner NGO private document is exposed.
+- [ ] Desktop/tablet/mobile QA shows no horizontal overflow in hero, metrics, operation cards or quick actions.
+- [ ] 2.20.0 Field Worker, 2.19.8 marketplace, 2.19.7 NGO application, visual-system, branding and frontend-foundation regressions remain green.
+- [ ] `npm run preflight`, payments, local auth/storage and operations regressions remain green before rollout.
 
 ## FieldLance 2.19.8 acceptance
+
 
 - [ ] Package and lockfile report `2.19.8`.
 - [ ] No migration is added; Local/Remote head remains `20261009000600`.

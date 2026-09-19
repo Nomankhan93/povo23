@@ -1,6 +1,10 @@
-# Validation index — FieldLance 2.19.8
+# Validation index — FieldLance 2.21.0
 
-Current release validation: [VALIDATION-2.19.8.md](VALIDATION-2.19.8.md).
+Current release validation: [VALIDATION-2.21.0.md](VALIDATION-2.21.0.md).
+
+Previous Field Worker Workspace validation: [FieldLance 2.20.0](VALIDATION-2.20.0.md).
+
+Previous Workforce Marketplace validation: [FieldLance 2.19.8](VALIDATION-2.19.8.md).
 
 Previous Partner NGO application validation: [FieldLance 2.19.7](VALIDATION-2.19.7.md).
 
@@ -17,18 +21,6 @@ Previous distribution-planning validation: [FieldLance 2.19.1](VALIDATION-2.19.1
 Previous case/request release validation: [FieldLance 2.19.0](VALIDATION-2.19.0.md).
 
 Previous payment release validation: [FieldLance 2.18.3](VALIDATION-2.18.3.md).
-
-Previous manual settlement validation: [FieldLance 2.18.2](VALIDATION-2.18.2.md).
-
-Previous e-wallet stabilization validation: [FieldLance 2.18.1](VALIDATION-2.18.1.md).
-
-Previous e-wallet sandbox validation: [FieldLance 2.18.0](VALIDATION-2.18.0.md).
-
-Previous payable-finance validation: [FieldLance 2.17.2](VALIDATION-2.17.2.md).
-
-Previous project-funding validation: [FieldLance 2.17.1](VALIDATION-2.17.1.md).
-
-Previous finance-core validation: [FieldLance 2.17.0](VALIDATION-2.17.0.md).
 
 # Phase 2.3 validation
 

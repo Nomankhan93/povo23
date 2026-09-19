@@ -1,6 +1,6 @@
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
-import {navigationGroups, workspaceLabels} from "./navigation";
+import {navigationGroups, organizationPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -35,6 +35,7 @@ import { OrgForm } from "../features/organizations/OrgForm";
 import { PartnerNgoApplication } from "../features/organizations/PartnerNgoApplication";
 import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
 import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
+import { OrganizationDashboard } from "../features/organizations/OrganizationDashboard";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
@@ -69,7 +70,9 @@ import { ProfileForm } from "../features/volunteers/ProfileForm";
 import { ProfilePhoto } from "../features/volunteers/ProfilePhoto";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
 import { WorkforceMarketplace } from "../features/workforce/WorkforceMarketplace";
+import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
 import { db, rpc } from "../lib/supabase/client";
+import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
@@ -340,6 +343,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setPageState("Overview");
     setNotice("Your project workspace access is no longer active. Your personal workspace is open instead.");
   }, [loading, projectScope, validScope]);
+  const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
   const standardNav = [
     ["Overview", LayoutDashboard],
     ["My profile", UserRound],
@@ -377,6 +381,23 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Notifications", Bell],
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
+  const organizationNav = ([
+    ["Overview", LayoutDashboard],
+    ["Survey projects", ShieldCheck],
+    ["Project team", Users],
+    ["Workforce marketplace", Users],
+    ["Volunteers", Users],
+    ["Invitations", Bell],
+    ["Survey templates", ShieldCheck],
+    ["Project governance", ShieldCheck],
+    ["Beneficiary cases", HeartHandshake],
+    ["Assistance ledger", HeartHandshake],
+    ["Data sharing", Share2],
+    ["Workforce payables", Users],
+    ["Project funding", Activity],
+    ["Notifications", Bell],
+    ["Activity", Activity],
+  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
   const nav = projectScope
     ? ([
         ["Project workspace", LayoutDashboard],
@@ -385,7 +406,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ["Notifications", Bell],
         ["Activity", Activity],
       ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
-    : standardNav;
+    : organizationWorkspace
+      ? organizationNav
+      : standardNav;
   const change = (p: string) => {
     setPage(p);
     setQuery("");
@@ -401,8 +424,16 @@ export function Workspace({ session, openField }: { session: Session; openField:
       : projectScope
         ? `${projectScopeProject?.title || "Project"} · ${workspaceLabels.project}`
         : `${myOrgs.find((o) => o.id === scope)?.name || "Organization"} · ${workspaceLabels.organization}`;
+  const personalWorkspace = !poem && scope === "personal";
+  const displayPage = organizationWorkspace ? organizationPageLabel(page) : workspacePageLabel(page, personalWorkspace);
   const unreadNotifications = notifications.filter((n) => !n.read_at).length;
-  const pageEyebrow = page === "Partner NGO application" ? "ORGANIZATION ONBOARDING" : "PEOPLE AT THE HEART OF IMPACT";
+  const pageEyebrow = page === "Partner NGO application"
+    ? "ORGANIZATION ONBOARDING"
+    : personalWorkspace
+      ? page === "Overview" ? "FIELD WORKER WORKSPACE" : "FIELD WORKER"
+      : organizationWorkspace
+        ? page === "Overview" ? "ORGANIZATION WORKSPACE" : "ORGANIZATION OPERATIONS"
+        : "PEOPLE AT THE HEART OF IMPACT";
   const pageTitle = page === "Overview"
     ? poem
       ? "Operate the field network with confidence."
@@ -411,7 +442,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         : projectScope
           ? projectScopeProject?.title || "Project workspace"
           : "Build the field team your project needs."
-    : page;
+    : displayPage;
   const pageDescription = page === "Partner NGO application"
     ? "Create and submit your organization profile for FieldLance review. Your Field Worker account remains separate."
     : poem
@@ -494,7 +525,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               onClick={() => change(name)}
             >
               <Icon size={19} />
-              {name}
+              {organizationWorkspace ? organizationPageLabel(name) : workspacePageLabel(name, personalWorkspace)}
               {name === "Notifications" &&
                 notifications.some((n) => !n.read_at) && (
                   <span className="nav-count">
@@ -536,7 +567,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <Menu />
           </button>
           <div className="header-context">
-            <strong>{page}</strong>
+            <strong>{displayPage}</strong>
             <span>{currentWorkspaceLabel}</span>
           </div>
           <div className="header-tools">
@@ -587,7 +618,23 @@ export function Workspace({ session, openField }: { session: Session; openField:
           )}
           {page === "Overview" && (
             <>
-              <WorkflowOverview staff={Boolean(poem)} personal={scope === "personal"} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={notifications.filter(n=>!n.read_at).length} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>
+              {personalWorkspace ? (
+                <FieldWorkerDashboard
+                  userId={session.user.id}
+                  profile={(my as Database['public']['Tables']['volunteer_profiles']['Row'] | null) || null}
+                  unread={unreadNotifications}
+                  onNavigate={change}
+                  onField={openField}
+                />
+              ) : organizationWorkspace ? (
+                <OrganizationDashboard
+                  organization={myOrgs.find((item) => item.id === scope) as Database['public']['Tables']['organizations']['Row']}
+                  unread={unreadNotifications}
+                  onNavigate={change}
+                />
+              ) : (
+                <WorkflowOverview staff={Boolean(poem)} personal={false} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={unreadNotifications} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>
+              )}
               <section className="panel">
                 <div className="panel-title">
                   <h2>Recent activity</h2>

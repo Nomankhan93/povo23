@@ -1,6 +1,19 @@
-# Current architecture note — FieldLance 2.19.8
+# Current architecture note — FieldLance 2.21.0
+
+## 2.21.0 Organization Workspace architecture
+
+2.21.0 is a frontend-only organization-workspace release. `OrganizationDashboard` reads the existing organization-scoped `survey_projects`, `work_opportunities`, `work_applications`, `work_assignments`, `beneficiary_cases`, `survey_responses`, `assistance_entries`, `work_payable_units`, `organization_programs` and `organization_areas` sources. It does not create cached dashboard tables or a parallel reporting database.
+
+The organization Overview now acts as a daily operational home: project delivery, recruitment, Field Worker activation, survey review pressure, beneficiary follow-up, assistance delivery and payable visibility are summarized in one read-only surface. Every mutation remains in the existing project, marketplace, case, assistance, payable or finance workspace and continues through the existing RLS/RPC boundary.
+
+`src/app/navigation.ts` adds organization-only presentation labels while preserving stable internal page keys. AppShell now uses a curated organization navigation list so personal profile/work-history/wallet pages are not mixed into the Organization sidebar. This navigation cleanup changes presentation only and does not alter server authorization.
+
+Approved organization identity and logo remain sourced from the existing `organizations` row created/linked by Partner NGO onboarding. Field Worker marketplace, project assignments, payable accounting, controlled sharing and beneficiary/case sources remain authoritative.
+
+No Supabase migration, RLS policy, storage policy, RPC authority, payment provider integration or backend role change is introduced in 2.21.0.
 
 ## 2.19.8 Workforce Marketplace architecture
+
 
 2.19.8 is a frontend-only marketplace release. It keeps `work_opportunities`, `work_applications`, `work_assignments`, `survey_assignments` and the existing recruitment RPC/RLS model authoritative. No new registry, parallel assignment model or migration is introduced.
 

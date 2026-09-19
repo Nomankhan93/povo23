@@ -1,6 +1,30 @@
-# Current permissions note — FieldLance 2.19.8
+# Current permissions note — FieldLance 2.21.0
+
+## 2.21.0 Organization workspace permissions
+
+- Organization Home adds **no new database authority**. Every metric is read through the same authenticated organization/project visibility already enforced by RLS.
+- The dashboard performs no insert/update/delete and calls no mutation RPC. Its action buttons navigate to existing authorized workspaces.
+- Organization navigation is a presentation filter, not a permission grant. A direct URL/state change still cannot bypass PostgreSQL RLS or guarded RPC checks.
+- Recruitment summaries remain scoped to the active organization; application-scoped profile snapshots do not become permanent profile shares.
+- Formal assignment offers still require Field Worker acceptance before marketplace survey access becomes active.
+- Beneficiary cases, assistance entries, survey responses, payables and project finance remain scoped by their existing organization/project policies and RPCs.
+- Organization identity/logo is read from the existing approved organization record; private Partner NGO application documents are not exposed by the dashboard.
+- Personal Field Worker profile, work-history and wallet pages are intentionally excluded from the Organization sidebar; switching workspace is required to reach personal data.
+
+# Current permissions note — FieldLance 2.20.0
+
+## 2.20.0 Field Worker workspace permissions
+
+- The Field Worker Home dashboard adds **no new database authority**. All summaries are constrained by the same personal RLS/RPC visibility already used by the underlying workspaces.
+- Opportunity count comes only from `available_work_opportunities`; the dashboard cannot expose draft, closed, expired or otherwise unauthorized opportunities.
+- Application and assignment summaries are the signed-in user's own visible rows. The dashboard does not grant Organization access to the Field Worker's private profile.
+- Earnings summary comes from `my_withdrawal_summary`; the dashboard cannot approve payables, verify wallets, execute provider settlement or create withdrawals.
+- Verified work history comes from `work_experience_history`; the dashboard does not create/edit verified history or convert profile completeness into verification.
+- Navigation-label changes are presentation-only. Stored page keys, internal roles and backend policies remain unchanged.
+- Survey access still begins only through existing accepted formal assignments or existing explicit direct assignment rules.
 
 ## 2.19.8 marketplace permissions
+
 
 - Field Workers may discover only opportunities returned by the existing `available_work_opportunities` authorization/filtering RPC.
 - Applying shares only the existing application-scoped recruitment snapshot; no permanent/full NGO profile grant is created by the 2.19.8 UI.

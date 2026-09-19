@@ -49,6 +49,8 @@
 ./docs/PHASE-2.19.7.md
 ./docs/PHASE-2.19.8.md
 ./docs/PHASE-2.2.md
+./docs/PHASE-2.20.0.md
+./docs/PHASE-2.21.0.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
@@ -112,6 +114,8 @@
 ./docs/UPGRADE-2.19.7.md
 ./docs/UPGRADE-2.19.8.md
 ./docs/UPGRADE-2.2.md
+./docs/UPGRADE-2.20.0.md
+./docs/UPGRADE-2.21.0.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
 ./docs/UPGRADE-2.4.1.md
@@ -165,6 +169,8 @@
 ./docs/VALIDATION-2.19.7-COMPLETION-HOTFIX.md
 ./docs/VALIDATION-2.19.7.md
 ./docs/VALIDATION-2.19.8.md
+./docs/VALIDATION-2.20.0.md
+./docs/VALIDATION-2.21.0.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -209,6 +215,7 @@
 ./scripts/test-current-state-stabilization.mjs
 ./scripts/test-database.mjs
 ./scripts/test-field-storage211.mjs
+./scripts/test-field-worker-workspace2200.mjs
 ./scripts/test-field-worker211.mjs
 ./scripts/test-field211.mjs
 ./scripts/test-frontend-foundation2194.mjs
@@ -216,6 +223,7 @@
 ./scripts/test-local-auth.mjs
 ./scripts/test-local-operations.mjs
 ./scripts/test-offline-recovery276.mjs
+./scripts/test-organization-workspace2210.mjs
 ./scripts/test-partner-ngo-application2197.mjs
 ./scripts/test-phase12.mjs
 ./scripts/test-phase13.mjs
@@ -313,6 +321,7 @@
 ./src/features/organizations/MembershipActions.tsx
 ./src/features/organizations/MembershipForm.tsx
 ./src/features/organizations/NgoOperations.tsx
+./src/features/organizations/OrganizationDashboard.tsx
 ./src/features/organizations/OrganizationLogo.tsx
 ./src/features/organizations/OrgForm.tsx
 ./src/features/organizations/PartnerNgoApplication.tsx
@@ -367,6 +376,7 @@
 ./src/features/volunteers/profileStructure.ts
 ./src/features/volunteers/StructuredProfileFields.tsx
 ./src/features/workforce
+./src/features/workforce/FieldWorkerDashboard.tsx
 ./src/features/workforce/InvitationsPanel.tsx
 ./src/features/workforce/InviteVolunteer.tsx
 ./src/features/workforce/model.tsx

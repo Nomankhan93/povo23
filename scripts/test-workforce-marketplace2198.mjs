@@ -15,8 +15,14 @@ async function ok(name, fn) {
   console.log(`PASS ${name}`);
 }
 
-await ok('release version is 2.19.8', async () => {
-  assert.equal(pkg.version, '2.19.8');
+await ok('2.19.8 Workforce Marketplace regression contract remains available', async () => {
+  const [major, minor, patch] = pkg.version.split('-')[0].split('.').map(Number);
+  assert.ok(
+    major > 2 ||
+      (major === 2 && minor > 19) ||
+      (major === 2 && minor === 19 && patch >= 8),
+    `Expected FieldLance >= 2.19.8, received ${pkg.version}`,
+  );
   assert.equal(pkg.scripts['test:workforce-marketplace'], 'node scripts/test-workforce-marketplace2198.mjs');
 });
 
@@ -85,4 +91,4 @@ await ok('2.19.8 adds no Supabase migration', async () => {
   assert.equal(migrations.length, 55);
 });
 
-console.log(`\n${passed} Workforce Marketplace UX scenarios passed for FieldLance 2.19.8.`);
+console.log(`\n${passed} Workforce Marketplace UX regression scenarios passed for FieldLance ${pkg.version}.`);

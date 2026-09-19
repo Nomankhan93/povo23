@@ -1,28 +1,26 @@
-# Current release: FieldLance 2.19.8
+# Current release: FieldLance 2.21.0
 
-FieldLance Workforce Marketplace UX. See [release notes](docs/PHASE-2.19.8.md), [WSL upgrade](docs/UPGRADE-2.19.8.md) and [validation](docs/VALIDATION-2.19.8.md).
+FieldLance Organization Workspace UX. See [release notes](docs/PHASE-2.21.0.md), [WSL upgrade](docs/UPGRADE-2.21.0.md) and [validation](docs/VALIDATION-2.21.0.md).
 
-FieldLance 2.19.8 redesigns the existing recruitment marketplace around one explicit lifecycle on both sides: **published opportunity → Field Worker application → organization review/selection → formal assignment offer → Field Worker acceptance → active survey assignment**. The release reuses the existing recruitment tables, RLS and RPCs and adds no database migration.
+FieldLance 2.21.0 gives approved Organization workspaces a dedicated daily Home built on the existing projects, workforce recruitment, survey delivery, beneficiary cases, assistance, payable and finance architecture. It adds no database migration and introduces no duplicate reporting or authorization source.
 
-## 2.19.8 release rules
+## 2.21.0 release rules
 
 - **No database migration:** migration head remains `20261009000600_partner_ngo_application_experience.sql`.
-- Field Workers discover published/open opportunities from active organizations through the existing `available_work_opportunities` RPC; draft, closed and expired recruitment remains hidden.
-- Applying continues to use an application-scoped recruitment profile snapshot. Permanent/full organization profile sharing is not introduced.
-- Organization recruitment is reorganized into **Opportunities → Applications → Find Field Workers → Assignments** with operational summary cards and clear pipeline state.
-- Selection still uses the existing `review_work_application` RPC. A selected Field Worker is not active survey staff until a formal assignment offer is created and accepted.
-- Formal assignment compensation continues to inherit the authoritative opportunity/project snapshot; 2.19.8 does not change payable, wallet or finance semantics.
-- Field Worker **My Assigned Surveys** shows formal offers and active assignments; survey access becomes active only after assignment acceptance or through an existing explicit direct survey assignment.
-- Approved organization logos are reused on Field Worker opportunity/application presentation.
-- Direct assignment/invitation paths remain compatible, while published opportunities and applications stay the first-class marketplace path.
-- FieldLance 2.19.7 Partner NGO application/security behavior remains unchanged.
+- Organization Overview now summarizes active projects, open opportunities, new applications, active Field Workers, submitted surveys and active beneficiary cases.
+- The Home dashboard is read-only. Recruitment decisions, assignments, survey review, case operations, assistance delivery, payables and finance mutations remain in their existing guarded workspaces/RPCs.
+- Organization navigation is presentation-focused: Home, Projects, Team & access, Recruitment, Field Workers, Direct invitations, Cases, Assistance, Payables and Project finance reuse existing internal page identifiers.
+- Personal Field Worker and FieldLance Staff workspaces remain separate. Organization navigation does not grant access to pages that backend RLS/RPCs do not authorize.
+- Organization identity uses the approved organization record/logo already introduced through Partner NGO onboarding; no second organization profile registry is created.
+- Recruitment remains **publish opportunity → Field Worker applies → organization reviews/selects → formal offer → Field Worker accepts → active survey assignment**.
+- Existing payment, payable, beneficiary, case, assistance, controlled-sharing and project-governance sources remain authoritative.
 
 ## Current product boundaries
 
-- Partner NGO onboarding remains one personal-account workflow with private draft evidence, explicit FieldLance review and organization activation only after approval.
-- PostgreSQL RLS, guarded RPCs and Storage policies remain the security boundary; the five-step UI does not grant authority.
-- Existing beneficiary/case/assistance, workforce/payable, finance and JazzCash/Easypaisa payment architecture is unchanged by 2.19.8.
-- Existing internal `poem_*` compatibility identifiers remain untouched unless the new organization-logo surface requires a new FieldLance-named identifier.
+- PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; dashboard/navigation state is never treated as permission.
+- Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
+- No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or finance balance source is added.
+- The next planned screen-level phase is **2.22 FieldLance Staff Operations UX** after 2.21 validation.
 
 ## Historical foundation notes
 

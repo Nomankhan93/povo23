@@ -63,3 +63,33 @@ export const workspaceLabels = {
   staff: "FieldLance Staff",
   project: "Project",
 } as const;
+
+export const personalNavigationLabels: Readonly<Record<string, string>> = {
+  Overview: "Home",
+  "Work experience": "Verified work history",
+  Invitations: "Invitations & offers",
+  "Workforce payables": "Earnings & payables",
+  "E-Wallets & withdrawals": "Wallet & withdrawals",
+};
+
+export function workspacePageLabel(page: string, personal: boolean) {
+  return personal ? personalNavigationLabels[page] || page : page;
+}
+
+export const organizationNavigationLabels: Readonly<Record<string, string>> = {
+  Overview: "Home",
+  Volunteers: "Field Workers",
+  "Survey projects": "Projects",
+  "Project team": "Team & access",
+  "Workforce marketplace": "Recruitment",
+  Invitations: "Direct invitations",
+  "Workforce payables": "Payables",
+  "Project funding": "Project finance",
+  "Beneficiary cases": "Cases",
+  "Assistance ledger": "Assistance",
+  "Project governance": "Governance",
+};
+
+export function organizationPageLabel(page: string) {
+  return organizationNavigationLabels[page] || page;
+}
