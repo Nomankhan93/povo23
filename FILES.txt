@@ -41,6 +41,7 @@ docs/PHASE-2.19.0.md
 docs/PHASE-2.19.1.md
 docs/PHASE-2.19.2.md
 docs/PHASE-2.19.3.md
+docs/PHASE-2.19.4.md
 docs/PHASE-2.2.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
@@ -99,6 +100,7 @@ docs/UPGRADE-2.19.0.md
 docs/UPGRADE-2.19.1.md
 docs/UPGRADE-2.19.2.md
 docs/UPGRADE-2.19.3.md
+docs/UPGRADE-2.19.4.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
@@ -147,6 +149,7 @@ docs/VALIDATION-2.19.0.md
 docs/VALIDATION-2.19.1.md
 docs/VALIDATION-2.19.2.md
 docs/VALIDATION-2.19.3.md
+docs/VALIDATION-2.19.4.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -169,7 +172,6 @@ package-lock.json
 package.json
 PROJECT_ANALYSIS_CONTEXT.txt
 project-tree.txt
-public/favicon.svg
 README.md
 scripts/bootstrap-admin.mjs
 scripts/build-field-worker.mjs
@@ -187,6 +189,7 @@ scripts/test-database.mjs
 scripts/test-field-storage211.mjs
 scripts/test-field-worker211.mjs
 scripts/test-field211.mjs
+scripts/test-frontend-foundation2194.mjs
 scripts/test-geography-reference.mjs
 scripts/test-local-auth.mjs
 scripts/test-local-operations.mjs
@@ -242,6 +245,7 @@ src/app/AppShell.tsx
 src/app/version.ts
 src/assets/brand/poem-emblem.jpeg
 src/assets/brand/poem-wordmark.jpeg
+src/components/ui/Pager.tsx
 src/components/ui/PoemBrand.tsx
 src/components/ui/WorkflowOverview.tsx
 src/features/assistance/AssistanceLedgerWorkspace.tsx
@@ -261,7 +265,6 @@ src/features/governance/ProjectGovernance.tsx
 src/features/needs/model.tsx
 src/features/needs/NeedDetail.tsx
 src/features/needs/NeedsPanel.tsx
-src/features/needs/Pager.tsx
 src/features/notifications/Notifications.tsx
 src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
@@ -290,7 +293,6 @@ src/features/surveys/model.tsx
 src/features/surveys/OfflineFieldWorkspace.tsx
 src/features/surveys/OfflineShellStatus.tsx
 src/features/surveys/offlineSurveyStore.ts
-src/features/surveys/Pager.tsx
 src/features/surveys/SurveyForm.tsx
 src/features/surveys/SurveyProjectDetail.tsx
 src/features/surveys/SurveyProjectDrafts.tsx
@@ -309,7 +311,6 @@ src/features/volunteers/ProfileDetailsView.tsx
 src/features/volunteers/ProfileForm.tsx
 src/features/volunteers/ProfilePhoto.tsx
 src/features/volunteers/profileStructure.ts
-src/features/volunteers/ReviewForm.tsx
 src/features/volunteers/StructuredProfileFields.tsx
 src/features/workforce/InvitationsPanel.tsx
 src/features/workforce/InviteVolunteer.tsx

@@ -1,6 +1,6 @@
 import {readdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-const assets=['/','/index.html','/favicon.svg',...readdirSync('dist/assets').map(n=>'/assets/'+n)];
+const assets=['/','/index.html',...readdirSync('dist/assets').map(n=>'/assets/'+n)];
 const hash=createHash('sha256').update(assets.join('|')).digest('hex').slice(0,12);
 const name='poem-field-shell-'+hash;
 writeFileSync('dist/field-sw.js',`const CACHE=${JSON.stringify(name)},ASSETS=${JSON.stringify(assets)};

@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.19.3
+Release: 2.19.4
 Package: poem-phase1-1
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,9 +14,10 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic POEM work history.
 
-===== CURRENT 2.19.3 PRODUCT BOUNDARIES =====
+===== CURRENT 2.19.4 PRODUCT BOUNDARIES =====
 - One personal POEM account can access multiple authorized workspaces.
 - 2.19.0 adds beneficiary cases/requests; 2.19.1 adds planning-only distribution plans; 2.19.2 records controlled delivery into assistance_entries with canonical duplicate-support controls; 2.19.3 adds structured follow-up, outcomes and controlled close/reopen lifecycle history.
+- 2.19.4 is migration-free frontend foundation stabilization: grouped navigation coverage is corrected, duplicate Pager implementations are consolidated, and confirmed dead frontend files are removed without changing authorization or workflow semantics.
 - Case intake requires approved survey provenance; one assessed need can belong to only one active case at a time.
 - POEM survey authority, NGO Admin and Project Manager manage cases/requests/plans/follow-ups within existing project scope; only NGO Admin / POEM survey authority approve or reject requests. Area Focal remains outside broad case/planning/delivery/follow-up mutation authority.
 - Assistance-request approval means approved for planning only. A ready plan still is not delivery; 2.19.2 creates assistance_entries through guarded delivery recording, and 2.19.3 requires structured post-delivery follow-up/outcome evidence before controlled case closure.
@@ -109,10 +110,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000400_case_followup_outcomes_closure.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 59
-TypeScript/TSX source files: 81
-Markdown docs: 161
-Inventory files (excluding local/build/temp/backup state): 381
+Test scripts (scripts/test-*.mjs): 60
+TypeScript/TSX source files: 79
+Markdown docs: 164
+Inventory files (excluding local/build/temp/backup state): 382
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -135,6 +136,7 @@ npm run test:operations
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
 2.19.3 completes the currently scoped beneficiary assistance lifecycle from assessed need through delivered support, structured follow-up/outcome and controlled close/reopen history.
+2.19.4 stabilizes the frontend foundation before screenshot-driven UI/UX work; large AppShell/CSS/routing refactors remain deferred until concrete UX issues are reviewed.
 Audit the validated 2.19.3 state before choosing the next product phase; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

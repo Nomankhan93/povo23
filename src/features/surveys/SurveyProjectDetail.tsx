@@ -17,7 +17,7 @@ import {
   get,
   title,
 } from "./model";
-import { Pager } from "./Pager";
+import { Pager } from "../../components/ui/Pager";
 import { SurveyForm } from "./SurveyForm";
 export function SurveyProjectDetail({
   project,
@@ -407,7 +407,7 @@ export function SurveyProjectDetail({
         </article>
       ))}
       {!busy && !responses.length && <p className="empty-state">No responses match this filter in your current scope.</p>}
-      <Pager page={page} more={more} busy={busy} change={setPage} />
+      <Pager page={page} more={more} busy={busy} onChange={setPage} />
       {selected && (
         <section className="survey-question">
           <h3>Response detail</h3>
@@ -555,7 +555,7 @@ export function SurveyProjectDetail({
         page={registryPage}
         more={registryMore}
         busy={busy}
-        change={setRegistryPage}
+        onChange={setRegistryPage}
       />
     </section>
   );

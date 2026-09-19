@@ -1,32 +1,26 @@
-# Current release: POEM 2.19.3
+# Current release: POEM 2.19.4
 
-Follow-up, Outcomes & Case Closure. See [release notes](docs/PHASE-2.19.3.md), [WSL upgrade](docs/UPGRADE-2.19.3.md) and [validation](docs/VALIDATION-2.19.3.md).
+Frontend Foundation Stabilization. See [release notes](docs/PHASE-2.19.4.md), [WSL upgrade](docs/UPGRADE-2.19.4.md) and [validation](docs/VALIDATION-2.19.4.md).
 
-POEM 2.19.3 extends the validated 2.19.2 delivered-assistance workflow with structured beneficiary follow-up, human-recorded outcomes, closure eligibility and immutable close/reopen history. It does not replace canonical beneficiary identity, `beneficiary_needs`, `assistance_entries`, duplicate-support controls, worker payables, project finance or e-wallet settlement.
+POEM 2.19.4 is a migration-free frontend/repository cleanup on top of the validated 2.19.3 beneficiary lifecycle. It fixes confirmed navigation coverage, consolidates duplicate pagination UI, removes verified dead assets/components and adds a focused regression test. It deliberately does not redesign AppShell, CSS/theme, routes, database/RLS/RPCs, finance/payments or beneficiary workflows; screenshot-driven UI/UX work follows after this foundation patch.
 
-## 2.19.3 release rules
+## 2.19.4 release rules
 
-- New forward migration: `20261009000400_case_followup_outcomes_closure.sql`.
-- Existing `00100`, `00110`, `00200` and `00300` migrations remain immutable.
-- `beneficiary_case_followups` records scheduled/completed/cancelled follow-up work and structured outcomes; it is not an assistance ledger.
-- A completed follow-up may update its actively linked assessed need only through an explicit human-selected existing need status.
-- A supplied next-follow-up date creates a real scheduled child follow-up, so future work is visible in the operational queue rather than hidden in narrative text.
-- Case closure is blocked by draft/submitted requests, approved requests without recorded delivery, active undelivered plans, pending linked needs, scheduled follow-ups, or recorded planned deliveries without a completed linked follow-up.
-- An approved request that already has a current recorded delivery no longer blocks closure merely because its request status remains `approved`.
-- Structured closure records category/summary/reason. Reopening clears current closure fields but immutable lifecycle history preserves the prior closure.
-- Area Focal receives no broad case/follow-up mutation authority. Existing POEM survey authority, NGO Admin and Project Manager project scope remains the management boundary.
-- Follow-up/lifecycle tables are RPC-only to browser roles; case detail/queue RPCs return bounded operational views.
-- `npm run test:followup` runs the 2.19.3 follow-up/outcome/closure suite.
-- Worker payables, finance journals, JazzCash/Easypaisa wallets/withdrawals and provider settlement remain unchanged.
+- No database migration is added; migration head remains `20261009000400_case_followup_outcomes_closure.sql`.
+- Existing 2.19.0–2.19.3 beneficiary/assistance/follow-up architecture remains unchanged.
+- `Recruitment` and `Withdrawal operations` are included in grouped sidebar navigation when the existing role/scope logic exposes them.
+- Needs and Survey modules use one shared `src/components/ui/Pager.tsx` implementation.
+- Confirmed unreferenced `src/features/volunteers/ReviewForm.tsx` and `public/favicon.svg` are removed; the branded POEM emblem remains the favicon.
+- `npm run test:frontend-foundation` guards the cleanup and verifies that 2.19.4 stays migration-free.
+- Large AppShell decomposition, URL/deep-link navigation, CSS-system consolidation, native-dialog replacement and visual redesign are intentionally deferred to screenshot-driven stabilization so working UX is not redesigned blindly.
 
 ## Current product boundaries
 
-- `approved survey → beneficiary need → case → approved request → distribution plan → duplicate review → assistance_entries → follow-up → outcome → closure` is the controlled beneficiary-assistance lifecycle.
-- `assistance_entries` remains the delivered-support source of truth; follow-up completion does not create/edit delivery facts or create a second support ledger. Existing explicit void correction remains guarded, and planned assistance tied to a closed case must be reopened before correction.
-- Outcomes are human-recorded operational assessments, not automatic eligibility or impact scoring.
-- Closure/reopening is reversible at the case lifecycle level while historical events remain immutable.
-- Duplicate-support controls from 2.19.2 continue to govern corrected/new assistance after reopening or further-assistance outcomes.
-- Payment core remains frozen at the validated 2.18.3 provider-neutral manual/mock baseline until official provider APIs are available.
+- The validated `approved survey → beneficiary need → case → approved request → distribution plan → duplicate review → assistance_entries → follow-up → outcome → closure` lifecycle remains unchanged.
+- PostgreSQL RLS and guarded RPCs remain the security boundary; sidebar visibility is presentation only.
+- Payment/finance architecture remains frozen except for future explicitly scoped defects/provider integrations.
+- 2.19.4 changes frontend organization only; it does not create or mutate operational records differently.
+
 
 ## Historical foundation notes
 

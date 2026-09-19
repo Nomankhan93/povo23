@@ -1,6 +1,8 @@
-# Validation index — POEM 2.19.3
+# Validation index — POEM 2.19.4
 
-Current release validation: [VALIDATION-2.19.3.md](VALIDATION-2.19.3.md).
+Current release validation: [VALIDATION-2.19.4.md](VALIDATION-2.19.4.md).
+
+Previous follow-up/outcome validation: [POEM 2.19.3](VALIDATION-2.19.3.md).
 
 Previous assistance-ledger validation: [POEM 2.19.2](VALIDATION-2.19.2.md).
 

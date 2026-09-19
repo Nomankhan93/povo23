@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { Entry, Link, Need, states, T, title, val } from "./model";
-import { Pager } from "./Pager";
+import { Pager } from "../../components/ui/Pager";
 export function NeedDetail({
   id,
   close,

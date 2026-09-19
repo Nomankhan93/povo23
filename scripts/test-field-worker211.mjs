@@ -8,7 +8,7 @@ vm.runInNewContext(readFileSync('dist/field-sw.js','utf8'),{self,URL,Promise,cac
 let work;handlers.install({waitUntil:p=>work=p});await work;
 assert(cached.includes('/index.html'));
 for(const path of cached)if(path!=='/')assert(existsSync('dist'+path),path);
-assert(cached.every(p=>p==='/'||p==='/index.html'||p==='/favicon.svg'||p.startsWith('/assets/')));
+assert(cached.every(p=>p==='/'||p==='/index.html'||p.startsWith('/assets/')));
 console.log('PASS offline shell precaches only existing static build assets');
 for(const [url,method,mode] of [['https://poem.example.test/api/private','GET','cors'],['https://db.example.test/rest/v1/persons','GET','cors'],['https://poem.example.test/','POST','navigate'],['https://poem.example.test/reset?token=secret','GET','navigate']]){
  let intercepted=false;handlers.fetch({request:{url,method,mode},respondWith(){intercepted=true}});assert.equal(intercepted,false,url);

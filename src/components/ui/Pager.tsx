@@ -10,7 +10,7 @@ export function Pager({
   onChange: (n: number) => void;
 }) {
   return (
-    <div className="actions">
+    <div className="actions" aria-label="Pagination">
       <button
         className="secondary"
         disabled={busy || page === 0}
@@ -18,7 +18,7 @@ export function Pager({
       >
         Previous
       </button>
-      <span>Page {page + 1}</span>
+      <span aria-live="polite">Page {page + 1}</span>
       <button
         className="secondary"
         disabled={busy || !more}

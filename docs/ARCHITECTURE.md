@@ -1,4 +1,15 @@
-# Current architecture note — POEM 2.19.3
+# Current architecture note — POEM 2.19.4
+
+## 2.19.4 frontend foundation architecture
+
+2.19.4 is intentionally migration-free. The existing AppShell, role/scope computation, database/RLS/RPC boundaries and feature workspaces remain in place. The release only corrects grouped-navigation coverage, centralizes the duplicated pagination primitive and removes code/assets confirmed to have no runtime references.
+
+`navigationGroups` remains a presentation concern and is not an authorization boundary. `Recruitment` and `Withdrawal operations` now have group membership so pages already allowed by AppShell role/scope logic can actually appear in the grouped sidebar. Database permissions remain authoritative.
+
+Needs and Survey workspaces now import the same `src/components/ui/Pager.tsx`, using one `onChange` contract and the existing Previous / Page / Next 50 behavior. This is a mechanical consolidation, not pagination or query redesign.
+
+Large AppShell decomposition, deep-link navigation and legacy/design-system CSS consolidation are deliberately deferred until screenshot-driven UX requirements are known, avoiding a speculative rewrite of working screens.
+
 
 
 ## 2.19.3 follow-up / outcomes / closure architecture

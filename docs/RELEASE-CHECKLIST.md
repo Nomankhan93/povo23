@@ -1,4 +1,16 @@
-# Current release checklist — POEM 2.19.3
+# Current release checklist — POEM 2.19.4
+
+## POEM 2.19.4 acceptance
+
+- [ ] No migration is added; migration head remains `20261009000400_case_followup_outcomes_closure.sql`.
+- [ ] `npm run test:frontend-foundation` passes all frontend-foundation scenarios.
+- [ ] `Recruitment` appears in grouped navigation when Project Manager scope exposes it.
+- [ ] `Withdrawal operations` appears in grouped navigation when finance-management scope exposes it.
+- [ ] Needs/Survey pagination still supports Previous, current page and Next 50 through the shared Pager.
+- [ ] Removed `ReviewForm.tsx` and `public/favicon.svg` have no remaining references.
+- [ ] `npm run check`, `npm run preflight`, 2.19.0–2.19.3 suites, payment/local/operations regressions remain green.
+- [ ] Browser smoke QA verifies sidebar grouping and Pager behavior before screenshot-driven UX work begins.
+
 
 
 ## POEM 2.19.3 acceptance

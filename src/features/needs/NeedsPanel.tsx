@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { categories, Need, pending, states, T, title, val } from "./model";
 import { NeedDetail } from "./NeedDetail";
-import { Pager } from "./Pager";
+import { Pager } from "../../components/ui/Pager";
 export function NeedsPanel({
   projectId,
   personId,

@@ -1,4 +1,11 @@
-# Current permissions note — POEM 2.19.3
+# Current permissions note — POEM 2.19.4
+
+## 2.19.4 frontend foundation permissions
+
+2.19.4 adds no roles, RLS policies, grants or RPC authority. Adding `Recruitment` and `Withdrawal operations` to grouped navigation only makes already-authorized pages discoverable; AppShell's existing role/scope checks still decide whether those pages enter the navigation list, and PostgreSQL/RPC authorization remains authoritative.
+
+No removed component or asset carried an authorization function. Shared pagination changes only presentation callbacks and does not alter query scope.
+
 
 
 ## 2.19.3 follow-up / outcomes / closure permissions

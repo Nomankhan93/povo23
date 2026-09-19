@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { geographyPath, type Geo } from "../geography/model";
 import { Org, Project, Template, get } from "./model";
-import { Pager } from "./Pager";
+import { Pager } from "../../components/ui/Pager";
 import { SurveyProjectDetail } from "./SurveyProjectDetail";
 import { SurveyProjectDrafts } from "./SurveyProjectDrafts";
 export function SurveyProjects({
@@ -267,7 +267,7 @@ export function SurveyProjects({
         </article>
       ))}
       {!busy && !rows.length && <p>No projects available in this workspace.</p>}
-      <Pager page={page} more={more} busy={busy} change={setPage} />
+      <Pager page={page} more={more} busy={busy} onChange={setPage} />
     </section>
   );
 }

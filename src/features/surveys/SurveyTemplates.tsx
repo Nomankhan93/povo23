@@ -4,7 +4,7 @@ import { type Database, type Json } from "../../lib/supabase/database.types";
 import { Question, Template } from "./model";
 import { templateLibrary, copyQuestions, dependencyErrors } from "./templateLibrary";
 import { TemplatePreview } from "./TemplatePreview";
-import { Pager } from "./Pager";
+import { Pager } from "../../components/ui/Pager";
 
 type Draft = Database["public"]["Tables"]["survey_template_drafts"]["Row"];
 type ReviewEvent = Database["public"]["Tables"]["survey_template_review_events"]["Row"];
@@ -393,7 +393,7 @@ export function SurveyTemplates({
             <button className="secondary" disabled={busy} onClick={() => openDraft(t.name, t.questions as unknown as Question[], { published_template_id: t.id })}>Use as next-version draft</button>
           </article>
         ))}
-        <Pager page={page} more={more} busy={busy} change={setPage} />
+        <Pager page={page} more={more} busy={busy} onChange={setPage} />
       </div>
     </section>
   );
