@@ -1,6 +1,8 @@
-# Validation index — FieldLance 2.19.5
+# Validation index — FieldLance 2.19.6
 
-Current release validation: [VALIDATION-2.19.5.md](VALIDATION-2.19.5.md).
+Current release validation: [VALIDATION-2.19.6.md](VALIDATION-2.19.6.md).
+
+Previous branding validation: [FieldLance 2.19.5](VALIDATION-2.19.5.md).
 
 Previous follow-up/outcome validation: [FieldLance 2.19.3](VALIDATION-2.19.3.md).
 

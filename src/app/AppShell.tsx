@@ -1,5 +1,6 @@
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
-import {navigationGroups,WorkflowOverview} from "../components/ui/WorkflowOverview";
+import {WorkflowOverview} from "../components/ui/WorkflowOverview";
+import {navigationGroups, workspaceLabels} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -270,7 +271,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           setScope(staffRole ? "poem" : "personal");
           setPageState("Overview");
           if (!staffRole)
-            setNotice("This account does not have FieldLance staff access. Your personal workspace is open instead.");
+            setNotice("This account does not have FieldLance Staff access. Your personal workspace is open instead.");
         } else {
           setScope((old) => old || defaultScope);
         }
@@ -392,6 +393,14 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setSelected(null);
     setOrgEdit(null);
   };
+  const currentWorkspaceLabel = poem
+    ? workspaceLabels.staff
+    : scope === "personal"
+      ? workspaceLabels.personal
+      : projectScope
+        ? `${projectScopeProject?.title || "Project"} · ${workspaceLabels.project}`
+        : `${myOrgs.find((o) => o.id === scope)?.name || "Organization"} · ${workspaceLabels.organization}`;
+  const unreadNotifications = notifications.filter((n) => !n.read_at).length;
   if (loading)
     return (
       <div className="setup" role="status">
@@ -427,7 +436,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
         <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
-        <FieldLanceBrand />
+        <FieldLanceBrand variant="wordmark" />
         <div className="workspace-select">
           <label htmlFor="scope">WORKSPACE</label>
           <select
@@ -439,11 +448,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
               change(next.startsWith("project:") ? "Project workspace" : "Overview");
             }}
           >
-            {admin && <option value="poem">FieldLance administration</option>}
-            <option value="personal">My Volunteer Workspace</option>
+            {admin && <option value="poem">{workspaceLabels.staff}</option>}
+            <option value="personal">{workspaceLabels.personal}</option>
             {myOrgs.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.name} — NGO Workspace
+                {o.name} — {workspaceLabels.organization}
               </option>
             ))}
             {staffProjects.map((p) => {
@@ -506,12 +515,17 @@ export function Workspace({ session, openField }: { session: Session; openField:
           >
             <Menu />
           </button>
-          <span>
-            Workspace <b>/</b> {page}
-          </span>
+          <div className="header-context">
+            <strong>{page}</strong>
+            <span>{currentWorkspaceLabel}</span>
+          </div>
           <div className="header-tools">
-            <button type="button" className="secondary" onClick={openField}>Offline field</button><SurveySyncStatus userId={session.user.id} />
-            <span className="release">FieldLance {APP_VERSION}</span>
+            <button type="button" className="header-icon-button" aria-label={unreadNotifications ? `Notifications, ${unreadNotifications} unread` : "Notifications"} onClick={()=>change("Notifications")}>
+              <Bell size={18}/>{unreadNotifications>0&&<span className="header-notification-count">{unreadNotifications}</span>}
+            </button>
+            <button type="button" className="secondary header-offline-action" onClick={openField}>Offline field</button>
+            <SurveySyncStatus userId={session.user.id} />
+            <span className="release">v{APP_VERSION}</span>
           </div>
         </header>
         <div className="content" id="workspace-content" tabIndex={-1}>
@@ -519,16 +533,24 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <div>
               <span className="eyebrow">PEOPLE AT THE HEART OF IMPACT</span>
               <h1>
-                {page === "Overview" ? "Your community, connected." : page}
+                {page === "Overview"
+                  ? poem
+                    ? "Operate the field network with confidence."
+                    : scope === "personal"
+                      ? "Your next opportunity starts here."
+                      : projectScope
+                        ? projectScopeProject?.title || "Project workspace"
+                        : "Build the field team your project needs."
+                  : page}
               </h1>
               <p>
                 {poem
-                  ? "Manage the network, review profiles and support your partner NGOs."
+                  ? "Review partners, govern access and coordinate trusted field operations across FieldLance."
                   : scope === "personal"
-                    ? "Build your profile, apply to open projects and grow your verified work history."
+                    ? "Find field work, build verified experience and grow your earnings."
                     : projectScope
-                      ? `${projectScopeProject?.title || "Project"} · ${human(projectScopeAssignment?.role || "project_staff")} · database-scoped operations.`
-                      : "Manage your NGO projects, recruitment and volunteers connected through FieldLance workflows."}
+                      ? `${human(projectScopeAssignment?.role || "project_staff")} · project-scoped operations and field delivery.`
+                      : "Manage projects, recruitment, field workers and delivery from one accountable organization workspace."}
               </p>
             </div>
             {page === "Partner NGOs" && ngos && (
@@ -958,7 +980,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </section>
           )}
           <footer>
-            <span>FieldLance · Volunteer Network</span>
+            <span>FieldLance · Field work marketplace</span>
             <span>FieldLance {APP_VERSION} · Survey and registry operations.</span>
           </footer>
         </div>

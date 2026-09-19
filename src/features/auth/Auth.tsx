@@ -30,19 +30,19 @@ type EntryCopy = {
 
 const entryCopy: Record<WorkspaceEntryIntent, EntryCopy> = {
   volunteer: {
-    label: "Volunteer",
-    destination: "Continue to your Volunteer workspace.",
+    label: "Field Worker",
+    destination: "Continue to your Field Worker workspace.",
     storyHeading: "Find field work. Build experience. Earn.",
     storyBody: "Discover surveys, outreach, assessments, monitoring and data-collection assignments. Build verified experience while contributing to real community impact.",
   },
   ngo: {
-    label: "Partner NGO",
-    destination: "Continue to your Partner NGO workspace or application.",
+    label: "Organization",
+    destination: "Continue to your organization workspace or Partner NGO application.",
     storyHeading: "Build reliable field teams.",
     storyBody: "Connect with verified workers and volunteers for surveys, outreach, assessments, monitoring, data collection and other field assignments — all in one accountable workspace.",
   },
   poem: {
-    label: "FieldLance staff",
+    label: "FieldLance Staff",
     destination: "Continue to FieldLance Administration.",
     storyHeading: "Operate the field-work network with clarity.",
     storyBody: "Review partners, govern access, monitor delivery and coordinate trusted field operations across the FieldLance network.",
@@ -168,7 +168,7 @@ export function Auth({
         if (r.error) throw r.error;
         setMessage(
           signupEntry === "ngo"
-            ? "Account created. Confirm your email, then sign in as Partner NGO to continue your organization application."
+            ? "Account created. Confirm your email, then sign in as Organization to continue your Partner NGO application."
             : "Account created. Check your email to confirm your address, then sign in.",
         );
       }
@@ -204,8 +204,8 @@ export function Auth({
 
   const description = mode === "signup"
     ? signupEntry === "ngo"
-      ? "Create your personal FieldLance account, then continue the Partner NGO application after sign-in."
-      : "Build your volunteer profile and start accessing available opportunities."
+      ? "Create your FieldLance account, then continue the Partner NGO organization application after sign-in."
+      : "Build your field worker profile and start accessing available opportunities."
     : mode === "forgot"
       ? "Enter your account email and we will send a secure reset link if it is registered."
       : mode === "reset"
@@ -225,15 +225,15 @@ export function Auth({
           [ShieldCheck, "Protect accountable access across the network"],
         ] as const
       : [
-          [UserRound, "Build your professional volunteer profile"],
+          [UserRound, "Build your professional field worker profile"],
           [CheckCircle, "Keep FieldLance-verified work history"],
-          [ShieldCheck, "Apply through scoped NGO recruitment"],
+          [ShieldCheck, "Apply through scoped organization recruitment"],
         ] as const;
 
   return (
     <div className="auth-shell auth-shell-premium">
       <section className="auth-story" aria-label="FieldLance account benefits">
-        <FieldLanceBrand compact />
+        <FieldLanceBrand variant="wordmark" />
         <div className="auth-story-main">
           <span className="eyebrow">FIELD OPPORTUNITIES • REAL EARNINGS • REAL IMPACT</span>
           <h1>{entryCopy[entry].storyHeading}</h1>
@@ -249,7 +249,7 @@ export function Auth({
 
       <section className="auth-form">
         <div className="auth-card">
-          <div className="mobile-auth-brand"><FieldLanceBrand compact /></div>
+          <div className="mobile-auth-brand"><FieldLanceBrand variant="compact" /></div>
           <span className="eyebrow">WELCOME TO FieldLance</span>
 
           {!recovery && mode !== "forgot" && (
@@ -338,7 +338,7 @@ export function Auth({
           {mode === "login" ? (
             entry !== "poem" && (
               <div className="auth-bottom">
-                <span>{entry === "ngo" ? "Representing an NGO?" : "New to FieldLance?"}</span>{" "}
+                <span>{entry === "ngo" ? "Representing an organization?" : "New to FieldLance?"}</span>{" "}
                 <button type="button" onClick={() => switchMode("signup")}>
                   Create an account
                 </button>

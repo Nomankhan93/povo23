@@ -1,17 +1,20 @@
-# Current release checklist — FieldLance 2.19.5
+# Current release checklist — FieldLance 2.19.6
 
-## FieldLance 2.19.5 acceptance
+## FieldLance 2.19.6 acceptance
 
-- [ ] No migration is added; migration head remains `20261009000400_case_followup_outcomes_closure.sql`.
-- [ ] `npm run test:frontend-foundation` passes all frontend-foundation scenarios.
-- [ ] `Recruitment` appears in grouped navigation when Project Manager scope exposes it.
-- [ ] `Withdrawal operations` appears in grouped navigation when finance-management scope exposes it.
-- [ ] Needs/Survey pagination still supports Previous, current page and Next 50 through the shared Pager.
-- [ ] Removed `ReviewForm.tsx` and `public/favicon.svg` have no remaining references.
-- [ ] `npm run check`, `npm run preflight`, 2.19.0–2.19.3 suites, payment/local/operations regressions remain green.
-- [ ] Browser smoke QA verifies sidebar grouping and Pager behavior before screenshot-driven UX work begins.
-
-
+- [ ] Package and lockfile report `2.19.6`.
+- [ ] No migration is added; migration head remains `20261009000500_fieldlance_brand_compatibility.sql`.
+- [ ] `npm run test:visual-system` passes all 2.19.6 scenarios.
+- [ ] `npm run test:branding` and `npm run test:frontend-foundation` remain green.
+- [ ] Public auth/workspace labels are Field Worker / Organization / FieldLance Staff while internal volunteer/ngo/poem keys remain unchanged.
+- [ ] Navigation groups are centralized and retain Recruitment and Withdrawal operations when existing scope logic exposes them.
+- [ ] Sidebar uses FL icon + live text, dark navy shell, blue selected state and emerald active indicator.
+- [ ] Header shows page/workspace context, notifications, offline-field control and sync state without changing authorization.
+- [ ] Neutral/info/success/warning/danger status styles exist without changing stored workflow statuses.
+- [ ] Mobile drawer focus trap, inert main content, Escape close and focus return still work.
+- [ ] `npm run preflight`, payment, local-auth/storage and operations regressions remain green.
+- [ ] Local and Remote migration histories remain aligned at `20261009000500`.
+- [ ] Browser smoke QA covers auth, worker/organization/staff sidebar states and responsive drawer behavior.
 
 ## FieldLance 2.19.3 acceptance
 

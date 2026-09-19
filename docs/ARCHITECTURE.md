@@ -1,16 +1,14 @@
-# Current architecture note — FieldLance 2.19.5
+# Current architecture note — FieldLance 2.19.6
 
-## 2.19.5 FieldLance brand architecture
+## 2.19.6 visual-system / navigation architecture
 
-2.19.4 is intentionally migration-free. The existing AppShell, role/scope computation, database/RLS/RPC boundaries and feature workspaces remain in place. The release only corrects grouped-navigation coverage, centralizes the duplicated pagination primitive and removes code/assets confirmed to have no runtime references.
+2.19.6 is intentionally migration-free and keeps the existing modular React/Supabase architecture. `src/app/navigation.ts` centralizes navigation grouping and public workspace labels, but AppShell still computes the permitted page list from existing account, organization, project and platform-role state before grouping it. PostgreSQL RLS and guarded RPCs remain the authorization boundary.
 
-`navigationGroups` remains a presentation concern and is not an authorization boundary. `Recruitment` and `Withdrawal operations` now have group membership so pages already allowed by AppShell role/scope logic can actually appear in the grouped sidebar. Database permissions remain authoritative.
+The runtime brand lockup now uses the supplied FL icon plus live text. Canonical `--fieldlance-*` visual tokens are layered onto the existing stylesheet while historical `--poem-*` variables remain compatibility aliases so feature modules do not need a broad risky rewrite. Status presentation gains neutral/info/success/warning/danger foundations without changing stored database status values.
 
-Needs and Survey workspaces now import the same `src/components/ui/Pager.tsx`, using one `onChange` contract and the existing Previous / Page / Next 50 behavior. This is a mechanical consolidation, not pagination or query redesign.
+Public workspace terminology becomes Field Worker / Organization / FieldLance Staff while internal `volunteer` / `ngo` / `poem` entry and scope keys remain unchanged. This is a presentation abstraction, not a data-model rename. Partner NGO onboarding remains the currently implemented organization-onboarding workflow.
 
-Large AppShell decomposition, deep-link navigation and legacy/design-system CSS consolidation are deliberately deferred until screenshot-driven UX requirements are known, avoiding a speculative rewrite of working screens.
-
-
+The sidebar/header/mobile drawer are refined in place rather than replaced with a new router. Existing focus trapping, Escape close, inert-main behavior, notification security, offline-field flow and sync controls remain intact. Screen-level marketplace, organization and staff workflow redesigns are intentionally deferred.
 
 ## 2.19.3 follow-up / outcomes / closure architecture
 

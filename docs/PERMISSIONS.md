@@ -1,12 +1,12 @@
-# Current permissions note — FieldLance 2.19.5
+# Current permissions note — FieldLance 2.19.6
 
-## 2.19.5 brand/compatibility permissions
+## 2.19.6 visual-system / navigation permissions
 
-2.19.4 adds no roles, RLS policies, grants or RPC authority. Adding `Recruitment` and `Withdrawal operations` to grouped navigation only makes already-authorized pages discoverable; AppShell's existing role/scope checks still decide whether those pages enter the navigation list, and PostgreSQL/RPC authorization remains authoritative.
+2.19.6 adds no role, grant, RLS policy, storage policy or RPC authority. Navigation configuration and workspace labels are presentation-only. AppShell continues to build the candidate page list from existing authorized scope before centralized grouping, and the database remains authoritative for every read/write operation.
 
-No removed component or asset carried an authorization function. Shared pagination changes only presentation callbacks and does not alter query scope.
+Public labels Field Worker, Organization and FieldLance Staff do not rename internal workspace keys (`volunteer`, `ngo`, `poem`) or database roles/statuses. The header notification shortcut uses the same already-loaded recipient-scoped notification rows and opens the existing Notifications workspace; it grants no new notification access.
 
-
+CSS/status changes are visual only. Stored workflow states, finance/payment authorities, beneficiary/case authorities, project roles and Partner NGO onboarding permissions are unchanged.
 
 ## 2.19.3 follow-up / outcomes / closure permissions
 

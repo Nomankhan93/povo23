@@ -11,9 +11,9 @@ function ok(name, fn) {
 const read = (path) => readFileSync(path, 'utf8');
 
 ok('sidebar groups include recruitment and withdrawal operations', () => {
-  const source = read('src/components/ui/WorkflowOverview.tsx');
-  assert.match(source, /pages:\[[^\]]*'Recruitment'/s);
-  assert.match(source, /pages:\[[^\]]*'Withdrawal operations'/s);
+  const source = read('src/app/navigation.ts');
+  assert.match(source, /pages:\s*\[[^\]]*[\"']Recruitment[\"']/s);
+  assert.match(source, /pages:\s*\[[^\]]*[\"']Withdrawal operations[\"']/s);
 });
 
 ok('shared pager is the only pager implementation', () => {

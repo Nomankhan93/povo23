@@ -45,6 +45,7 @@
 ./docs/PHASE-2.19.3.md
 ./docs/PHASE-2.19.4.md
 ./docs/PHASE-2.19.5.md
+./docs/PHASE-2.19.6.md
 ./docs/PHASE-2.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
@@ -105,6 +106,7 @@
 ./docs/UPGRADE-2.19.3.md
 ./docs/UPGRADE-2.19.4.md
 ./docs/UPGRADE-2.19.5.md
+./docs/UPGRADE-2.19.6.md
 ./docs/UPGRADE-2.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
@@ -155,6 +157,7 @@
 ./docs/VALIDATION-2.19.3.md
 ./docs/VALIDATION-2.19.4.md
 ./docs/VALIDATION-2.19.5.md
+./docs/VALIDATION-2.19.6.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -251,12 +254,14 @@
 ./scripts/test-stabilization.mjs
 ./scripts/test-survey-save276.mjs
 ./scripts/test-template-library.mjs
+./scripts/test-visual-system2196.mjs
 ./scripts/test-workflow-ui2111.mjs
 ./src
 ./src/app
 ./src/app/App.tsx
 ./src/app/AppShell.tsx
 ./src/app/brand.ts
+./src/app/navigation.ts
 ./src/app/version.ts
 ./src/assets
 ./src/assets/brand

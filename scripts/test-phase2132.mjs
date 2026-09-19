@@ -12,9 +12,9 @@ const auth = readFileSync('src/features/auth/Auth.tsx', 'utf8');
 const css = readFileSync('src/styles/design-system.css', 'utf8');
 
 await ok('auth keeps one account while presenting three workspace destinations', async () => {
-  assert.match(auth, /Volunteer/);
-  assert.match(auth, /Partner NGO/);
-  assert.match(auth, /FieldLance staff/);
+  assert.match(auth, /Field Worker/);
+  assert.match(auth, /Organization/);
+  assert.match(auth, /FieldLance Staff/);
   assert.match(auth, /Choose FieldLance workspace/i);
   assert.match(auth, /Sign in to FieldLance/i);
 });
@@ -40,7 +40,7 @@ await ok('authentication controls are concise and accessible', async () => {
 await ok('premium auth styling uses a 43 57 split enterprise primary and white fields', async () => {
   assert.match(css, /43%\) minmax\(0,57%\)/);
   assert.match(css, /--fieldlance-blue:#0a78d8/i);
-    assert.match(css, /--fieldlance-green:#00b96f/i);
+    assert.match(css, /--fieldlance-emerald:#00b96f/i);
     assert.match(css, /--fieldlance-navy:#071a32/i);
   assert.match(css, /\.auth-shell-premium input\{[^}]*background:#fff/);
   assert.match(css, /auth-account-note/);
@@ -53,4 +53,4 @@ await ok('mobile auth keeps compact brand context instead of squeezing desktop s
   assert.match(css, /\.auth-story-main h1[^}]*display:none/);
 });
 
-console.log(`\n${passed} POEM 2.13.2 authentication experience scenarios passed.`);
+console.log(`\n${passed} FieldLance 2.13.2 authentication experience scenarios passed.`);

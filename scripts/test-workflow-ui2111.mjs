@@ -10,7 +10,7 @@ try{
  const source=readFileSync('src/components/ui/WorkflowOverview.tsx','utf8');
  const compiled=ts.transpileModule(source,{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
  writeFileSync(dir+'/component.mjs',compiled);
- const {WorkflowOverview,navigationGroups,StatusBadge}=await import(pathToFileURL(dir+'/component.mjs'));
+ const {WorkflowOverview,StatusBadge}=await import(pathToFileURL(dir+'/component.mjs'));
  const render=props=>renderToStaticMarkup(React.createElement(WorkflowOverview,{staff:false,personal:false,profileStatus:'Draft',unread:0,allowed:[],onNavigate(){},onField(){},...props}));
  const limited=render({staff:true,allowed:['Survey projects']});
  assert(limited.includes('Open survey projects'));assert(!limited.includes('Open canonical registry'));assert(!limited.includes('Open volunteers'));
@@ -21,7 +21,9 @@ try{
  assert(render({profileStatus:'<script>',personal:true}).includes('&lt;script&gt;'));
  assert(renderToStaticMarkup(React.createElement(StatusBadge,{tone:'warning'},'Offline')).includes('Offline'));
  console.log('PASS status uses visible text and profile values are escaped');
- const pages=navigationGroups.flatMap(g=>g.pages);assert.equal(new Set(pages).size,pages.length);
- for(const page of ['Overview','My profile','Private documents','Canonical registry','Survey projects','Notifications','Activity'])assert(pages.includes(page));
- console.log('PASS navigation groups are unique and cover key workflows');
+ const navSource=readFileSync('src/app/navigation.ts','utf8');
+ const pages=[...navSource.matchAll(/pages:\s*\[([\s\S]*?)\]/g)].flatMap(match=>[...match[1].matchAll(/[\"']([^\"']+)[\"']/g)].map(value=>value[1]));
+ assert.equal(new Set(pages).size,pages.length);
+ for(const page of ['Overview','My profile','Private documents','Available Opportunities','Recruitment','Canonical registry','Survey projects','Notifications','Activity'])assert(pages.includes(page));
+ console.log('PASS centralized navigation groups are unique and cover key workflows');
 }finally{rmSync(dir,{recursive:true,force:true})}

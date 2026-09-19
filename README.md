@@ -1,25 +1,25 @@
-# Current release: FieldLance 2.19.5
+# Current release: FieldLance 2.19.6
 
-Complete FieldLance rebrand and product positioning. See [release notes](docs/PHASE-2.19.5.md), [WSL upgrade](docs/UPGRADE-2.19.5.md) and [validation](docs/VALIDATION-2.19.5.md).
+FieldLance visual system and navigation foundation. See [release notes](docs/PHASE-2.19.6.md), [WSL upgrade](docs/UPGRADE-2.19.6.md) and [validation](docs/VALIDATION-2.19.6.md).
 
-FieldLance 2.19.5 is the complete user-facing rebrand and positioning release on top of the validated 2.19.4 frontend foundation. FieldLance is a field-work marketplace connecting organizations with verified people for surveys, community outreach, assessments, monitoring, data collection and other field assignments, while enabling workers and volunteers to build experience and earn income. Historical database identifiers and migrations remain compatible.
+FieldLance 2.19.6 builds on the validated 2.19.5 rebrand without changing database or workflow behavior. It standardizes the master FL icon lockup, public workspace terminology, navigation grouping, header/sidebar shell, design tokens, status colors, buttons and shared card treatment so later worker/organization/admin screens can be redesigned consistently.
 
-## 2.19.5 release rules
+## 2.19.6 release rules
 
-- One forward-only compatibility migration is added: `20261009000500_fieldlance_brand_compatibility.sql`. It changes no historical table/column/status names and keeps legacy `POEM-BEN-` search compatibility while new UI identifiers use `FL-BEN-`.
-- Existing 2.19.0–2.19.3 beneficiary/assistance/follow-up architecture remains unchanged.
-- `Recruitment` and `Withdrawal operations` are included in grouped sidebar navigation when the existing role/scope logic exposes them.
-- Needs and Survey modules use one shared `src/components/ui/Pager.tsx` implementation.
-- Confirmed unreferenced `src/features/volunteers/ReviewForm.tsx` and `public/favicon.svg` are removed; the branded FieldLance emblem remains the favicon.
-- `npm run test:frontend-foundation` still guards the 2.19.4 cleanup; `npm run test:branding` guards the FieldLance identity, assets, offline shell and beneficiary-prefix compatibility.
-- Large AppShell decomposition, URL/deep-link navigation, native-dialog replacement and screen-level visual redesign remain deferred to the screenshot-driven stabilization phase. 2.19.5 only applies the final FieldLance identity and palette foundation.
+- **Migration-free:** database head remains `20261009000500_fieldlance_brand_compatibility.sql`.
+- Existing `volunteer`, `ngo` and `poem` workspace keys remain internal compatibility values; the public labels are **Field Worker**, **Organization** and **FieldLance Staff**.
+- Existing RLS/RPC authorization remains authoritative; centralized navigation is presentation only.
+- Existing `--poem-*` CSS tokens remain as compatibility aliases while new work should use canonical `--fieldlance-*` tokens.
+- The supplied FL icon is the runtime master symbol with live HTML FieldLance text; the raster wordmark remains an asset, not the primary shell lockup.
+- Mobile drawer accessibility behavior is preserved. Bottom mobile navigation and screen-level marketplace redesign remain deferred to 2.19.7.
+- `npm run test:visual-system` guards the 2.19.6 shell and token contract; 2.19.4 frontend and 2.19.5 branding regression suites remain active.
 
 ## Current product boundaries
 
 - The validated `approved survey → beneficiary need → case → approved request → distribution plan → duplicate review → assistance_entries → follow-up → outcome → closure` lifecycle remains unchanged.
 - PostgreSQL RLS and guarded RPCs remain the security boundary; sidebar visibility is presentation only.
 - Payment/finance architecture remains frozen except for future explicitly scoped defects/provider integrations.
-- 2.19.5 changes product identity/positioning and beneficiary display-prefix compatibility only; it does not change operational authorization, finance/payment behavior or beneficiary workflow semantics.
+- 2.19.6 changes visual/navigation presentation only; it does not change operational authorization, finance/payment behavior, beneficiary workflow semantics or the 2.19.5 beneficiary-prefix compatibility migration.
 
 
 ## Historical foundation notes
