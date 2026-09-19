@@ -1,4 +1,15 @@
-# Current architecture note — FieldLance 2.21.0
+# Current architecture note — FieldLance 2.22.0
+
+## 2.22.0 FieldLance Staff Operations architecture
+
+2.22.0 is a migration-free Staff workspace release. `FieldLanceStaffDashboard` reads existing authorized `organizations`, `partner_ngo_applications`, `volunteer_profiles`, `survey_projects`, `work_applications`, `work_assignments`, `survey_responses`, `beneficiary_cases` and `assistance_entries` data. Finance attention is read through the existing guarded `admin_e_wallet_operations_queue` and `admin_e_wallet_provider_reconciliation` RPCs rather than direct sensitive e-wallet table access.
+
+The Staff Operations Home is read-only: organization approval, Field Worker review, survey verification, recruitment decisions, case operations, withdrawal settlement and reconciliation remain in their existing workspaces/RPCs. The dashboard only summarizes visible queues and navigates Staff to those authoritative modules.
+
+AppShell now uses a curated Staff navigation list based on the already-existing platform-role capability checks. `src/app/navigation.ts` adds Staff-facing labels such as Operations home, Field Workers, Organization applications, Recruitment oversight, Withdrawals and Audit trail while preserving stable internal page keys and the historical `poem` scope identifier.
+
+Field Worker 2.20.0 and Organization 2.21.0 dashboards remain separate. Project workspaces retain the existing generic WorkflowOverview fallback. No RLS policy, storage policy, role semantics, payment provider integration, reporting store or Supabase migration is added.
+
 
 ## 2.21.0 Organization Workspace architecture
 

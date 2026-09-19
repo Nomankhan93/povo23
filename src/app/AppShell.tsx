@@ -1,6 +1,6 @@
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
-import {navigationGroups, organizationPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
+import {navigationGroups, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -36,6 +36,7 @@ import { PartnerNgoApplication } from "../features/organizations/PartnerNgoAppli
 import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
 import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
 import { OrganizationDashboard } from "../features/organizations/OrganizationDashboard";
+import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
@@ -398,6 +399,21 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Notifications", Bell],
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
+  const staffNav = ([
+    ["Overview", LayoutDashboard],
+    ...(volunteers ? [["Volunteers", Users]] : []),
+    ...(ngos ? [["NGO applications", Building2]] : []),
+    ["Partner NGOs", Building2],
+    ["Survey projects", ShieldCheck],
+    ["Verification", ShieldCheck],
+    ...(surveyManage ? [["Project governance", ShieldCheck], ["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake], ["Data sharing", Share2], ["Workforce marketplace", Users]] : []),
+    ...(financeManage ? [["Project funding", Activity], ["Withdrawal operations", CreditCard], ["E-Wallet sandbox", CreditCard]] : []),
+    ...(poem && ["admin", "super_admin"].includes(account.platform_role) ? [["Memberships", Users]] : []),
+    ...(superAdmin ? [["Accounts", KeyRound]] : []),
+    ...(ngos ? [["Geography", MapPin]] : []),
+    ["Notifications", Bell],
+    ["Activity", Activity],
+  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
   const nav = projectScope
     ? ([
         ["Project workspace", LayoutDashboard],
@@ -408,7 +424,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
       ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
     : organizationWorkspace
       ? organizationNav
-      : standardNav;
+      : poem
+        ? staffNav
+        : standardNav;
   const change = (p: string) => {
     setPage(p);
     setQuery("");
@@ -425,7 +443,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ? `${projectScopeProject?.title || "Project"} · ${workspaceLabels.project}`
         : `${myOrgs.find((o) => o.id === scope)?.name || "Organization"} · ${workspaceLabels.organization}`;
   const personalWorkspace = !poem && scope === "personal";
-  const displayPage = organizationWorkspace ? organizationPageLabel(page) : workspacePageLabel(page, personalWorkspace);
+  const displayPage = poem ? staffPageLabel(page) : organizationWorkspace ? organizationPageLabel(page) : workspacePageLabel(page, personalWorkspace);
   const unreadNotifications = notifications.filter((n) => !n.read_at).length;
   const pageEyebrow = page === "Partner NGO application"
     ? "ORGANIZATION ONBOARDING"
@@ -433,10 +451,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
       ? page === "Overview" ? "FIELD WORKER WORKSPACE" : "FIELD WORKER"
       : organizationWorkspace
         ? page === "Overview" ? "ORGANIZATION WORKSPACE" : "ORGANIZATION OPERATIONS"
-        : "PEOPLE AT THE HEART OF IMPACT";
+        : poem
+          ? page === "Overview" ? "FIELDLANCE STAFF OPERATIONS" : "FIELDLANCE OPERATIONS"
+          : "PEOPLE AT THE HEART OF IMPACT";
   const pageTitle = page === "Overview"
     ? poem
-      ? "Operate the field network with confidence."
+      ? "Keep the FieldLance network accountable."
       : scope === "personal"
         ? "Your next opportunity starts here."
         : projectScope
@@ -446,7 +466,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const pageDescription = page === "Partner NGO application"
     ? "Create and submit your organization profile for FieldLance review. Your Field Worker account remains separate."
     : poem
-      ? "Review partners, govern access and coordinate trusted field operations across FieldLance."
+      ? "Review priority queues, govern access and coordinate trusted operations across the FieldLance network."
       : scope === "personal"
         ? "Find field work, build verified experience and grow your earnings."
         : projectScope
@@ -525,7 +545,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               onClick={() => change(name)}
             >
               <Icon size={19} />
-              {organizationWorkspace ? organizationPageLabel(name) : workspacePageLabel(name, personalWorkspace)}
+              {poem ? staffPageLabel(name) : organizationWorkspace ? organizationPageLabel(name) : workspacePageLabel(name, personalWorkspace)}
               {name === "Notifications" &&
                 notifications.some((n) => !n.read_at) && (
                   <span className="nav-count">
@@ -632,8 +652,19 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   unread={unreadNotifications}
                   onNavigate={change}
                 />
+              ) : poem ? (
+                <FieldLanceStaffDashboard
+                  platformRole={account.platform_role}
+                  unread={unreadNotifications}
+                  canReviewFieldWorkers={Boolean(volunteers)}
+                  canReviewOrganizations={Boolean(ngos)}
+                  canManageSurveys={surveyManage}
+                  canManageFinance={financeManage}
+                  superAdmin={Boolean(superAdmin)}
+                  onNavigate={change}
+                />
               ) : (
-                <WorkflowOverview staff={Boolean(poem)} personal={false} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={unreadNotifications} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>
+                <WorkflowOverview staff={false} personal={false} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={unreadNotifications} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>
               )}
               <section className="panel">
                 <div className="panel-title">

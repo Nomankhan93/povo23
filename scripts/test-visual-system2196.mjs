@@ -70,7 +70,7 @@ ok('header exposes page context workspace context notifications and offline fiel
 ok('overview language matches the field-work marketplace positioning',()=>{
   assert.match(shell,/Your next opportunity starts here\./);
   assert.match(shell,/Build the field team your project needs\./);
-  assert.match(shell,/Operate the field network with confidence\./);
+  assert.match(shell,/Keep the FieldLance network accountable\./);
   assert.match(overview,/Find field work, build verified experience and grow your earnings\./);
 });
 

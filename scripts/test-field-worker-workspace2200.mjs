@@ -27,11 +27,12 @@ await ok('2.20.0 Field Worker Workspace regression contract remains available', 
   assert.match(pkg.scripts.test, /test:field-worker-workspace/);
 });
 
-await ok('personal Overview uses the dedicated Field Worker dashboard without changing other workspaces', async () => {
+await ok('personal Overview uses the dedicated Field Worker dashboard alongside dedicated Organization and Staff homes', async () => {
   assert.match(shell, /import \{ FieldWorkerDashboard \}/);
   assert.match(shell, /personalWorkspace \? \(/);
   assert.match(shell, /<FieldWorkerDashboard/);
-  assert.match(shell, /<WorkflowOverview staff=\{Boolean\(poem\)\} personal=\{false\}/);
+  assert.match(shell, /<FieldLanceStaffDashboard/);
+  assert.match(shell, /<WorkflowOverview staff=\{false\} personal=\{false\}/);
 });
 
 await ok('Field Worker dashboard follows the discover to earn lifecycle', async () => {

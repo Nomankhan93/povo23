@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.21.0
+# Current release checklist — FieldLance 2.22.0
+
+## FieldLance 2.22.0 acceptance
+
+- [ ] Package and lockfile report `2.22.0`.
+- [ ] No migration is added; Local/Remote head remains `20261009000600`.
+- [ ] `npm run test:staff-operations` passes all Staff Operations regressions.
+- [ ] FieldLance Staff Overview renders the dedicated Operations Home while Field Worker and Organization homes remain intact.
+- [ ] Staff metrics cover active organizations/projects, recruitment, survey review, cases and role-scoped finance attention.
+- [ ] Priority queue routes to existing Organization applications, Field Workers, Verification, Recruitment, Cases and Withdrawals modules without performing mutations on Home.
+- [ ] Staff sidebar is curated by existing platform-role capability checks and excludes personal-only Field Worker pages.
+- [ ] Staff public labels do not rename stable internal page IDs or the historical `poem` scope key.
+- [ ] Finance attention uses guarded admin withdrawal/reconciliation RPCs and does not direct-select sensitive e-wallet tables.
+- [ ] 2.21 Organization, 2.20 Field Worker, 2.19.8 Marketplace, NGO onboarding, visual, branding and frontend regressions remain green.
+- [ ] Desktop/tablet/mobile QA shows no horizontal overflow in Staff hero, metrics, queue cards or quick actions.
+- [ ] `npm run preflight`, payment/local/operations suites and `git diff --check` remain green before rollout.
+
 
 ## FieldLance 2.21.0 acceptance
 

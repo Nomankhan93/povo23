@@ -49,6 +49,7 @@ docs/PHASE-2.19.8.md
 docs/PHASE-2.2.md
 docs/PHASE-2.20.0.md
 docs/PHASE-2.21.0.md
+docs/PHASE-2.22.0.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
@@ -114,6 +115,7 @@ docs/UPGRADE-2.19.8.md
 docs/UPGRADE-2.2.md
 docs/UPGRADE-2.20.0.md
 docs/UPGRADE-2.21.0.md
+docs/UPGRADE-2.22.0.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.4.1.md
@@ -169,6 +171,7 @@ docs/VALIDATION-2.19.7.md
 docs/VALIDATION-2.19.8.md
 docs/VALIDATION-2.20.0.md
 docs/VALIDATION-2.21.0.md
+docs/VALIDATION-2.22.0.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -264,6 +267,7 @@ scripts/test-profile-structured-ui.mjs
 scripts/test-release-consistency.mjs
 scripts/test-sidebar-profile-grouping.mjs
 scripts/test-stabilization.mjs
+scripts/test-staff-operations2220.mjs
 scripts/test-survey-save276.mjs
 scripts/test-template-library.mjs
 scripts/test-visual-system2196.mjs
@@ -297,6 +301,7 @@ src/features/needs/model.tsx
 src/features/needs/NeedDetail.tsx
 src/features/needs/NeedsPanel.tsx
 src/features/notifications/Notifications.tsx
+src/features/operations/FieldLanceStaffDashboard.tsx
 src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
 src/features/organizations/NgoOperations.tsx

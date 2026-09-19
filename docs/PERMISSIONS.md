@@ -1,4 +1,16 @@
-# Current permissions note — FieldLance 2.21.0
+# Current permissions note — FieldLance 2.22.0
+
+## 2.22.0 FieldLance Staff Operations permissions
+
+- Staff Operations adds **no new database authority**. Visibility remains constrained by existing platform roles, RLS and guarded RPC execution grants.
+- The Staff Home performs no insert/update/delete and does not call decision/mutation RPCs. Queue cards navigate to the existing authorized workspaces.
+- Organization review metrics are loaded only for existing NGO-management roles; Field Worker review metrics only for existing volunteer-management roles.
+- Survey/recruitment/case metrics are loaded only for existing survey-management roles.
+- Finance metrics are loaded only for existing FieldLance Admin/Super Admin finance roles and use the guarded withdrawal/reconciliation RPCs; direct sensitive wallet/withdrawal table access is not added.
+- Curated Staff navigation is a presentation filter. Direct page state cannot bypass backend authorization.
+- Personal Field Worker profile/work-history/wallet pages remain in the personal workspace, not the Staff sidebar.
+- Historical internal `poem` scope and role/storage identifiers remain compatibility details and are not renamed by this UX release.
+
 
 ## 2.21.0 Organization workspace permissions
 

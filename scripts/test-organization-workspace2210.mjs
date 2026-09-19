@@ -27,12 +27,13 @@ await ok('2.21.0 Organization Workspace regression contract is active', async ()
   assert.match(pkg.scripts.test, /test:organization-workspace/);
 });
 
-await ok('Organization Overview uses a dedicated dashboard without replacing Field Worker or Staff Overview', async () => {
+await ok('Organization Overview remains dedicated alongside Field Worker and FieldLance Staff homes', async () => {
   assert.match(shell, /import \{ OrganizationDashboard \}/);
   assert.match(shell, /organizationWorkspace \? \(/);
   assert.match(shell, /<OrganizationDashboard/);
   assert.match(shell, /<FieldWorkerDashboard/);
-  assert.match(shell, /<WorkflowOverview staff=\{Boolean\(poem\)\} personal=\{false\}/);
+  assert.match(shell, /<FieldLanceStaffDashboard/);
+  assert.match(shell, /<WorkflowOverview staff=\{false\} personal=\{false\}/);
 });
 
 await ok('Organization dashboard reads existing authoritative operational sources only', async () => {
@@ -92,7 +93,7 @@ await ok('Organization navigation is curated and public labels do not rename int
   ]) {
     assert.match(navigation, new RegExp(`"?${pair[0]}"?: "${pair[1]}"`));
   }
-  assert.match(shell, /organizationWorkspace \? organizationPageLabel\(name\) : workspacePageLabel\(name, personalWorkspace\)/);
+  assert.match(shell, /poem \? staffPageLabel\(name\) : organizationWorkspace \? organizationPageLabel\(name\) : workspacePageLabel\(name, personalWorkspace\)/);
 });
 
 await ok('Organization navigation keeps personal-only pages out of the curated organization list', async () => {

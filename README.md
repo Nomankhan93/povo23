@@ -1,26 +1,26 @@
-# Current release: FieldLance 2.21.0
+# Current release: FieldLance 2.22.0
 
-FieldLance Organization Workspace UX. See [release notes](docs/PHASE-2.21.0.md), [WSL upgrade](docs/UPGRADE-2.21.0.md) and [validation](docs/VALIDATION-2.21.0.md).
+FieldLance Staff Operations UX. See [release notes](docs/PHASE-2.22.0.md), [WSL upgrade](docs/UPGRADE-2.22.0.md) and [validation](docs/VALIDATION-2.22.0.md).
 
-FieldLance 2.21.0 gives approved Organization workspaces a dedicated daily Home built on the existing projects, workforce recruitment, survey delivery, beneficiary cases, assistance, payable and finance architecture. It adds no database migration and introduces no duplicate reporting or authorization source.
+FieldLance 2.22.0 gives authorized FieldLance Staff a dedicated Operations Home over existing organization, Field Worker, project, recruitment, survey, case, assistance and finance sources. It adds no database migration and does not move operational decisions out of their existing guarded workspaces.
 
-## 2.21.0 release rules
+## 2.22.0 release rules
 
 - **No database migration:** migration head remains `20261009000600_partner_ngo_application_experience.sql`.
-- Organization Overview now summarizes active projects, open opportunities, new applications, active Field Workers, submitted surveys and active beneficiary cases.
-- The Home dashboard is read-only. Recruitment decisions, assignments, survey review, case operations, assistance delivery, payables and finance mutations remain in their existing guarded workspaces/RPCs.
-- Organization navigation is presentation-focused: Home, Projects, Team & access, Recruitment, Field Workers, Direct invitations, Cases, Assistance, Payables and Project finance reuse existing internal page identifiers.
-- Personal Field Worker and FieldLance Staff workspaces remain separate. Organization navigation does not grant access to pages that backend RLS/RPCs do not authorize.
-- Organization identity uses the approved organization record/logo already introduced through Partner NGO onboarding; no second organization profile registry is created.
-- Recruitment remains **publish opportunity → Field Worker applies → organization reviews/selects → formal offer → Field Worker accepts → active survey assignment**.
-- Existing payment, payable, beneficiary, case, assistance, controlled-sharing and project-governance sources remain authoritative.
+- FieldLance Staff Overview now summarizes active organizations/projects, recruitment pressure, survey review pressure, active cases and role-scoped finance attention.
+- Priority queues route Staff to existing Organization application, Field Worker review, Verification, Recruitment, Cases and Withdrawal workspaces; the Home dashboard performs no mutation itself.
+- Staff navigation is curated by the existing platform-role capabilities (`volunteers`, `ngos`, `surveyManage`, `financeManage`, `superAdmin`) and never grants backend authority.
+- Public Staff labels use FieldLance terminology while stable internal page identifiers and historical `poem` scope compatibility remain unchanged.
+- Personal-only Field Worker pages are not mixed into the FieldLance Staff sidebar.
+- Finance attention uses the existing guarded withdrawal/reconciliation RPCs; direct sensitive e-wallet table access is not introduced.
+- Existing Field Worker 2.20 and Organization 2.21 dashboards remain separate and unchanged in authority.
 
 ## Current product boundaries
 
 - PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; dashboard/navigation state is never treated as permission.
 - Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
-- No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or finance balance source is added.
-- The next planned screen-level phase is **2.22 FieldLance Staff Operations UX** after 2.21 validation.
+- No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or editable finance balance source is added.
+- The next planned development phase is **2.23 Tasks / SLA / Escalation Center** after 2.22 validation.
 
 ## Historical foundation notes
 

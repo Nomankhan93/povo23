@@ -1,6 +1,8 @@
-# Validation index — FieldLance 2.21.0
+# Validation index — FieldLance 2.22.0
 
-Current release validation: [VALIDATION-2.21.0.md](VALIDATION-2.21.0.md).
+Current release validation: [VALIDATION-2.22.0.md](VALIDATION-2.22.0.md).
+
+Previous Organization Workspace validation: [FieldLance 2.21.0](VALIDATION-2.21.0.md).
 
 Previous Field Worker Workspace validation: [FieldLance 2.20.0](VALIDATION-2.20.0.md).
 

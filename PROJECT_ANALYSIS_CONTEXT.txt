@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.21.0
+Release: 2.22.0
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,10 +14,10 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.21.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.22.0 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.19.0 adds beneficiary cases/requests; 2.19.1 adds planning-only distribution plans; 2.19.2 records controlled delivery into assistance_entries with canonical duplicate-support controls; 2.19.3 adds structured follow-up, outcomes and controlled close/reopen lifecycle history.
-- 2.19.4 stabilized the frontend foundation. 2.19.5 completed the user-facing FieldLance rebrand. 2.19.6 added the visual-system/navigation foundation. 2.19.7 redesigns Partner NGO onboarding. 2.19.8 redesigns the workforce marketplace UX. 2.20.0 adds a dedicated Field Worker daily workspace. 2.21.0 adds a dedicated Organization daily workspace over existing project, recruitment, survey, case, assistance, payable and finance sources without replacing backend authorization.
+- 2.19.4 stabilized the frontend foundation. 2.19.5 completed the user-facing FieldLance rebrand. 2.19.6 added the visual-system/navigation foundation. 2.19.7 redesigns Partner NGO onboarding. 2.19.8 redesigns the workforce marketplace UX. 2.20.0 adds a dedicated Field Worker daily workspace. 2.21.0 adds a dedicated Organization daily workspace. 2.22.0 adds a role-aware FieldLance Staff Operations Home over existing organization, Field Worker, project, recruitment, survey, case, assistance and guarded finance sources without replacing backend authorization.
 - Case intake requires approved survey provenance; one assessed need can belong to only one active case at a time.
 - FieldLance survey authority, NGO Admin and Project Manager manage cases/requests/plans/follow-ups within existing project scope; only NGO Admin / FieldLance survey authority approve or reject requests. Area Focal remains outside broad case/planning/delivery/follow-up mutation authority.
 - Assistance-request approval means approved for planning only. A ready plan still is not delivery; 2.19.2 creates assistance_entries through guarded delivery recording, and 2.19.3 requires structured post-delivery follow-up/outcome evidence before controlled case closure.
@@ -112,10 +112,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000600_partner_ngo_application_experience.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 66
-TypeScript/TSX source files: 84
-Markdown docs: 183
-Inventory files (excluding local/build/temp/backup state): 418
+Test scripts (scripts/test-*.mjs): 67
+TypeScript/TSX source files: 85
+Markdown docs: 186
+Inventory files (excluding local/build/temp/backup state): 423
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -127,6 +127,7 @@ npm run test:ngo-application
 npm run test:workforce-marketplace
 npm run test:field-worker-workspace
 npm run test:organization-workspace
+npm run test:staff-operations
 npm run test:followup
 npm run test:assistance
 npm run test:distribution
@@ -141,8 +142,8 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.20.0 completes the dedicated Field Worker daily workspace. 2.21.0 completes the first dedicated Organization daily workspace: project/recruitment/survey/case/assistance/payable summaries remain read-only views over existing authoritative sources.
-The next screen-level UI phase is 2.22 FieldLance Staff Operations UX. Do not replace stable recruitment/payment/case backends merely for presentation consistency.
+2.20.0 completes the dedicated Field Worker daily workspace. 2.21.0 completes the Organization daily workspace. 2.22.0 completes the first dedicated FieldLance Staff Operations Home with role-aware read-only queues over existing authoritative sources.
+The next development phase is 2.23 Tasks / SLA / Escalation Center. Keep task derivation tied to existing authoritative workflows instead of creating parallel approval or payment state.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

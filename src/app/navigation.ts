@@ -93,3 +93,28 @@ export const organizationNavigationLabels: Readonly<Record<string, string>> = {
 export function organizationPageLabel(page: string) {
   return organizationNavigationLabels[page] || page;
 }
+
+export const staffNavigationLabels: Readonly<Record<string, string>> = {
+  Overview: "Operations home",
+  Volunteers: "Field Workers",
+  "NGO applications": "Organization applications",
+  "Partner NGOs": "Organizations",
+  "Survey projects": "Projects",
+  Verification: "Verification queue",
+  "Project governance": "Governance",
+  "Canonical registry": "Beneficiary registry",
+  "Beneficiary cases": "Cases",
+  "Assistance ledger": "Assistance",
+  "Data sharing": "Controlled sharing",
+  "Workforce marketplace": "Recruitment oversight",
+  "Project funding": "Project finance",
+  "Withdrawal operations": "Withdrawals",
+  "E-Wallet sandbox": "Wallet sandbox",
+  Accounts: "Accounts & roles",
+  Notifications: "Updates",
+  Activity: "Audit trail",
+};
+
+export function staffPageLabel(page: string) {
+  return staffNavigationLabels[page] || page;
+}
