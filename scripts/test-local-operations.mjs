@@ -67,6 +67,15 @@ try{
   await clean('registry_person_revisions','person_id',people);
   await clean('registry_persons','id',people);
   await clean('registry_households','project_id',[project]);
+
+  // Task Center 2.23+: remove only tasks linked to this synthetic project.
+  // Task events cascade from operational_tasks.
+  await clean('operational_tasks','project_id',[project]);
+
+  // Notifications 2.24+: remove synthetic project-linked notifications
+  // before deleting the fixture survey project.
+  await clean('notifications','project_id',[project]);
+
   await clean('survey_assignments','project_id',[project]);
   await clean('survey_projects','id',[project]);
 
@@ -99,6 +108,14 @@ try{
  await clean('survey_templates','id',template?[template]:[]);
  await clean('geographies','id',geo?[geo]:[]);
  const uids=users.map(u=>u.id);
+
+ // Remove any remaining synthetic Task Center rows that reference fixture
+ // organizations/users before deleting those parent records.
+ await clean('operational_tasks','organization_id',orgs);
+ await clean('operational_tasks','assigned_to',uids);
+ await clean('operational_tasks','created_by',uids);
+ await clean('operational_tasks','completed_by',uids);
+
  await clean('notifications','user_id',uids);
  await clean('audit_events','actor_id',uids);
  await clean('audit_events','subject_id',uids);

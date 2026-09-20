@@ -1,26 +1,26 @@
-# Current release: FieldLance 2.23.0
+# Current release: FieldLance 2.24.0
 
-Tasks, SLA & Escalation Center. See [release notes](docs/PHASE-2.23.0.md), [WSL upgrade](docs/UPGRADE-2.23.0.md) and [validation](docs/VALIDATION-2.23.0.md).
+Notifications & Communication Center. See [release notes](docs/PHASE-2.24.0.md), [WSL upgrade](docs/UPGRADE-2.24.0.md) and [validation](docs/VALIDATION-2.24.0.md).
 
-FieldLance 2.23.0 adds a shared operational Task Center with SLA, due-date and escalation tracking for Field Workers, Organizations, Project teams and FieldLance Staff. Tasks reference existing authoritative workflows; completing a task never approves, rejects, settles or closes the source workflow.
+FieldLance 2.24.0 upgrades the recipient-only notification inbox into an actionable Communication Center with categories, priority, deep links, paging, archive/history, stored channel preferences, scoped broadcasts and task/SLA notifications. Existing workflow authorization remains authoritative.
 
-## 2.23.0 release rules
+## 2.24.0 release rules
 
-- **Forward migration:** `20261009000700_tasks_sla_escalation_center.sql`; do not edit any previously applied migration.
-- Adds `operational_tasks`, `operational_task_sla_policies` and immutable `operational_task_events` with RLS and RPC-only mutation.
-- Derives actionable tasks from Organization applications, Field Worker profile/application review, assignment offers, survey review, beneficiary follow-ups and withdrawal operations.
-- My Tasks / Team Tasks / Due Today / Overdue / Escalated / Completed views are available according to workspace authority.
-- Escalation levels are driven by persisted SLA policy and can be refreshed without changing the source workflow.
-- Manual coordination tasks are allowed only for authorized Organization/Project/FieldLance managers and never create parallel approval/payment state.
-- Field Worker, Organization and FieldLance Staff dashboards link into Task Center while retaining their existing dedicated home experiences.
-- Existing 2.19–2.22 recruitment, case, assistance, finance and workspace authorization remains authoritative.
+- **Forward migration:** `20261009000800_notifications_communication_center.sql`; do not edit earlier migrations.
+- Existing `notifications` rows remain recipient-only and are extended with category, priority, source/action metadata and archive state.
+- Adds `notification_preferences` for future email/push routing while in-app transactional notifications remain available.
+- Adds `notification_broadcasts` with audited FieldLance/Organization/Project-scoped recipient resolution.
+- Task assignments and escalation-level changes create actionable Task Center notifications without changing task/source workflow state.
+- Existing notification insert sites are decorated through a new insert trigger so old migrations/RPCs do not need cosmetic rewrites.
+- Email/push provider preferences are stored, but **no external email, push, SMS or WhatsApp provider is called in 2.24.0**.
+- Broadcast publishing is permission-checked server-side; Organization and Project broadcasts stay scoped to authorized members/team.
 
 ## Current product boundaries
 
 - PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; dashboard/navigation state is never treated as permission.
 - Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
 - No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or editable finance balance source is added.
-- The next planned development phase is **2.24 Notifications & Communication Center** after 2.23 validation.
+- The next planned development phase is **2.25 Earnings, Wallet & Withdrawal UX** after 2.24 validation.
 
 ## Historical foundation notes
 
@@ -56,7 +56,7 @@ Standalone React + TypeScript + Vite frontend with Supabase Auth and PostgreSQL.
 - Admin geography manager and cascading volunteer location selection.
 - Private PDF/JPG/PNG volunteer documents with upload recovery, removal and FieldLance review.
 - Verification checklist and document-review gates; evidence changes invalidate approval.
-- In-app notifications with recipient-only read access.
+- Actionable in-app Communication Center with recipient-only access, categories, deep links, archive/history and stored delivery preferences.
 - Local first-Super-Admin bootstrap helper, `.env.example`, locked npm dependencies and validation scripts.
 
 ## Important boundaries

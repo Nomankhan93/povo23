@@ -1,11 +1,11 @@
-# Current architecture note — FieldLance 2.23.0
-## 2.23.0 Tasks, SLA & Escalation Center
+# Current architecture note — FieldLance 2.24.0
+## 2.24.0 Notifications & Communication Center
 
-FieldLance 2.23.0 adds a persisted operational task layer over existing authoritative workflows. `operational_tasks` stores coordination state, `operational_task_sla_policies` stores due/escalation policy, and `operational_task_events` keeps task history. Tasks reference the source module/entity rather than copying its business state.
+FieldLance 2.24.0 keeps `notifications` as the authoritative per-recipient in-app record and extends it with category, priority, action/source metadata, broadcast linkage and archive state. `notification_preferences` stores future email/push/category routing choices; it does not suppress transactional in-app records. `notification_broadcasts` records audited scoped announcements.
 
-Derived task triggers cover Organization applications, Field Worker profile/application review, assignment offers, survey review, beneficiary follow-up and withdrawal operations. Existing source tables/RPCs remain authoritative; completing a Task Center item cannot approve a survey, select a worker, settle a withdrawal or close a beneficiary case.
+A `notification_default_metadata` insert trigger decorates existing notification producers, so historical workflow migrations do not need to be rewritten simply to add deep-link metadata. Task Center assignment/escalation changes create `task` notifications that link back to Task Center; they do not mutate the authoritative source workflow. Broadcast recipient sets are resolved server-side for FieldLance-wide roles, Organization members or Project team scopes.
 
-`TaskCenter.tsx` is shared across personal, Organization, Project and FieldLance Staff scopes. Queue reads and mutations use guarded RPCs; navigation simply opens the authoritative source workspace.
+External email/push/SMS/WhatsApp transport is intentionally absent in this phase. Preferences are provider-ready state only; provider delivery requires a later integration phase with official credentials and retry/reconciliation design.
 
 ## 2.22.0 FieldLance Staff Operations architecture
 
@@ -259,7 +259,7 @@ The Auth session uses the official Supabase client's browser session persistence
 - `volunteer_profiles.geography_id`: structured volunteer location. Legacy review columns remain for compatibility, but current profile publishing does not require admin approval.
 - `volunteer_documents`: reserved random object paths, declared MIME/size, upload lifecycle and separate review version. `begin_document_upload` returns JSON for a stable client contract.
 - `storage.buckets` / `storage.objects`: private bucket, 5 MiB maximum, PDF/JPEG/PNG allowlist, owner-only reserved uploads and deletion. No UPDATE policy means approved bytes cannot be overwritten.
-- `notifications`: audit-triggered own-recipient inbox; latest 100, manual refresh, no background/push/email delivery.
+- `notifications`: own-recipient actionable inbox with category/priority/deep-link/archive metadata; Communication Center pages 50 at a time. External provider delivery is still deferred.
 - `src/Phase12.tsx`: geography, document and notification UI.
 - `scripts/test-phase12.mjs`: applies the original migration, creates legacy data, upgrades, and tests PostgreSQL and Storage RLS policies.
 

@@ -471,6 +471,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     : displayPage;
   const pageDescription = page === "Partner NGO application"
     ? "Create and submit your organization profile for FieldLance review. Your Field Worker account remains separate."
+    : page === "Notifications"
+      ? "Review actionable updates, open the linked workflow and manage communication preferences."
     : poem
       ? "Review priority queues, govern access and coordinate trusted operations across the FieldLance network."
       : scope === "personal"
@@ -1067,7 +1069,15 @@ export function Workspace({ session, openField }: { session: Session; openField:
             />
           )}
           {page === "Notifications" && (
-            <Notifications rows={notifications} refresh={load} />
+            <Notifications
+              rows={notifications}
+              refresh={load}
+              onNavigate={change}
+              mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
+              organizationId={organizationWorkspace ? scope : null}
+              projectId={projectScopeId}
+              canBroadcast={Boolean((poem && ["admin", "super_admin"].includes(account.platform_role)) || organizationWorkspace || (projectScope && canManageProjectAssignments))}
+            />
           )}
           {page === "Activity" && (
             <section className="panel">

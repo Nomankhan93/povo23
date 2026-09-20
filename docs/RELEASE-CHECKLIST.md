@@ -1,19 +1,24 @@
-# Current release checklist — FieldLance 2.23.0
+# Current release checklist — FieldLance 2.24.0
 
-## FieldLance 2.23.0 acceptance
+## FieldLance 2.24.0 acceptance
 
-- [ ] Package and lockfile report `2.23.0`.
-- [ ] Local migration head is `20261009000700_tasks_sla_escalation_center.sql` and matches Remote only after validated `db push`.
-- [ ] `npm run types:check`, `npm run test:task-center`, `npm run preflight`, `npm run test:local` and `npm run test:operations` pass.
-- [ ] Task/SLA/event tables have RLS; authenticated clients cannot directly mutate them.
-- [ ] My Tasks, Team Tasks, Due Today, Overdue, Escalated and Completed queues work in authorized scopes.
-- [ ] Derived tasks appear for Organization application, Field Worker profile/application, assignment offer, survey review, case follow-up and withdrawal workflows.
-- [ ] Completing a task does not mutate the linked source workflow state.
-- [ ] Field Worker sees only assigned/personal task authority; Organization/Project queues respect existing scope; Staff queues remain role-aware.
-- [ ] Escalation level changes follow persisted SLA policy and do not create duplicate active tasks for the same source action.
-- [ ] Manual tasks are available only through guarded RPCs for authorized managers.
-- [ ] 2.19.7–2.22 workspace/recruitment regressions remain green under the new migration head.
-- [ ] Desktop/tablet/mobile Task Center QA shows no horizontal overflow and source links return to the authoritative module.
+- [ ] Package and lockfile report `2.24.0`.
+- [ ] Migration `20261009000800_notifications_communication_center.sql` applies locally after `00700`.
+- [ ] `npm run types:generate`, `npm run metadata:generate`, `npm run check` and `npm run test:notification-center` pass.
+- [ ] Existing 2.19.7–2.23 regression suites remain green.
+- [ ] All / Unread / Tasks / Recruitment / Finance / Broadcasts / Archived filters work and Load more pages older rows.
+- [ ] Mark all read, individual read, archive and restore affect only the signed-in recipient.
+- [ ] Action buttons open the intended authorized workspace without granting new permissions.
+- [ ] Email/push preferences persist but no external provider request is made.
+- [ ] FieldLance-wide broadcast is denied to non-admin roles.
+- [ ] Organization broadcast reaches only active members of the authorized Organization.
+- [ ] Project broadcast reaches only active project staff for a manager-authorized Project.
+- [ ] Task assignment/escalation creates Task Center-linked notifications.
+- [ ] Desktop/tablet/mobile Communication Center has no horizontal overflow.
+
+## 2.24.0 Notifications & Communication Center
+
+The Communication Center matures the existing in-app inbox without introducing a second event source. Existing workflow notifications are decorated at insert time, while task/SLA events and scoped broadcasts add new actionable records. Provider-backed email/push/SMS/WhatsApp remains outside this release.
 
 ## 2.23.0 Tasks, SLA & Escalation Center
 

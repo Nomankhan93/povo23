@@ -71,6 +71,7 @@ export const personalNavigationLabels: Readonly<Record<string, string>> = {
   Invitations: "Invitations & offers",
   "Workforce payables": "Earnings & payables",
   "E-Wallets & withdrawals": "Wallet & withdrawals",
+  Notifications: "Updates",
 };
 
 export function workspacePageLabel(page: string, personal: boolean) {
@@ -90,6 +91,7 @@ export const organizationNavigationLabels: Readonly<Record<string, string>> = {
   "Beneficiary cases": "Cases",
   "Assistance ledger": "Assistance",
   "Project governance": "Governance",
+  Notifications: "Updates & communication",
 };
 
 export function organizationPageLabel(page: string) {
@@ -114,7 +116,7 @@ export const staffNavigationLabels: Readonly<Record<string, string>> = {
   "Withdrawal operations": "Withdrawals",
   "E-Wallet sandbox": "Wallet sandbox",
   Accounts: "Accounts & roles",
-  Notifications: "Updates",
+  Notifications: "Communication center",
   Activity: "Audit trail",
 };
 

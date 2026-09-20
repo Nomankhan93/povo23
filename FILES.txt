@@ -51,6 +51,7 @@ docs/PHASE-2.20.0.md
 docs/PHASE-2.21.0.md
 docs/PHASE-2.22.0.md
 docs/PHASE-2.23.0.md
+docs/PHASE-2.24.0.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
@@ -118,6 +119,7 @@ docs/UPGRADE-2.20.0.md
 docs/UPGRADE-2.21.0.md
 docs/UPGRADE-2.22.0.md
 docs/UPGRADE-2.23.0.md
+docs/UPGRADE-2.24.0.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.4.1.md
@@ -175,6 +177,7 @@ docs/VALIDATION-2.20.0.md
 docs/VALIDATION-2.21.0.md
 docs/VALIDATION-2.22.0.md
 docs/VALIDATION-2.23.0.md
+docs/VALIDATION-2.24.0.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -224,6 +227,7 @@ scripts/test-frontend-foundation2194.mjs
 scripts/test-geography-reference.mjs
 scripts/test-local-auth.mjs
 scripts/test-local-operations.mjs
+scripts/test-notification-center2240.mjs
 scripts/test-offline-recovery276.mjs
 scripts/test-organization-workspace2210.mjs
 scripts/test-partner-ngo-application2197.mjs
@@ -425,5 +429,6 @@ supabase/migrations/20261009000400_case_followup_outcomes_closure.sql
 supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
 supabase/migrations/20261009000600_partner_ngo_application_experience.sql
 supabase/migrations/20261009000700_tasks_sla_escalation_center.sql
+supabase/migrations/20261009000800_notifications_communication_center.sql
 tsconfig.json
 vite.config.ts

@@ -17,8 +17,14 @@ async function ok(name, fn) {
   console.log(`PASS ${name}`);
 }
 
-await ok('2.23.0 Task Center regression contract is active', async () => {
-  assert.equal(pkg.version, '2.23.0');
+await ok('2.23.0 Task Center regression contract remains available', async () => {
+  const [major, minor, patch] = pkg.version.split('-')[0].split('.').map(Number);
+  assert.ok(
+    major > 2 ||
+      (major === 2 && minor > 23) ||
+      (major === 2 && minor === 23 && patch >= 0),
+    `Expected FieldLance >= 2.23.0, received ${pkg.version}`,
+  );
   assert.equal(pkg.scripts['test:task-center'], 'node scripts/test-task-center2230.mjs');
   assert.match(pkg.scripts.test, /test:task-center/);
 });
@@ -101,10 +107,10 @@ await ok('Task Center has responsive dedicated FieldLance styling', async () => 
   assert.match(styles, /@media\(max-width:420px\).*task-center-metrics/s);
 });
 
-await ok('2.23.0 adds exactly one forward migration after the 2.22 baseline', async () => {
+await ok('2.23.0 Task Center migration remains present in later releases', async () => {
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1), '20261009000700_tasks_sla_escalation_center.sql');
-  assert.equal(migrations.length, 56);
+  assert.ok(migrations.includes('20261009000700_tasks_sla_escalation_center.sql'));
+  assert.ok(migrations.length >= 56);
 });
 
 console.log(`\n${passed} FieldLance Task Center regression scenarios passed for FieldLance ${pkg.version}.`);

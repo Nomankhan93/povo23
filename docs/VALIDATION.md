@@ -1,6 +1,6 @@
-# Validation index — FieldLance 2.23.0
+# Validation index — FieldLance 2.24.0
 
-Current release validation: [VALIDATION-2.23.0.md](VALIDATION-2.23.0.md).
+Current release validation: [VALIDATION-2.24.0.md](VALIDATION-2.24.0.md).
 
 Previous Staff Operations validation: [FieldLance 2.22.0](VALIDATION-2.22.0.md).
 

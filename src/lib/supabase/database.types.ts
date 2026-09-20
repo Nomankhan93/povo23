@@ -1990,6 +1990,96 @@ recorded_at?: string;
 };
 Relationships: [];
 };
+notification_broadcasts: {
+Row: {
+id: string;
+title: string;
+body: string;
+audience_type: string;
+organization_id: string | null;
+project_id: string | null;
+priority: string;
+action_page: string | null;
+action_label: string | null;
+created_by: string;
+recipient_count: number;
+created_at: string;
+};
+Insert: {
+id?: string;
+title: string;
+body: string;
+audience_type: string;
+organization_id?: string | null;
+project_id?: string | null;
+priority?: string;
+action_page?: string | null;
+action_label?: string | null;
+created_by: string;
+recipient_count?: number;
+created_at?: string;
+};
+Update: {
+id?: string;
+title?: string;
+body?: string;
+audience_type?: string;
+organization_id?: string | null;
+project_id?: string | null;
+priority?: string;
+action_page?: string | null;
+action_label?: string | null;
+created_by?: string;
+recipient_count?: number;
+created_at?: string;
+};
+Relationships: [];
+};
+notification_preferences: {
+Row: {
+user_id: string;
+email_enabled: boolean;
+push_enabled: boolean;
+broadcasts_enabled: boolean;
+recruitment_enabled: boolean;
+assignments_enabled: boolean;
+tasks_enabled: boolean;
+surveys_enabled: boolean;
+finance_enabled: boolean;
+organization_enabled: boolean;
+cases_enabled: boolean;
+updated_at: string;
+};
+Insert: {
+user_id: string;
+email_enabled?: boolean;
+push_enabled?: boolean;
+broadcasts_enabled?: boolean;
+recruitment_enabled?: boolean;
+assignments_enabled?: boolean;
+tasks_enabled?: boolean;
+surveys_enabled?: boolean;
+finance_enabled?: boolean;
+organization_enabled?: boolean;
+cases_enabled?: boolean;
+updated_at?: string;
+};
+Update: {
+user_id?: string;
+email_enabled?: boolean;
+push_enabled?: boolean;
+broadcasts_enabled?: boolean;
+recruitment_enabled?: boolean;
+assignments_enabled?: boolean;
+tasks_enabled?: boolean;
+surveys_enabled?: boolean;
+finance_enabled?: boolean;
+organization_enabled?: boolean;
+cases_enabled?: boolean;
+updated_at?: string;
+};
+Relationships: [];
+};
 notifications: {
 Row: {
 id: number;
@@ -1998,6 +2088,16 @@ title: string;
 body: string;
 read_at: string | null;
 created_at: string;
+category: string;
+priority: string;
+action_page: string | null;
+action_label: string | null;
+organization_id: string | null;
+project_id: string | null;
+source_kind: string | null;
+source_ref: string | null;
+broadcast_id: string | null;
+archived_at: string | null;
 };
 Insert: {
 id?: number;
@@ -2006,6 +2106,16 @@ title: string;
 body: string;
 read_at?: string | null;
 created_at?: string;
+category?: string;
+priority?: string;
+action_page?: string | null;
+action_label?: string | null;
+organization_id?: string | null;
+project_id?: string | null;
+source_kind?: string | null;
+source_ref?: string | null;
+broadcast_id?: string | null;
+archived_at?: string | null;
 };
 Update: {
 id?: number;
@@ -2014,6 +2124,16 @@ title?: string;
 body?: string;
 read_at?: string | null;
 created_at?: string;
+category?: string;
+priority?: string;
+action_page?: string | null;
+action_label?: string | null;
+organization_id?: string | null;
+project_id?: string | null;
+source_kind?: string | null;
+source_ref?: string | null;
+broadcast_id?: string | null;
+archived_at?: string | null;
 };
 Relationships: [];
 };
@@ -3886,6 +4006,10 @@ p_version: number | null;
 p_note: string | null;
 p_request: string | null;
 }; Returns: Json };
+archive_notification: { Args: {
+p_id: number | null;
+p_archived?: boolean | null;
+}; Returns: undefined };
 assign_project_staff: { Args: {
 p_project: string | null;
 p_user: string | null;
@@ -4293,6 +4417,8 @@ p_kind: string | null;
 p_offset: number | null;
 p_limit: number | null;
 }; Returns: Json };
+mark_all_notifications_read: { Args: {
+}; Returns: number };
 mark_assistance_distribution_plan_ready: { Args: {
 p_id: string | null;
 p_reason: string | null;
@@ -4311,6 +4437,11 @@ my_withdrawal_security: { Args: {
 }; Returns: Json };
 my_withdrawal_summary: { Args: {
 p_currency?: string | null;
+}; Returns: Json };
+notification_center: { Args: {
+p_filter?: string | null;
+p_offset?: number | null;
+p_limit?: number | null;
 }; Returns: Json };
 offer_work_amendment: { Args: {
 p_assignment: string | null;
@@ -4386,6 +4517,16 @@ p_details: Json | null;
 p_version: number | null;
 p_geography: string | null;
 }; Returns: undefined };
+publish_notification_broadcast: { Args: {
+p_title: string | null;
+p_body: string | null;
+p_audience: string | null;
+p_organization?: string | null;
+p_project?: string | null;
+p_priority?: string | null;
+p_action_page?: string | null;
+p_action_label?: string | null;
+}; Returns: string };
 publish_project_policy: { Args: {
 p_project: string | null;
 p_version: number | null;
@@ -4682,6 +4823,18 @@ p_org: string | null;
 p_areas: (string)[] | null;
 p_programs: (string)[] | null;
 p_version: number | null;
+}; Returns: undefined };
+save_notification_preferences: { Args: {
+p_email: boolean | null;
+p_push: boolean | null;
+p_broadcasts: boolean | null;
+p_recruitment: boolean | null;
+p_assignments: boolean | null;
+p_tasks: boolean | null;
+p_surveys: boolean | null;
+p_finance: boolean | null;
+p_organization: boolean | null;
+p_cases: boolean | null;
 }; Returns: undefined };
 save_organization: { Args: {
 p_id: string | null;

@@ -1,13 +1,13 @@
-# Current permissions note — FieldLance 2.23.0
-## 2.23.0 Tasks, SLA & Escalation Center
+# Current permissions note — FieldLance 2.24.0
+## 2.24.0 Notifications & Communication Center
 
-- Field Workers can read/manage tasks assigned to themselves; this does not grant Organization/Project access.
-- Organization Admins and authorized Project managers can read/manage tasks inside their existing organization/project authority.
-- FieldLance Admin/Super Admin can operate cross-platform queues; specialist Staff roles only receive mapped operational task categories.
-- Auditors may read authorized task state but cannot mutate it through the guarded task RPC.
-- Authenticated clients have no direct INSERT/UPDATE/DELETE grants on task, SLA-policy or task-event tables.
-- Task completion is coordination state only. Source workflow decisions remain guarded by their existing RLS/RPC rules.
-- Withdrawal tasks expose coordination metadata through authorized task queues; wallet balances and settlement remain in the finance/payment subsystem.
+- Notification rows remain readable only by their `user_id`; authenticated users still cannot directly insert/update/delete another recipient's inbox records.
+- Preference rows are own-user readable and RPC-mutated. Preferences configure future external channels and optional broadcasts; transactional in-app workflow notices remain available.
+- FieldLance-wide broadcasts (`all_active`, Field Workers, Organization admins, FieldLance Staff) require active `admin`/`super_admin`.
+- Organization-member broadcasts require active NGO-admin authority for that Organization (or FieldLance admin).
+- Project-team broadcasts require existing project-management authority.
+- Broadcast recipient resolution runs server-side and is audited; the frontend cannot supply arbitrary user IDs.
+- Task assignment/escalation notifications reuse the existing Task Center authorization and never grant access to the linked source module.
 
 ## 2.22.0 FieldLance Staff Operations permissions
 
@@ -302,7 +302,7 @@ Admin approval is not required for normal profile publication or later edits. Th
 | Upload/remove own supporting files | Active account and allowed profile state | No additional rights | Own only |
 | Read another user's document metadata/bytes | No | No | Yes |
 | Review documents | No self-review | No | Other profiles only |
-| Read/mark notifications | Own only | Own only | Own only |
+| Read/mark/archive notifications | Own only | Own only | Own only |
 
 Storage object writes are the exception to the public-table SELECT-only rule: Storage API INSERT/DELETE are authorized by RLS against reserved document metadata. There is no object UPDATE policy. Profile suspension blocks new uploads/finalization, while owner removal and reading remain available to an active account. Account suspension blocks all document access. Public URLs and NGO grants do not grant file access. Application download requests are audited, but direct authorized Storage reads require separate infrastructure logging.
 
