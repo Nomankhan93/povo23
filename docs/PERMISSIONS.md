@@ -1,13 +1,14 @@
-# Current permissions note — FieldLance 2.24.0
-## 2.24.0 Notifications & Communication Center
+# Current permissions note — FieldLance 2.25.0
+## 2.25.0 Earnings, Wallet & Withdrawal UX
 
-- Notification rows remain readable only by their `user_id`; authenticated users still cannot directly insert/update/delete another recipient's inbox records.
-- Preference rows are own-user readable and RPC-mutated. Preferences configure future external channels and optional broadcasts; transactional in-app workflow notices remain available.
-- FieldLance-wide broadcasts (`all_active`, Field Workers, Organization admins, FieldLance Staff) require active `admin`/`super_admin`.
-- Organization-member broadcasts require active NGO-admin authority for that Organization (or FieldLance admin).
-- Project-team broadcasts require existing project-management authority.
-- Broadcast recipient resolution runs server-side and is audited; the frontend cannot supply arbitrary user IDs.
-- Task assignment/escalation notifications reuse the existing Task Center authorization and never grant access to the linked source module.
+- 2.25.0 adds **no database authority** and no migration. Existing RLS/RPC/payment permissions remain authoritative.
+- Field Worker Earnings reads only the signed-in user's paid assignments and existing personal withdrawal summary/history RPCs.
+- A Field Worker may submit allowed claims/disputes and request a withdrawal through existing guarded RPCs, but cannot approve/pay their own payable units or settle their own withdrawal.
+- Organization payable management stays scoped to the active Organization and existing project/finance authority. Accepted contract snapshots remain immutable evidence for payable calculation.
+- FieldLance payout operations remain restricted to existing finance-management roles and guarded admin RPCs; the new queue metrics do not expose direct wallet secrets or grant settlement authority.
+- Transaction PIN hashing/lockout, wallet verification status, withdrawal activation holds, dual-control thresholds and provider reconciliation remain server-enforced.
+- Navigation labels (`Earnings`, `Field Worker payables`, `Payout operations`) are presentation aliases only; stored internal page keys remain unchanged.
+- No live JazzCash/Easypaisa, SMS, bank or IBAN authority is introduced.
 
 ## 2.22.0 FieldLance Staff Operations permissions
 

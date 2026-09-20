@@ -101,7 +101,7 @@ await ok('Staff public labels improve terminology without renaming stable intern
     ['Partner NGOs', 'Organizations'],
     ['Survey projects', 'Projects'],
     ['Workforce marketplace', 'Recruitment oversight'],
-    ['Withdrawal operations', 'Withdrawals'],
+    ['Withdrawal operations', 'Payout operations'],
     ['Activity', 'Audit trail'],
   ]) assert.match(navigation, new RegExp(`"?${pair[0]}"?: "${pair[1]}"`));
   assert.match(shell, /poem \? staffPageLabel\(name\)/);

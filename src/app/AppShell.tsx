@@ -43,6 +43,7 @@ import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace"
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFundingWorkspace").then(m=>({default:m.ProjectFundingWorkspace})));
+const EarningsWorkspace = lazy(()=>import("../features/payments/EarningsWorkspace").then(m=>({default:m.EarningsWorkspace})));
 const EWalletWithdrawalWorkspace = lazy(()=>import("../features/payments/EWalletWithdrawalWorkspace").then(m=>({default:m.EWalletWithdrawalWorkspace})));
 const MockEWalletSandbox = lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox})));
 const WithdrawalOperationsWorkspace = lazy(()=>import("../features/payments/WithdrawalOperationsWorkspace").then(m=>({default:m.WithdrawalOperationsWorkspace})));
@@ -954,8 +955,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Geography" && ngos && (
             <GeographyManager rows={geographies} refresh={load} />
           )}
-          {page === "Workforce payables" && !poem && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope==='personal'?null:scope}/></Suspense>}
-          {page === "E-Wallets & withdrawals" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading e-wallets and withdrawals…</p>}><EWalletWithdrawalWorkspace key={`wallet-${session.user.id}`}/></Suspense>}
+          {page === "Workforce payables" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading earnings…</p>}><EarningsWorkspace key={`earnings-${session.user.id}`} userId={session.user.id} onNavigate={change}/></Suspense>}
+          {page === "Workforce payables" && !poem && scope !== "personal" && !projectScope && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope}/></Suspense>}
+          {page === "E-Wallets & withdrawals" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading e-wallets and withdrawals…</p>}><EWalletWithdrawalWorkspace key={`wallet-${session.user.id}`} onNavigate={change}/></Suspense>}
           {page === "Withdrawal operations" && financeManage && validScope && <Suspense fallback={<p role="status">Loading withdrawal operations…</p>}><WithdrawalOperationsWorkspace/></Suspense>}
           {page === "E-Wallet sandbox" && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
           {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}

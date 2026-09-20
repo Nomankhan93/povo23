@@ -1,4 +1,22 @@
-# Current release checklist — FieldLance 2.24.0
+# Current release checklist — FieldLance 2.25.0
+
+## FieldLance 2.25.0 acceptance
+
+- [ ] Package and lockfile report `2.25.0`.
+- [ ] No migration is added; Local/Remote head remains `20261009000800_notifications_communication_center.sql`.
+- [ ] `npm run test:earnings-wallet` passes all 2.25.0 finance UX regressions.
+- [ ] Field Worker **Earnings** shows approved, available, pending-withdrawal and paid amounts from existing authoritative sources.
+- [ ] Earnings detail still uses the existing payable ledger; workers cannot approve/pay their own units.
+- [ ] Wallet & withdrawals keeps verified JazzCash/Easypaisa methods, PIN security, activation hold and withdrawal reservation rules.
+- [ ] Organization **Field Worker payables** continues to use existing work payable/RPC authorization and immutable contract snapshots.
+- [ ] FieldLance **Payout operations** shows requested/processing/failed/reconciliation attention without direct balance edits.
+- [ ] Manual/mock provider wording remains explicit; no live provider or IBAN behavior is implied.
+- [ ] Existing payment regression suite, 2.20–2.24 workspace regressions, preflight, local auth/storage and operations tests remain green.
+- [ ] Desktop/tablet/mobile finance journey, metrics, cards, filters and ledger have no horizontal overflow.
+
+## 2.25.0 Earnings, Wallet & Withdrawal UX
+
+This release unifies the finance presentation while preserving the existing payment source-of-truth architecture. It deliberately does not create a new wallet ledger, provider adapter or settlement balance.
 
 ## FieldLance 2.24.0 acceptance
 

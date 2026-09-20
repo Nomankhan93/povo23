@@ -23,6 +23,7 @@ const label=(provider:string)=>provider==='jazzcash'?'JazzCash':'Easypaisa';
 const money=(value:string|number)=>new Intl.NumberFormat('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value||0));
 const when=(value:string|null)=>value?new Date(value).toLocaleString():'';
 const today=()=>new Date().toISOString().slice(0,10);
+const humanStatus=(value:string)=>value.replaceAll('_',' ').replace(/\b\w/g,m=>m.toUpperCase());
 
 export function WithdrawalOperationsWorkspace(){
   const [queue,setQueue]=useState<Queue|null>(null),[reconciliation,setReconciliation]=useState<Reconciliation|null>(null);
@@ -47,8 +48,18 @@ export function WithdrawalOperationsWorkspace(){
   const recById=useMemo(()=>new Map((reconciliation?.rows||[]).map(row=>[row.withdrawal_id,row])),[reconciliation]);
   if(loading&&!queue)return <p role="status">Loading withdrawal operations…</p>;
   const policy=queue?.policy;
-  return <section className="ewallet-workspace">
-    <div className="panel-title"><div><span className="eyebrow">FieldLance FINANCE</span><h2>Withdrawal Operations</h2></div><Badge value="manual + mock"/></div>
+  const queueRows=queue?.rows||[];
+  const countBy=(value:Status)=>queueRows.filter(row=>row.status===value).length;
+  const amountBy=(values:Status[])=>money(queueRows.filter(row=>values.includes(row.status)).reduce((sum,row)=>sum+Number(row.amount||0),0));
+  const attentionCount=countBy('requested')+countBy('approved')+countBy('processing')+countBy('failed')+(reconciliation?.needs_review||0);
+  return <section className="ewallet-workspace finance-operations-workspace">
+    <header className="finance-hero"><div><span className="eyebrow">FIELDLANCE FINANCE</span><h2>Payout operations</h2><p>Review withdrawal requests, enforce payout controls, record provider settlement and reconcile every payout back to its reserved payable allocations.</p></div><div className="actions"><Badge value="manual + mock"/><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh queue</button></div></header>
+    <div className="finance-metric-grid">
+      <article className="finance-metric"><span>1</span><div><small>Requested</small><strong>{countBy('requested')}</strong><p>PKR {amountBy(['requested'])} awaiting review</p></div></article>
+      <article className="finance-metric"><span>2</span><div><small>Approved / processing</small><strong>{countBy('approved')+countBy('processing')}</strong><p>PKR {amountBy(['approved','processing'])} in payout flow</p></div></article>
+      <article className="finance-metric"><span>3</span><div><small>Failed</small><strong>{countBy('failed')}</strong><p>Released earnings need operator review</p></div></article>
+      <article className="finance-metric"><span>!</span><div><small>Finance attention</small><strong>{attentionCount}</strong><p>{reconciliation?.needs_review||0} reconciliation issue{reconciliation?.needs_review===1?'':'s'}</p></div></article>
+    </div>
     <div className="notice"><strong>Manual settlement:</strong> FieldLance can pay a verified JazzCash/Easypaisa wallet through the provider app/portal, then record the real external transaction reference here. The system posts the existing payable allocations and finance bridge automatically; balances are never edited manually.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
 
@@ -68,6 +79,7 @@ export function WithdrawalOperationsWorkspace(){
     </section>
 
     <section className="panel detail"><div className="panel-title"><div><span className="eyebrow">OPERATIONS QUEUE</span><h3>JazzCash & Easypaisa withdrawals</h3></div><div className="actions"><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh</button></div></div>
+      <div className="finance-filter-pills" aria-label="Withdrawal status quick filters">{['','requested','approved','processing','failed','succeeded'].map(value=><button type="button" key={value||'all'} className={status===value?'active':''} onClick={()=>setStatus(value)}>{value?humanStatus(value):'All'}<span>{value?queueRows.filter(row=>row.status===value).length:queue?.count||0}</span></button>)}</div>
       <div className="form-grid">
         <label className="field">Status<select value={status} onChange={e=>setStatus(e.target.value)}><option value="">All statuses</option>{['requested','approved','processing','succeeded','failed','reversed','cancelled'].map(v=><option key={v}>{v}</option>)}</select></label>
         <label className="field">Provider<select value={provider} onChange={e=>setProvider(e.target.value)}><option value="">All providers</option><option value="jazzcash">JazzCash</option><option value="easypaisa">Easypaisa</option></select></label>

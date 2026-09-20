@@ -88,7 +88,7 @@ await ok('Organization navigation is curated and public labels do not rename int
     ['Survey projects', 'Projects'],
     ['Project team', 'Team & access'],
     ['Workforce marketplace', 'Recruitment'],
-    ['Workforce payables', 'Payables'],
+    ['Workforce payables', 'Field Worker payables'],
     ['Project funding', 'Project finance'],
   ]) {
     assert.match(navigation, new RegExp(`"?${pair[0]}"?: "${pair[1]}"`));

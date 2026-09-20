@@ -1,26 +1,26 @@
-# Current release: FieldLance 2.24.0
+# Current release: FieldLance 2.25.0
 
-Notifications & Communication Center. See [release notes](docs/PHASE-2.24.0.md), [WSL upgrade](docs/UPGRADE-2.24.0.md) and [validation](docs/VALIDATION-2.24.0.md).
+Earnings, Wallet & Withdrawal UX. See [release notes](docs/PHASE-2.25.0.md), [WSL upgrade](docs/UPGRADE-2.25.0.md) and [validation](docs/VALIDATION-2.25.0.md).
 
-FieldLance 2.24.0 upgrades the recipient-only notification inbox into an actionable Communication Center with categories, priority, deep links, paging, archive/history, stored channel preferences, scoped broadcasts and task/SLA notifications. Existing workflow authorization remains authoritative.
+FieldLance 2.25.0 turns the existing payable/e-wallet core into a coherent finance journey for Field Workers, Organizations and FieldLance Finance without creating a second ledger or pretending that live JazzCash/Easypaisa APIs are connected.
 
-## 2.24.0 release rules
+## 2.25.0 release rules
 
-- **Forward migration:** `20261009000800_notifications_communication_center.sql`; do not edit earlier migrations.
-- Existing `notifications` rows remain recipient-only and are extended with category, priority, source/action metadata and archive state.
-- Adds `notification_preferences` for future email/push routing while in-app transactional notifications remain available.
-- Adds `notification_broadcasts` with audited FieldLance/Organization/Project-scoped recipient resolution.
-- Task assignments and escalation-level changes create actionable Task Center notifications without changing task/source workflow state.
-- Existing notification insert sites are decorated through a new insert trigger so old migrations/RPCs do not need cosmetic rewrites.
-- Email/push provider preferences are stored, but **no external email, push, SMS or WhatsApp provider is called in 2.24.0**.
-- Broadcast publishing is permission-checked server-side; Organization and Project broadcasts stay scoped to authorized members/team.
+- **No database migration.** Local and remote migration head remains `20261009000800_notifications_communication_center.sql`.
+- Field Worker **Earnings** summarizes approved, available, reserved-withdrawal and paid amounts from existing server-calculated sources.
+- Detailed work claims/disputes remain in the existing payable ledger; Field Workers still cannot approve/pay their own work.
+- **Wallet & withdrawals** continues to use verified JazzCash/Easypaisa wallet records, secure transaction PIN controls and reserved payable allocations.
+- Organization finance continues to approve eligible Field Worker payable units through the existing guarded payable RPCs.
+- FieldLance **Payout operations** continues to use existing guarded withdrawal/reconciliation RPCs; balances are never manually edited.
+- JazzCash/Easypaisa remain **manual/mock development modes** until official live-provider credentials and integration work are explicitly approved.
+- Existing finance journals, payable units, withdrawal allocations and reconciliation bridges remain authoritative.
 
 ## Current product boundaries
 
-- PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; dashboard/navigation state is never treated as permission.
+- PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; finance dashboards/navigation are presentation only.
 - Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
-- No dashboard counter table, duplicate project registry, second beneficiary registry, parallel payable ledger or editable finance balance source is added.
-- The next planned development phase is **2.25 Earnings, Wallet & Withdrawal UX** after 2.24 validation.
+- No second payable ledger, wallet balance table, editable balance source, bank/IBAN integration or fake provider API is added.
+- The next planned development phase is **2.26 Verified Work History, Reputation & Certificates** after 2.25 validation.
 
 ## Historical foundation notes
 

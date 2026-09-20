@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.24.0
+Release: 2.25.0
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -114,10 +114,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000800_notifications_communication_center.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 69
-TypeScript/TSX source files: 86
-Markdown docs: 192
-Inventory files (excluding local/build/temp/backup state): 434
+Test scripts (scripts/test-*.mjs): 70
+TypeScript/TSX source files: 88
+Markdown docs: 195
+Inventory files (excluding local/build/temp/backup state): 440
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -146,8 +146,8 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-2.20.0 completes the Field Worker daily workspace, 2.21.0 the Organization workspace, 2.22.0 the FieldLance Staff Operations Home, 2.23.0 the shared Tasks / SLA / Escalation Center, and 2.24.0 the Notifications & Communication Center.
-The next development phase is 2.25 Earnings, Wallet & Withdrawal UX. Reuse the frozen payment/payable core; do not invent live provider behavior without official credentials.
+2.20.0 completes the Field Worker daily workspace, 2.21.0 the Organization workspace, 2.22.0 the FieldLance Staff Operations Home, 2.23.0 the shared Tasks / SLA / Escalation Center, 2.24.0 the Notifications & Communication Center, and 2.25.0 the Earnings / Wallet / Withdrawal UX.
+The next development phase is 2.26 Verified Work History, Reputation & Certificates. Keep verified work history assignment-backed and do not introduce self-edited reputation evidence.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

@@ -247,7 +247,8 @@ try{
     const adminUi=readFileSync('src/features/payments/MockEWalletSandbox.tsx','utf8');
     const app=readFileSync('src/app/AppShell.tsx','utf8');
     const permissions=readFileSync('docs/PERMISSIONS.md','utf8');
-    assert.match(ui,/JazzCash & Easypaisa/i);
+    assert.match(ui,/JazzCash/i);
+    assert.match(ui,/Easypaisa/i);
     assert.match(ui,/manual \+ mock/i);
     assert.match(ui,/mock sandbox remains available for development testing/i);
     assert.match(ui,/Transaction PIN/i);

@@ -13,8 +13,9 @@ const types = read('src/lib/supabase/database.types.ts');
 let passed = 0;
 async function ok(name, fn) { await fn(); passed += 1; console.log(`PASS ${name}`); }
 
-await ok('2.24.0 Notifications & Communication regression contract is active', async () => {
-  assert.equal(pkg.version, '2.24.0');
+await ok('2.24.0 Notifications & Communication regression contract remains available', async () => {
+  const [major,minor,patch]=pkg.version.split('-')[0].split('.').map(Number);
+  assert.ok(major>2||(major===2&&minor>24)||(major===2&&minor===24&&patch>=0),`Expected FieldLance >= 2.24.0, received ${pkg.version}`);
   assert.equal(pkg.scripts['test:notification-center'], 'node scripts/test-notification-center2240.mjs');
   assert.match(pkg.scripts.test, /test:notification-center/);
 });

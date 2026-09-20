@@ -1,11 +1,13 @@
-# Current architecture note — FieldLance 2.24.0
-## 2.24.0 Notifications & Communication Center
+# Current architecture note — FieldLance 2.25.0
+## 2.25.0 Earnings, Wallet & Withdrawal UX
 
-FieldLance 2.24.0 keeps `notifications` as the authoritative per-recipient in-app record and extends it with category, priority, action/source metadata, broadcast linkage and archive state. `notification_preferences` stores future email/push/category routing choices; it does not suppress transactional in-app records. `notification_broadcasts` records audited scoped announcements.
+FieldLance 2.25.0 is a presentation/integration release over the frozen payment core. It adds a personal `EarningsWorkspace` that reads existing `my_withdrawal_summary`, personal paid `work_assignments` and withdrawal history, then embeds the existing payable ledger for claim/dispute detail. No new balance source or finance table is introduced.
 
-A `notification_default_metadata` insert trigger decorates existing notification producers, so historical workflow migrations do not need to be rewritten simply to add deep-link metadata. Task Center assignment/escalation changes create `task` notifications that link back to Task Center; they do not mutate the authoritative source workflow. Broadcast recipient sets are resolved server-side for FieldLance-wide roles, Organization members or Project team scopes.
+`EWalletWithdrawalWorkspace` remains the authoritative personal payout-method/PIN/withdrawal UI and continues to call the existing wallet/withdrawal RPCs. `WithdrawalOperationsWorkspace` remains the FieldLance Finance control surface and continues to use guarded admin queue/reconciliation and settlement RPCs. Organization users still use `PayablesWorkspace` for contract/payable approval and accounting events.
 
-External email/push/SMS/WhatsApp transport is intentionally absent in this phase. Preferences are provider-ready state only; provider delivery requires a later integration phase with official credentials and retry/reconciliation design.
+The lifecycle is intentionally separated: verified paid work → payable entitlement → approved/available balance → withdrawal reservation → provider settlement. A provider settlement is not inferred from a payable approval, and a withdrawal request cannot edit payable or finance balances directly.
+
+JazzCash/Easypaisa remain explicit manual/mock provider modes. Live provider transport, bank/IBAN payout and custodial balance architecture are outside 2.25.0.
 
 ## 2.22.0 FieldLance Staff Operations architecture
 

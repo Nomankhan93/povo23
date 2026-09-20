@@ -2,6 +2,7 @@ import {useCallback,useEffect,useMemo,useState,type FormEvent} from 'react';
 import {Badge} from '../../shared/ui/FormFields';
 import {EmptyState} from '../../components/ui/WorkflowOverview';
 import {rpc} from '../../lib/supabase/client';
+import {FinanceJourney} from './FinanceJourney';
 
 type Wallet={
   id:string;provider:'jazzcash'|'easypaisa';account_title:string;account_masked:string;
@@ -28,7 +29,7 @@ const providerLabel=(provider:string)=>provider==='jazzcash'?'JazzCash':'Easypai
 const money=(value:string|number)=>new Intl.NumberFormat('en-PK',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value||0));
 const when=(value:string|null)=>value?new Date(value).toLocaleString():'';
 
-export function EWalletWithdrawalWorkspace(){
+export function EWalletWithdrawalWorkspace({onNavigate}:{onNavigate?:(page:string)=>void}={}){
   const [wallets,setWallets]=useState<WalletList>({rows:[],count:0,max_wallets:2,providers:['jazzcash','easypaisa'],provider_mode:'mock',activation_hold_hours:24});
   const [summary,setSummary]=useState<Summary|null>(null);
   const [security,setSecurity]=useState<Security|null>(null);
@@ -98,13 +99,13 @@ export function EWalletWithdrawalWorkspace(){
   },[provider,canAddJazzCash,canAddEasypaisa]);
 
   if(loading&&!summary)return <p role="status">Loading e-wallets and withdrawal balance…</p>;
-  return <section className="ewallet-workspace">
-    <div className="panel-title"><div><span className="eyebrow">PAYOUT METHODS</span><h2>JazzCash & Easypaisa</h2></div><Badge value="manual + mock"/></div>
+  const journeyStage=Number(summary?.pending_withdrawals||0)>0?'withdrawal':Number(summary?.available||0)>0?'available':Number(summary?.approved||0)>0?'approved':Number(summary?.paid||0)>0?'settled':'earned';
+  return <section className="ewallet-workspace finance-wallet-workspace">
+    <header className="finance-hero"><div><span className="eyebrow">FIELD WORKER PAYOUTS</span><h2>Wallet & withdrawals</h2><p>Manage verified payout methods, transaction PIN security and withdrawals backed by approved FieldLance earnings.</p></div><div className="actions"><Badge value="manual + mock"/>{onNavigate&&<button className="secondary" onClick={()=>onNavigate('Workforce payables')}>Earnings</button>}<button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh balance</button></div></header>
+    <FinanceJourney stage={journeyStage}/>
     <div className="notice"><strong>Current provider mode:</strong> wallet ownership verification is still simulated until live provider APIs are connected. FieldLance Finance can process approved withdrawals manually through JazzCash/Easypaisa and record the external transaction reference, while the mock sandbox remains available for development testing.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
-    <div className="actions"><button className="secondary" disabled={busy||loading} onClick={refresh}>Refresh balance</button></div>
-
-    {summary&&<section className="panel detail"><h3>Withdrawal balance</h3><div className="stats ewallet-stats">
+    {summary&&<section className="panel detail finance-balance-panel"><div className="finance-card-heading"><div><span className="eyebrow">BALANCE</span><h3>Withdrawal balance</h3></div><Badge value={`${summary.verified_wallets} verified wallet${summary.verified_wallets===1?'':'s'}`}/></div><div className="stats ewallet-stats">
       <article className="stat"><div>Approved earnings</div><b>PKR {money(summary.approved)}</b></article>
       <article className="stat"><div>Already paid</div><b>PKR {money(summary.paid)}</b></article>
       <article className="stat"><div>Pending withdrawals</div><b>PKR {money(summary.pending_withdrawals)}</b></article>

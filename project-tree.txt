@@ -54,6 +54,7 @@
 ./docs/PHASE-2.22.0.md
 ./docs/PHASE-2.23.0.md
 ./docs/PHASE-2.24.0.md
+./docs/PHASE-2.25.0.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
@@ -122,6 +123,7 @@
 ./docs/UPGRADE-2.22.0.md
 ./docs/UPGRADE-2.23.0.md
 ./docs/UPGRADE-2.24.0.md
+./docs/UPGRADE-2.25.0.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
 ./docs/UPGRADE-2.4.1.md
@@ -180,6 +182,7 @@
 ./docs/VALIDATION-2.22.0.md
 ./docs/VALIDATION-2.23.0.md
 ./docs/VALIDATION-2.24.0.md
+./docs/VALIDATION-2.25.0.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -223,6 +226,7 @@
 ./scripts/test-correctness276.mjs
 ./scripts/test-current-state-stabilization.mjs
 ./scripts/test-database.mjs
+./scripts/test-earnings-wallet2250.mjs
 ./scripts/test-field-storage211.mjs
 ./scripts/test-field-worker-workspace2200.mjs
 ./scripts/test-field-worker211.mjs
@@ -344,7 +348,9 @@
 ./src/features/payables
 ./src/features/payables/PayablesWorkspace.tsx
 ./src/features/payments
+./src/features/payments/EarningsWorkspace.tsx
 ./src/features/payments/EWalletWithdrawalWorkspace.tsx
+./src/features/payments/FinanceJourney.tsx
 ./src/features/payments/MockEWalletSandbox.tsx
 ./src/features/payments/WithdrawalOperationsWorkspace.tsx
 ./src/features/projects

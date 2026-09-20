@@ -77,7 +77,7 @@ await ok('existing backend activation rule remains explicit in Field Worker UX',
 await ok('personal navigation receives FieldLance labels without renaming internal page identifiers', async () => {
   assert.match(navigation, /Overview: "Home"/);
   assert.match(navigation, /"Work experience": "Verified work history"/);
-  assert.match(navigation, /"Workforce payables": "Earnings & payables"/);
+  assert.match(navigation, /"Workforce payables": "Earnings"/);
   assert.match(navigation, /"E-Wallets & withdrawals": "Wallet & withdrawals"/);
   assert.match(navigation, /workspacePageLabel/);
   assert.match(shell, /workspacePageLabel\(name, personalWorkspace\)/);
