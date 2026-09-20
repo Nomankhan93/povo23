@@ -116,12 +116,12 @@ try {
     assert.equal((await rows('select user_id from public.volunteer_profiles where user_id=$1', [ids.volunteer])).length, 0);
   });
 
-  await ok('auth explicitly offers Field Worker Organization and FieldLance Staff destinations', async () => {
+  await ok('signup offers worker and organization while staff access is resolved after login', async () => {
     const auth = readFileSync('src/features/auth/Auth.tsx', 'utf8');
     const intent = readFileSync('src/features/auth/entryIntent.ts', 'utf8');
-    assert.match(auth, /Continue to your organization workspace or Partner NGO application/i);
+    assert.match(auth, /Continue to your organization workspace or organization application/i);
     assert.match(auth, /Continue to your Field Worker workspace/i);
-    assert.match(auth, /FieldLance Staff/);
+    assert.doesNotMatch(auth, /label: "FieldLance Staff"/);
     assert.match(auth, /Choose FieldLance workspace/i);
     assert.match(auth, /Create your FieldLance account/i);
     assert.match(intent, /poem-workspace-entry-intent/);
@@ -136,7 +136,7 @@ try {
     assert.doesNotMatch(shell, /from\("profile_shares"\)/);
     assert.match(shell, /workspaceLabels\.personal/);
     assert.match(shell, /workspaceLabels\.organization/);
-    assert.match(shell, /consumeWorkspaceEntryIntent/);
+    assert.match(shell, /my_workspace_access/);
   });
 
   await ok('approved application provides a direct Open NGO workspace handoff', async () => {

@@ -1,4 +1,10 @@
-# Current architecture note — FieldLance 2.25.0
+# Current architecture note — FieldLance 2.25.1
+
+## 2.25.1 Identity and workspace stabilization
+
+The signup trigger persists onboarding choice but never accepts a privileged role from metadata. Organization-only accounts may have no worker profile. my_workspace_access derives eligible worker, organization-admin, dated project-staff, and platform-staff scopes. AppShell resolves only returned scopes, uses per-account preferences, permits missing worker profiles, and remounts content on scope changes. Existing business RPCs remain authoritative.
+
+## Previous release behavior retained
 ## 2.25.0 Earnings, Wallet & Withdrawal UX
 
 FieldLance 2.25.0 is a presentation/integration release over the frozen payment core. It adds a personal `EarningsWorkspace` that reads existing `my_withdrawal_summary`, personal paid `work_assignments` and withdrawal history, then embeds the existing payable ledger for claim/dispute detail. No new balance source or finance table is introduced.

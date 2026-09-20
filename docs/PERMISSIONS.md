@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.25.0
+# Current permissions note — FieldLance 2.25.1
+
+## 2.25.1 Identity and workspace stabilization
+
+The migration adds guarded begin_workspace_onboarding(text) and my_workspace_access() RPCs. Authenticated clients cannot directly edit enrollment or intent columns. Organization onboarding grants no organization administration; staff access requires an authorized platform role. Worker enrollment does not reactivate suspended profiles. Legacy worker access is preserved and labelled, while new organization signups do not enroll as workers.
+
+## Previous release behavior retained
 ## 2.25.0 Earnings, Wallet & Withdrawal UX
 
 - 2.25.0 adds **no database authority** and no migration. Existing RLS/RPC/payment permissions remain authoritative.

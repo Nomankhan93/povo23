@@ -41,10 +41,10 @@ await ok('focal review UI is separated from assignment-management controls',asyn
  assert.match(detail,/\{manageAssignments && \(/);
  assert.doesNotMatch(detail,/\{review && \(\s*<details className="survey-question">/);
 });
-await ok('revoked project workspace falls back to personal context instead of leaving a dead screen',async()=>{
- assert.match(app,/Your project workspace access is no longer active/);
- assert.match(app,/setScope\("personal"\)/);
- assert.match(app,/setPageState\("Overview"\)/);
+await ok('revoked workspace resolves an eligible scope instead of granting personal access',async()=>{
+ assert.match(app,/resolveWorkspace/);
+ assert.match(app,/setScope\(resolved\)/);
+ assert.match(app,/setPageState\(workspaceHome\(resolved\)\)/);
 });
 await ok('mobile browser stabilization covers project cards filters and roster tables',async()=>{
  for(const token of ['project-operations-grid','response-toolbar','project-team-table td::before','project-quick-actions']) assert.match(css,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));

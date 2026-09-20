@@ -10,9 +10,9 @@ const migration=readFileSync('supabase/migrations/20261007000300_project_team_wo
 const revocation=readFileSync('supabase/migrations/20261007000200_project_access_revocation_fix.sql','utf8');
 
 await ok('workspace selector exposes project-scoped contexts without promoting NGO Admin access',async()=>{
- assert.match(app,/project:\$\{activeStaffAssignments\[0\]\.project_id\}/);
+ assert.match(app,/my_workspace_access/);
  assert.match(app,/Project workspace/);
- assert.match(app,/human\(assignment\?\.role/);
+ assert.match(app,/access.workspaces.map/);
  assert.match(app,/scope\.startsWith\("project:"\)/);
 });
 await ok('NGO workspace exposes project-team management while project workspace stays scoped',async()=>{

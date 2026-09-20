@@ -30,12 +30,13 @@ ok('approved wordmark is used for full brand surfaces while the supplied FL icon
   assert.match(auth,/<FieldLanceBrand variant="compact" \/>/);
 });
 
-ok('public workspace labels are Field Worker Organization and FieldLance Staff while internal keys stay compatible',()=>{
+ok('public signup offers Worker and Organization; login uses server-authorized workspaces',()=>{
   assert.match(auth,/label: "Field Worker"/);
   assert.match(auth,/label: "Organization"/);
-  assert.match(auth,/label: "FieldLance Staff"/);
+  assert.doesNotMatch(auth,/label: "FieldLance Staff"/);
   assert.match(intent,/"volunteer" \| "ngo" \| "poem"/);
-  assert.match(auth,/entry === "poem"/);
+  assert.match(auth,/mode === "signup"/);
+  assert.doesNotMatch(auth,/rememberWorkspaceEntryIntent/);
   assert.match(intent,/poem-workspace-entry-intent/);
 });
 

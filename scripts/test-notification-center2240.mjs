@@ -90,7 +90,7 @@ await ok('Communication Center uses dedicated responsive FieldLance styling', as
 });
 
 await ok('2.24.0 adds exactly one forward migration after Task Center', async () => {
-  const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
+  const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql') && name <= '20261009000800_notifications_communication_center.sql').sort();
   assert.equal(migrations.at(-1), '20261009000800_notifications_communication_center.sql');
   assert.equal(migrations.length, 57);
 });

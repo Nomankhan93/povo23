@@ -1,4 +1,15 @@
-# Current release: FieldLance 2.25.0
+# Current release: FieldLance 2.25.1
+
+Identity, Onboarding & Workspace Routing Stabilization. See [release notes](docs/PHASE-2.25.1.md), [upgrade](docs/UPGRADE-2.25.1.md), and [validation](docs/VALIDATION-2.25.1.md).
+
+- One universal login; Worker / Organization choices at signup only.
+- Persistent account onboarding intent, optional worker profile, server-derived workspace eligibility.
+- Dedicated organization onboarding and preserved project-scoped staff access.
+- Existing worker profiles retain explicitly labelled legacy compatibility access; no records are deleted.
+- **One additive database migration:** `20261009000900_identity_workspace_stabilization.sql`. Apply it before the new frontend.
+- Next: 2.25.2 navigation stabilization, then 2.26 funding assurance and project finance closure.
+
+## Previous 2.25.0 release (historical)
 
 Earnings, Wallet & Withdrawal UX. See [release notes](docs/PHASE-2.25.0.md), [WSL upgrade](docs/UPGRADE-2.25.0.md) and [validation](docs/VALIDATION-2.25.0.md).
 
@@ -20,7 +31,6 @@ FieldLance 2.25.0 turns the existing payable/e-wallet core into a coherent finan
 - PostgreSQL RLS, guarded RPCs and Storage policies remain the authorization boundary; finance dashboards/navigation are presentation only.
 - Historical internal `volunteer`, `ngo` and `poem_*` identifiers remain compatible while public UX uses Field Worker / Organization / FieldLance Staff.
 - No second payable ledger, wallet balance table, editable balance source, bank/IBAN integration or fake provider API is added.
-- The next planned development phase is **2.26 Verified Work History, Reputation & Certificates** after 2.25 validation.
 
 ## Historical foundation notes
 

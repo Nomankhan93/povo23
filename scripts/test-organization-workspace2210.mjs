@@ -98,7 +98,7 @@ await ok('Organization navigation is curated and public labels do not rename int
 
 await ok('Organization navigation keeps personal-only pages out of the curated organization list', async () => {
   const start = shell.indexOf('const organizationNav = ([');
-  const end = shell.indexOf('const nav = projectScope', start);
+  const end = shell.indexOf('const onboardingWorkspace', start);
   const organizationBlock = shell.slice(start, end);
   for (const personalPage of ['My profile', 'Work experience', 'Private documents', 'E-Wallets & withdrawals', 'Available Opportunities', 'My Applications', 'My Assigned Surveys']) {
     assert.doesNotMatch(organizationBlock, new RegExp(personalPage));

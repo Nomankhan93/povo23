@@ -11,10 +11,10 @@ async function ok(name, fn) {
 const auth = readFileSync('src/features/auth/Auth.tsx', 'utf8');
 const css = readFileSync('src/styles/design-system.css', 'utf8');
 
-await ok('auth keeps one account while presenting three workspace destinations', async () => {
+await ok('auth keeps one login and two public signup choices', async () => {
   assert.match(auth, /Field Worker/);
   assert.match(auth, /Organization/);
-  assert.match(auth, /FieldLance Staff/);
+  assert.doesNotMatch(auth, /label: "FieldLance Staff"/);
   assert.match(auth, /Choose FieldLance workspace/i);
   assert.match(auth, /Sign in to FieldLance/i);
 });
@@ -22,7 +22,7 @@ await ok('auth keeps one account while presenting three workspace destinations',
 await ok('auth uses role-specific operational storytelling without changing account semantics', async () => {
   assert.match(auth, /Find field work\. Build experience\. Earn\./i);
   assert.match(auth, /Build reliable field teams\./i);
-  assert.match(auth, /Operate the field-work network with clarity\./i);
+  assert.match(auth, /Sign in to access your authorized workspaces/);
   assert.match(auth, /Create your FieldLance account/i);
 });
 

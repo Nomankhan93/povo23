@@ -1,4 +1,18 @@
-# Current release checklist — FieldLance 2.25.0
+# Current release checklist — FieldLance 2.25.1
+
+## 2.25.1 acceptance
+
+- [ ] Apply migration 20261009000900_identity_workspace_stabilization.sql before the frontend.
+- [ ] Run preflight and identity-workspace tests.
+- [ ] New Organization account opens onboarding without a worker profile; test refresh and email confirmation on another browser.
+- [ ] New Worker account opens personal onboarding; Organization registration is a secondary action.
+- [ ] Application review and approval retain the existing guarded transaction.
+- [ ] Dual role, multiple organizations and project-only staff retain only authorized scopes.
+- [ ] Suspended/revoked access is denied by backend and removed on access refresh.
+- [ ] Password recovery and offline draft ownership remain functional.
+- [ ] Explain legacy compatibility enrollment to existing users; no existing data is removed.
+
+## Historical acceptance checks retained
 
 ## FieldLance 2.25.0 acceptance
 

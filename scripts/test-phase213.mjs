@@ -198,7 +198,7 @@ try {
     assert.match(shell, /NGO applications/);
     assert.match(auth, /Choose FieldLance workspace/i);
     assert.match(auth, /Create your FieldLance account/i);
-    assert.match(auth, /FieldLance Staff/i);
+    assert.doesNotMatch(auth, /label: "FieldLance Staff"/);
     assert.match(apply, /first Partner NGO Admin/i);
     assert.match(review, /Approve Partner NGO/);
   });

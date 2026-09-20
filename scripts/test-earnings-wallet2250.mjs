@@ -15,7 +15,8 @@ const styles=read('src/styles/design-system.css');
 const migrations=readdirSync('supabase/migrations').filter(name=>name.endsWith('.sql')).sort();
 
 await ok('2.25.0 earnings and payout UX regression contract is active',async()=>{
-  assert.equal(pkg.version,'2.25.0');
+  const [major, minor] = pkg.version.split('.').map(Number);
+  assert(major > 2 || (major === 2 && minor >= 25));
   assert.equal(pkg.scripts['test:earnings-wallet'],'node scripts/test-earnings-wallet2250.mjs');
 });
 
@@ -75,8 +76,8 @@ await ok('2.25.0 finance UX is responsive and uses dedicated FieldLance styling'
 });
 
 await ok('2.25.0 adds no Supabase migration and preserves Notifications head',async()=>{
-  assert.equal(migrations.length,57);
-  assert.equal(migrations.at(-1),'20261009000800_notifications_communication_center.sql');
+  assert.equal(migrations.filter(name => name <= '20261009000800_notifications_communication_center.sql').length,57);
+  assert.equal(migrations.filter(name => name <= '20261009000800_notifications_communication_center.sql').at(-1),'20261009000800_notifications_communication_center.sql');
 });
 
 console.log(`\n${passed} FieldLance Earnings, Wallet & Withdrawal UX scenarios passed for FieldLance ${pkg.version}.`);

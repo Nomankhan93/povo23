@@ -3,7 +3,6 @@ import {rememberFieldOwner} from '../surveys/offlineSurveyStore';
 import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
-  BriefcaseBusiness,
   Building2,
   CheckCircle,
   Eye,
@@ -15,11 +14,7 @@ import {
 import { useEffect, useState, type FormEvent } from "react";
 import { db } from "../../lib/supabase/client";
 import { Field } from "../../shared/ui/FormFields";
-import {
-  readWorkspaceEntryIntent,
-  rememberWorkspaceEntryIntent,
-  type WorkspaceEntryIntent,
-} from "./entryIntent";
+type WorkspaceEntryIntent = "volunteer" | "ngo";
 
 type EntryCopy = {
   label: string;
@@ -37,16 +32,11 @@ const entryCopy: Record<WorkspaceEntryIntent, EntryCopy> = {
   },
   ngo: {
     label: "Organization",
-    destination: "Continue to your organization workspace or Partner NGO application.",
+    destination: "Continue to your organization workspace or organization application.",
     storyHeading: "Build reliable field teams.",
     storyBody: "Connect with verified workers and volunteers for surveys, outreach, assessments, monitoring, data collection and other field assignments — all in one accountable workspace.",
   },
-  poem: {
-    label: "FieldLance Staff",
-    destination: "Continue to FieldLance Administration.",
-    storyHeading: "Operate the field-work network with clarity.",
-    storyBody: "Review partners, govern access, monitor delivery and coordinate trusted field operations across the FieldLance network.",
-  },
+
 };
 
 function PasswordInput({
@@ -107,7 +97,7 @@ export function Auth({
   done: () => void;
 }) {
   const [mode, setMode] = useState(recovery ? "reset" : "login"),
-    [entry, setEntry] = useState<WorkspaceEntryIntent>(() => readWorkspaceEntryIntent() || "volunteer"),
+    [entry, setEntry] = useState<WorkspaceEntryIntent>("volunteer"),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState(initialError),
@@ -128,7 +118,6 @@ export function Auth({
   function chooseEntry(next: WorkspaceEntryIntent) {
     setEntry(next);
     clearFeedback();
-    if (mode === "signup" && next === "poem") setMode("login");
   }
 
   function switchMode(next: "login" | "signup" | "forgot") {
@@ -146,29 +135,25 @@ export function Auth({
       password = String(f.get("password") || "");
     try {
       if (mode === "login") {
-        // Store the intended destination before Supabase emits SIGNED_IN; the app may
-        // switch from Auth to Workspace as soon as that event fires.
-        rememberWorkspaceEntryIntent(entry);
         const r = await db!.auth.signInWithPassword({ email, password });
         if (r.error) throw r.error;
         rememberFieldOwner(r.data.user.id);
         window.dispatchEvent(new Event("poem:field-unlocked"));
       }
       if (mode === "signup") {
-        const signupEntry = entry === "poem" ? "volunteer" : entry;
-        rememberWorkspaceEntryIntent(signupEntry);
+        const signupEntry = entry;
         const r = await db!.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: String(f.get("full_name")) },
+            data: { full_name: String(f.get("full_name")), onboarding_intent: signupEntry === "ngo" ? "organization" : "worker" },
             emailRedirectTo: location.origin + "/auth/callback",
           },
         });
         if (r.error) throw r.error;
         setMessage(
           signupEntry === "ngo"
-            ? "Account created. Confirm your email, then sign in as Organization to continue your Partner NGO application."
+            ? "Account created. Confirm your email, then sign in to continue your organization application."
             : "Account created. Check your email to confirm your address, then sign in.",
         );
       }
@@ -193,7 +178,7 @@ export function Auth({
     }
   }
 
-  const signupEntry = entry === "poem" ? "volunteer" : entry;
+  const signupEntry = entry;
   const heading = mode === "signup"
     ? "Create your FieldLance account"
     : mode === "forgot"
@@ -204,13 +189,13 @@ export function Auth({
 
   const description = mode === "signup"
     ? signupEntry === "ngo"
-      ? "Create your FieldLance account, then continue the Partner NGO organization application after sign-in."
+      ? "Create your FieldLance account, then continue the organization application after sign-in."
       : "Build your field worker profile and start accessing available opportunities."
     : mode === "forgot"
       ? "Enter your account email and we will send a secure reset link if it is registered."
       : mode === "reset"
         ? "Use at least 12 characters for your new password."
-        : entryCopy[entry].destination;
+        : "Sign in to access your authorized workspaces.";
 
   const storyPoints = entry === "ngo"
     ? [
@@ -218,13 +203,7 @@ export function Auth({
         [CheckCircle, "Run approved projects and opportunities"],
         [ShieldCheck, "FieldLance-governed organization access"],
       ] as const
-    : entry === "poem"
-      ? [
-          [BriefcaseBusiness, "Operate partner and programme workflows"],
-          [CheckCircle, "Review verification and governance queues"],
-          [ShieldCheck, "Protect accountable access across the network"],
-        ] as const
-      : [
+    : [
           [UserRound, "Build your professional field worker profile"],
           [CheckCircle, "Keep FieldLance-verified work history"],
           [ShieldCheck, "Apply through scoped organization recruitment"],
@@ -252,7 +231,7 @@ export function Auth({
           <div className="mobile-auth-brand"><FieldLanceBrand variant="compact" /></div>
           <span className="eyebrow">WELCOME TO FieldLance</span>
 
-          {!recovery && mode !== "forgot" && (
+          {!recovery && mode === "signup" && (
             <div className="auth-entry-tabs" role="tablist" aria-label="Choose FieldLance workspace">
               {(Object.keys(entryCopy) as WorkspaceEntryIntent[]).map((value) => (
                 <button
@@ -336,7 +315,7 @@ export function Auth({
           </form>
 
           {mode === "login" ? (
-            entry !== "poem" && (
+            (
               <div className="auth-bottom">
                 <span>{entry === "ngo" ? "Representing an organization?" : "New to FieldLance?"}</span>{" "}
                 <button type="button" onClick={() => switchMode("signup")}>

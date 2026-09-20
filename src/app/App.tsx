@@ -73,7 +73,7 @@ export function App() {
       </div>
     );
   return session && !recovery && localStorage.getItem("poem-field-locked")!=="yes" ? (
-    <Workspace session={session} openField={()=>{void flushActiveDraft().then(()=>setField(true)).catch(e=>window.alert("Could not protect device draft: "+e.message))}} />
+    <Workspace key={session.user.id} session={session} openField={()=>{void flushActiveDraft().then(()=>setField(true)).catch(e=>window.alert("Could not protect device draft: "+e.message))}} />
   ) : (
     <Auth
       session={session}

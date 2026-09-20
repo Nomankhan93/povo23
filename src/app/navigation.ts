@@ -3,7 +3,7 @@ export type NavigationGroup = { label: string; pages: readonly string[] };
 export const navigationGroups: readonly NavigationGroup[] = [
   {
     label: "Overview",
-    pages: ["Overview", "Task Center", "My profile", "Work experience", "Private documents"],
+    pages: ["Overview", "Access status", "Task Center", "My profile", "Work experience", "Private documents"],
   },
   {
     label: "Work & earnings",
@@ -75,6 +75,7 @@ export const personalNavigationLabels: Readonly<Record<string, string>> = {
 };
 
 export function workspacePageLabel(page: string, personal: boolean) {
+  if (page === "Partner NGO application") return "Organization application";
   return personal ? personalNavigationLabels[page] || page : page;
 }
 

@@ -110,7 +110,7 @@ await ok('Staff public labels improve terminology without renaming stable intern
 
 await ok('Staff sidebar does not mix personal-only Field Worker pages into the Staff workspace', async () => {
   const start = shell.indexOf('const staffNav = ([');
-  const end = shell.indexOf('const nav = projectScope', start);
+  const end = shell.indexOf('const onboardingWorkspace', start);
   const staffBlock = shell.slice(start, end);
   for (const personalPage of ['My profile','Work experience','Private documents','Available Opportunities','My Applications','My Assigned Surveys','E-Wallets & withdrawals']) {
     assert.doesNotMatch(staffBlock, new RegExp(personalPage));

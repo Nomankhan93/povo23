@@ -24,7 +24,7 @@ import {
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { EventList } from "../features/audit/EventList";
 import { AccountAccess } from "../features/auth/AccountAccess";
-import { consumeWorkspaceEntryIntent } from "../features/auth/entryIntent";
+import {resolveWorkspace, workspaceHome, readPreferredWorkspace, rememberPreferredWorkspace, type WorkspaceAccess} from "../features/workspaces/access";
 import { GeographyManager } from "../features/geography/GeographyManager";
 import { type Geo } from "../features/geography/model";
 import { Notifications } from "../features/notifications/Notifications";
@@ -148,8 +148,49 @@ export function Workspace({ session, openField }: { session: Session; openField:
   );
   const financeManage = Boolean(poem && ["admin", "super_admin"].includes(account?.platform_role));
   const [revision, setRevision] = useState(0);
-  const entryHandled = useRef(false);
+  const [access, setAccess] = useState<WorkspaceAccess | null>(null);
+  const scopeRef = useRef(scope);
+  scopeRef.current = scope;
+  const requestId = useRef(0);
+  function applyAccess(next: WorkspaceAccess, preferred = scopeRef.current || readPreferredWorkspace(session.user.id), followApproval = false) {
+    setAccess(next);
+    const approvalCompleted = followApproval && preferred === 'onboarding' && next.applications?.some(a => a.status === 'approved') && !next.applications?.some(a => !['approved','withdrawn','rejected'].includes(a.status));
+    const resolved = resolveWorkspace(next, approvalCompleted ? next.defaultScope : preferred);
+    if (resolved !== scopeRef.current) {
+      setScope(resolved);
+      scopeRef.current = resolved;
+      setPageState(workspaceHome(resolved));
+      setSelected(null);
+      setOrgEdit(null);
+      setQuery("");
+      setFilter("all");
+    }
+  }
+  async function switchWorkspace(next: string) {
+    const request = ++requestId.current;
+    try {
+      await flushActiveDraft();
+      const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
+      if (request !== requestId.current) return;
+      applyAccess(fresh, next);
+      const resolved = resolveWorkspace(fresh, next);
+      rememberPreferredWorkspace(session.user.id, resolved);
+      setPageState(workspaceHome(resolved));
+      setMenu(false);
+    } catch (e) { setAccess(null); setError((e as Error).message); }
+  }
+  async function beginOnboarding(kind: 'worker' | 'organization') {
+    setBusy(true);
+    try {
+      await flushActiveDraft();
+      await rpc('begin_workspace_onboarding', {p_kind:kind});
+      await load();
+      await switchWorkspace(kind === 'worker' ? 'personal' : 'onboarding');
+    } catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  }
   async function load() {
+    const request = ++requestId.current;
     setError("");
     try {
       const a = await db!
@@ -158,8 +199,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
         .eq("id", session.user.id)
         .single();
       if (a.error) throw a.error;
+      if (request !== requestId.current) return;
       setAccount(a.data);
       if (a.data.status === "suspended") {
+        setAccess(null);
         setProfiles([]);
         setOrgs([]);
         setLoading(false);
@@ -187,11 +230,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
           .from("volunteer_profiles")
           .select("*")
           .eq("user_id", session.user.id)
-          .single(),
+          .maybeSingle(),
       ]);
+      if (request !== requestId.current) return;
       for (const r of res) if (r.error) throw r.error;
       setProfiles([
-        res[6].data!,
+        ...(res[6].data ? [res[6].data] : []),
         ...(res[0].data || []).filter(
           (p: Row) => p.user_id !== session.user.id,
         ),
@@ -234,66 +278,34 @@ export function Workspace({ session, openField }: { session: Session; openField:
       } else {
         setStaffProjects([]);
       }
-      const platformRole = a.data.platform_role;
-      const staffRole = [
-        "admin",
-        "super_admin",
-        "volunteer_manager",
-        "ngo_manager",
-        "auditor",
-        "survey_manager",
-      ].includes(platformRole);
-      const activeNgoMembership = (res[2].data || []).find(
-        (m) =>
-          m.user_id === session.user.id &&
-          m.role === "ngo_admin" &&
-          m.status === "active" &&
-          (res[1].data || []).some(
-            (o) => o.id === m.organization_id && o.status === "active",
-          ),
-      );
-      const defaultScope = staffRole
-        ? "poem"
-        : activeNgoMembership?.organization_id
-          || (activeStaffAssignments[0]?.project_id ? `project:${activeStaffAssignments[0].project_id}` : "personal");
-      if (!entryHandled.current) {
-        const intent = consumeWorkspaceEntryIntent();
-        entryHandled.current = true;
-        if (intent === "ngo") {
-          if (activeNgoMembership) {
-            setScope(activeNgoMembership.organization_id);
-            setPageState("Overview");
-          } else if (activeStaffAssignments[0]?.project_id) {
-            setScope(`project:${activeStaffAssignments[0].project_id}`);
-            setPageState("Project workspace");
-            setNotice("Your account has project-scoped NGO access. Organization-wide NGO administration is not enabled.");
-          } else {
-            setScope("personal");
-            setPageState("Partner NGO application");
-            setNotice("No active Partner NGO workspace is linked to this account yet. Continue or review your Partner NGO application below.");
-          }
-        } else if (intent === "volunteer") {
-          setScope("personal");
-          setPageState("Overview");
-        } else if (intent === "poem") {
-          setScope(staffRole ? "poem" : "personal");
-          setPageState("Overview");
-          if (!staffRole)
-            setNotice("This account does not have FieldLance Staff access. Your personal workspace is open instead.");
-        } else {
-          setScope((old) => old || defaultScope);
-        }
-      } else {
-        setScope((old) => old || defaultScope);
+      const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
+      if (request !== requestId.current) return;
+      const ownOrgIds = fresh.workspaces.map(w => w.id).filter(id => /^[0-9a-f-]{36}$/i.test(id));
+      if (ownOrgIds.length) {
+        const ownOrgs = await db!.from('organizations').select('*').in('id', ownOrgIds);
+        const ownMembers = await db!.from('organization_memberships').select('*').eq('user_id', session.user.id);
+        if (ownOrgs.error) throw ownOrgs.error;
+        if (ownMembers.error) throw ownMembers.error;
+        if (request !== requestId.current) return;
+        setOrgs([...new Map([...(res[1].data || []), ...(ownOrgs.data || [])].map(o => [o.id,o])).values()]);
+        setMembers([...new Map([...(res[2].data || []), ...(ownMembers.data || [])].map(m => [`${m.organization_id}:${m.user_id}`,m])).values()]);
       }
+      applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
+
     } catch (e) {
+      if (request !== requestId.current) return;
+      setAccess(null);
       setError((e as Error).message);
     } finally {
-      setLoading(false);
+      if (request === requestId.current) setLoading(false);
     }
   }
   useEffect(() => {
-    load();
+    void load();
+    const refresh = () => { if (document.visibilityState === 'visible') void load(); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { requestId.current++; window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [session.user.id]);
   async function act(fn: () => Promise<unknown>, message: string) {
     setBusy(true);
@@ -335,18 +347,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const projectScopeAssignment = projectScopeId ? projectStaff.find((item) => item.project_id === projectScopeId) : null;
   const projectScopeProject = projectScopeId ? staffProjects.find((item) => item.id === projectScopeId) : null;
   const validScope =
-    poem || scope === "personal" || myOrgs.some((o) => o.id === scope) || Boolean(projectScopeId && projectScopeProject);
+    Boolean(access && (scope === "access" || access.workspaces.some(w => w.id === scope)));
   const canManageProjectAssignments = Boolean(
     surveyManage ||
     (!poem && scope !== "personal" && !projectScope) ||
     (projectScope && projectScopeAssignment?.role === "project_manager"),
   );
-  useEffect(() => {
-    if (loading || !projectScope || validScope) return;
-    setScope("personal");
-    setPageState("Overview");
-    setNotice("Your project workspace access is no longer active. Your personal workspace is open instead.");
-  }, [loading, projectScope, validScope]);
   const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
   const standardNav = [
     ["Overview", LayoutDashboard],
@@ -361,7 +367,6 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(volunteers || (!poem && scope !== "personal")
       ? [["Volunteers", Users]]
       : []),
-    ...(!poem && scope === "personal" ? [["Partner NGO application", Building2]] : []),
     ...(ngos ? [["NGO applications", Building2]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
@@ -420,7 +425,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Notifications", Bell],
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
-  const nav = projectScope
+  const onboardingWorkspace = scope === 'onboarding';
+  const accessWorkspace = scope === 'access';
+  const nav = onboardingWorkspace || accessWorkspace
+    ? ([[onboardingWorkspace ? "Partner NGO application" : "Access status", Building2], ["Notifications", Bell]] as const)
+    : projectScope
     ? ([
         ["Project workspace", LayoutDashboard],
         ["Task Center", ClipboardList],
@@ -435,6 +444,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ? staffNav
         : standardNav;
   const change = (p: string) => {
+    if (!nav.some(([name]) => name === p)) return;
     setPage(p);
     setQuery("");
     setFilter("all");
@@ -442,7 +452,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setSelected(null);
     setOrgEdit(null);
   };
-  const currentWorkspaceLabel = poem
+  const currentWorkspaceLabel = onboardingWorkspace ? 'Organization onboarding' : accessWorkspace ? 'Account access' : poem
     ? workspaceLabels.staff
     : scope === "personal"
       ? workspaceLabels.personal
@@ -461,7 +471,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         : poem
           ? page === "Overview" ? "FIELDLANCE STAFF OPERATIONS" : "FIELDLANCE OPERATIONS"
           : "PEOPLE AT THE HEART OF IMPACT";
-  const pageTitle = page === "Overview"
+  const pageTitle = onboardingWorkspace && page === 'Partner NGO application' ? 'Your organization application' : accessWorkspace ? 'Choose your next step' : page === "Overview"
     ? poem
       ? "Keep the FieldLance network accountable."
       : scope === "personal"
@@ -471,7 +481,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           : "Build the field team your project needs."
     : displayPage;
   const pageDescription = page === "Partner NGO application"
-    ? "Create and submit your organization profile for FieldLance review. Your Field Worker account remains separate."
+    ? "Create and submit your organization profile for FieldLance review. Worker enrollment is a separate, optional choice."
     : page === "Notifications"
       ? "Review actionable updates, open the linked workflow and manage communication preferences."
     : poem
@@ -510,6 +520,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         <button onClick={logout}>Sign out</button>
       </div>
     );
+  if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={load}>Retry</button><button onClick={logout}>Sign out</button></div>;
   return (
     <div className="app" onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
       <a className="skip-link" href="#workspace-content">Skip to content</a>
@@ -522,28 +533,15 @@ export function Workspace({ session, openField }: { session: Session; openField:
           <select
             id="scope"
             value={scope}
-            onChange={(e) => {
-              const next = e.target.value;
-              setScope(next);
-              change(next.startsWith("project:") ? "Project workspace" : "Overview");
-            }}
+            onChange={(e) => void switchWorkspace(e.target.value)}
           >
-            {admin && <option value="poem">{workspaceLabels.staff}</option>}
-            <option value="personal">{workspaceLabels.personal}</option>
-            {myOrgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name} — {workspaceLabels.organization}
-              </option>
-            ))}
-            {staffProjects.map((p) => {
-              const assignment = projectStaff.find((s) => s.project_id === p.id);
-              return (
-                <option key={`project:${p.id}`} value={`project:${p.id}`}>
-                  {p.title} — {human(assignment?.role || "project_staff")}
-                </option>
-              );
-            })}
+            {scope === 'access' && <option value="access">Account access</option>}
+            {access.workspaces.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}
           </select>
+        </div>
+        <div className="workspace-actions">
+          <button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button>
+          {!access.worker && <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button>}
         </div>
         <nav aria-label="Main navigation">
           {navigationGroups.map(group=>{const items=nav.filter(([name])=>group.pages.includes(name));return items.length?<div className="nav-section" key={group.label}><span className="nav-section-label">{group.label}</span>{items.map(([name, Icon]) => (
@@ -603,12 +601,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <button type="button" className="header-icon-button" aria-label={unreadNotifications ? `Notifications, ${unreadNotifications} unread` : "Notifications"} onClick={()=>change("Notifications")}>
               <Bell size={18}/>{unreadNotifications>0&&<span className="header-notification-count">{unreadNotifications}</span>}
             </button>
-            <button type="button" className="secondary header-offline-action" onClick={openField}>Offline field</button>
+            {access.worker && <button type="button" className="secondary header-offline-action" onClick={openField}>Offline field</button>}
             <SurveySyncStatus userId={session.user.id} />
             <span className="release">v{APP_VERSION}</span>
           </div>
         </header>
-        <div className="content" id="workspace-content" tabIndex={-1}>
+        <div className="content" id="workspace-content" tabIndex={-1} key={`${session.user.id}:${scope}`}>
           <div className="heading">
             <div>
               <span className="eyebrow">{pageEyebrow}</span>
@@ -639,12 +637,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
               </button>
             </div>
           )}
-          {!validScope && (
-            <div className="notice error">
-              This workspace is no longer available. Switch to your personal
-              workspace.
-            </div>
-          )}
+          {access.enrollment === 'legacy' && <div className="notice" role="status">Your existing Field Worker access has been preserved. Confirm if you want to use this workspace. <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Confirm Field Worker enrollment</button></div>}
+          {accessWorkspace && <section className="panel"><h2>No operational workspace is currently available</h2><p>Your membership may be inactive or your onboarding may be incomplete. Organization members need an authorized admin or project assignment for operational access.</p><button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button><button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button><button onClick={load}>Refresh access</button></section>}
+          {validScope && nav.some(([name]) => name === page) && <>
           {page === "Overview" && (
             <>
               {personalWorkspace ? (
@@ -783,7 +778,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 )}
               </>
             )}
-          {page === "Partner NGO application" && !poem && scope === "personal" && validScope && (
+          {page === "Partner NGO application" && onboardingWorkspace && validScope && (
             <PartnerNgoApplication
               userId={session.user.id}
               geographies={geographies}
@@ -791,10 +786,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
               accountEmail={account.email || ""}
               onChanged={load}
               onOpenOrganization={(organizationId) => {
-                setScope(organizationId);
-                change("Overview");
+                void switchWorkspace(organizationId);
               }}
-              onBackToDashboard={() => change("Overview")}
+              onBackToDashboard={() => void switchWorkspace(access.defaultScope)}
             />
           )}
           {page === "NGO applications" && ngos && validScope && (
@@ -1090,6 +1084,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               <EventList events={events} />
             </section>
           )}
+          </>}
           <footer>
             <span>FieldLance · Field work marketplace</span>
             <span>FieldLance {APP_VERSION} · Survey and registry operations.</span>

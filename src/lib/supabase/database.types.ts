@@ -9,6 +9,8 @@ full_name: string;
 platform_role: string;
 status: string;
 created_at: string;
+onboarding_intent: string;
+worker_enrollment: string;
 };
 Insert: {
 id: string;
@@ -17,6 +19,8 @@ full_name?: string;
 platform_role?: string;
 status?: string;
 created_at?: string;
+onboarding_intent?: string;
+worker_enrollment?: string;
 };
 Update: {
 id?: string;
@@ -25,6 +29,8 @@ full_name?: string;
 platform_role?: string;
 status?: string;
 created_at?: string;
+onboarding_intent?: string;
+worker_enrollment?: string;
 };
 Relationships: [];
 };
@@ -4079,6 +4085,9 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+begin_workspace_onboarding: { Args: {
+p_kind: string | null;
+}; Returns: undefined };
 beneficiary_case_detail: { Args: {
 p_case: string | null;
 }; Returns: Json };
@@ -4437,6 +4446,8 @@ my_withdrawal_security: { Args: {
 }; Returns: Json };
 my_withdrawal_summary: { Args: {
 p_currency?: string | null;
+}; Returns: Json };
+my_workspace_access: { Args: {
 }; Returns: Json };
 notification_center: { Args: {
 p_filter?: string | null;

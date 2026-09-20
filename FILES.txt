@@ -53,6 +53,7 @@ docs/PHASE-2.22.0.md
 docs/PHASE-2.23.0.md
 docs/PHASE-2.24.0.md
 docs/PHASE-2.25.0.md
+docs/PHASE-2.25.1.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
@@ -122,6 +123,7 @@ docs/UPGRADE-2.22.0.md
 docs/UPGRADE-2.23.0.md
 docs/UPGRADE-2.24.0.md
 docs/UPGRADE-2.25.0.md
+docs/UPGRADE-2.25.1.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.4.1.md
@@ -181,6 +183,7 @@ docs/VALIDATION-2.22.0.md
 docs/VALIDATION-2.23.0.md
 docs/VALIDATION-2.24.0.md
 docs/VALIDATION-2.25.0.md
+docs/VALIDATION-2.25.1.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -229,6 +232,7 @@ scripts/test-field-worker211.mjs
 scripts/test-field211.mjs
 scripts/test-frontend-foundation2194.mjs
 scripts/test-geography-reference.mjs
+scripts/test-identity-workspaces2251.mjs
 scripts/test-local-auth.mjs
 scripts/test-local-operations.mjs
 scripts/test-notification-center2240.mjs
@@ -370,6 +374,7 @@ src/features/workforce/InvitationsPanel.tsx
 src/features/workforce/InviteVolunteer.tsx
 src/features/workforce/model.tsx
 src/features/workforce/WorkforceMarketplace.tsx
+src/features/workspaces/access.ts
 src/lib/files/validateFile.ts
 src/lib/supabase/client.ts
 src/lib/supabase/database.types.ts
@@ -436,5 +441,6 @@ supabase/migrations/20261009000500_fieldlance_brand_compatibility.sql
 supabase/migrations/20261009000600_partner_ngo_application_experience.sql
 supabase/migrations/20261009000700_tasks_sla_escalation_center.sql
 supabase/migrations/20261009000800_notifications_communication_center.sql
+supabase/migrations/20261009000900_identity_workspace_stabilization.sql
 tsconfig.json
 vite.config.ts
