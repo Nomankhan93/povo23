@@ -1570,6 +1570,126 @@ withdrawal_eligible_at?: string | null;
 };
 Relationships: [];
 };
+field_worker_certificates: {
+Row: {
+id: string;
+worker_id: string;
+certificate_no: string;
+verification_code: string;
+certificate_type: string;
+title: string;
+issuer_label: string;
+evidence_note: string;
+evidence: Json;
+issued_by: string;
+issued_at: string;
+expires_at: string | null;
+status: string;
+revoked_by: string | null;
+revoked_at: string | null;
+revoke_note: string;
+version: number;
+created_at: string;
+public_sharing: boolean;
+worker_name: string;
+};
+Insert: {
+id?: string;
+worker_id: string;
+certificate_no: string;
+verification_code: string;
+certificate_type: string;
+title: string;
+issuer_label?: string;
+evidence_note?: string;
+evidence?: Json;
+issued_by: string;
+issued_at?: string;
+expires_at?: string | null;
+status?: string;
+revoked_by?: string | null;
+revoked_at?: string | null;
+revoke_note?: string;
+version?: number;
+created_at?: string;
+public_sharing?: boolean;
+worker_name?: string;
+};
+Update: {
+id?: string;
+worker_id?: string;
+certificate_no?: string;
+verification_code?: string;
+certificate_type?: string;
+title?: string;
+issuer_label?: string;
+evidence_note?: string;
+evidence?: Json;
+issued_by?: string;
+issued_at?: string;
+expires_at?: string | null;
+status?: string;
+revoked_by?: string | null;
+revoked_at?: string | null;
+revoke_note?: string;
+version?: number;
+created_at?: string;
+public_sharing?: boolean;
+worker_name?: string;
+};
+Relationships: [];
+};
+field_worker_reputation_reviews: {
+Row: {
+id: string;
+assignment_id: string;
+organization_id: string;
+worker_id: string;
+reviewer_id: string;
+rating: number;
+quality_rating: number;
+reliability_rating: number;
+communication_rating: number;
+note: string;
+status: string;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+assignment_id: string;
+organization_id: string;
+worker_id: string;
+reviewer_id: string;
+rating: number;
+quality_rating: number;
+reliability_rating: number;
+communication_rating: number;
+note?: string;
+status?: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+assignment_id?: string;
+organization_id?: string;
+worker_id?: string;
+reviewer_id?: string;
+rating?: number;
+quality_rating?: number;
+reliability_rating?: number;
+communication_rating?: number;
+note?: string;
+status?: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 finance_accounts: {
 Row: {
 id: string;
@@ -2296,24 +2416,117 @@ geography_id?: string;
 };
 Relationships: [];
 };
+organization_compliance_documents: {
+Row: {
+id: string;
+organization_id: string;
+uploaded_by: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+object_path: string;
+state: string;
+review_status: string;
+review_note: string;
+expires_on: string | null;
+version: number;
+created_at: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+uploaded_by: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+object_path: string;
+state?: string;
+review_status?: string;
+review_note?: string;
+expires_on?: string | null;
+version?: number;
+created_at?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+uploaded_by?: string;
+file_name?: string;
+mime_type?: string;
+byte_size?: number;
+object_path?: string;
+state?: string;
+review_status?: string;
+review_note?: string;
+expires_on?: string | null;
+version?: number;
+created_at?: string;
+};
+Relationships: [];
+};
+organization_invitations: {
+Row: {
+id: string;
+organization_id: string;
+user_id: string;
+role: string;
+status: string;
+created_by: string;
+created_at: string;
+expires_at: string;
+version: number;
+organization_name: string;
+recipient_name: string;
+};
+Insert: {
+id?: string;
+organization_id: string;
+user_id: string;
+role: string;
+status?: string;
+created_by: string;
+created_at?: string;
+expires_at?: string;
+version?: number;
+organization_name?: string;
+recipient_name?: string;
+};
+Update: {
+id?: string;
+organization_id?: string;
+user_id?: string;
+role?: string;
+status?: string;
+created_by?: string;
+created_at?: string;
+expires_at?: string;
+version?: number;
+organization_name?: string;
+recipient_name?: string;
+};
+Relationships: [];
+};
 organization_memberships: {
 Row: {
 organization_id: string;
 user_id: string;
 role: string;
 status: string;
+version: number;
 };
 Insert: {
 organization_id: string;
 user_id: string;
 role: string;
 status?: string;
+version?: number;
 };
 Update: {
 organization_id?: string;
 user_id?: string;
 role?: string;
 status?: string;
+version?: number;
 };
 Relationships: [];
 };
@@ -2349,6 +2562,7 @@ operations_version: number;
 verification_revision: number;
 logo_path: string;
 logo_updated_at: string | null;
+settings_version: number;
 };
 Insert: {
 id?: string;
@@ -2366,6 +2580,7 @@ operations_version?: number;
 verification_revision?: number;
 logo_path?: string;
 logo_updated_at?: string | null;
+settings_version?: number;
 };
 Update: {
 id?: string;
@@ -2383,6 +2598,7 @@ operations_version?: number;
 verification_revision?: number;
 logo_path?: string;
 logo_updated_at?: string | null;
+settings_version?: number;
 };
 Relationships: [];
 };
@@ -4469,6 +4685,15 @@ p_code: string | null;
 p_note: string | null;
 p_request: string | null;
 }; Returns: Json };
+field_worker_certificates: { Args: {
+p_user?: string | null;
+}; Returns: Json };
+field_worker_reputation: { Args: {
+p_user?: string | null;
+}; Returns: Json };
+field_worker_reputation_reviews: { Args: {
+p_user?: string | null;
+}; Returns: Json };
 finance_account_balance: { Args: {
 p_account: string | null;
 }; Returns: number };
@@ -4487,6 +4712,9 @@ p_id: string | null;
 finish_document_upload: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+finish_organization_document: { Args: {
+p_id: string | null;
+}; Returns: undefined };
 finish_partner_ngo_document_delete: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -4496,11 +4724,30 @@ p_id: string | null;
 get_shared_beneficiary_summary: { Args: {
 p_grant: string | null;
 }; Returns: Json };
+invite_organization_member: { Args: {
+p_org: string | null;
+p_email: string | null;
+p_role: string | null;
+}; Returns: string };
+issue_field_worker_certificate: { Args: {
+p_user: string | null;
+p_type: string | null;
+p_title: string | null;
+p_note: string | null;
+p_expires?: string | null;
+}; Returns: string };
 list_independent_verifications: { Args: {
 p_kind: string | null;
 p_offset: number | null;
 p_limit: number | null;
 }; Returns: Json };
+manage_organization_member: { Args: {
+p_org: string | null;
+p_user: string | null;
+p_role: string | null;
+p_status: string | null;
+p_version: number | null;
+}; Returns: undefined };
 mark_all_notifications_read: { Args: {
 }; Returns: number };
 mark_assistance_distribution_plan_ready: { Args: {
@@ -4543,6 +4790,9 @@ p_view?: string | null;
 p_organization?: string | null;
 p_project?: string | null;
 p_limit?: number | null;
+}; Returns: Json };
+organization_team: { Args: {
+p_org: string | null;
 }; Returns: Json };
 partner_ngo_document_download_path: { Args: {
 p_id: string | null;
@@ -4709,6 +4959,10 @@ p_case: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+reputation_candidates: { Args: {
+p_org?: string | null;
+p_query?: string | null;
+}; Returns: Json };
 request_e_wallet_withdrawal: { Args: {
 p_wallet: string | null;
 p_amount: number | null;
@@ -4730,6 +4984,13 @@ p_mime: string | null;
 p_size: number | null;
 p_consent: Json | null;
 }; Returns: string };
+reserve_organization_document: { Args: {
+p_org: string | null;
+p_name: string | null;
+p_type: string | null;
+p_bytes: number | null;
+p_expires: string | null;
+}; Returns: Json };
 reserve_payable_receipt: { Args: {
 p_assignment: string | null;
 p_filename: string | null;
@@ -4751,6 +5012,11 @@ p_mime: string | null;
 p_size: number | null;
 p_consent: Json | null;
 }; Returns: string };
+respond_organization_invitation: { Args: {
+p_id: string | null;
+p_decision: string | null;
+p_version: number | null;
+}; Returns: undefined };
 respond_work_amendment: { Args: {
 p_amendment: string | null;
 p_status: string | null;
@@ -4824,6 +5090,12 @@ p_note: string | null;
 p_expires: string | null;
 p_version: number | null;
 }; Returns: undefined };
+review_organization_document: { Args: {
+p_id: string | null;
+p_status: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: undefined };
 review_partner_ngo_application: { Args: {
 p_id: string | null;
 p_decision: string | null;
@@ -4879,6 +5151,11 @@ p_version: number | null;
 revoke_data_access_grant: { Args: {
 p_grant: string | null;
 p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+revoke_field_worker_certificate: { Args: {
+p_id: string | null;
+p_note: string | null;
 p_version: number | null;
 }; Returns: undefined };
 revoke_project_staff: { Args: {
@@ -4952,6 +5229,11 @@ p_consent_version: string | null;
 p_consent_notice: string | null;
 p_version: number | null;
 }; Returns: number };
+save_organization_settings: { Args: {
+p_org: string | null;
+p_data: Json | null;
+p_version: number | null;
+}; Returns: undefined };
 save_organization_template_draft: { Args: {
 p_id: string | null;
 p_organization: string | null;
@@ -5110,6 +5392,11 @@ p_settled_on: string | null;
 p_note: string | null;
 p_request: string | null;
 }; Returns: Json };
+share_field_worker_certificate: { Args: {
+p_id: string | null;
+p_share: boolean | null;
+p_version: number | null;
+}; Returns: undefined };
 simulate_mock_e_wallet_activation: { Args: {
 p_wallet: string | null;
 p_event_key: string | null;
@@ -5134,6 +5421,14 @@ p_id: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+submit_field_worker_review: { Args: {
+p_assignment: string | null;
+p_rating: number | null;
+p_quality: number | null;
+p_reliability: number | null;
+p_communication: number | null;
+p_note: string | null;
+}; Returns: string };
 submit_partner_ngo_application: { Args: {
 p_id: string | null;
 p_version: number | null;
@@ -5211,9 +5506,17 @@ verification_subjects: { Args: {
 p_kind: string | null;
 p_query: string | null;
 }; Returns: Json };
+verify_field_worker_certificate: { Args: {
+p_code: string | null;
+}; Returns: Json };
 void_assistance: { Args: {
 p_id: string | null;
 p_reason: string | null;
+p_version: number | null;
+}; Returns: undefined };
+withdraw_field_worker_review: { Args: {
+p_id: string | null;
+p_note: string | null;
 p_version: number | null;
 }; Returns: undefined };
 withdraw_partner_ngo_application: { Args: {

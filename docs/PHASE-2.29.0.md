@@ -1,0 +1,11 @@
+# FieldLance 2.29.0 — Field Worker Reputation & Certificates
+
+Requires 2.28.0. Organization admins review completed, accepted assignments in Reputation & Certificates. Each assignment permits one review; self-review and cross-organization review are denied. Overall, quality, reliability and communication ratings are explicit; no default five-star rating is preselected. Organization admins and FieldLance worker managers can withdraw inaccurate reviews with an audited reason. Withdrawal preserves the original row and excludes it from aggregates.
+
+Workers see live platform assignment/survey totals and published ratings. Survey approval rate uses approved responses divided by reviewed responses (approved/rejected/correction required), excluding pending and draft work. No rating is shown until a review exists. Reputation summaries are owner/FieldLance worker-manager only; this release does not silently extend recruitment profile consent or create public rankings.
+
+FieldLance worker managers select workers by name and issue certificates backed by platform work evidence. Completion certificates require completed assignments; quality certificates require approved surveys. Staff cannot issue to themselves. Certificate identity and evidence counts are captured at issuance. These certificates document the issuer's stated scope; they are not independent identity or professional-license verification.
+
+Certificates support reasoned, versioned revocation, optional expiry, printable output / browser Save as PDF and a public verification page at /?certificate=CODE. Sharing is private by default and only the worker can enable it. Public verification returns limited certificate metadata and the captured worker name; it excludes evidence notes, raw IDs, contact details and beneficiary records. Invalid/private/suspended-subject codes return unavailable. Revoked/expired shared certificates display their current status.
+
+Lists show up to 100 records; manager candidate searches can be refined by name. Historical completion feedback is retained without automatically manufacturing reviews. No payouts, reputation levels, automatic certificate issuance or organization membership rules change.

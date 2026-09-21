@@ -1,12 +1,20 @@
-# Current release: FieldLance 2.26.0
+# Current release: FieldLance 2.29.0
 
-## 2.26 Paid Work Funding Assurance & Project Finance Closure
+## Field Worker Reputation & Certificates
+
+See docs/PHASE-2.29.0.md and docs/UPGRADE-2.29.0.md for this release.
+
+## Organization Settings, Team & Compliance
+
+See docs/PHASE-2.28.0.md and docs/UPGRADE-2.28.0.md for this release.
+
+## 2.27 Project Workspace & Recruitment UX Consolidation
 
 Desktop sidebar uses 280px expanded and 76px compact layouts with an optional persistent preference. Mobile uses the existing full-label drawer. Workspace-specific collapsible groups keep tasks/updates near Home and move optional impact modules into their own group. Navigation renders only the authorized page set from 2.25.1. Its active group expands on navigation, compact icons retain accessible names and native titles, and navigation scrolls separately from identity/sign-out controls.
 
 Public navigation, onboarding and verification terminology now uses Organization and Field Worker. Unavailable Email/Push preference controls are hidden while stored preferences are preserved. Wallet Sandbox is excluded from the production frontend import/render path; existing backend finance permissions and mock-provider services are unchanged. Audit actors prefer authorized account names and expose UUIDs only in technical details.
 
-This release adds `20261010000100_paid_work_funding_assurance_closure.sql` after the 2.25.1 identity migration. See `docs/PHASE-2.26.md`, `docs/UPGRADE-2.26.md` and `docs/VALIDATION-2.26.md`.
+This release consolidates project delivery and recruitment into one project-scoped workspace. See `docs/PHASE-2.27.md`, `docs/UPGRADE-2.27.md` and `docs/VALIDATION-2.27.md`.
 
 ## Previous release notes retained
 

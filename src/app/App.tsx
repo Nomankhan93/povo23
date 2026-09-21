@@ -6,6 +6,7 @@ import { configured, db } from "../lib/supabase/client";
 import {flushActiveDraft} from "../features/surveys/activeDraft";
 const OfflineFieldWorkspace=lazy(()=>import("../features/surveys/OfflineFieldWorkspace").then(m=>({default:m.OfflineFieldWorkspace})));
 import {offlineOwner,rememberFieldOwner,lockFieldDevice} from "../features/surveys/offlineSurveyStore";
+import {CertificateVerification} from "../features/workforce/ReputationCertificates";
 import { Workspace } from "./AppShell";
 export function App() {
   const [connection,setConnection]=useState(navigator.onLine);
@@ -65,6 +66,7 @@ export function App() {
         </p>
       </div>
     );
+  if(new URLSearchParams(location.search).has('certificate'))return <CertificateVerification/>;
   if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} back={()=>setField(false)}/></Suspense>;
   if (!ready)
     return (

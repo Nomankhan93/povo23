@@ -1,6 +1,16 @@
-# Validation index — FieldLance 2.26.0
+# Validation index — FieldLance 2.29.0
 
-Current release validation: [VALIDATION-2.26.0.md](VALIDATION-2.26.0.md).
+Current release: [VALIDATION-2.29.0.md](VALIDATION-2.29.0.md).
+
+# Validation index — FieldLance 2.28.0
+
+Current release: [VALIDATION-2.28.0.md](VALIDATION-2.28.0.md).
+
+# Validation index — FieldLance 2.27.0
+
+Current release validation: [VALIDATION-2.27.0.md](VALIDATION-2.27.0.md).
+
+Previous finance validation: [VALIDATION-2.26.0.md](VALIDATION-2.26.0.md).
 
 Previous identity stabilization: [VALIDATION-2.25.1.md](VALIDATION-2.25.1.md).
 

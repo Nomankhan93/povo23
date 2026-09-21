@@ -59,6 +59,11 @@
 ./docs/PHASE-2.25.2.md
 ./docs/PHASE-2.26.0.md
 ./docs/PHASE-2.26.md
+./docs/PHASE-2.27.0.md
+./docs/PHASE-2.27.md
+./docs/PHASE-2.28.0.md
+./docs/PHASE-2.29.0.md
+./docs/PHASE-2.29.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
@@ -132,6 +137,11 @@
 ./docs/UPGRADE-2.25.2.md
 ./docs/UPGRADE-2.26.0.md
 ./docs/UPGRADE-2.26.md
+./docs/UPGRADE-2.27.0.md
+./docs/UPGRADE-2.27.md
+./docs/UPGRADE-2.28.0.md
+./docs/UPGRADE-2.29.0.md
+./docs/UPGRADE-2.29.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
 ./docs/UPGRADE-2.4.1.md
@@ -195,6 +205,11 @@
 ./docs/VALIDATION-2.25.2.md
 ./docs/VALIDATION-2.26.0.md
 ./docs/VALIDATION-2.26.md
+./docs/VALIDATION-2.27.0.md
+./docs/VALIDATION-2.27.md
+./docs/VALIDATION-2.28.0.md
+./docs/VALIDATION-2.29.0.md
+./docs/VALIDATION-2.29.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -285,6 +300,9 @@
 ./scripts/test-phase2193.mjs
 ./scripts/test-phase22.mjs
 ./scripts/test-phase226.mjs
+./scripts/test-phase227.mjs
+./scripts/test-phase228.mjs
+./scripts/test-phase229.mjs
 ./scripts/test-phase23.mjs
 ./scripts/test-phase24.mjs
 ./scripts/test-phase25.mjs
@@ -359,6 +377,7 @@
 ./src/features/organizations/NgoOperations.tsx
 ./src/features/organizations/OrganizationDashboard.tsx
 ./src/features/organizations/OrganizationLogo.tsx
+./src/features/organizations/OrganizationSettings.tsx
 ./src/features/organizations/OrgForm.tsx
 ./src/features/organizations/PartnerNgoApplication.tsx
 ./src/features/organizations/PartnerNgoApplicationsReview.tsx
@@ -372,6 +391,7 @@
 ./src/features/payments/WithdrawalOperationsWorkspace.tsx
 ./src/features/projects
 ./src/features/projects/ProjectTeamWorkspace.tsx
+./src/features/projects/ProjectWorkspace.tsx
 ./src/features/registry
 ./src/features/registry/canonical
 ./src/features/registry/canonical/canonical.css
@@ -418,6 +438,7 @@
 ./src/features/workforce/InvitationsPanel.tsx
 ./src/features/workforce/InviteVolunteer.tsx
 ./src/features/workforce/model.tsx
+./src/features/workforce/ReputationCertificates.tsx
 ./src/features/workforce/WorkforceMarketplace.tsx
 ./src/features/workspaces
 ./src/features/workspaces/access.ts
@@ -497,6 +518,8 @@
 ./supabase/migrations/20261009000800_notifications_communication_center.sql
 ./supabase/migrations/20261009000900_identity_workspace_stabilization.sql
 ./supabase/migrations/20261010000100_paid_work_funding_assurance_closure.sql
+./supabase/migrations/20261010000200_organization_settings_team_compliance.sql
+./supabase/migrations/20261011000100_field_worker_reputation_certificates.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

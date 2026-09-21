@@ -1,4 +1,12 @@
-# Current permissions note — FieldLance 2.26.0
+# Current permissions note — FieldLance 2.29.0
+
+## Field Worker Reputation & Certificates
+
+See docs/PHASE-2.29.0.md and docs/UPGRADE-2.29.0.md for this release.
+
+## Organization Settings, Team & Compliance
+
+See docs/PHASE-2.28.0.md and docs/UPGRADE-2.28.0.md for this release.
 
 ## 2.26 Paid Work Funding Assurance & Project Finance Closure
 

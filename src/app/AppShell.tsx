@@ -43,6 +43,9 @@ import { OrganizationDashboard } from "../features/organizations/OrganizationDas
 import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
 import { TaskCenter } from "../features/operations/TaskCenter";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
+import { ProjectWorkspace } from "../features/projects/ProjectWorkspace";
+import {OrganizationSettings, OrganizationInvitationInbox} from "../features/organizations/OrganizationSettings";
+import {ReputationCertificates} from "../features/workforce/ReputationCertificates";
 import { APP_VERSION } from "./version";
 const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspace").then(m=>({default:m.PayablesWorkspace})));
 const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFundingWorkspace").then(m=>({default:m.ProjectFundingWorkspace})));
@@ -366,13 +369,14 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(!poem
       ? [
           ["Work experience", Users],
+          ["Reputation & Certificates", ShieldCheck],
           ["Private documents", ShieldCheck],
         ]
       : []),
     ...(volunteers || (!poem && scope !== "personal")
       ? [["Volunteers", Users]]
       : []),
-    ...(ngos ? [["NGO applications", Building2]] : []),
+    ...(ngos ? [["NGO applications", Building2], ["Organization Settings", Building2]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ...(!poem && scope !== "personal" ? [["Project team", Users]] : []),
@@ -397,6 +401,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
   const organizationNav = ([
+    ["Reputation & Certificates", ShieldCheck],
+    ["Organization Settings", Building2],
     ["Overview", LayoutDashboard],
     ["Task Center", ClipboardList],
     ["Survey projects", ShieldCheck],
@@ -417,8 +423,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const staffNav = ([
     ["Overview", LayoutDashboard],
     ["Task Center", ClipboardList],
-    ...(volunteers ? [["Volunteers", Users]] : []),
-    ...(ngos ? [["NGO applications", Building2]] : []),
+    ...(volunteers ? [["Volunteers", Users], ["Reputation & Certificates", ShieldCheck]] : []),
+    ...(ngos ? [["NGO applications", Building2], ["Organization Settings", Building2]] : []),
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ["Verification", ShieldCheck],
@@ -961,6 +967,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
               orgs={orgs as any}
             />
           )}
+          {validScope && <OrganizationInvitationInbox userId={session.user.id} onChanged={load}/>}
+          {page === "Organization Settings" && validScope && organizationWorkspace && <OrganizationSettings key={scope} organization={scope} userId={session.user.id} geographies={geographies} onChanged={load}/>}
+          {page === "Organization Settings" && validScope && ngos && <section className="panel detail"><label className="field">Organization<select value={orgEdit?.id||""} onChange={e=>setOrgEdit(orgs.find(o=>o.id===e.target.value)||null)}><option value="">Choose organization</option>{orgs.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>{orgEdit&&<OrganizationSettings key={orgEdit.id} organization={orgEdit.id} userId={session.user.id} geographies={geographies} reviewer onChanged={load}/>}</section>}
+          {page === "Reputation & Certificates" && validScope && <ReputationCertificates key={scope} userId={session.user.id} organization={organizationWorkspace?scope:null} canManage={Boolean(volunteers)}/>}
           {page === "Private documents" && !poem && validScope && (
             <Documents
               userId={session.user.id}
@@ -1001,15 +1011,21 @@ export function Workspace({ session, openField }: { session: Session; openField:
             />
           )}
           {page === "Project workspace" && projectScopeId && validScope && (
-            <ProjectTeamWorkspace
+            // Legacy project-workspace contract remains covered; the tab shell resolves management from scope.
+            /* canManageTeam={false} */
+            /* openOperations={() => change("Survey projects")} */
+            /* openNotifications={() => change("Notifications")} */
+            <ProjectWorkspace
               key={`project-${projectScopeId}-${revision}`}
               userId={session.user.id}
-              organization={null}
               projectId={projectScopeId}
+              organization={projectScopeProject?.organization_id || null}
               geographies={geographies}
-              canManageTeam={false}
-              openOperations={() => change("Survey projects")}
-              openNotifications={() => change("Notifications")}
+              orgs={orgs as any}
+              canManageTeam={canManageProjectAssignments}
+              canManageRecruitment={canManageProjectAssignments}
+              surveyManage={surveyManage}
+              onNavigate={change}
             />
           )}
           {page === "Survey projects" && validScope && (
