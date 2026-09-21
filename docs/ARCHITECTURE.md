@@ -1,4 +1,13 @@
-# Current architecture note — FieldLance 2.29.0
+# Current architecture note — FieldLance 2.30.1
+
+2.30.1: project navigation awaits device drafts; storage SELECT permits deleting objects only for active project managers so guarded deletion can finish. Existing database role authority remains unchanged.
+
+
+## Project Workspace Completion & UX Consolidation
+
+2.30.0 keeps the modular-monolith and RPC/RLS authorization model intact while consolidating project delivery into a single project-scoped frontend shell. Project Overview is a read-only command center over existing survey/recruitment/case/finance sources. Field Work and Responses render distinct modes of the existing survey-project detail instead of duplicating the same screen. Finance and Governance accept an optional locked `projectId`, preserving their existing standalone multi-project modes.
+
+The only new persistence layer is `project_documents`, backed by the private `fieldlance-project-documents` Storage bucket. Reservation/finalization and delete begin/finish RPCs verify project authority and stored-object metadata. `project_activity_feed` exposes only audit rows explicitly tagged to the selected project and is restricted to project management authority. Survey response attachments and organization compliance documents remain in their existing stores.
 
 ## Field Worker Reputation & Certificates
 

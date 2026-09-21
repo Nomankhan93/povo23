@@ -4,6 +4,7 @@ import {readFileSync,readdirSync} from 'node:fs';
 let passed=0;
 async function ok(name,fn){await fn();passed++;console.log(`PASS ${name}`)}
 const app=readFileSync('src/app/AppShell.tsx','utf8');
+const workspace=readFileSync('src/features/projects/ProjectWorkspace.tsx','utf8');
 const team=readFileSync('src/features/projects/ProjectTeamWorkspace.tsx','utf8');
 const projects=readFileSync('src/features/surveys/SurveyProjects.tsx','utf8');
 const detail=readFileSync('src/features/surveys/SurveyProjectDetail.tsx','utf8');
@@ -20,8 +21,8 @@ await ok('project dashboard provides operational quick actions and visible area 
  assert.match(team,/openOperations/);
  assert.match(team,/Open responses & reviews/);
  assert.match(team,/Visible assignment areas/);
- assert.match(app,/openOperations=\{\(\) => change\("Survey projects"\)\}/);
- assert.match(app,/openNotifications=\{\(\) => change\("Notifications"\)\}/);
+ assert.match(workspace,/openOperations=\{\(\) => openTab\("responses"\)\}/);
+ assert.match(workspace,/openNotifications=\{\(\) => void navigate\(\(\) => onNavigate\("Notifications"\)\)\}/);
 });
 await ok('project-scoped survey navigation opens the authorized project directly and returns cleanly',async()=>{
  assert.match(projects,/rows\.length !== 1/);
@@ -38,7 +39,7 @@ await ok('response queue supports server-side status filtering without widening 
 await ok('focal review UI is separated from assignment-management controls',async()=>{
  assert.match(app,/projectScopeAssignment\?\.role === "project_manager"/);
  assert.match(app,/manageAssignments=\{canManageProjectAssignments\}/);
- assert.match(detail,/\{manageAssignments && \(/);
+ assert.match(detail,/\{showFieldWork && manageAssignments && \(/);
  assert.doesNotMatch(detail,/\{review && \(\s*<details className="survey-question">/);
 });
 await ok('revoked workspace resolves an eligible scope instead of granting personal access',async()=>{

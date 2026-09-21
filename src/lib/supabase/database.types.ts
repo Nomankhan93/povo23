@@ -2761,6 +2761,54 @@ granted_at?: string;
 };
 Relationships: [];
 };
+project_documents: {
+Row: {
+id: string;
+project_id: string;
+organization_id: string;
+uploaded_by: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+object_path: string;
+category: string;
+note: string;
+state: string;
+version: number;
+created_at: string;
+};
+Insert: {
+id?: string;
+project_id: string;
+organization_id: string;
+uploaded_by: string;
+file_name: string;
+mime_type: string;
+byte_size: number;
+object_path: string;
+category: string;
+note?: string;
+state?: string;
+version?: number;
+created_at?: string;
+};
+Update: {
+id?: string;
+project_id?: string;
+organization_id?: string;
+uploaded_by?: string;
+file_name?: string;
+mime_type?: string;
+byte_size?: number;
+object_path?: string;
+category?: string;
+note?: string;
+state?: string;
+version?: number;
+created_at?: string;
+};
+Relationships: [];
+};
 project_funding_commitments: {
 Row: {
 id: string;
@@ -4376,6 +4424,9 @@ p_type: string | null;
 p_bytes: number | null;
 p_kind: string | null;
 }; Returns: Json };
+begin_project_document_delete: { Args: {
+p_id: string | null;
+}; Returns: string };
 begin_workspace_onboarding: { Args: {
 p_kind: string | null;
 }; Returns: undefined };
@@ -4721,6 +4772,12 @@ p_id: string | null;
 finish_partner_ngo_document_upload: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+finish_project_document: { Args: {
+p_id: string | null;
+}; Returns: undefined };
+finish_project_document_delete: { Args: {
+p_id: string | null;
+}; Returns: undefined };
 get_shared_beneficiary_summary: { Args: {
 p_grant: string | null;
 }; Returns: Json };
@@ -4812,12 +4869,20 @@ preview_canonical_review: { Args: {
 p_person: string | null;
 p_other: string | null;
 }; Returns: Json };
+project_activity_feed: { Args: {
+p_project: string | null;
+p_before?: number | null;
+p_limit?: number | null;
+}; Returns: Json };
 project_closure_status: { Args: {
 p_project: string | null;
 }; Returns: Json };
 project_compensation_status: { Args: {
 p_project: string | null;
 }; Returns: Json };
+project_document_download_path: { Args: {
+p_id: string | null;
+}; Returns: string };
 project_funding_assurance: { Args: {
 p_project: string | null;
 p_currency?: string | null;
@@ -4997,6 +5062,14 @@ p_filename: string | null;
 p_mime: string | null;
 p_size: number | null;
 }; Returns: string };
+reserve_project_document: { Args: {
+p_project: string | null;
+p_name: string | null;
+p_type: string | null;
+p_bytes: number | null;
+p_category: string | null;
+p_note?: string | null;
+}; Returns: Json };
 reserve_project_funding: { Args: {
 p_project: string | null;
 p_currency: string | null;

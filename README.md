@@ -1,4 +1,22 @@
-# Current release: FieldLance 2.29.0
+# Current release: FieldLance 2.30.1
+
+Project Workspace Stabilization: guarded document deletion, draft-safe project navigation,
+correct pending application counts, effective lazy feature boundaries, and updated permission regression tests.
+
+Apply the forward migration after 2.30.0; no reset is required.
+See docs/PHASE-2.30.1.md, docs/UPGRADE-2.30.1.md and docs/VALIDATION-2.30.1.md.
+
+## Previous release
+
+# Current release: FieldLance 2.30.0
+
+## Project Workspace Completion & UX Consolidation
+
+FieldLance 2.30.0 turns the project workspace into a real project command center. Overview, Team, Recruitment, Field Work, Responses, Cases, Finance, Governance, Documents and Activity now have distinct project-scoped responsibilities. Finance and Governance remain locked to the current project context, Organization/authorized Staff users can open the full workspace from a project detail, and Project Manager/Area Focal visibility remains aligned with backend authority.
+
+This release adds one forward migration: `20261012000100_project_workspace_completion.sql`. It introduces a private project-document registry/storage bucket and a guarded project activity-feed RPC; existing survey evidence, organization compliance files, finance ledgers and audit history remain authoritative. Destructive project actions use an in-app reason dialog instead of browser prompts, and new project UI uses production-readable typography and responsive tabs.
+
+See docs/PHASE-2.30.0.md, docs/UPGRADE-2.30.0.md and docs/VALIDATION-2.30.0.md.
 
 ## Field Worker Reputation & Certificates
 

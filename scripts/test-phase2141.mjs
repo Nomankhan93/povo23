@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
+import {workspaceTeamPermission} from '../src/features/projects/workspacePermissions.ts';
 let passed=0;
 async function ok(name,fn){await fn();passed++;console.log(`PASS ${name}`)}
 const app=readFileSync('src/app/AppShell.tsx','utf8');
@@ -19,8 +20,13 @@ await ok('NGO workspace exposes project-team management while project workspace 
  assert.match(app,/page === "Project team"/);
  assert.match(app,/canManageTeam=\{true\}/);
  assert.match(app,/page === "Project workspace"/);
- assert.match(app,/canManageTeam=\{false\}/);
- assert.match(app,/projectId=\{projectScopeId\}/);
+ assert.match(app,/canManageTeam=\{canManageWorkspaceTeam\}/);
+ assert.match(app,/workspaceTeamPermission\(surveyManage, ownsWorkspaceProject\)/);
+ assert.equal(workspaceTeamPermission(false,false),false,'Project staff alone cannot manage team');
+ assert.equal(workspaceTeamPermission(true,false),true,'Authorized staff can manage team');
+ assert.equal(workspaceTeamPermission(false,true),true,'Owning organization admin can manage team');
+ assert.equal(workspaceTeamPermission(true,true),true);
+ assert.match(app,/projectId=\{workspaceProjectId\}/);
 });
 await ok('project team UI uses guarded RPCs for assignment candidate lookup and revocation',async()=>{
  for(const token of ["project_staff_candidates","assign_project_staff","revoke_project_staff","project_staff_roster"]) assert.match(team,new RegExp(token));

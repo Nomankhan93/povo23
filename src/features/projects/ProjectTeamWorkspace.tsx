@@ -5,6 +5,7 @@ import {geographyPath,type Geo} from '../geography/model';
 import {db,rpc} from '../../lib/supabase/client';
 import type {Database} from '../../lib/supabase/database.types';
 import {Badge,human} from '../../shared/ui/FormFields';
+import {ActionDialog} from '../../components/ui/ActionDialog';
 
 type Project=Database['public']['Tables']['survey_projects']['Row'];
 type StaffArea={id:string;name:string;kind:string};
@@ -15,9 +16,11 @@ type ResponseRow=Pick<Database['public']['Tables']['survey_responses']['Row'],'i
 type Metrics={submitted:number;approved:number;correction:number;rejected:number;assignments:number};
 type RecruitmentPlan={project_id:string;target:number;approved:number;pending_review:number;correction_required:number;rejected:number;remaining_target:number;over_target:number;target_reached:boolean;required_volunteers:number|null;committed_volunteers:number;remaining_capacity:number|null;capacity_reached:boolean;manual_status:'open'|'closed';effective_open:boolean;version:number};
 type CompensationPlan={project_id:string;work_mode:'volunteer'|'paid';compensation_type:'none'|'per_verified_survey'|'daily_rate'|'fixed_assignment';currency:string;rate:number|null;note:string;version:number;can_change:boolean};
+type PendingAction={kind:'revoke';row:StaffRow}|{kind:'recruitment'}|{kind:'compensation'}|null;
 
 export function ProjectTeamWorkspace({userId,organization,projectId,geographies,canManageTeam,openOperations,openNotifications}:{userId:string;organization:string|null;projectId?:string|null;geographies:Geo[];canManageTeam:boolean;openOperations?:()=>void;openNotifications?:()=>void}){
  const [projects,setProjects]=useState<Project[]>([]),[selected,setSelected]=useState(projectId||''),[roster,setRoster]=useState<StaffRow[]>([]),[metrics,setMetrics]=useState<Metrics>({submitted:0,approved:0,correction:0,rejected:0,assignments:0}),[assignments,setAssignments]=useState<Assignment[]>([]),[recent,setRecent]=useState<ResponseRow[]>([]),[personNames,setPersonNames]=useState<Record<string,string>>({}),[recruitment,setRecruitment]=useState<RecruitmentPlan|null>(null),[compensation,setCompensation]=useState<CompensationPlan|null>(null),[planTarget,setPlanTarget]=useState(''),[planVolunteers,setPlanVolunteers]=useState(''),[planStatus,setPlanStatus]=useState<'open'|'closed'>('open'),[compMode,setCompMode]=useState<'volunteer'|'paid'>('volunteer'),[compType,setCompType]=useState<CompensationPlan['compensation_type']>('none'),[compCurrency,setCompCurrency]=useState('PKR'),[compRate,setCompRate]=useState(''),[compNote,setCompNote]=useState('Volunteer / unpaid project'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[role,setRole]=useState('project_manager'),[person,setPerson]=useState(''),[area,setArea]=useState<string|null>(null),[areas,setAreas]=useState<string[]>([]),[starts,setStarts]=useState(''),[ends,setEnds]=useState(''),[candidateQuery,setCandidateQuery]=useState(''),[candidates,setCandidates]=useState<Candidate[]>([]);
+ const [pendingAction,setPendingAction]=useState<PendingAction>(null);
  const detailRequest=useRef(0);
  const project=projects.find(p=>p.id===selected)||null;
  const own=roster.find(r=>r.user_id===userId&&r.status==='active');
@@ -45,9 +48,28 @@ export function ProjectTeamWorkspace({userId,organization,projectId,geographies,
  useEffect(()=>{if(project&&!starts)setStarts(project.start_date)},[project,starts]);
  function addArea(){if(!selectableArea(area,geographies)){setError('Choose an active area inside the project geography.');return}if(area&&!areas.includes(area))setAreas(v=>[...v,area]);setArea(null)}
  async function assign(e:FormEvent){e.preventDefault();if(!project)return;setBusy(true);setError('');setMessage('');try{await rpc('assign_project_staff',{p_project:project.id,p_user:person,p_role:role,p_areas:role==='area_focal_person'?areas:[],p_starts:starts,p_ends:ends||null});setMessage('Project staff assignment created.');setPerson('');setAreas([]);setArea(null);await loadDetail();}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
- async function revoke(row:StaffRow){const reason=window.prompt(`Reason for revoking ${row.name||row.user_id}?`,'Project staffing changed');if(!reason)return;setBusy(true);setError('');try{await rpc('revoke_project_staff',{p_id:row.id,p_reason:reason,p_version:row.version});setMessage('Project staff access revoked.');await loadDetail();}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
- async function saveRecruitmentPlan(e:FormEvent){e.preventDefault();if(!project||!recruitment)return;const reason=window.prompt('Reason for changing project target/recruitment capacity:','Operational recruitment plan updated');if(!reason)return;setBusy(true);setError('');setMessage('');try{await rpc('set_project_recruitment_plan',{p_project:project.id,p_target:Number(planTarget),p_required_volunteers:Number(planVolunteers),p_status:planStatus,p_reason:reason,p_version:recruitment.version});setMessage('Project target and recruitment capacity updated.');await loadDetail();}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
- async function saveCompensationPlan(e:FormEvent){e.preventDefault();if(!project||!compensation||!compensation.can_change)return;const reason=window.prompt('Reason for changing project compensation defaults:','Project compensation terms updated for future recruitment');if(!reason)return;setBusy(true);setError('');setMessage('');try{await rpc('set_project_compensation_defaults',{p_project:project.id,p_work_mode:compMode,p_compensation_type:compMode==='paid'?compType:'none',p_currency:compCurrency.toUpperCase(),p_rate:compMode==='paid'?Number(compRate):null,p_note:compNote,p_reason:reason,p_version:compensation.version});setMessage('Project compensation defaults updated. Existing opportunity and assignment snapshots were not changed.');await loadDetail();}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+ function revoke(row:StaffRow){setPendingAction({kind:'revoke',row})}
+ function saveRecruitmentPlan(e:FormEvent){e.preventDefault();if(!project||!recruitment)return;setPendingAction({kind:'recruitment'})}
+ function saveCompensationPlan(e:FormEvent){e.preventDefault();if(!project||!compensation||!compensation.can_change)return;setPendingAction({kind:'compensation'})}
+ async function confirmPendingAction(reason:string){
+  if(!pendingAction||!project)return;
+  setBusy(true);setError('');setMessage('');
+  try{
+   if(pendingAction.kind==='revoke'){
+    await rpc('revoke_project_staff',{p_id:pendingAction.row.id,p_reason:reason,p_version:pendingAction.row.version});
+    setMessage('Project staff access revoked.');
+   }else if(pendingAction.kind==='recruitment'){
+    if(!recruitment)return;
+    await rpc('set_project_recruitment_plan',{p_project:project.id,p_target:Number(planTarget),p_required_volunteers:Number(planVolunteers),p_status:planStatus,p_reason:reason,p_version:recruitment.version});
+    setMessage('Project target and recruitment capacity updated.');
+   }else{
+    if(!compensation||!compensation.can_change)return;
+    await rpc('set_project_compensation_defaults',{p_project:project.id,p_work_mode:compMode,p_compensation_type:compMode==='paid'?compType:'none',p_currency:compCurrency.toUpperCase(),p_rate:compMode==='paid'?Number(compRate):null,p_note:compNote,p_reason:reason,p_version:compensation.version});
+    setMessage('Project compensation defaults updated. Existing opportunity and assignment snapshots were not changed.');
+   }
+   setPendingAction(null);await loadDetail();
+  }catch(e){setError((e as Error).message)}finally{setBusy(false)}
+ }
  if(!projects.length&&!error)return <section className="panel detail"><h2>Project workspace</h2><p>No authorized project workspace is available.</p></section>;
  return <section className="panel detail project-team-workspace">
   <div className="panel-title"><div><span className="eyebrow">PROJECT OPERATIONS</span><h2>{canManageTeam?'Project team management':'Project operational dashboard'}</h2><p>All counts, queues and area coverage are returned through your current database permissions.</p></div><div className="project-toolbar"><button type="button" className="secondary" disabled={busy||!selected} onClick={()=>void loadDetail()}>Refresh</button>{own&&<Badge value={own.role}/>}</div></div>
@@ -62,8 +84,21 @@ export function ProjectTeamWorkspace({userId,organization,projectId,geographies,
    {!canManageTeam&&<div className="project-quick-actions" aria-label="Project quick actions"><button className="primary" type="button" onClick={openOperations}>Open responses & reviews</button>{openNotifications&&<button className="secondary" type="button" onClick={openNotifications}>Open notifications</button>}</div>}
    {!canManageTeam&&<div className="project-operations-grid"><section className="project-operations-card"><div className="panel-title"><div><span className="eyebrow">FIELD COVERAGE</span><h3>Visible assignment areas</h3></div><span>{visibleAreaSummary.length} area{visibleAreaSummary.length===1?'':'s'}</span></div>{visibleAreaSummary.map(row=><div className="project-area-row" key={row.id}><span>{row.name}</span><strong>{row.count} active</strong></div>)}{!visibleAreaSummary.length&&!busy&&<p className="empty-state">No active volunteer assignment is visible in your current scope.</p>}</section><section className="project-operations-card"><div className="panel-title"><div><span className="eyebrow">REVIEW QUEUE</span><h3>Latest visible responses</h3></div><button type="button" className="link" onClick={openOperations}>Open all</button></div>{recent.map(row=><div className="project-response-row" key={row.id}><div><strong>{personNames[row.person_id]||`Response ${row.id.slice(0,8)}`}</strong><span>{geographyPath(row.collection_geography_id,geographies).map(g=>g.name).join(' / ')||'Collection area'}</span></div><div><Badge value={row.status}/><small>{new Date(row.updated_at).toLocaleString()}</small></div></div>)}{!recent.length&&!busy&&<p className="empty-state">No response is visible in your current scope.</p>}</section></div>}
    {canManageTeam&&<form className="project-staff-form" onSubmit={assign}><h3>Assign project staff</h3><div className="form-grid"><label className="field">Find member<input value={candidateQuery} maxLength={100} placeholder="Name or email" onChange={e=>setCandidateQuery(e.target.value)}/></label><label className="field">Organization member<select required value={person} onChange={e=>setPerson(e.target.value)}><option value="">Choose active member</option>{candidates.map(a=><option key={a.user_id} value={a.user_id}>{a.name||a.email||a.user_id}</option>)}</select></label><label className="field">Role<select value={role} onChange={e=>{setRole(e.target.value);setAreas([]);setArea(null)}}><option value="project_manager">Project Manager</option><option value="area_focal_person">Area Focal Person</option></select></label><label className="field">Starts<input required type="date" min={project.start_date} max={project.end_date} value={starts} onChange={e=>setStarts(e.target.value)}/></label><label className="field">Ends (optional)<input type="date" min={starts||project.start_date} max={project.end_date} value={ends} onChange={e=>setEnds(e.target.value)}/></label></div>{role==='area_focal_person'&&<><AreaSelector rows={projectAreas} value={area} onChange={setArea} title="Focal area" disabled={busy}/><button type="button" className="secondary" onClick={addArea} disabled={busy||!area}>Add area</button><div className="selected-chips">{areas.map(id=><span className="chip" key={id}>{geographyPath(id,geographies).map(g=>g.name).join(' / ')} <button type="button" className="link" onClick={()=>setAreas(v=>v.filter(x=>x!==id))}>Remove</button></span>)}</div></>}<button className="primary" disabled={busy||!person||(role==='area_focal_person'&&!areas.length)}>Assign staff</button></form>}
-   <div className="table-wrap project-team-table"><table><thead><tr><th>Person</th><th>Role</th><th>Scope</th><th>Status</th><th>Dates</th>{canManageTeam&&<th>Action</th>}</tr></thead><tbody>{roster.map(r=><tr key={r.id}><td data-label="Person">{r.name||r.user_id}</td><td data-label="Role">{human(r.role)}</td><td data-label="Scope">{r.role==='project_manager'?'Whole project':r.areas.map(a=>a.name).join(', ')||'—'}</td><td data-label="Status"><Badge value={r.status}/></td><td data-label="Dates">{r.starts_at} → {r.ends_at||'project end'}</td>{canManageTeam&&<td data-label="Action">{r.status==='active'?<button className="secondary" disabled={busy} onClick={()=>void revoke(r)}>Revoke</button>:'—'}</td>}</tr>)}</tbody></table></div>
+   <div className="table-wrap project-team-table"><table><thead><tr><th>Person</th><th>Role</th><th>Scope</th><th>Status</th><th>Dates</th>{canManageTeam&&<th>Action</th>}</tr></thead><tbody>{roster.map(r=><tr key={r.id}><td data-label="Person">{r.name||r.user_id}</td><td data-label="Role">{human(r.role)}</td><td data-label="Scope">{r.role==='project_manager'?'Whole project':r.areas.map(a=>a.name).join(', ')||'—'}</td><td data-label="Status"><Badge value={r.status}/></td><td data-label="Dates">{r.starts_at} → {r.ends_at||'project end'}</td>{canManageTeam&&<td data-label="Action">{r.status==='active'?<button className="secondary" disabled={busy} onClick={()=>revoke(r)}>Revoke</button>:'—'}</td>}</tr>)}</tbody></table></div>
    {!roster.length&&!busy&&<p>No project staff assignments yet.</p>}
   </>}
+  <ActionDialog
+   open={Boolean(pendingAction)}
+   title={pendingAction?.kind==='revoke'?`Revoke ${pendingAction.row.name||'project staff'} access?`:pendingAction?.kind==='recruitment'?'Update recruitment plan?':'Update compensation defaults?'}
+   description={pendingAction?.kind==='revoke'?'This removes the active project-staff assignment. Existing audit history is retained.':pendingAction?.kind==='recruitment'?'The target and recruitment-capacity controls affect future recruitment decisions; existing field submissions are retained.':'New compensation defaults apply only to future opportunity snapshots and do not rewrite existing assignments or payables.'}
+   confirmLabel={pendingAction?.kind==='revoke'?'Revoke access':'Confirm update'}
+   danger={pendingAction?.kind==='revoke'}
+   reasonLabel="Reason for change"
+   initialReason={pendingAction?.kind==='revoke'?'Project staffing changed':pendingAction?.kind==='recruitment'?'Operational recruitment plan updated':'Project compensation terms updated for future recruitment'}
+   minReasonLength={5}
+   busy={busy}
+   onCancel={()=>setPendingAction(null)}
+   onConfirm={confirmPendingAction}
+  />
  </section>
 }

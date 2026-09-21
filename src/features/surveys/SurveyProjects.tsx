@@ -18,6 +18,8 @@ export function SurveyProjects({
   geographies,
   openRecruitment,
   onBackToWorkspace,
+  workspaceMode = "full",
+  openWorkspace,
 }: {
   userId: string;
   organization: string | null;
@@ -29,6 +31,8 @@ export function SurveyProjects({
   geographies: Geo[];
   openRecruitment?: () => void;
   onBackToWorkspace?: () => void;
+  workspaceMode?: "full" | "field-work" | "responses";
+  openWorkspace?: (project: Project) => void;
 }) {
   const [collectionArea,setCollectionArea]=useState<string|null>(null);
   const [createOrganization,setCreateOrganization]=useState("");
@@ -140,6 +144,8 @@ export function SurveyProjects({
         manageAssignments={manageAssignments}
         geographies={geographies}
         openRecruitment={openRecruitment}
+        workspaceMode={workspaceMode}
+        openWorkspace={openWorkspace}
         backLabel={projectId ? "Project workspace" : "All projects"}
         back={() => {
           if (projectId && onBackToWorkspace) {

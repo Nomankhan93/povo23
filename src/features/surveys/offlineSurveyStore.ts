@@ -1,3 +1,4 @@
+import {prepareSurveyAttachments} from "./fieldAttachments";
 import type { Database, Json } from "../../lib/supabase/database.types";
 import { db } from "../../lib/supabase/client";
 
@@ -398,7 +399,7 @@ async function syncQueueOnce(ownerId: string, force=false) {
       catch { row.state="needs_attention"; row.failureKind="unreadable"; row.error="This device copy cannot be decrypted. It has been retained; automatic retry is paused."; await putQueue(row); continue; }
       row.syncingAt=Date.now();await putQueue(row);
       if (Object.values((args.p_answers || {}) as Record<string,Json>).some(v=>typeof v === "string" && v.startsWith("local-file:"))) {
-        const {prepareSurveyAttachments}=await import("./fieldAttachments");
+
         args=await prepareSurveyAttachments(ownerId,args);
         row.cipher=await encrypt(args);
         await putQueue(row); // Persist deterministic server references before any survey RPC.

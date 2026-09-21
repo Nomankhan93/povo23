@@ -65,6 +65,8 @@
 ./docs/PHASE-2.29.0.md
 ./docs/PHASE-2.29.md
 ./docs/PHASE-2.3.md
+./docs/PHASE-2.30.0.md
+./docs/PHASE-2.30.1.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
 ./docs/PHASE-2.4.md
@@ -144,6 +146,8 @@
 ./docs/UPGRADE-2.29.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
+./docs/UPGRADE-2.30.0.md
+./docs/UPGRADE-2.30.1.md
 ./docs/UPGRADE-2.4.1.md
 ./docs/UPGRADE-2.4.2.md
 ./docs/UPGRADE-2.4.md
@@ -211,6 +215,8 @@
 ./docs/VALIDATION-2.29.0.md
 ./docs/VALIDATION-2.29.md
 ./docs/VALIDATION-2.3.1.md
+./docs/VALIDATION-2.30.0.md
+./docs/VALIDATION-2.30.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
 ./docs/VALIDATION-2.4.md
@@ -304,6 +310,8 @@
 ./scripts/test-phase228.mjs
 ./scripts/test-phase229.mjs
 ./scripts/test-phase23.mjs
+./scripts/test-phase230.mjs
+./scripts/test-phase2301.mjs
 ./scripts/test-phase24.mjs
 ./scripts/test-phase25.mjs
 ./scripts/test-phase26.mjs
@@ -337,6 +345,7 @@
 ./src/components/layout
 ./src/components/layout/SidebarNavigation.tsx
 ./src/components/ui
+./src/components/ui/ActionDialog.tsx
 ./src/components/ui/FieldLanceBrand.tsx
 ./src/components/ui/Pager.tsx
 ./src/components/ui/WorkflowOverview.tsx
@@ -390,8 +399,13 @@
 ./src/features/payments/MockEWalletSandbox.tsx
 ./src/features/payments/WithdrawalOperationsWorkspace.tsx
 ./src/features/projects
+./src/features/projects/ProjectActivity.tsx
+./src/features/projects/ProjectDocuments.tsx
+./src/features/projects/projectNavigation.ts
+./src/features/projects/ProjectOverview.tsx
 ./src/features/projects/ProjectTeamWorkspace.tsx
 ./src/features/projects/ProjectWorkspace.tsx
+./src/features/projects/workspacePermissions.ts
 ./src/features/registry
 ./src/features/registry/canonical
 ./src/features/registry/canonical/canonical.css
@@ -520,6 +534,8 @@
 ./supabase/migrations/20261010000100_paid_work_funding_assurance_closure.sql
 ./supabase/migrations/20261010000200_organization_settings_team_compliance.sql
 ./supabase/migrations/20261011000100_field_worker_reputation_certificates.sql
+./supabase/migrations/20261012000100_project_workspace_completion.sql
+./supabase/migrations/20261012000200_project_workspace_stabilization.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

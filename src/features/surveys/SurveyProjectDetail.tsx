@@ -19,6 +19,7 @@ import {
 } from "./model";
 import { Pager } from "../../components/ui/Pager";
 import { SurveyForm } from "./SurveyForm";
+import { ActionDialog } from "../../components/ui/ActionDialog";
 export function SurveyProjectDetail({
   project,
   userId,
@@ -29,6 +30,8 @@ export function SurveyProjectDetail({
   back,
   backLabel = "All projects",
   openRecruitment,
+  workspaceMode = "full",
+  openWorkspace,
 }: {
   project: Project;
   userId: string;
@@ -39,8 +42,13 @@ export function SurveyProjectDetail({
   back: () => void;
   backLabel?: string;
   openRecruitment?: () => void;
+  workspaceMode?: "full" | "field-work" | "responses";
+  openWorkspace?: (project: Project) => void;
 }) {
   const [registryPerson, setRegistryPerson] = useState<string | null>(null);
+  const [closeRequested, setCloseRequested] = useState(false);
+  const showFieldWork = workspaceMode !== "responses";
+  const showResponses = workspaceMode !== "field-work";
   const [template, setTemplate] = useState<Template | null>(null),
     [responses, setResponses] = useState<Response[]>([]),
     [people, setPeople] = useState<Person[]>([]),
@@ -211,37 +219,28 @@ export function SurveyProjectDetail({
         approved · {counts.correction} need correction. Project target:{" "}
         {project.target}.
       </p>
+      {openWorkspace && workspaceMode === "full" && (
+        <button className="secondary" type="button" onClick={() => openWorkspace(project)}>
+          Open full project workspace
+        </button>
+      )}
       {error && (
         <p className="notice error" role="alert">
           {error}
         </p>
       )}
       {message && <p role="status">{message}</p>}
-      {review && project.status === "active" && openRecruitment && (
+      {showFieldWork && review && project.status === "active" && openRecruitment && (
         <button className="secondary" onClick={openRecruitment}>
           Open project recruitment
         </button>
       )}
-      {manage && project.status === "active" && (
-        <button
-          className="secondary"
-          disabled={busy}
-          onClick={() => {
-            if (
-              window.confirm(
-                "Close collection for this project? Existing records remain available for review.",
-              )
-            )
-              act(
-                () => rpc("close_survey_project", { p_id: project.id }),
-                "Project closed. Return to the project list to refresh status.",
-              );
-          }}
-        >
+      {showFieldWork && manage && project.status === "active" && (
+        <button className="secondary" disabled={busy} onClick={() => setCloseRequested(true)}>
           Close collection
         </button>
       )}
-      {manageAssignments && (
+      {showFieldWork && manageAssignments && (
         <details className="survey-question">
           <summary>Direct survey access / operational override</summary>
           <form onSubmit={findVolunteers}>
@@ -305,7 +304,7 @@ export function SurveyProjectDetail({
           ))}
         </details>
       )}
-      {assigned && project.status === "active" && (
+      {showFieldWork && assigned && project.status === "active" && (
         <button
           className="primary"
           disabled={busy}
@@ -318,7 +317,7 @@ export function SurveyProjectDetail({
           Start survey
         </button>
       )}
-      {collect && template && (
+      {showFieldWork && collect && template && (
         <SurveyForm
           key={editing?.id || "new"}
           project={project}
@@ -345,13 +344,14 @@ export function SurveyProjectDetail({
           }}
         />
       )}
-      {review && (
+      {showResponses && review && (
         <NeedsPanel
           refreshKey={rev}
           projectId={project.id}
           onChanged={() => setRev((n) => n + 1)}
         />
       )}
+      {showResponses && <>
       <div className="response-toolbar">
         <div>
           <h3>Responses</h3>
@@ -498,7 +498,8 @@ export function SurveyProjectDetail({
           ))}
         </section>
       )}
-      {review && registryPerson && (
+      </>}
+      {showResponses && review && registryPerson && (
         <RegistryOperations
           refreshKey={rev}
           key={registryPerson}
@@ -507,6 +508,7 @@ export function SurveyProjectDetail({
           changed={() => setRev((n) => n + 1)}
         />
       )}
+      {showResponses && <>
       <h3>Project registry</h3>
       <p>
         Identity is provisional, even after survey approval. Reuse an existing
@@ -556,6 +558,20 @@ export function SurveyProjectDetail({
         more={registryMore}
         busy={busy}
         onChange={setRegistryPage}
+      />
+      </>}
+      <ActionDialog
+        open={closeRequested}
+        title="Close project collection?"
+        description="New collection will stop. Existing responses remain available for review and project closure continues through its separate operational and finance stages."
+        confirmLabel="Close collection"
+        danger
+        busy={busy}
+        onCancel={() => setCloseRequested(false)}
+        onConfirm={async () => {
+          await act(() => rpc("close_survey_project", { p_id: project.id }), "Project collection closed.");
+          setCloseRequested(false);
+        }}
       />
     </section>
   );

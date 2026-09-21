@@ -22,7 +22,7 @@ const client={auth:{getSession:async()=>({data:{session:{user:{id:owner}}},error
 const navigatorMock={get onLine(){return online}};
 const source=readFileSync(new URL('../src/features/surveys/offlineSurveyStore.ts',import.meta.url),'utf8').replace('import { db } from "../../lib/supabase/client";','const db=client;');
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-function module(){const out={};new Function('exports','require','window','indexedDB','crypto','client','navigator',js)(out,()=>{throw Error('unexpected import')},windowMock,indexedDBMock,cryptoMock,client,navigatorMock);return out;}
+function module(){const out={};new Function('exports','require','window','indexedDB','crypto','client','navigator',js)(out,(name)=>{if(name==='./fieldAttachments')return {prepareSurveyAttachments:async()=>{throw Error('Upload invoked outside storage-only harness')}};throw Error('unexpected import: '+name)},windowMock,indexedDBMock,cryptoMock,client,navigatorMock);return out;}
 const a=module(),b=module();
 await Promise.all([a.saveSurveyDeviceDraft('owner','one',null,{name:'One'}),b.saveSurveyDeviceDraft('owner','two',null,{name:'Two'})]);
 assert.equal(generated,2);assert.equal((await a.loadSurveyDeviceDraft('owner','one',null)).name,'One');assert.equal((await b.loadSurveyDeviceDraft('owner','two',null)).name,'Two');console.log('PASS concurrent tab first-writes retain one usable nonextractable encryption key');

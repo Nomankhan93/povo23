@@ -1,4 +1,13 @@
-# Current permissions note — FieldLance 2.29.0
+# Current permissions note — FieldLance 2.30.1
+
+2.30.1: project navigation awaits device drafts; storage SELECT permits deleting objects only for active project managers so guarded deletion can finish. Existing database role authority remains unchanged.
+
+
+## Project Workspace Completion & UX Consolidation
+
+Frontend controls now follow the existing backend split more closely: NGO Admin / FieldLance survey authority can manage project staff; Project Manager can manage recruitment and project/case operations where existing RPCs permit; Area Focal Person retains scoped operational visibility without broad project-management, finance, case or activity authority. FieldLance finance authority and NGO Admin retain project-funding access; Project Manager does not inherit finance authority.
+
+Project documents are readable by active project staff and project managers through server-side membership checks. Upload/delete requires `app_private.can_manage_project(project_id)`. Storage is private and object policies validate the corresponding document reservation state. Project activity is deliberately manager-only because audit details can contain management context beyond an Area Focal Person's field scope.
 
 ## Field Worker Reputation & Certificates
 

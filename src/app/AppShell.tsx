@@ -36,14 +36,15 @@ import { MembershipActions } from "../features/organizations/MembershipActions";
 import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
-import { PartnerNgoApplication } from "../features/organizations/PartnerNgoApplication";
-import { PartnerNgoApplicationsReview } from "../features/organizations/PartnerNgoApplicationsReview";
+const PartnerNgoApplication = lazy(() => import("../features/organizations/PartnerNgoApplication").then(m => ({default:m.PartnerNgoApplication})));
+const PartnerNgoApplicationsReview = lazy(() => import("../features/organizations/PartnerNgoApplicationsReview").then(m => ({default:m.PartnerNgoApplicationsReview})));
 import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
 import { OrganizationDashboard } from "../features/organizations/OrganizationDashboard";
 import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
 import { TaskCenter } from "../features/operations/TaskCenter";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
-import { ProjectWorkspace } from "../features/projects/ProjectWorkspace";
+const ProjectWorkspace = lazy(() => import("../features/projects/ProjectWorkspace").then(m => ({default: m.ProjectWorkspace})));
+import { workspaceTeamPermission } from "../features/projects/workspacePermissions";
 import {OrganizationSettings, OrganizationInvitationInbox} from "../features/organizations/OrganizationSettings";
 import {ReputationCertificates} from "../features/workforce/ReputationCertificates";
 import { APP_VERSION } from "./version";
@@ -72,14 +73,14 @@ import {flushActiveDraft} from "../features/surveys/activeDraft";
 import {fieldInventory,lockFieldDevice} from "../features/surveys/offlineSurveyStore";
 import { SurveySyncStatus } from "../features/surveys/SurveySyncStatus";
 
-import { Directory } from "../features/volunteers/Directory";
+const Directory = lazy(() => import("../features/volunteers/Directory").then(m => ({default:m.Directory})));
 import { Documents } from "../features/volunteers/Documents";
 import { ExperiencePanel } from "../features/volunteers/ExperiencePanel";
 import { ProfileDetailsView } from "../features/volunteers/ProfileDetailsView";
 import { ProfileForm } from "../features/volunteers/ProfileForm";
 import { ProfilePhoto } from "../features/volunteers/ProfilePhoto";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
-import { WorkforceMarketplace } from "../features/workforce/WorkforceMarketplace";
+const WorkforceMarketplace = lazy(() => import("../features/workforce/WorkforceMarketplace").then(m => ({default:m.WorkforceMarketplace})));
 import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
 import { db, rpc } from "../lib/supabase/client";
 import type { Database } from "../lib/supabase/database.types";
@@ -105,6 +106,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [selected, setSelected] = useState<Row | null>(null),
+    [focusedProject, setFocusedProject] = useState<Row | null>(null),
     [orgEdit, setOrgEdit] = useState<Row | null>(null),
     [menu, setMenu] = useState(false),
     [geographies, setGeographies] = useState<Geo[]>([]),
@@ -169,6 +171,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       scopeRef.current = resolved;
       setPageState(workspaceHome(resolved));
       setSelected(null);
+      setFocusedProject(null);
       setOrgEdit(null);
       setQuery("");
       setFilter("all");
@@ -354,14 +357,23 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const projectScopeId = projectScope ? scope.slice("project:".length) : null;
   const projectScopeAssignment = projectScopeId ? projectStaff.find((item) => item.project_id === projectScopeId) : null;
   const projectScopeProject = projectScopeId ? staffProjects.find((item) => item.id === projectScopeId) : null;
+  const workspaceProject = projectScopeProject || (page === "Project workspace" ? focusedProject : null);
+  const workspaceProjectId = projectScopeId || (page === "Project workspace" ? focusedProject?.id || null : null);
+  const workspaceProjectOrganization = workspaceProject?.organization_id || null;
   const validScope =
     Boolean(access && (scope === "access" || access.workspaces.some(w => w.id === scope)));
+  const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
+  const ownsWorkspaceProject = Boolean(workspaceProjectOrganization && myOrgs.some((item) => item.id === workspaceProjectOrganization));
+  const canManageWorkspaceProject = Boolean(
+    surveyManage || ownsWorkspaceProject || (projectScope && projectScopeAssignment?.role === "project_manager"),
+  );
+  const canManageWorkspaceTeam = workspaceTeamPermission(surveyManage, ownsWorkspaceProject);
+  const canManageWorkspaceFinance = Boolean(financeManage || ownsWorkspaceProject);
   const canManageProjectAssignments = Boolean(
     surveyManage ||
     (!poem && scope !== "personal" && !projectScope) ||
     (projectScope && projectScopeAssignment?.role === "project_manager"),
   );
-  const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
   const standardNav = [
     ["Overview", LayoutDashboard],
     ["Task Center", ClipboardList],
@@ -457,12 +469,24 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const nav = scopedNav.filter(([name]) => name !== "E-Wallet sandbox" || import.meta.env.DEV);
   const change = (p: string) => {
     if (!nav.some(([name]) => name === p)) return;
+    setFocusedProject(null);
     setPage(p);
     setQuery("");
     setFilter("all");
     setMenu(false);
     setSelected(null);
     setOrgEdit(null);
+  };
+  const openProjectWorkspace = (project: Row) => {
+    void flushActiveDraft().then(() => {
+      setFocusedProject(project);
+      setPageState("Project workspace");
+      setQuery("");
+      setFilter("all");
+      setMenu(false);
+      setSelected(null);
+      setOrgEdit(null);
+    }).catch((e) => setError("Could not protect device draft: " + (e as Error).message));
   };
   const currentWorkspaceLabel = onboardingWorkspace ? 'Organization onboarding' : accessWorkspace ? 'Account access' : poem
     ? workspaceLabels.staff
@@ -474,7 +498,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const personalWorkspace = !poem && scope === "personal";
   const displayPage = poem ? staffPageLabel(page) : organizationWorkspace ? organizationPageLabel(page) : workspacePageLabel(page, personalWorkspace);
   const unreadNotifications = notifications.filter((n) => !n.read_at).length;
-  const pageEyebrow = page === "Partner NGO application"
+  const pageEyebrow = page === "Project workspace" && workspaceProject
+    ? "PROJECT OPERATIONS"
+    : page === "Partner NGO application"
     ? "ORGANIZATION ONBOARDING"
     : personalWorkspace
       ? page === "Overview" ? "FIELD WORKER WORKSPACE" : "FIELD WORKER"
@@ -483,7 +509,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
         : poem
           ? page === "Overview" ? "FIELDLANCE STAFF OPERATIONS" : "FIELDLANCE OPERATIONS"
           : "PEOPLE AT THE HEART OF IMPACT";
-  const pageTitle = onboardingWorkspace && page === 'Partner NGO application' ? 'Your organization application' : accessWorkspace ? 'Choose your next step' : page === "Overview"
+  const pageTitle = page === "Project workspace" && workspaceProject
+    ? workspaceProject.title || "Project workspace"
+    : onboardingWorkspace && page === 'Partner NGO application' ? 'Your organization application' : accessWorkspace ? 'Choose your next step' : page === "Overview"
     ? poem
       ? "Keep the FieldLance network accountable."
       : scope === "personal"
@@ -496,6 +524,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ? "Create and submit your organization profile for FieldLance review. Worker enrollment is a separate, optional choice."
     : page === "Notifications"
       ? "Review actionable updates, open the linked workflow and manage communication preferences."
+    : page === "Project workspace" && workspaceProject
+      ? "Manage this project's delivery, people, evidence, governance, cases and financial readiness from one project-scoped workspace."
     : poem
       ? "Review priority queues, govern access and coordinate trusted operations across the FieldLance network."
       : scope === "personal"
@@ -582,6 +612,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         </button>
       </aside>
       <main id="workspace-main">
+        <Suspense fallback={<p role="status">Loading workspace…</p>}>
         <header>
           <button
             className="mobile-toggle"
@@ -1010,20 +1041,20 @@ export function Workspace({ session, openField }: { session: Session; openField:
               canManageTeam={true}
             />
           )}
-          {page === "Project workspace" && projectScopeId && validScope && (
-            // Legacy project-workspace contract remains covered; the tab shell resolves management from scope.
-            /* canManageTeam={false} */
-            /* openOperations={() => change("Survey projects")} */
-            /* openNotifications={() => change("Notifications")} */
+          {page === "Project workspace" && workspaceProjectId && validScope && (
             <ProjectWorkspace
-              key={`project-${projectScopeId}-${revision}`}
+              key={`project-${workspaceProjectId}-${revision}`}
               userId={session.user.id}
-              projectId={projectScopeId}
-              organization={projectScopeProject?.organization_id || null}
+              projectId={workspaceProjectId}
+              organization={workspaceProjectOrganization}
               geographies={geographies}
               orgs={orgs as any}
-              canManageTeam={canManageProjectAssignments}
-              canManageRecruitment={canManageProjectAssignments}
+              canManageTeam={canManageWorkspaceTeam}
+              canManageRecruitment={canManageWorkspaceProject}
+              canManageProject={canManageWorkspaceProject}
+              canManageFinance={canManageWorkspaceFinance}
+              canManageCases={canManageWorkspaceProject}
+              platformFinance={financeManage}
               surveyManage={surveyManage}
               onNavigate={change}
             />
@@ -1041,6 +1072,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 orgs={orgs as any}
                 geographies={geographies}
                 openRecruitment={canManageProjectAssignments ? () => change(projectScope ? "Recruitment" : "Workforce marketplace") : undefined}
+                openWorkspace={!projectScope && (organizationWorkspace || surveyManage) ? (project) => openProjectWorkspace(project as unknown as Row) : undefined}
                 onBackToWorkspace={projectScope ? () => change("Project workspace") : undefined}
               />
             </Suspense>
@@ -1100,6 +1132,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <span>FieldLance {APP_VERSION} · Field workforce & operations platform</span>
           </footer>
         </div>
+        </Suspense>
       </main>
     </div>
   );
