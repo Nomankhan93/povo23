@@ -1,12 +1,12 @@
-# Current release checklist — FieldLance 2.25.2
+# Current release checklist — FieldLance 2.26.0
 
-## 2.25.2 Frontend Navigation & Workspace IA Stabilization
+## 2.26 Paid Work Funding Assurance & Project Finance Closure
 
 Desktop sidebar uses 280px expanded and 76px compact layouts with an optional persistent preference. Mobile uses the existing full-label drawer. Workspace-specific collapsible groups keep tasks/updates near Home and move optional impact modules into their own group. Navigation renders only the authorized page set from 2.25.1. Its active group expands on navigation, compact icons retain accessible names and native titles, and navigation scrolls separately from identity/sign-out controls.
 
 Public navigation, onboarding and verification terminology now uses Organization and Field Worker. Unavailable Email/Push preference controls are hidden while stored preferences are preserved. Wallet Sandbox is excluded from the production frontend import/render path; existing backend finance permissions and mock-provider services are unchanged. Audit actors prefer authorized account names and expose UUIDs only in technical details.
 
-No migration or dependency changes. Migration head remains 20261009000900_identity_workspace_stabilization.sql (58 migrations). See PHASE-2.25.2, UPGRADE-2.25.2 and VALIDATION-2.25.2 in docs.
+Apply `20261010000100_paid_work_funding_assurance_closure.sql` after the 2.25.1 identity migration. Existing ledger/payable architecture remains authoritative.
 
 ## Previous release notes retained
 

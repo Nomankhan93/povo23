@@ -55,6 +55,8 @@ docs/PHASE-2.24.0.md
 docs/PHASE-2.25.0.md
 docs/PHASE-2.25.1.md
 docs/PHASE-2.25.2.md
+docs/PHASE-2.26.0.md
+docs/PHASE-2.26.md
 docs/PHASE-2.3.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
@@ -126,6 +128,8 @@ docs/UPGRADE-2.24.0.md
 docs/UPGRADE-2.25.0.md
 docs/UPGRADE-2.25.1.md
 docs/UPGRADE-2.25.2.md
+docs/UPGRADE-2.26.0.md
+docs/UPGRADE-2.26.md
 docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.4.1.md
@@ -187,6 +191,8 @@ docs/VALIDATION-2.24.0.md
 docs/VALIDATION-2.25.0.md
 docs/VALIDATION-2.25.1.md
 docs/VALIDATION-2.25.2.md
+docs/VALIDATION-2.26.0.md
+docs/VALIDATION-2.26.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
@@ -274,6 +280,7 @@ scripts/test-phase2191.mjs
 scripts/test-phase2192.mjs
 scripts/test-phase2193.mjs
 scripts/test-phase22.mjs
+scripts/test-phase226.mjs
 scripts/test-phase23.mjs
 scripts/test-phase24.mjs
 scripts/test-phase25.mjs
@@ -447,5 +454,6 @@ supabase/migrations/20261009000600_partner_ngo_application_experience.sql
 supabase/migrations/20261009000700_tasks_sla_escalation_center.sql
 supabase/migrations/20261009000800_notifications_communication_center.sql
 supabase/migrations/20261009000900_identity_workspace_stabilization.sql
+supabase/migrations/20261010000100_paid_work_funding_assurance_closure.sql
 tsconfig.json
 vite.config.ts

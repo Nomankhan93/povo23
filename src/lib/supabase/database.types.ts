@@ -2545,6 +2545,57 @@ granted_at?: string;
 };
 Relationships: [];
 };
+project_funding_commitments: {
+Row: {
+id: string;
+project_id: string;
+organization_id: string;
+opportunity_id: string;
+currency: string;
+amount: number;
+status: string;
+reason: string;
+created_by: string;
+created_at: string;
+released_at: string | null;
+released_by: string | null;
+release_reason: string;
+version: number;
+};
+Insert: {
+id?: string;
+project_id: string;
+organization_id: string;
+opportunity_id: string;
+currency: string;
+amount: number;
+status?: string;
+reason?: string;
+created_by: string;
+created_at?: string;
+released_at?: string | null;
+released_by?: string | null;
+release_reason?: string;
+version?: number;
+};
+Update: {
+id?: string;
+project_id?: string;
+organization_id?: string;
+opportunity_id?: string;
+currency?: string;
+amount?: number;
+status?: string;
+reason?: string;
+created_by?: string;
+created_at?: string;
+released_at?: string | null;
+released_by?: string | null;
+release_reason?: string;
+version?: number;
+};
+Relationships: [];
+};
 project_policy_versions: {
 Row: {
 project_id: string;
@@ -3011,6 +3062,12 @@ compensation_currency: string;
 compensation_rate: number | null;
 compensation_note: string;
 compensation_version: number;
+project_closure_state: string;
+collection_closed_at: string | null;
+operational_completed_at: string | null;
+financially_reconciled_at: string | null;
+fully_closed_at: string | null;
+closure_note: string;
 };
 Insert: {
 id?: string;
@@ -3039,6 +3096,12 @@ compensation_currency?: string;
 compensation_rate?: number | null;
 compensation_note?: string;
 compensation_version?: number;
+project_closure_state?: string;
+collection_closed_at?: string | null;
+operational_completed_at?: string | null;
+financially_reconciled_at?: string | null;
+fully_closed_at?: string | null;
+closure_note?: string;
 };
 Update: {
 id?: string;
@@ -3067,6 +3130,12 @@ compensation_currency?: string;
 compensation_rate?: number | null;
 compensation_note?: string;
 compensation_version?: number;
+project_closure_state?: string;
+collection_closed_at?: string | null;
+operational_completed_at?: string | null;
+financially_reconciled_at?: string | null;
+fully_closed_at?: string | null;
+closure_note?: string;
 };
 Relationships: [];
 };
@@ -3995,6 +4064,12 @@ p_limit?: number | null;
 }; Returns: Json };
 admin_mock_e_wallet_queue: { Args: {
 }; Returns: Json };
+advance_project_closure: { Args: {
+p_project: string | null;
+p_state: string | null;
+p_note: string | null;
+p_version?: number | null;
+}; Returns: Json };
 apply_canonical_review: { Args: {
 p_preview: Json | null;
 p_status: string | null;
@@ -4487,8 +4562,15 @@ preview_canonical_review: { Args: {
 p_person: string | null;
 p_other: string | null;
 }; Returns: Json };
+project_closure_status: { Args: {
+p_project: string | null;
+}; Returns: Json };
 project_compensation_status: { Args: {
 p_project: string | null;
+}; Returns: Json };
+project_funding_assurance: { Args: {
+p_project: string | null;
+p_currency?: string | null;
 }; Returns: Json };
 project_funding_history: { Args: {
 p_project: string | null;
@@ -4616,6 +4698,11 @@ p_currency: string | null;
 p_amount: number | null;
 p_idempotency_key: string | null;
 p_reason: string | null;
+}; Returns: string };
+release_project_funding_commitment: { Args: {
+p_opportunity: string | null;
+p_reason: string | null;
+p_request: string | null;
 }; Returns: string };
 reopen_beneficiary_case: { Args: {
 p_case: string | null;
@@ -5063,6 +5150,10 @@ survey_assignment_candidates: { Args: {
 p_project: string | null;
 p_query: string | null;
 }; Returns: Json };
+sweep_expired_project_funding_commitments: { Args: {
+p_project: string | null;
+p_limit?: number | null;
+}; Returns: number };
 unlink_my_e_wallet: { Args: {
 p_wallet: string | null;
 }; Returns: undefined };
