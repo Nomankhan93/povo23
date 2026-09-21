@@ -44,7 +44,7 @@ try{
 
   await as('super');
   const template=await call('publish_survey_template',['2.16.1 Compensation Template',[{id:'q',label:'Question',type:'text',required:true}]]);
-  const dates=(await rows("select ((now() at time zone 'UTC')::date-1)::text start,((now() at time zone 'UTC')::date+30)::text finish,((now() at time zone 'UTC')::date+1)::text opp_start,((now() at time zone 'UTC')::date+10)::text opp_end,(now()+interval '1 hour')::text reply,current_date::text today"))[0];
+  const dates=(await rows("select ((now() at time zone 'UTC')::date-1)::text start,((now() at time zone 'UTC')::date+30)::text finish,((now() at time zone 'UTC')::date+1)::text opp_start,((now() at time zone 'UTC')::date+10)::text opp_end,(now()+interval '1 day')::text reply,current_date::text today"))[0];
   const project=await call('create_survey_project',[org,'2.16.1 Paid Field Project',template,district,10,dates.start,dates.finish,'Validate project compensation defaults and immutable assignment snapshots','v1','Explain the project and obtain informed consent before collecting survey data.']);
 
   await as('ngo');

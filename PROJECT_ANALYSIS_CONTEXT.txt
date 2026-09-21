@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.25.1
+Release: 2.25.2
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -115,10 +115,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261009000900_identity_workspace_stabilization.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 71
-TypeScript/TSX source files: 89
-Markdown docs: 198
-Inventory files (excluding local/build/temp/backup state): 446
+Test scripts (scripts/test-*.mjs): 72
+TypeScript/TSX source files: 90
+Markdown docs: 201
+Inventory files (excluding local/build/temp/backup state): 451
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

@@ -5,7 +5,7 @@ type Case = Database["public"]["Tables"]["independent_verifications"]["Row"] & {
 type Event = Database["public"]["Tables"]["independent_verification_events"]["Row"];
 type Kind = "organization"|"volunteer"|"beneficiary";
 const kinds:Kind[]=["organization","volunteer","beneficiary"];
-const labels={organization:"NGO registration",volunteer:"Volunteer identity",beneficiary:"Beneficiary identity"};
+const labels={organization:"Organization verification",volunteer:"Field Worker verification",beneficiary:"Beneficiary identity"};
 export function VerificationWorkspace({userId,managers}:{userId:string;managers:Record<Kind,boolean>}) {
  const [query,setQuery]=useState("");
  const [kind,setKind]=useState<Kind>("volunteer");

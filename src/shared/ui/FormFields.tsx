@@ -1,5 +1,9 @@
 import { type ReactNode } from "react";
-export const human = (s: string) => s.replaceAll("_", " ");
+const publicRoleLabels: Record<string,string> = {
+  volunteer: 'Field Worker', volunteer_manager: 'Field Worker manager', ngo: 'Organization',
+  ngo_admin: 'Organization Admin', ngo_manager: 'Organization manager',
+};
+export const human = (s: string) => publicRoleLabels[s] || s.replaceAll("_", " ");
 export function Badge({ value }: { value: string }) {
   return <span className={"badge " + value}>{human(value)}</span>;
 }

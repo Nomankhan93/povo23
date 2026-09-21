@@ -78,7 +78,7 @@ export function PartnerNgoApplicationsReview({
       {message && <div className="notice success" role="status">{message}</div>}
       <section className="panel detail">
         <div className="panel-title">
-          <div><h2>Partner NGO applications</h2><span>Review organization identity, representative details and supporting evidence.</span></div>
+          <div><h2>Organization applications</h2><span>Review organization identity, representative details and supporting evidence.</span></div>
         </div>
         {loading && <p role="status">Loading applications…</p>}
         <div className="table-wrap">
@@ -97,7 +97,7 @@ export function PartnerNgoApplicationsReview({
             </tbody>
           </table>
         </div>
-        {!loading && !rows.length && <p className="empty-state">No Partner NGO applications yet.</p>}
+        {!loading && !rows.length && <p className="empty-state">No Organization applications yet.</p>}
       </section>
 
       {selected && <>
@@ -123,8 +123,8 @@ export function PartnerNgoApplicationsReview({
           <section className="panel detail">
             <h3>FieldLance decision</h3>
             <p>
-              Approving creates an active Partner NGO, copies the structured operating areas/programs,
-              and activates the applicant as the first NGO Admin. Every current application document
+              Approving creates an active Organization, copies the structured operating areas/programs,
+              and activates the applicant as the first Organization Admin. Every current application document
               must be reviewed, including accepted registration/legal proof.
             </p>
             <form onSubmit={(e) => {
@@ -138,12 +138,12 @@ export function PartnerNgoApplicationsReview({
                 p_decision: decision,
                 p_note: String(f.get("note")),
                 p_version: selected.version,
-              }), `Partner NGO application decision saved: ${label}.`);
+              }), `Organization application decision saved: ${label}.`);
             }}>
               <Field label="Decision">
                 <select name="decision" defaultValue="changes_requested">
                   <option value="changes_requested">Request changes</option>
-                  <option value="approved">Approve Partner NGO</option>
+                  <option value="approved">Approve Organization</option>
                   <option value="rejected">Reject application</option>
                 </select>
               </Field>

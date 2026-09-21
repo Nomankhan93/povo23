@@ -21,9 +21,12 @@ try{
  assert(render({profileStatus:'<script>',personal:true}).includes('&lt;script&gt;'));
  assert(renderToStaticMarkup(React.createElement(StatusBadge,{tone:'warning'},'Offline')).includes('Offline'));
  console.log('PASS status uses visible text and profile values are escaped');
- const navSource=readFileSync('src/app/navigation.ts','utf8');
- const pages=[...navSource.matchAll(/pages:\s*\[([\s\S]*?)\]/g)].flatMap(match=>[...match[1].matchAll(/[\"']([^\"']+)[\"']/g)].map(value=>value[1]));
- assert.equal(new Set(pages).size,pages.length);
- for(const page of ['Overview','My profile','Private documents','Available Opportunities','Recruitment','Canonical registry','Survey projects','Notifications','Activity'])assert(pages.includes(page));
+ const {getNavigationGroups}=await import('../src/app/navigation.ts');
+ const allowed=['Overview','My profile','Private documents','Available Opportunities','Recruitment','Canonical registry','Survey projects','Notifications','Activity'];
+ for(const kind of ['personal','organization','staff','project','onboarding','access']){
+  const pages=getNavigationGroups(kind,allowed).flatMap(group=>group.pages);
+  assert.equal(new Set(pages).size,pages.length);
+  assert.deepEqual([...pages].sort(),[...allowed].sort());
+ }
  console.log('PASS centralized navigation groups are unique and cover key workflows');
 }finally{rmSync(dir,{recursive:true,force:true})}

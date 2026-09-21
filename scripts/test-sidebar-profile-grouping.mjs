@@ -1,11 +1,6 @@
-import assert from "node:assert/strict";
-import fs from "node:fs";
-
-const src = fs.readFileSync(new URL("../src/app/AppShell.tsx", import.meta.url), "utf8");
-const profile = src.indexOf('["My profile", UserRound]');
-const exp = src.indexOf('["Work experience", Users]');
-const docs = src.indexOf('["Private documents", ShieldCheck]');
-const partner = src.indexOf('["Partner NGOs", Building2]');
-assert(profile >= 0 && exp > profile && docs > exp && partner > docs,
-  "Expected sidebar order: My profile -> Work experience -> Private documents -> Partner NGOs");
-console.log("PASS volunteer sidebar groups Work experience and Private documents directly below My profile");
+import assert from 'node:assert/strict';
+import {getNavigationGroups} from '../src/app/navigation.ts';
+const groups=getNavigationGroups('personal',['My profile','Work experience','Private documents','Verification']);
+assert.deepEqual(groups.find(g=>g.label==='Profile').pages,['My profile','Verification','Private documents']);
+assert.deepEqual(groups.find(g=>g.label==='Career').pages,['Work experience']);
+console.log('PASS worker profile and private documents stay together; work history belongs to Career');

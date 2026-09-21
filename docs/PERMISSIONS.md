@@ -1,4 +1,14 @@
-# Current permissions note — FieldLance 2.25.1
+# Current permissions note — FieldLance 2.25.2
+
+## 2.25.2 Frontend Navigation & Workspace IA Stabilization
+
+Desktop sidebar uses 280px expanded and 76px compact layouts with an optional persistent preference. Mobile uses the existing full-label drawer. Workspace-specific collapsible groups keep tasks/updates near Home and move optional impact modules into their own group. Navigation renders only the authorized page set from 2.25.1. Its active group expands on navigation, compact icons retain accessible names and native titles, and navigation scrolls separately from identity/sign-out controls.
+
+Public navigation, onboarding and verification terminology now uses Organization and Field Worker. Unavailable Email/Push preference controls are hidden while stored preferences are preserved. Wallet Sandbox is excluded from the production frontend import/render path; existing backend finance permissions and mock-provider services are unchanged. Audit actors prefer authorized account names and expose UUIDs only in technical details.
+
+No migration or dependency changes. Migration head remains 20261009000900_identity_workspace_stabilization.sql (58 migrations). See PHASE-2.25.2, UPGRADE-2.25.2 and VALIDATION-2.25.2 in docs.
+
+## Previous release notes retained
 
 ## 2.25.1 Identity and workspace stabilization
 

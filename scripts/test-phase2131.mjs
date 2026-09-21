@@ -51,7 +51,7 @@ try {
     'NGO access stabilization survey',
     [{ id: 'q', label: 'Question', type: 'text', required: true }],
   ]);
-  const d = (await rows("select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+1)::text opportunity_start,((now() at time zone 'UTC')::date+10)::text finish,(now()+interval '2 hours')::text reply_by"))[0];
+  const d = (await rows("select ((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+1)::text opportunity_start,((now() at time zone 'UTC')::date+10)::text finish,(now()+interval '1 day')::text reply_by"))[0];
   const project = await call('create_survey_project', [
     org,
     'NGO Access Stabilization Project',
@@ -142,7 +142,7 @@ try {
   await ok('approved application provides a direct Open NGO workspace handoff', async () => {
     const application = readFileSync('src/features/organizations/PartnerNgoApplication.tsx', 'utf8');
     const shell = readFileSync('src/app/AppShell.tsx', 'utf8');
-    assert.match(application, /Open NGO workspace/);
+    assert.match(application, /Open Organization workspace/);
     assert.match(application, /onOpenOrganization/);
     assert.match(shell, /onOpenOrganization/);
     assert.match(shell, /Partner NGO application/);

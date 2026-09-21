@@ -64,7 +64,7 @@ const registrationTypes = [
   "Charitable Organization",
   "Community-Based Organization (CBO)",
   "Foundation",
-  "International NGO",
+  "International Organization",
   "Non-profit Company",
   "Religious / Welfare Organization",
   "Section 42 Company",
@@ -318,7 +318,7 @@ export function PartnerNgoDocuments({
         typeof d.id !== "string" ||
         typeof d.object_path !== "string"
       )
-        throw Error("Invalid NGO document reservation response");
+        throw Error("Invalid Organization document reservation response");
       const uploaded = await db!.storage
         .from("poem-ngo-applications")
         .upload(d.object_path, file, {
@@ -382,7 +382,7 @@ export function PartnerNgoDocuments({
         typeof next.id !== "string" ||
         typeof next.object_path !== "string"
       )
-        throw Error("Invalid NGO document reservation response");
+        throw Error("Invalid Organization document reservation response");
 
       const uploaded = await db!.storage
         .from("poem-ngo-applications")
@@ -837,20 +837,20 @@ export function PartnerNgoApplication({
   const statusBadgeValue = application?.status === "submitted" ? "under_review" : application?.status || "draft";
   const statusLabel = application?.status === "submitted" ? "Under review" : application ? human(application.status) : "Draft";
 
-  if (loading) return <p role="status">Loading Partner NGO application…</p>;
+  if (loading) return <p role="status">Loading Organization application…</p>;
 
   if (!application) {
     return (
       <section className="panel detail ngo-application-intro">
         <span className="eyebrow">ORGANIZATION ONBOARDING</span>
-        <h2>Apply as a Partner NGO</h2>
+        <h2>Apply as a Organization</h2>
         <p>
           Create a verified organization presence on FieldLance, publish field opportunities and manage
           projects after approval. Your personal Field Worker account stays separate from the organization workspace.
-          When approved, you become the first Partner NGO Admin for that workspace.
+          When approved, you become the first Organization Admin for that workspace.
         </p>
         {error && <div className="notice error" role="alert">{error}</div>}
-        <button className="primary" disabled={busy} onClick={() => void startNew()}>Start Partner NGO application</button>
+        <button className="primary" disabled={busy} onClick={() => void startNew()}>Start Organization application</button>
       </section>
     );
   }
@@ -859,7 +859,7 @@ export function PartnerNgoApplication({
     <div className="ngo-application-workspace ngo-application-v2">
       <section className="ngo-application-statusbar" aria-label="Application progress">
         <div>
-          <span className="eyebrow">PARTNER NGO APPLICATION</span>
+          <span className="eyebrow">PARTNER Organization APPLICATION</span>
           <strong>{application.organization_name || "Organization application"}</strong>
           <p>Your organization will be activated after FieldLance reviews this application and the required documents.</p>
         </div>
@@ -879,7 +879,7 @@ export function PartnerNgoApplication({
       {error && <div className="notice error" role="alert">{error}</div>}
       {message && <div className="ngo-toast" role="status"><Check size={17}/>{message}</div>}
 
-      <nav className="ngo-application-stepper" aria-label="Partner NGO application steps">
+      <nav className="ngo-application-stepper" aria-label="Organization application steps">
         {applicationSteps.map(([label, description], index) => {
           const complete = index < 4 ? requiredGroups[index] : readyToSubmit;
           const active = step === index;
@@ -1108,8 +1108,8 @@ export function PartnerNgoApplication({
 
           {application.status === "approved" && (
             <div className="notice success ngo-application-approved">
-              <div><strong>Your Partner NGO is active.</strong><p>Open the organization workspace to manage projects, recruitment and operations.</p></div>
-              {application.organization_id && <button className="primary" type="button" onClick={() => onOpenOrganization?.(application.organization_id!)}>Open NGO workspace</button>}
+              <div><strong>Your Organization is active.</strong><p>Open the organization workspace to manage projects, recruitment and operations.</p></div>
+              {application.organization_id && <button className="primary" type="button" onClick={() => onOpenOrganization?.(application.organization_id!)}>Open Organization workspace</button>}
             </div>
           )}
           {application.status === "submitted" && (
@@ -1141,7 +1141,7 @@ export function PartnerNgoApplication({
             <div className="ngo-success-icon"><Check size={28}/></div>
             <span className="eyebrow">SUBMITTED TO FieldLance</span>
             <h2 id="ngo-submit-success-title">Application submitted successfully</h2>
-            <p>Your Partner NGO application has been submitted to FieldLance for review. We’ll notify you when it is reviewed or if changes are requested.</p>
+            <p>Your Organization application has been submitted to FieldLance for review. We’ll notify you when it is reviewed or if changes are requested.</p>
             <div className="ngo-modal-status"><span>Status</span><strong>Under review</strong></div>
             <div className="ngo-success-actions">
               <button className="secondary" type="button" onClick={() => setSubmitSuccess(false)}>View application</button>

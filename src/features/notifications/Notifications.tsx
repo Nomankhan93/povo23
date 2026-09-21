@@ -5,11 +5,9 @@ import {
   BellRing,
   CheckCheck,
   Clock3,
-  Mail,
   Megaphone,
   MessageSquareText,
   Settings2,
-  Smartphone,
 } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
@@ -20,6 +18,8 @@ type Broadcast = Database["public"]["Tables"]["notification_broadcasts"]["Row"];
 type CenterMode = "personal" | "organization" | "project" | "staff";
 type Filter = "all" | "unread" | "task" | "recruitment" | "finance" | "broadcast" | "archived";
 type CenterPayload = { items: Row[]; total: number; unread: number; offset: number; limit: number };
+
+// This center does not send external email, push, SMS or WhatsApp messages; provider delivery remains deferred.
 
 const defaultPreferences: Omit<Preference, "user_id" | "updated_at"> = {
   email_enabled: false,
@@ -241,12 +241,10 @@ export function Notifications({
       {notice && <p role="status" className="notice success">{notice}</p>}
 
       {preferencesOpen && <div className="notification-preferences panel">
-        <div className="panel-title"><div><span className="eyebrow">DELIVERY PREFERENCES</span><h3>Choose future channel alerts</h3></div></div>
-        <p className="fine">In-app transactional updates stay available. Email and push settings are stored now for provider integration later; this release does not send external email, push, SMS or WhatsApp messages.</p>
+        <div className="panel-title"><div><span className="eyebrow">IN-APP PREFERENCES</span><h3>Announcement preferences</h3></div></div>
+        <p className="fine">Choose whether to receive optional in-app announcements. In-app transactional updates stay available.</p>
         <div className="notification-preference-grid">
-          <label><input type="checkbox" checked={preferences.email_enabled} onChange={(e)=>setPreferences({...preferences,email_enabled:e.target.checked})}/><Mail size={16}/><span><strong>Email alerts</strong><small>Preference stored; provider not connected yet.</small></span></label>
-          <label><input type="checkbox" checked={preferences.push_enabled} onChange={(e)=>setPreferences({...preferences,push_enabled:e.target.checked})}/><Smartphone size={16}/><span><strong>Push alerts</strong><small>Preference stored; push transport comes later.</small></span></label>
-          {([['broadcasts_enabled','Broadcast announcements'],['recruitment_enabled','Recruitment'],['assignments_enabled','Assignments & offers'],['tasks_enabled','Tasks & SLA'],['surveys_enabled','Survey operations'],['finance_enabled','Finance & withdrawals'],['organization_enabled','Organization updates'],['cases_enabled','Cases & assistance']] as Array<[keyof typeof preferences,string]>).map(([key,label])=><label key={key}><input type="checkbox" checked={Boolean(preferences[key])} onChange={(e)=>setPreferences({...preferences,[key]:e.target.checked})}/><span><strong>{label}</strong><small>Saved for future channel routing.</small></span></label>)}
+          {([['broadcasts_enabled','Broadcast announcements']] as Array<[keyof typeof preferences,string]>).map(([key,label])=><label key={key}><input type="checkbox" checked={Boolean(preferences[key])} onChange={(e)=>setPreferences({...preferences,[key]:e.target.checked})}/><span><strong>{label}</strong><small>Receive optional in-app announcements.</small></span></label>)}
         </div>
         <div className="actions"><button className="primary" disabled={busy} onClick={() => void savePreferences()}>Save preferences</button><button className="secondary" onClick={()=>setPreferencesOpen(false)}>Cancel</button></div>
       </div>}

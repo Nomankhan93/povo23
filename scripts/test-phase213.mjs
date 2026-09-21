@@ -199,8 +199,8 @@ try {
     assert.match(auth, /Choose FieldLance workspace/i);
     assert.match(auth, /Create your FieldLance account/i);
     assert.doesNotMatch(auth, /label: "FieldLance Staff"/);
-    assert.match(apply, /first Partner NGO Admin/i);
-    assert.match(review, /Approve Partner NGO/);
+    assert.match(apply, /first Organization Admin/i);
+    assert.match(review, /Approve Organization/);
   });
 
   await ok('new onboarding tables retain RLS and anonymous callers have no application access', async () => {

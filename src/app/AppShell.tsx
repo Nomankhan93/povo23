@@ -1,9 +1,12 @@
+import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
-import {navigationGroups, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
+import {getNavigationGroups, readSidebarCollapsed, saveSidebarCollapsed, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
+  PanelLeftClose,
+  PanelLeftOpen,
   ArrowRight,
   Bell,
   Building2,
@@ -45,7 +48,7 @@ const PayablesWorkspace = lazy(()=>import("../features/payables/PayablesWorkspac
 const ProjectFundingWorkspace = lazy(()=>import("../features/finance/ProjectFundingWorkspace").then(m=>({default:m.ProjectFundingWorkspace})));
 const EarningsWorkspace = lazy(()=>import("../features/payments/EarningsWorkspace").then(m=>({default:m.EarningsWorkspace})));
 const EWalletWithdrawalWorkspace = lazy(()=>import("../features/payments/EWalletWithdrawalWorkspace").then(m=>({default:m.EWalletWithdrawalWorkspace})));
-const MockEWalletSandbox = lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox})));
+const MockEWalletSandbox = import.meta.env.DEV ? lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox}))) : () => null;
 const WithdrawalOperationsWorkspace = lazy(()=>import("../features/payments/WithdrawalOperationsWorkspace").then(m=>({default:m.WithdrawalOperationsWorkspace})));
 const BeneficiaryCasesWorkspace = lazy(()=>import("../features/cases/BeneficiaryCasesWorkspace").then(m=>({default:m.BeneficiaryCasesWorkspace})));
 const AssistanceLedgerWorkspace = lazy(()=>import("../features/assistance/AssistanceLedgerWorkspace").then(m=>({default:m.AssistanceLedgerWorkspace})));
@@ -80,6 +83,8 @@ import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
+  const [collapsed, setCollapsed] = useState(readSidebarCollapsed);
+  function toggleSidebar() { setCollapsed(old => {saveSidebarCollapsed(!old);return !old;}); }
   const [account, setAccount] = useState<Row | null>(null),
     [profiles, setProfiles] = useState<Row[]>([]),
     [orgs, setOrgs] = useState<Row[]>([]),
@@ -427,7 +432,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
   const onboardingWorkspace = scope === 'onboarding';
   const accessWorkspace = scope === 'access';
-  const nav = onboardingWorkspace || accessWorkspace
+  const scopedNav = onboardingWorkspace || accessWorkspace
     ? ([[onboardingWorkspace ? "Partner NGO application" : "Access status", Building2], ["Notifications", Bell]] as const)
     : projectScope
     ? ([
@@ -443,6 +448,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       : poem
         ? staffNav
         : standardNav;
+  const nav = scopedNav.filter(([name]) => name !== "E-Wallet sandbox" || import.meta.env.DEV);
   const change = (p: string) => {
     if (!nav.some(([name]) => name === p)) return;
     setPage(p);
@@ -522,12 +528,15 @@ export function Workspace({ session, openField }: { session: Session; openField:
     );
   if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={load}>Retry</button><button onClick={logout}>Sign out</button></div>;
   return (
-    <div className="app" onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
+    <div className={`app ${collapsed ? "nav-collapsed" : "nav-expanded"}`} onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
       <a className="skip-link" href="#workspace-content">Skip to content</a>
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
         <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
+        <button type="button" className="sidebar-collapse" aria-label={collapsed?'Expand sidebar':'Collapse sidebar'} aria-expanded={!collapsed} onClick={toggleSidebar} title={collapsed?'Expand sidebar':'Collapse sidebar'}>{collapsed?<PanelLeftOpen size={20}/>:<PanelLeftClose size={20}/>}</button>
         <FieldLanceBrand variant="wordmark" />
+        <div className="sidebar-compact-brand"><FieldLanceBrand variant="icon" /></div>
+        <button type="button" className="rail-workspace" title={`Switch workspace: ${currentWorkspaceLabel}`} aria-label="Expand workspace selector" onClick={()=>{setCollapsed(false);saveSidebarCollapsed(false);requestAnimationFrame(()=>document.getElementById('scope')?.focus());}}><Building2 size={19}/></button>
         <div className="workspace-select">
           <label htmlFor="scope">WORKSPACE</label>
           <select
@@ -539,46 +548,31 @@ export function Workspace({ session, openField }: { session: Session; openField:
             {access.workspaces.map(w => <option key={w.id} value={w.id}>{w.label}</option>)}
           </select>
         </div>
-        <div className="workspace-actions">
+        <details className="workspace-actions"><summary>Add workspace</summary>
           <button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button>
           {!access.worker && <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button>}
-        </div>
-        <nav aria-label="Main navigation">
-          {navigationGroups.map(group=>{const items=nav.filter(([name])=>group.pages.includes(name));return items.length?<div className="nav-section" key={group.label}><span className="nav-section-label">{group.label}</span>{items.map(([name, Icon]) => (
-            <button
-              key={name}
-              aria-current={page === name ? "page" : undefined}
-              className={page === name ? "active" : ""}
-              onClick={() => change(name)}
-            >
-              <Icon size={19} />
-              {poem ? staffPageLabel(name) : organizationWorkspace ? organizationPageLabel(name) : workspacePageLabel(name, personalWorkspace)}
-              {name === "Notifications" &&
-                notifications.some((n) => !n.read_at) && (
-                  <span className="nav-count">
-                    {notifications.filter((n) => !n.read_at).length}
-                  </span>
-                )}
-            </button>
-          ))}</div>:null})}
-        </nav>
+        </details>
+        <SidebarNavigation key={scope}
+          groups={getNavigationGroups(onboardingWorkspace?'onboarding':accessWorkspace?'access':poem?'staff':organizationWorkspace?'organization':projectScope?'project':'personal', nav.map(([name])=>name))}
+          items={nav} page={page} unread={unreadNotifications} onNavigate={change}
+          label={name=>poem ? staffPageLabel(name) : organizationWorkspace ? organizationPageLabel(name) : workspacePageLabel(name, personalWorkspace)}/>
         <div className="trust">
           <ShieldCheck />
           <strong>A network built on trust.</strong>
           <p>Your information. Clear permissions. Accountable decisions.</p>
         </div>
         <div className="identity">
-          <span className="avatar">
+          <span className="avatar" title={account.full_name || account.email}>
             {(account.full_name || account.email)[0].toUpperCase()}
           </span>
           <div>
             <strong>{account.full_name || "FieldLance member"}</strong>
-            <small>{human(account.platform_role)}</small>
+            <small>{currentWorkspaceLabel}</small>
           </div>
         </div>
-        <button className="logout" onClick={logout}>
+        <button className="logout" onClick={logout} title="Sign out" aria-label="Sign out">
           <LogOut size={17} />
-          Sign out
+          <span>Sign out</span>
         </button>
       </aside>
       <main id="workspace-main">
@@ -619,7 +613,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 onClick={() => setOrgEdit({ name: "", status: "pending" })}
               >
                 <Plus size={17} />
-                Add partner NGO
+                Add organization
               </button>
             )}
           </div>
@@ -953,7 +947,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Workforce payables" && !poem && scope !== "personal" && !projectScope && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope}/></Suspense>}
           {page === "E-Wallets & withdrawals" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading e-wallets and withdrawals…</p>}><EWalletWithdrawalWorkspace key={`wallet-${session.user.id}`} onNavigate={change}/></Suspense>}
           {page === "Withdrawal operations" && financeManage && validScope && <Suspense fallback={<p role="status">Loading withdrawal operations…</p>}><WithdrawalOperationsWorkspace/></Suspense>}
-          {page === "E-Wallet sandbox" && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
+          {page === "E-Wallet sandbox" && import.meta.env.DEV && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
           {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
@@ -1081,13 +1075,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 <h2>Audit history</h2>
                 <span>Latest 100 authorized events</span>
               </div>
-              <EventList events={events} />
+              <EventList events={events} accounts={accounts} />
             </section>
           )}
           </>}
           <footer>
             <span>FieldLance · Field work marketplace</span>
-            <span>FieldLance {APP_VERSION} · Survey and registry operations.</span>
+            <span>FieldLance {APP_VERSION} · Field workforce & operations platform</span>
           </footer>
         </div>
       </main>

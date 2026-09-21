@@ -24,7 +24,7 @@ try{
  const district=await call('save_geography',[null,division,'district','Workforce District','WFD','Synthetic fixture',true]);
  const otherDistrict=await call('save_geography',[null,division,'district','Other District','WFO','Synthetic fixture',true]);
  const template=await call('publish_survey_template',['Workforce survey',[{id:'need',label:'Need',type:'text',required:true}]]);
- const d=(await rows("select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+10)::text project_end,(now()+interval '30 minutes')::text reply_by"))[0];
+ const d=(await rows("select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date+1)::text today,((now() at time zone 'UTC')::date+10)::text project_end,(now()+interval '1 day')::text reply_by"))[0];
  const project=await call('create_survey_project',[org,'Local Orphan Survey',template,district,500,d.project_start,d.project_end,'Collect verified orphan survey records','workforce-v1','Explain POEM and NGO workforce survey purpose.']);
  await db.exec('RESET ROLE');
  await db.query("update public.volunteer_profiles set status='verified',geography_id=$1,details=jsonb_build_object('full_name',case user_id when $2::uuid then 'Volunteer A' else 'Volunteer B' end,'skills','Household Survey, Data Collection','languages','Sindhi, Urdu','availability','Full-time') where user_id in ($2,$3)",[district,ids.volA,ids.volB]);

@@ -80,7 +80,7 @@ try {
   ]);
   const d = (
     await rows(
-      "select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,(((now() at time zone 'UTC')::date + interval '23 hours'))::timestamptz::text reply_by",
+      "select ((now() at time zone 'UTC')::date-1)::text project_start,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+14)::text end_date,((now() at time zone 'UTC')::date+1)::text recruitment_start,(now()+interval '1 day')::text reply_by",
     )
   )[0];
   const project = await call('create_survey_project', [
@@ -227,7 +227,7 @@ try {
       'Follow-up enumerator',
       'Collect follow-up household records in the project field area.',
       district,
-      d.today,
+      d.recruitment_start,
       d.end_date,
       d.reply_by,
       'unpaid',

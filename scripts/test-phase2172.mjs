@@ -44,7 +44,7 @@ try{
 
   await as('super');
   const template=await call('publish_survey_template',['2.17.2 Bridge Template',[{id:'q',label:'Question',type:'text',required:true}]]);
-  const dates=(await rows("select ((now() at time zone 'UTC')::date-1)::text start,((now() at time zone 'UTC')::date+30)::text finish,((now() at time zone 'UTC')::date)::text opp_start,((now() at time zone 'UTC')::date+10)::text opp_end,(now()+interval '1 hour')::text reply,current_date::text today"))[0];
+  const dates=(await rows("select ((now() at time zone 'UTC')::date-1)::text start,((now() at time zone 'UTC')::date+30)::text finish,((now() at time zone 'UTC')::date+1)::text opp_start,((now() at time zone 'UTC')::date+11)::text opp_end,(now()+interval '1 day')::text reply,current_date::text today"))[0];
   const project=await call('create_survey_project',[org,'2.17.2 Paid Project',template,district,20,dates.start,dates.finish,'Validate payable to finance bridge and reconciliation','v1','Explain the project and obtain informed consent before field work.']);
 
   await as('ngo');

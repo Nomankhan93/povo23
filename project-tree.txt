@@ -56,6 +56,7 @@
 ./docs/PHASE-2.24.0.md
 ./docs/PHASE-2.25.0.md
 ./docs/PHASE-2.25.1.md
+./docs/PHASE-2.25.2.md
 ./docs/PHASE-2.3.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
@@ -126,6 +127,7 @@
 ./docs/UPGRADE-2.24.0.md
 ./docs/UPGRADE-2.25.0.md
 ./docs/UPGRADE-2.25.1.md
+./docs/UPGRADE-2.25.2.md
 ./docs/UPGRADE-2.3.1.md
 ./docs/UPGRADE-2.3.md
 ./docs/UPGRADE-2.4.1.md
@@ -186,6 +188,7 @@
 ./docs/VALIDATION-2.24.0.md
 ./docs/VALIDATION-2.25.0.md
 ./docs/VALIDATION-2.25.1.md
+./docs/VALIDATION-2.25.2.md
 ./docs/VALIDATION-2.3.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
@@ -239,6 +242,7 @@
 ./scripts/test-identity-workspaces2251.mjs
 ./scripts/test-local-auth.mjs
 ./scripts/test-local-operations.mjs
+./scripts/test-navigation2252.mjs
 ./scripts/test-notification-center2240.mjs
 ./scripts/test-offline-recovery276.mjs
 ./scripts/test-organization-workspace2210.mjs
@@ -305,6 +309,8 @@
 ./src/assets/brand/fieldlance-icon.png
 ./src/assets/brand/fieldlance-wordmark.png
 ./src/components
+./src/components/layout
+./src/components/layout/SidebarNavigation.tsx
 ./src/components/ui
 ./src/components/ui/FieldLanceBrand.tsx
 ./src/components/ui/Pager.tsx

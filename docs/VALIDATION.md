@@ -1,6 +1,8 @@
-# Validation index — FieldLance 2.25.1
+# Validation index — FieldLance 2.25.2
 
-Current release validation: [VALIDATION-2.25.1.md](VALIDATION-2.25.1.md).
+Current release validation: [VALIDATION-2.25.2.md](VALIDATION-2.25.2.md).
+
+Previous identity stabilization: [VALIDATION-2.25.1.md](VALIDATION-2.25.1.md).
 
 Previous Earnings & Wallet validation: [FieldLance 2.25.0](VALIDATION-2.25.0.md).
 

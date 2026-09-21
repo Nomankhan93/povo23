@@ -1,7 +1,7 @@
 import { Activity } from "lucide-react";
 import { Row } from "../../shared/legacyTypes";
 import { human } from "../../shared/ui/FormFields";
-export function EventList({ events }: { events: Row[] }) {
+export function EventList({ events, accounts = [] }: { events: Row[]; accounts?: Row[] }) {
   return events.length ? (
     <div>
       {events.map((e) => (
@@ -16,8 +16,10 @@ export function EventList({ events }: { events: Row[] }) {
             </p>
             <small>
               {new Date(e.created_at).toLocaleString()} · Actor:{" "}
-              {e.actor_id || "System"}
+              {e.actor_id ? accounts.find(a=>a.id===e.actor_id)?.full_name || "Account" : "System"}
+
             </small>
+              {e.actor_id && <details><summary>Technical ID</summary><code>{e.actor_id}</code></details>}
           </div>
         </div>
       ))}
