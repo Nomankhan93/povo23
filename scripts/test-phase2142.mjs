@@ -45,7 +45,15 @@ await ok('focal review UI is separated from assignment-management controls',asyn
 await ok('revoked workspace resolves an eligible scope instead of granting personal access',async()=>{
  assert.match(app,/resolveWorkspace/);
  assert.match(app,/setScope\(resolved\)/);
- assert.match(app,/setPageState\(workspaceHome\(resolved\)\)/);
+ assert.match(
+   app,
+   /const nextPage\s*=\s*routeMatches\s*&&\s*browserRoute\.page\s*\?\s*browserRoute\.page\s*:\s*workspaceHome\(resolved\)/,
+ );
+ assert.match(app, /setPageState\(nextPage\)/);
+ assert.match(
+   app,
+   /syncRoute\(\{\s*scope:\s*resolved,\s*page:\s*home\s*\},\s*true\)/,
+ );
 });
 await ok('mobile browser stabilization covers project cards filters and roster tables',async()=>{
  for(const token of ['project-operations-grid','response-toolbar','project-team-table td::before','project-quick-actions']) assert.match(css,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));

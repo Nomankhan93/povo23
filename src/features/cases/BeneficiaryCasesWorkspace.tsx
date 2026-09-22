@@ -78,7 +78,7 @@ type CaseDetail={
   can_approve_requests:boolean;
 };
 
-export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{organization?:string|null;projectId?:string|null}){
+export function BeneficiaryCasesWorkspace({organization=null,projectId=null,initialCaseId=null,onSelectedCaseChange}:{organization?:string|null;projectId?:string|null;initialCaseId?:string|null;onSelectedCaseChange?:(caseId:string|null)=>void}){
   const [queue,setQueue]=useState<Queue>({rows:[],summary:{},limit:100});
   const [planQueue,setPlanQueue]=useState<DistributionQueue>({rows:[],summary:{},limit:100});
   const [followupQueue,setFollowupQueue]=useState<FollowupQueue>({rows:[],summary:{},utc_today:'',limit:100});
@@ -86,7 +86,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
   const [personIntake,setPersonIntake]=useState<Intake>({projects:[],people:[],responses:[],needs:[]});
   const [selectedProject,setSelectedProject]=useState(projectId||'');
   const [selectedPerson,setSelectedPerson]=useState('');
-  const [selectedCase,setSelectedCase]=useState<string|null>(null);
+  const [selectedCase,setSelectedCase]=useState<string|null>(initialCaseId);
   const [detail,setDetail]=useState<CaseDetail|null>(null);
   const [status,setStatus]=useState('');
   const [priority,setPriority]=useState('');
@@ -100,6 +100,9 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
   const [revision,setRevision]=useState(0);
 
   const refresh=useCallback(()=>setRevision(v=>v+1),[]);
+
+  function selectCase(caseId:string|null){setSelectedCase(caseId);onSelectedCaseChange?.(caseId)}
+  useEffect(()=>{if(initialCaseId!==selectedCase)setSelectedCase(initialCaseId)},[initialCaseId]);
   async function run(task:()=>Promise<unknown>,message:string){
     setBusy(true);setError('');setNotice('');
     try{const result=await task();setNotice(message);refresh();return result}catch(e){setError((e as Error).message);return null}finally{setBusy(false)}
@@ -141,7 +144,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
   useEffect(()=>{
     if(!selectedCase){setDetail(null);return}
     let live=true;
-    call('beneficiary_case_detail',{p_case:selectedCase}).then(result=>{if(live)setDetail(result as CaseDetail)}).catch(e=>{if(live){setError((e as Error).message);setSelectedCase(null)}});
+    call('beneficiary_case_detail',{p_case:selectedCase}).then(result=>{if(live)setDetail(result as CaseDetail)}).catch(e=>{if(live){setError((e as Error).message);selectCase(null)}});
     return()=>{live=false};
   },[selectedCase,revision]);
 
@@ -150,7 +153,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
     void run(()=>call('create_beneficiary_case',{
       p_id:id,p_person:selectedPerson,p_response:val(form,'response'),p_need:val(form,'need')||null,p_title:val(form,'title'),p_summary:val(form,'summary'),
       p_priority:val(form,'priority'),p_follow_up:val(form,'follow_up')||null,p_reason:val(form,'reason'),
-    }),'Beneficiary case created.').then(result=>{if(result!==null){formEl.reset();setSelectedCase(id)}});
+    }),'Beneficiary case created.').then(result=>{if(result!==null){formEl.reset();selectCase(id)}});
   }
 
   function reviewRequest(event:FormEvent<HTMLFormElement>,request:AssistanceRequest){
@@ -193,7 +196,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
         <div className="panel-title"><div><strong>CASE-{row.case_no} · {row.title}</strong><p>{row.beneficiary_name} · BEN-{row.registry_no} · {row.project_title}</p></div><Badge value={row.status}/></div>
         <p>{row.priority} priority · {row.active_needs} active need(s) · {row.submitted_requests} awaiting review · {row.approved_requests} approved</p>
         <p>{row.summary}</p>
-        <button className="secondary" onClick={()=>setSelectedCase(row.id)}>Open case</button>
+        <button className="secondary" onClick={()=>selectCase(row.id)}>Open case</button>
       </article>)}
     </section>
 
@@ -205,7 +208,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
         <div className="panel-title"><div><strong>DP-{plan.plan_no} · AR-{plan.request_no} · {plan.program}</strong><p>{plan.beneficiary_name} · BEN-{plan.registry_no} · {plan.project_title}</p></div><Badge value={plan.delivery_status==='delivered'?'delivered':plan.status}/></div>
         <p>{title(plan.distribution_mode)} · {plan.location_label} · Responsible: {plan.responsible_party}</p>
         <p>Schedule: {dateTime(plan.scheduled_start)}{plan.scheduled_end?` → ${dateTime(plan.scheduled_end)}`:''}</p>
-        <button className="secondary" onClick={()=>setSelectedCase(plan.case_id)}>Open case</button>
+        <button className="secondary" onClick={()=>selectCase(plan.case_id)}>Open case</button>
       </article>)}
     </section>
 
@@ -219,7 +222,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
         <div className="panel-title"><div><strong>CASE-{item.case_no} · {title(item.followup_type)}</strong><p>{item.beneficiary_name} · BEN-{item.registry_no} · {item.project_title}</p></div><Badge value={item.status}/></div>
         <p>Due {item.due_on}{item.outcome_status?` · Outcome: ${title(item.outcome_status)}`:''}{item.next_follow_up_on?` · Next ${item.next_follow_up_on}`:''}</p>
         {item.next_action&&<p>Next action: {item.next_action}</p>}
-        <button className="secondary" onClick={()=>setSelectedCase(item.case_id)}>Open case</button>
+        <button className="secondary" onClick={()=>selectCase(item.case_id)}>Open case</button>
       </article>)}
     </section>
 
@@ -245,7 +248,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null}:{or
     </details>
 
     {detail&&<section className="panel detail" aria-label="Beneficiary case detail">
-      <div className="panel-title"><div><span className="eyebrow">CASE-{detail.case.case_no}</span><h3>{detail.case.title}</h3><p>{detail.person.full_name} · BEN-{detail.person.registry_no} · {detail.project.title}</p></div><button className="secondary" onClick={()=>setSelectedCase(null)}>Close detail</button></div>
+      <div className="panel-title"><div><span className="eyebrow">CASE-{detail.case.case_no}</span><h3>{detail.case.title}</h3><p>{detail.person.full_name} · BEN-{detail.person.registry_no} · {detail.project.title}</p></div><button className="secondary" onClick={()=>selectCase(null)}>Close detail</button></div>
       <p>{detail.case.summary}</p>
       <p><strong>{detail.case.priority} priority · {title(detail.case.status)}</strong> · Follow-up {detail.case.follow_up_on||'not scheduled'} · v{detail.case.version}</p>
       <p>Last case reason: {detail.case.last_reason}</p>

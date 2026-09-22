@@ -31,7 +31,7 @@ const workspace=readFileSync('src/features/projects/ProjectWorkspace.tsx','utf8'
 assert.match(workspace,/await protectProjectNavigation\(commit\)/);
 assert.match(workspace,/onClick=\{\(\) => openTab\(item.id\)\}/);
 assert.match(workspace,/onOpenTab=\{openTab\}/);
-assert.match(workspace,/navigate\(\(\) => setTab\(next\)\)/);
+assert.match(workspace,/navigate\(\(\) => \{setTab\(next\);onRouteChange/);
 for (const name of ['ProjectFundingWorkspace','SurveyProjects','ProjectGovernance','WorkforceMarketplace']) {
   assert.match(workspace,new RegExp('const '+name+' = lazy'));
   assert.doesNotMatch(workspace,new RegExp('import \{ '+name+' \} from'));

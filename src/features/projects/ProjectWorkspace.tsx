@@ -1,4 +1,5 @@
 import type {ReportSelection} from "../analytics/model";
+import type {RouteEntityKind} from "../../app/routes";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ProjectTeamWorkspace } from "./ProjectTeamWorkspace";
 import { ProjectOverview } from "./ProjectOverview";
@@ -19,7 +20,8 @@ const BeneficiaryCasesWorkspace = lazy(() =>
 import { protectProjectNavigation } from "./projectNavigation";
 
 type Org = { id: string; name: string; status: string; logo_path?: string | null; logo_updated_at?: string | null };
-type Tab = "reports" | "overview" | "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
+export type ProjectWorkspaceTab = "reports" | "overview" | "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
+type Tab = ProjectWorkspaceTab;
 type TabItem = { id: Tab; label: string; hint: string };
 
 const allTabs: TabItem[] = [
@@ -50,6 +52,10 @@ export function ProjectWorkspace({
   platformFinance,
   surveyManage,
   onNavigate,
+  routeTab = null,
+  routeEntityKind = null,
+  routeEntityId = null,
+  onRouteChange,
 }: {
   userId: string;
   projectId: string;
@@ -64,9 +70,13 @@ export function ProjectWorkspace({
   platformFinance: boolean;
   surveyManage: boolean;
   onNavigate: (page: string) => void;
+  routeTab?: ProjectWorkspaceTab | null;
+  routeEntityKind?: RouteEntityKind;
+  routeEntityId?: string | null;
+  onRouteChange?: (tab: ProjectWorkspaceTab, entityKind?: RouteEntityKind, entityId?: string | null) => void;
 }) {
   const [reportSelection,setReportSelection]=useState<ReportSelection|null>(null);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(routeTab && allTabs.some(item=>item.id===routeTab) ? routeTab : "overview");
   const [navigationError, setNavigationError] = useState("");
   const [navigating, setNavigating] = useState(false);
   const navigationBusy = useRef(false);
@@ -80,7 +90,8 @@ export function ProjectWorkspace({
     finally { navigationBusy.current = false; setNavigating(false); }
   }
   function openTab(next: Tab) {
-    if (next !== tab && tabs.some(item => item.id === next)) void navigate(() => setTab(next));
+    if (next !== tab && tabs.some(item => item.id === next)) void navigate(() => {setTab(next);onRouteChange?.(next,null,null);});
+    else if(next===tab) onRouteChange?.(next,null,null);
   }
   const [projectTitle, setProjectTitle] = useState("Project workspace");
 
@@ -93,8 +104,13 @@ export function ProjectWorkspace({
   }), [canManageRecruitment, canManageCases, canManageFinance, canManageProject]);
 
   useEffect(() => {
-    if (!tabs.some((item) => item.id === tab)) setTab("overview");
+    if (!tabs.some((item) => item.id === tab)) {setTab("overview");onRouteChange?.("overview",null,null);}
   }, [tabs, tab]);
+
+  useEffect(()=>{
+    if(!routeTab || routeTab===tab || !tabs.some(item=>item.id===routeTab))return;
+    setTab(routeTab);
+  },[routeTab,tabs,tab]);
 
   useEffect(() => {
     let live = true;
@@ -155,7 +171,7 @@ export function ProjectWorkspace({
         <strong>Recruitment pipeline</strong>
         <span>Opportunities · Applications · Shortlisted · Offers · Direct Invitations · Assignments</span>
       </div>
-      <WorkforceMarketplace userId={userId} organization={projectOrg} mode="project" projectScopeId={projectId} personalView="all" geographies={geographies} orgs={orgs} />
+      <WorkforceMarketplace userId={userId} organization={projectOrg} mode="project" projectScopeId={projectId} personalView="all" geographies={geographies} orgs={orgs} focusKind={routeEntityKind === "application" || routeEntityKind === "assignment" ? routeEntityKind : null} focusId={routeEntityId} onFocusChange={(kind,id)=>onRouteChange?.("recruitment",kind,id)} />
     </section>}
 
     {tab === "field-work" && <SurveyProjects
@@ -187,7 +203,7 @@ export function ProjectWorkspace({
     />}
 
     {tab === "cases" && canManageCases && <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}>
-      <BeneficiaryCasesWorkspace key={`project-cases-${projectId}`} organization={null} projectId={projectId} />
+      <BeneficiaryCasesWorkspace key={`project-cases-${projectId}`} organization={null} projectId={projectId} initialCaseId={routeEntityKind === "case" ? routeEntityId : null} onSelectedCaseChange={(caseId)=>onRouteChange?.("cases",caseId?"case":null,caseId)} />
     </Suspense>}
 
     {tab === "finance" && canManageFinance && <ProjectFundingWorkspace organization={projectOrg} platform={platformFinance} orgs={orgs as any} projectId={projectId} />}

@@ -266,3 +266,17 @@ body{background:var(--fieldlance-canvas);color:var(--fieldlance-ink)}
 
 /* 2.31 operational reporting */
 .analytics-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end;margin:20px 0}.analytics-summary,.analytics-statuses{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:20px 0}.analytics-summary strong{font-size:1.3rem}.analytics-summary span{flex:1;color:var(--muted,#64748b)}.analytics-table{overflow:auto;margin:18px 0}.analytics-table table{width:100%;border-collapse:collapse;text-align:left}.analytics-table th,.analytics-table td{padding:12px;border-bottom:1px solid var(--border,#dbe2ea);vertical-align:top}.analytics-table code{font-size:.75rem;overflow-wrap:anywhere}.analytics-trends{padding:16px;background:var(--surface,#f8fafc);border-radius:12px}.analytics-trends>div{display:grid;grid-template-columns:minmax(140px,1fr) 2fr 60px;gap:12px;padding:6px 0;align-items:center}.analytics-trends meter{width:100%}.organization-metric,.staff-ops-metric{text-align:left;cursor:pointer}.analytics-workspace button:focus-visible{outline:3px solid #2563eb;outline-offset:3px}@media(max-width:620px){.analytics-filters{grid-template-columns:1fr}.analytics-trends>div{grid-template-columns:1fr 1fr 40px}.analytics-table{font-size:.85rem}}
+
+/* FieldLance 2.36 — URL routing, deep links and mobile Field Worker IA */
+.route-focus{scroll-margin-block:110px;outline:3px solid #2e7d73;outline-offset:3px;box-shadow:0 12px 30px #173d3a1f}
+.field-worker-bottom-nav{display:none}
+@media(max-width:800px){
+ .has-mobile-worker-nav main{padding-bottom:78px}
+ .has-mobile-worker-nav .content{padding-bottom:30px}
+ .field-worker-bottom-nav{position:fixed;z-index:55;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:7px max(7px,env(safe-area-inset-left)) calc(7px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-right));border-top:1px solid #d9e3ea;background:#fffffff5;box-shadow:0 -8px 28px #102d4914;backdrop-filter:blur(14px)}
+ .field-worker-bottom-nav button{display:flex;min-width:0;min-height:54px;align-items:center;justify-content:center;flex-direction:column;gap:3px;padding:5px 2px;border-radius:10px;color:#66798c;font-size:10px;font-weight:650;text-align:center}
+ .field-worker-bottom-nav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .field-worker-bottom-nav button.active{background:#e8f5f1;color:#0d6a52}
+ .field-worker-bottom-nav button:focus-visible{outline:3px solid #2a7766;outline-offset:1px}
+ .has-mobile-worker-nav .primary,.has-mobile-worker-nav .secondary{min-height:46px}
+}

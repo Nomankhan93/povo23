@@ -1,4 +1,5 @@
 import type {ReportSelection} from "../features/analytics/model";
+import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind} from "./routes";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
@@ -46,6 +47,7 @@ import { TaskCenter } from "../features/operations/TaskCenter";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
 const ReportsWorkspace = lazy(() => import("../features/analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const ProjectWorkspace = lazy(() => import("../features/projects/ProjectWorkspace").then(m => ({default: m.ProjectWorkspace})));
+import type {ProjectWorkspaceTab} from "../features/projects/ProjectWorkspace";
 import { workspaceTeamPermission } from "../features/projects/workspacePermissions";
 import {OrganizationSettings, OrganizationInvitationInbox} from "../features/organizations/OrganizationSettings";
 import {ReputationCertificates} from "../features/workforce/ReputationCertificates";
@@ -89,6 +91,7 @@ import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
+  const [browserRoute,setBrowserRoute]=useState(()=>parseAppRoute());
   const [reportSelection,setReportSelection]=useState<ReportSelection|null>(null);
   const [collapsed, setCollapsed] = useState(readSidebarCollapsed);
   function toggleSidebar() { setCollapsed(old => {saveSidebarCollapsed(!old);return !old;}); }
@@ -104,7 +107,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
-    [page, setPageState] = useState("Overview"),
+    [page, setPageState] = useState(()=>browserRoute.page || "Overview"),
     [scope, setScope] = useState(""),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
@@ -132,7 +135,25 @@ export function Workspace({ session, openField }: { session: Session; openField:
     document.addEventListener('keydown',trap);
     return()=>{main?.removeAttribute('inert');media.removeEventListener('change',closeOnDesktop);document.removeEventListener('keydown',trap)};
   },[menu]);
-  function setPage(next:string){void flushActiveDraft().then(()=>setPageState(next)).catch(e=>setError("Could not protect device draft: "+e.message))}
+  const browserPathRef=useRef(location.pathname);
+  useEffect(()=>{
+    const onPopState=()=>{
+      const nextPath=location.pathname,previousPath=browserPathRef.current;
+      void flushActiveDraft().then(()=>{browserPathRef.current=nextPath;setBrowserRoute(parseAppRoute(nextPath));}).catch(e=>{
+        history.pushState({fieldlance:true},"",previousPath);
+        setError("Could not protect device draft: "+(e as Error).message);
+      });
+    };
+    window.addEventListener("popstate",onPopState);
+    return()=>window.removeEventListener("popstate",onPopState);
+  },[]);
+  function syncRoute(target:{scope:string;page:string;projectId?:string|null;projectTab?:string|null;entityKind?:RouteEntityKind;entityId?:string|null},replace=false){
+    const path=routePath(target);
+    writeRoute(target,replace);
+    browserPathRef.current=path;
+    setBrowserRoute(parseAppRoute(path));
+  }
+  function setPage(next:string,after?:()=>void){void flushActiveDraft().then(()=>{setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
   const admin =
       account &&
       [
@@ -165,20 +186,24 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
   const requestId = useRef(0);
-  function applyAccess(next: WorkspaceAccess, preferred = scopeRef.current || readPreferredWorkspace(session.user.id), followApproval = false) {
+  function applyAccess(next: WorkspaceAccess, preferred = scopeRef.current || readPreferredWorkspace(session.user.id), followApproval = false, respectRoute = true) {
     setAccess(next);
     const approvalCompleted = followApproval && preferred === 'onboarding' && next.applications?.some(a => a.status === 'approved') && !next.applications?.some(a => !['approved','withdrawn','rejected'].includes(a.status));
-    const resolved = resolveWorkspace(next, approvalCompleted ? next.defaultScope : preferred);
+    const requestedScope = respectRoute && isExplicitRoute(browserRoute) && browserRoute.scopeHint ? browserRoute.scopeHint : (approvalCompleted ? next.defaultScope : preferred);
+    const resolved = resolveWorkspace(next, requestedScope);
+    const routeMatches = isExplicitRoute(browserRoute) && browserRoute.scopeHint === resolved;
+    const nextPage = routeMatches && browserRoute.page ? browserRoute.page : workspaceHome(resolved);
     if (resolved !== scopeRef.current) {
       setScope(resolved);
       scopeRef.current = resolved;
-      setPageState(workspaceHome(resolved));
       setSelected(null);
       setFocusedProject(null);
       setOrgEdit(null);
       setQuery("");
       setFilter("all");
     }
+    setPageState(nextPage);
+    if (!isExplicitRoute(browserRoute)) syncRoute({scope:resolved,page:nextPage},true);
   }
   async function switchWorkspace(next: string) {
     const request = ++requestId.current;
@@ -186,10 +211,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
       await flushActiveDraft();
       const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
       if (request !== requestId.current) return;
-      applyAccess(fresh, next);
+      applyAccess(fresh, next, false, false);
       const resolved = resolveWorkspace(fresh, next);
       rememberPreferredWorkspace(session.user.id, resolved);
-      setPageState(workspaceHome(resolved));
+      const home=workspaceHome(resolved);
+      setPageState(home);
+      syncRoute({scope:resolved,page:home});
       setMenu(false);
     } catch (e) { setAccess(null); setError((e as Error).message); }
   }
@@ -473,10 +500,42 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ? staffNav
         : standardNav;
   const nav = scopedNav.filter(([name]) => name !== "E-Wallet sandbox" || import.meta.env.DEV);
+  const navNames = nav.map(([name])=>name).join("|");
+  useEffect(()=>{
+    if(!access || !isExplicitRoute(browserRoute) || !browserRoute.scopeHint) return;
+    const resolved=resolveWorkspace(access,browserRoute.scopeHint);
+    if(resolved!==browserRoute.scopeHint){
+      const home=workspaceHome(resolved);
+      if(scopeRef.current!==resolved){setScope(resolved);scopeRef.current=resolved;}
+      setPageState(home);
+      syncRoute({scope:resolved,page:home},true);
+      return;
+    }
+    if(scopeRef.current!==resolved){
+      setScope(resolved);scopeRef.current=resolved;setSelected(null);setFocusedProject(null);setOrgEdit(null);setQuery("");setFilter("all");
+    }
+    const requested=browserRoute.page || workspaceHome(resolved);
+    const allowed=nav.some(([name])=>name===requested) || (requested==="Project workspace" && Boolean(browserRoute.projectId));
+    if(allowed)setPageState(requested);
+    else {const home=workspaceHome(resolved);setPageState(home);syncRoute({scope:resolved,page:home},true);}
+  },[browserRoute,access,navNames]);
+  useEffect(()=>{
+    const projectId=browserRoute.projectId;
+    if(!projectId || browserRoute.page!=="Project workspace" || scope.startsWith("project:")){return;}
+    if(focusedProject?.id===projectId)return;
+    let live=true;
+    void db!.from("survey_projects").select("*").eq("id",projectId).maybeSingle().then(({data,error})=>{
+      if(!live)return;
+      if(error){setError(error.message);return;}
+      if(data)setFocusedProject(data as Row);
+      else {setError("This project is unavailable in your current workspace.");const home=workspaceHome(scope);setPageState(home);syncRoute({scope,page:home},true);}
+    });
+    return()=>{live=false};
+  },[browserRoute.projectId,browserRoute.page,scope,focusedProject?.id,revision]);
   const change = (p: string) => {
     if (!nav.some(([name]) => name === p)) return;
     setFocusedProject(null);
-    setPage(p);
+    setPage(p,()=>syncRoute({scope,page:p}));
     setQuery("");
     setFilter("all");
     setMenu(false);
@@ -488,6 +547,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     void flushActiveDraft().then(() => {
       setFocusedProject(project);
       setPageState("Project workspace");
+      syncRoute({scope,page:"Project workspace",projectId:project.id,projectTab:"overview"});
       setQuery("");
       setFilter("all");
       setMenu(false);
@@ -571,7 +631,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     );
   if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={load}>Retry</button><button onClick={logout}>Sign out</button></div>;
   return (
-    <div className={`app ${collapsed ? "nav-collapsed" : "nav-expanded"}`} onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
+    <div className={`app ${collapsed ? "nav-collapsed" : "nav-expanded"} ${personalWorkspace ? "has-mobile-worker-nav" : ""}`} onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
       <a className="skip-link" href="#workspace-content">Skip to content</a>
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
@@ -1006,6 +1066,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
               personalView={page === "Available Opportunities" ? "opportunities" : page === "My Applications" ? "applications" : page === "My Assigned Surveys" ? "assigned" : "all"}
               geographies={geographies}
               orgs={orgs as any}
+              focusKind={browserRoute.entityKind === "application" || browserRoute.entityKind === "assignment" ? browserRoute.entityKind : null}
+              focusId={browserRoute.entityId}
+              onFocusChange={(kind,id)=>{const targetPage=personalWorkspace?(kind==="application"?"My Applications":"My Assigned Surveys"):page;setPageState(targetPage);syncRoute({scope,page:targetPage,entityKind:kind,entityId:id});}}
             />
           )}
           {validScope && <OrganizationInvitationInbox userId={session.user.id} onChanged={load}/>}
@@ -1067,6 +1130,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
               platformFinance={financeManage}
               surveyManage={surveyManage}
               onNavigate={change}
+              routeTab={browserRoute.projectId===workspaceProjectId ? browserRoute.projectTab as ProjectWorkspaceTab | null : null}
+              routeEntityKind={browserRoute.projectId===workspaceProjectId ? browserRoute.entityKind : null}
+              routeEntityId={browserRoute.projectId===workspaceProjectId ? browserRoute.entityId : null}
+              onRouteChange={(tab,entityKind=null,entityId=null)=>syncRoute({scope,page:"Project workspace",projectId:workspaceProjectId,projectTab:tab,entityKind,entityId})}
             />
           )}
           {page === "Survey projects" && validScope && (
@@ -1093,7 +1160,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <Suspense fallback={<p>Loading canonical registry…</p>}><CanonicalWorkbench /></Suspense>
           )}
           {page === "Beneficiary cases" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
-            <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}><BeneficiaryCasesWorkspace key={`cases-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId}/></Suspense>
+            <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}><BeneficiaryCasesWorkspace key={`cases-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId} initialCaseId={browserRoute.entityKind==="case"?browserRoute.entityId:null} onSelectedCaseChange={(caseId)=>syncRoute({scope,page:"Beneficiary cases",entityKind:caseId?"case":null,entityId:caseId})}/></Suspense>
           )}
           {page === "Assistance ledger" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
             <Suspense fallback={<p role="status">Loading assistance ledger…</p>}><AssistanceLedgerWorkspace key={`assistance-ledger-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId}/></Suspense>
@@ -1143,6 +1210,19 @@ export function Workspace({ session, openField }: { session: Session; openField:
           </footer>
         </div>
         </Suspense>
+        {personalWorkspace && <nav className="field-worker-bottom-nav" aria-label="Field Worker primary navigation">
+          {[
+            ["Overview","Home",LayoutDashboard],
+            ["Available Opportunities","Work",Users],
+            ["My Assigned Surveys","Field",ClipboardList],
+            ["Workforce payables","Earnings",CreditCard],
+            ["My profile","Profile",UserRound],
+          ].map(([target,label,Icon])=>{
+            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations"].includes(page):target==="My Assigned Surveys"?page==="My Assigned Surveys":target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
+            const C=Icon as typeof LayoutDashboard;
+            return <button key={String(target)} type="button" className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>change(String(target))}><C size={20}/><span>{String(label)}</span></button>;
+          })}
+        </nav>}
       </main>
     </div>
   );

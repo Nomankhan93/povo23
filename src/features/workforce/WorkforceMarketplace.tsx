@@ -73,6 +73,9 @@ export function WorkforceMarketplace({
   orgs,
   personalView = "all",
   projectScopeId = null,
+  focusKind = null,
+  focusId = null,
+  onFocusChange,
 }: {
   userId: string;
   organization: string | null;
@@ -81,6 +84,9 @@ export function WorkforceMarketplace({
   orgs: Org[];
   personalView?: PersonalView;
   projectScopeId?: string | null;
+  focusKind?: "application" | "assignment" | null;
+  focusId?: string | null;
+  onFocusChange?: (kind: "application" | "assignment", id: string) => void;
 }) {
   const [projects, setProjects] = useState<Project[]>([]),
     [opportunities, setOpportunities] = useState<Opportunity[]>([]),
@@ -176,6 +182,13 @@ export function WorkforceMarketplace({
     setProjectId(projectScopeId);
     setCreateProjectId(projectScopeId);
   }, [mode, projectScopeId]);
+
+  useEffect(()=>{
+    if(!focusId||!focusKind)return;
+    if(mode!=="personal")setOrganizationView(focusKind==="application"?"applications":"assignments");
+    const timer=window.setTimeout(()=>document.getElementById(`workforce-${focusKind}-${focusId}`)?.scrollIntoView({block:"center"}),60);
+    return()=>window.clearTimeout(timer);
+  },[focusKind,focusId,mode,applications.length,assignments.length]);
 
   async function act(fn: () => Promise<unknown>, success: string): Promise<boolean> {
     setBusy(true);
@@ -430,7 +443,7 @@ export function WorkforceMarketplace({
             <div className="workforce-list">
               {applications.map((a) => {
                 const org = orgById.get(a.organization_id);
-                return <article className="workforce-application-card" key={a.id}>
+                return <article id={`workforce-application-${a.id}`} className={`workforce-application-card ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-card-header">
                     <OrganizationLogoImage name={a.organization_name} path={org?.logo_path} updatedAt={org?.logo_updated_at} size="card" />
                     <div className="workforce-card-title"><span>{a.organization_name}</span><h4>{a.opportunity_title}</h4><small>{a.project_title}</small></div>
@@ -438,7 +451,7 @@ export function WorkforceMarketplace({
                   </div>
                   <RecruitmentProgress status={a.status} />
                   <div className="workforce-application-copy"><p><strong>Availability:</strong> {a.availability || "Not recorded"}</p>{a.note && <p><strong>Your message:</strong> {a.note}</p>}{a.review_note && <p><strong>Organization review:</strong> {a.review_note}</p>}</div>
-                  <div className="workforce-card-actions"><span>{applicationNextStep(a.status)}</span>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div>
+                  <div className="workforce-card-actions"><span>{applicationNextStep(a.status)}</span><div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open link</button>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div></div>
                 </article>;
               })}
             </div>
@@ -452,7 +465,7 @@ export function WorkforceMarketplace({
             </div>
             <div className="workforce-list">
               {assignments.map((a) => (
-                <article className="workforce-assignment-card" key={a.id}>
+                <article id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card ${focusKind==="assignment"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-assignment-top"><div><span>{a.organization_name}</span><h4>{a.project_title}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
                   <div className="workforce-meta-grid three">
                     <WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} />
@@ -463,6 +476,7 @@ export function WorkforceMarketplace({
                   {a.status === "offered" && <div className="workforce-offer-callout"><div><strong>Formal assignment offer</strong><p>Accept to activate this assignment and its survey access. Compensation and terms are frozen for this offer.</p></div><div className="actions"><button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button><button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button></div></div>}
                   {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Survey access is active. Open Survey projects to conduct assigned surveys.</p>}
                   {a.status === "completed" && <p className="notice success">Completed assignment is retained in your verified FieldLance work history.</p>}
+                  <button className="link" type="button" onClick={()=>onFocusChange?.("assignment",a.id)}>Open assignment link</button>
                 </article>
               ))}
               {directSurveyAssignments.map((sa) => {
@@ -556,13 +570,14 @@ export function WorkforceMarketplace({
                 const snapshot = (a.profile_snapshot || {}) as Record<string, unknown>;
                 const skills = readableSnapshot(snapshot.skills);
                 const languages = readableSnapshot(snapshot.languages);
-                return <article className="workforce-application-card organization" key={a.id}>
+                return <article id={`workforce-application-${a.id}`} className={`workforce-application-card organization ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-card-header"><div className="workforce-avatar">{initials(a.volunteer_name)}</div><div className="workforce-card-title"><span>{a.opportunity_title}</span><h4>{a.volunteer_name}</h4><small>{a.project_title}{mode === "poem" ? ` · ${orgMap.get(a.organization_id) || a.organization_name}` : ""}</small></div><Badge value={a.status} /></div>
                   <RecruitmentProgress status={a.status} organization />
                   <div className="workforce-candidate-facts"><span><strong>Skills</strong>{skills || "Not listed"}</span><span><strong>Languages</strong>{languages || "Not listed"}</span><span><strong>Availability</strong>{a.availability || "Not recorded"}</span></div>
                   {a.note && <p className="workforce-helper"><strong>Applicant message:</strong> {a.note}</p>}
                   {a.review_note && <p className="workforce-helper"><strong>Review note:</strong> {a.review_note}</p>}
                   {a.profile_share_consent && <details className="workforce-profile-snapshot"><summary>View application profile snapshot</summary><pre className="survey-json">{JSON.stringify(a.profile_snapshot, null, 2)}</pre></details>}
+                  <button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open application link</button>
                   {["pending", "shortlisted", "selected"].includes(a.status) && <div className="workforce-card-actions"><span>{applicationNextStep(a.status, true)}</span><div className="actions">
                     {a.status !== "shortlisted" && a.status !== "selected" && <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "shortlisted")}>Shortlist</button>}
                     {a.status !== "selected" && <button className="primary" disabled={busy} onClick={() => reviewApplication(a, "selected")}>Select</button>}
@@ -607,7 +622,7 @@ export function WorkforceMarketplace({
           {organizationView === "assignments" && <>
             <div className="workforce-section-heading"><div><span className="eyebrow">DELIVERY TEAM</span><h3>{mode === "poem" ? "Assignment oversight" : "Project assignments"}</h3><p>Offers become active only after Field Worker acceptance. Completion creates verified FieldLance work history.</p></div><span className="workforce-count">{assignments.length} total</span></div>
             <div className="workforce-list">
-              {assignments.map((a) => <AssignmentCard key={a.id} assignment={a} project={projectMap.get(a.survey_project_id)} orgName={orgMap.get(a.organization_id)} mode={mode} busy={busy} act={act} />)}
+              {assignments.map((a) => <AssignmentCard key={a.id} assignment={a} project={projectMap.get(a.survey_project_id)} orgName={orgMap.get(a.organization_id)} mode={mode} busy={busy} act={act} focused={focusKind==="assignment"&&focusId===a.id} onFocus={()=>onFocusChange?.("assignment",a.id)} />)}
             </div>
             {!assignments.length && !busy && <WorkforceEmpty icon={<CheckCircle2 size={22} />} title="No assignments yet" copy="Select an applicant or eligible recruited Field Worker, send an offer, and the assignment will appear here." />}
           </>}
@@ -658,16 +673,18 @@ function AssignmentOfferForm({ offer, project, compensation, busy, onCancel, onS
   </form>;
 }
 
-function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
+function AssignmentCard({ assignment: a, project, orgName, mode, busy, act, focused, onFocus }: {
   assignment: Assignment;
   project?: Project;
   orgName?: string;
   mode: Mode;
   busy: boolean;
   act: (fn: () => Promise<unknown>, success: string) => Promise<boolean>;
+  focused: boolean;
+  onFocus?: () => void;
 }) {
   const [complete, setComplete] = useState(false);
-  return <article className="workforce-assignment-card organization">
+  return <article id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card organization ${focused?"route-focus":""}`}>
     <div className="workforce-assignment-top"><div><span>{a.organization_name || orgName || a.organization_id}</span><h4>{a.project_title || project?.title || a.survey_project_id}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
     <div className="workforce-meta-grid three"><WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Survey target" value={`${a.target_surveys} surveys`} /><WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={money(a)} /></div>
     <p className="workforce-helper"><strong>Field Worker:</strong> {a.volunteer_name}</p>
@@ -675,7 +692,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act }: {
     <p className="workforce-helper"><strong>Compensation source:</strong> {human(a.compensation_source)}{a.compensation_source_version ? ` v${a.compensation_source_version}` : ""}{a.compensation_note_snapshot ? ` · ${a.compensation_note_snapshot}` : ""}</p>
     {a.completion_note && <p className="notice success">Completion: {a.completion_note}</p>}
     {a.cancellation_note && <p className="notice">Cancellation: {a.cancellation_note}</p>}
-    <div className="workforce-card-actions"><span>{assignmentNextStep(a.status)}</span><div className="actions">
+    <div className="workforce-card-actions"><span>{assignmentNextStep(a.status)}</span><div className="actions"><button className="link" type="button" onClick={onFocus}>Open assignment link</button>
       {(mode === "ngo" || mode === "project") && a.status === "active" && <><button className="primary" disabled={busy} onClick={() => setComplete((v) => !v)}>Complete assignment</button><button className="secondary" disabled={busy} onClick={() => { const note=window.prompt("Cancellation reason:","Assignment cancelled by project administrator."); if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment cancelled and survey access revoked."); }}>Cancel assignment</button></>}
       {mode !== "personal" && a.status === "offered" && <button className="secondary" disabled={busy} onClick={() => { const note=window.prompt("Cancellation reason:","Assignment offer withdrawn by project administrator."); if(note) void act(() => rpc("cancel_work_assignment",{p_id:a.id,p_note:note,p_version:a.version}),"Assignment offer cancelled."); }}>Withdraw offer</button>}
     </div></div>
