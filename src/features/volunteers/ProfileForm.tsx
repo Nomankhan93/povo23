@@ -106,6 +106,9 @@ export function ProfileForm({
             />
           ))}
         </div>
+        <div className="notice">
+          The profile availability value is a general recruitment summary. Use <strong>My Availability</strong> in the Field Worker workspace to set weekdays, working hours, unavailable dates and parallel-project capacity used by assignment conflict checks.
+        </div>
 
         <StructuredProfileFields details={d as Record<string, string>} geographies={geographies} update={update} />
 

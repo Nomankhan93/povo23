@@ -1,3 +1,17 @@
+# Current permissions note — FieldLance 2.37.0
+
+Field Worker scheduling data is private by default. Organizations receive only the minimum aggregate signal needed to prepare a safe formal assignment.
+
+## 2.37 permissions
+
+- **Field Worker:** read/update own structured availability through guarded RPCs; read own upcoming offered/active assignment schedule; add/remove own unavailable periods.
+- **Organization Admin / authorized Project Manager / FieldLance survey authority:** call the conflict-preview RPC only for a project they already have workforce-management authority over. The result contains status/counts/capacity, not other Organization/project names or assignment IDs.
+- **Unrelated Organization/user:** cannot read private availability rows and cannot request another project's workforce conflict preview.
+- **Database guard:** hard scheduling conflicts are rejected on offered/active `work_assignments` even if a client bypasses the offer UI.
+- **No new broad authority:** scheduling does not widen survey, finance, project-team, verification or moderation permissions.
+
+## Previous release
+
 # Current permissions note — FieldLance 2.36.1
 
 Partner Self-Publishing & Platform Moderation. Active Organization Admins may publish their own saved survey-template and project drafts directly. FieldLance survey-management roles no longer approve those drafts before publication; they govern published content through audited post-publication moderation.

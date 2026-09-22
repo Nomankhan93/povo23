@@ -1,3 +1,15 @@
+# Current architecture note — FieldLance 2.37.0
+
+Workforce Scheduling, Availability, Capacity & Assignment Safety adds a private scheduling layer beside the existing authoritative `work_assignments` model. New worker availability tables store weekly rules, workload preferences and date exceptions; guarded RPCs expose only the signed-in worker's schedule or a privacy-preserving conflict summary to authorized project workforce managers.
+
+## 2.37 scheduling architecture
+
+`app_private.worker_assignment_conflict_summary` calculates overlapping current commitments, configured capacity, unavailable dates and estimated available days without returning foreign Organization/project identity. `check_work_assignment_conflicts` is the authorized public preview. `guard_work_assignment_capacity` enforces hard conflicts on offered/active assignment inserts/updates below the UI. Cancelled/declined/completed work does not consume current capacity.
+
+Field Worker routes `/app/work/schedule` and `/app/work/availability` reuse the 2.36 URL-routing foundation. The formal offer screen performs a debounced preview, while database authorization and RLS remain authoritative. No attendance, continuous location tracking or timesheet model is introduced in 2.37.
+
+## Previous release
+
 # Current architecture note — FieldLance 2.36.1
 
 Partner Self-Publishing & Platform Moderation. Organization-owned template/project drafts remain the authoring envelopes, but active Organization Admins now publish them directly into the existing immutable `survey_templates` and operational `survey_projects` models. FieldLance pre-approval queues are retired; historical review evidence remains for provenance.

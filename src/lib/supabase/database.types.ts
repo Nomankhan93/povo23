@@ -4366,6 +4366,96 @@ version?: number;
 };
 Relationships: [];
 };
+worker_availability_preferences: {
+Row: {
+user_id: string;
+timezone: string;
+max_active_projects: number;
+max_days_per_week: number;
+preferred_shift: string;
+travel_willingness: string;
+updated_at: string;
+};
+Insert: {
+user_id: string;
+timezone?: string;
+max_active_projects?: number;
+max_days_per_week?: number;
+preferred_shift?: string;
+travel_willingness?: string;
+updated_at?: string;
+};
+Update: {
+user_id?: string;
+timezone?: string;
+max_active_projects?: number;
+max_days_per_week?: number;
+preferred_shift?: string;
+travel_willingness?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+worker_availability_rules: {
+Row: {
+id: string;
+user_id: string;
+weekday: number;
+is_available: boolean;
+start_time: string | null;
+end_time: string | null;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+user_id: string;
+weekday: number;
+is_available?: boolean;
+start_time?: string | null;
+end_time?: string | null;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+user_id?: string;
+weekday?: number;
+is_available?: boolean;
+start_time?: string | null;
+end_time?: string | null;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+worker_unavailable_periods: {
+Row: {
+id: string;
+user_id: string;
+starts_on: string;
+ends_on: string;
+reason: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+user_id: string;
+starts_on: string;
+ends_on: string;
+reason?: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+user_id?: string;
+starts_on?: string;
+ends_on?: string;
+reason?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 }; Views: { [_ in never]: never }; Functions: {
 act_work_payable: { Args: {
 p_unit: string | null;
@@ -4378,6 +4468,11 @@ p_reverses: string | null;
 p_version: number | null;
 p_request: string | null;
 p_receipt?: string | null;
+}; Returns: string };
+add_worker_unavailable_period: { Args: {
+p_start: string | null;
+p_end: string | null;
+p_reason: string | null;
 }; Returns: string };
 admin_e_wallet_operations_queue: { Args: {
 p_status?: string | null;
@@ -4564,6 +4659,13 @@ check_existing_identity: { Args: {
 p_project: string | null;
 p_name: string | null;
 p_birth: string | null;
+}; Returns: Json };
+check_work_assignment_conflicts: { Args: {
+p_project: string | null;
+p_user: string | null;
+p_start: string | null;
+p_end: string | null;
+p_target_surveys?: number | null;
 }; Returns: Json };
 claim_work_payable: { Args: {
 p_assignment: string | null;
@@ -5111,6 +5213,9 @@ p_opportunity: string | null;
 p_reason: string | null;
 p_request: string | null;
 }; Returns: string };
+remove_worker_unavailable_period: { Args: {
+p_id: string | null;
+}; Returns: undefined };
 reopen_beneficiary_case: { Args: {
 p_case: string | null;
 p_reason: string | null;
@@ -5442,6 +5547,14 @@ p_questions: Json | null;
 p_source: Json | null;
 p_version: number | null;
 }; Returns: number };
+save_worker_availability: { Args: {
+p_timezone: string | null;
+p_max_active_projects: number | null;
+p_max_days_per_week: number | null;
+p_preferred_shift: string | null;
+p_travel_willingness: string | null;
+p_rules: Json | null;
+}; Returns: Json };
 schedule_assistance_distribution_plan: { Args: {
 p_id: string | null;
 p_start: string | null;
@@ -5699,5 +5812,11 @@ p_page?: number | null;
 work_payable_statement: { Args: {
 p_assignment: string | null;
 p_page?: number | null;
+}; Returns: Json };
+worker_availability_profile: { Args: {
+}; Returns: Json };
+worker_schedule: { Args: {
+p_from?: string | null;
+p_days?: number | null;
 }; Returns: Json };
 }; Enums: { [_ in never]: never }; CompositeTypes: { [_ in never]: never } } };

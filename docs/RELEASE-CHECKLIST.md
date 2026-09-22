@@ -1,3 +1,24 @@
+# Current release checklist — FieldLance 2.37.0
+
+Workforce Scheduling, Availability, Capacity & Assignment Safety. One forward migration is included.
+
+## 2.37 release checks
+
+- [ ] Patch `--check` passes against the validated 2.36.1 source baseline.
+- [ ] `npm ci` completes.
+- [ ] `npx supabase migration up --local` applies `20261013000300_workforce_scheduling_assignment_safety.sql` without reset.
+- [ ] `npm run types:check` passes.
+- [ ] `npm run test:workforce-scheduling-237` passes.
+- [ ] Full `npm run test`, `npm run check`, `npm run release:consistency` and `npm run preflight` pass.
+- [ ] Field Worker can save weekly availability, capacity preferences and unavailable dates.
+- [ ] `/app/work/schedule` and `/app/work/availability` survive hard refresh/back-forward.
+- [ ] Organization offer flow shows Clear/Warning/Hard conflict without exposing foreign commitment identity.
+- [ ] Hard conflict disables offer submission and is rejected by the database guard.
+- [ ] Cancelled/declined/completed assignments do not consume current capacity.
+- [ ] Cross-Organization RLS/privacy tests pass.
+
+## Previous release
+
 # Current release checklist — FieldLance 2.36.1
 
 Partner Self-Publishing & Platform Moderation. Partner Organizations directly publish their own survey templates/projects; FieldLance applies post-publication moderation instead of pre-approval. One forward migration is included.

@@ -47,6 +47,19 @@ type Candidate = {
   source_id: string | null;
   match_label: string;
 };
+type ConflictPreview = {
+  status: "clear" | "warning" | "hard_conflict";
+  headline: string;
+  reasons: string[];
+  schedule_configured: boolean;
+  overlapping_commitments: number;
+  unavailable_days: number;
+  estimated_available_days: number | null;
+  max_active_projects: number;
+  max_days_per_week: number;
+  proposed_concurrent_projects: number;
+  capacity_pct: number;
+};
 const val = (f: FormData, k: string) => String(f.get(k) || "");
 const money = (a: Assignment) =>
   a.work_mode === "paid"
@@ -664,12 +677,37 @@ function RecruitmentProgress({ status, organization = false }: { status: string;
 }
 
 function AssignmentOfferForm({ offer, project, compensation, busy, onCancel, onSubmit }: { offer: Candidate; project: Project; compensation: string; busy: boolean; onCancel: () => void; onSubmit: (e: FormEvent<HTMLFormElement>) => void }) {
+  const [target,setTarget]=useState("");
+  const [start,setStart]=useState(project.start_date);
+  const [end,setEnd]=useState(project.end_date);
+  const [conflict,setConflict]=useState<ConflictPreview|null>(null);
+  const [checking,setChecking]=useState(false);
+  const [checkError,setCheckError]=useState("");
+  useEffect(()=>{
+    const targetValue=Number(target);
+    if(!start||!end||!Number.isFinite(targetValue)||targetValue<1){setConflict(null);setCheckError("");return;}
+    let live=true;
+    const timer=window.setTimeout(()=>{
+      setChecking(true);setCheckError("");
+      void rpc("check_work_assignment_conflicts",{p_project:project.id,p_user:offer.user_id,p_start:start,p_end:end,p_target_surveys:targetValue})
+        .then((result)=>{if(live)setConflict(result as unknown as ConflictPreview)})
+        .catch((error)=>{if(live){setConflict(null);setCheckError((error as Error).message)}})
+        .finally(()=>{if(live)setChecking(false)});
+    },250);
+    return()=>{live=false;window.clearTimeout(timer)};
+  },[offer.user_id,project.id,start,end,target]);
+  const hardConflict=conflict?.status==="hard_conflict";
   return <form onSubmit={onSubmit} className="workforce-inline-form workforce-offer-form">
     <div className="workforce-section-heading compact"><div><span className="eyebrow">FORMAL OFFER</span><h3>Assignment terms for {offer.details.full_name || offer.user_id}</h3><p>Project: {project.title}. Compensation is inherited from the recruitment opportunity snapshot or project default and becomes immutable when offered.</p></div></div>
     <p className="notice"><strong>Contract compensation:</strong> {compensation}</p>
-    <div className="form-grid"><label className="field">Survey target<input name="target" type="number" min={1} max={1000000} required /></label><label className="field">Start<input name="start" type="date" defaultValue={project.start_date} required /></label><label className="field">End<input name="end" type="date" defaultValue={project.end_date} required /></label></div>
+    <div className="form-grid"><label className="field">Survey target<input name="target" type="number" min={1} max={1000000} value={target} onChange={(e)=>setTarget(e.target.value)} required /></label><label className="field">Start<input name="start" type="date" value={start} onChange={(e)=>setStart(e.target.value)} required /></label><label className="field">End<input name="end" type="date" value={end} onChange={(e)=>setEnd(e.target.value)} required /></label></div>
+    <section className={`workforce-capacity-check ${conflict?.status || "pending"}`} aria-live="polite">
+      <div className="workforce-capacity-heading"><div><span className="eyebrow">ASSIGNMENT SAFETY</span><strong>{checking?"Checking worker schedule…":conflict?.headline || "Enter a target and dates to check availability"}</strong></div>{conflict&&<Badge value={conflict.status}/>}</div>
+      {conflict&&<><div className="workforce-capacity-facts"><span><small>Overlapping commitments</small><strong>{conflict.overlapping_commitments}</strong></span><span><small>Proposed capacity</small><strong>{conflict.capacity_pct}%</strong></span><span><small>Parallel project limit</small><strong>{conflict.max_active_projects}</strong></span><span><small>Available days</small><strong>{conflict.estimated_available_days===null?"Not configured":conflict.estimated_available_days}</strong></span></div>{conflict.reasons.length>0&&<ul>{conflict.reasons.map((reason)=><li key={reason}>{reason}</li>)}</ul>}<p className="fine">Privacy: FieldLance does not reveal the names or details of this worker's other organization commitments.</p></>}
+      {checkError&&<p className="notice error">{checkError}</p>}
+    </section>
     <label className="field">Terms / deliverables<textarea name="terms" minLength={5} maxLength={3000} required defaultValue="Complete assigned field surveys according to FieldLance data-quality, consent and project rules." /></label>
-    <div className="actions"><button type="button" className="secondary" onClick={onCancel}>Cancel</button><button className="primary" disabled={busy}>Send formal offer</button></div>
+    <div className="actions"><button type="button" className="secondary" onClick={onCancel}>Cancel</button><button className="primary" disabled={busy||checking||hardConflict}>{hardConflict?"Resolve schedule conflict":"Send formal offer"}</button></div>
   </form>;
 }
 

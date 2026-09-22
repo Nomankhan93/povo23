@@ -68,6 +68,7 @@ docs/PHASE-2.30.1.md
 docs/PHASE-2.31.0.md
 docs/PHASE-2.36.0.md
 docs/PHASE-2.36.1.md
+docs/PHASE-2.37.0.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
 docs/PHASE-2.4.md
@@ -152,6 +153,7 @@ docs/UPGRADE-2.30.1.md
 docs/UPGRADE-2.31.0.md
 docs/UPGRADE-2.36.0.md
 docs/UPGRADE-2.36.1.md
+docs/UPGRADE-2.37.0.md
 docs/UPGRADE-2.4.1.md
 docs/UPGRADE-2.4.2.md
 docs/UPGRADE-2.4.md
@@ -224,6 +226,7 @@ docs/VALIDATION-2.30.1.md
 docs/VALIDATION-2.31.0.md
 docs/VALIDATION-2.36.0.md
 docs/VALIDATION-2.36.1.md
+docs/VALIDATION-2.37.0.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
 docs/VALIDATION-2.4.md
@@ -321,6 +324,7 @@ scripts/test-phase2301.mjs
 scripts/test-phase231.mjs
 scripts/test-phase236.mjs
 scripts/test-phase2361.mjs
+scripts/test-phase237.mjs
 scripts/test-phase24.mjs
 scripts/test-phase25.mjs
 scripts/test-phase26.mjs
@@ -437,6 +441,7 @@ src/features/workforce/InvitationsPanel.tsx
 src/features/workforce/InviteVolunteer.tsx
 src/features/workforce/model.tsx
 src/features/workforce/ReputationCertificates.tsx
+src/features/workforce/WorkAvailabilitySchedule.tsx
 src/features/workforce/WorkforceMarketplace.tsx
 src/features/workspaces/access.ts
 src/lib/files/validateFile.ts
@@ -513,5 +518,6 @@ supabase/migrations/20261012000100_project_workspace_completion.sql
 supabase/migrations/20261012000200_project_workspace_stabilization.sql
 supabase/migrations/20261013000100_operational_analytics_reporting.sql
 supabase/migrations/20261013000200_partner_self_publish_platform_moderation.sql
+supabase/migrations/20261013000300_workforce_scheduling_assignment_safety.sql
 tsconfig.json
 vite.config.ts

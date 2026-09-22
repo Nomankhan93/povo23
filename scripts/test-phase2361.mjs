@@ -70,10 +70,21 @@ await ok('template moderation cascades to dependent projects and restore does no
   assert.match(migration, /Recruitment and cancelled assignments are not recreated automatically/);
 });
 
-await ok('2.36.1 adds exactly one forward migration after the 2.31 analytics migration', async () => {
+await ok('2.36.1 moderation migration immediately follows the 2.31 analytics migration', async () => {
   const migrations = readdirSync('supabase/migrations').filter((x) => x.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1), '20261013000200_partner_self_publish_platform_moderation.sql');
-  assert.equal(migrations.at(-2), '20261013000100_operational_analytics_reporting.sql');
+
+  const analytics = '20261013000100_operational_analytics_reporting.sql';
+  const moderation = '20261013000200_partner_self_publish_platform_moderation.sql';
+
+  const analyticsIndex = migrations.indexOf(analytics);
+  const moderationIndex = migrations.indexOf(moderation);
+
+  assert.ok(analyticsIndex >= 0, '2.31 analytics migration is missing');
+  assert.equal(
+    moderationIndex,
+    analyticsIndex + 1,
+    '2.36.1 moderation migration must immediately follow the 2.31 analytics migration',
+  );
 });
 
 console.log(`\n${passed} FieldLance 2.36.1 Partner Self-Publishing & Platform Moderation scenarios passed.`);

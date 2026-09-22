@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Bell,
   Building2,
+  CalendarDays,
   CreditCard,
   ClipboardList,
   HeartHandshake,
@@ -85,6 +86,7 @@ import { ProfileForm } from "../features/volunteers/ProfileForm";
 import { ProfilePhoto } from "../features/volunteers/ProfilePhoto";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
 const WorkforceMarketplace = lazy(() => import("../features/workforce/WorkforceMarketplace").then(m => ({default:m.WorkforceMarketplace})));
+const WorkAvailabilitySchedule = lazy(() => import("../features/workforce/WorkAvailabilitySchedule").then(m => ({default:m.WorkAvailabilitySchedule})));
 import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
 import { db, rpc } from "../lib/supabase/client";
 import type { Database } from "../lib/supabase/database.types";
@@ -429,7 +431,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal" && !projectScope) ? [["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
-    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users]] : []),
+    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Schedule", CalendarDays], ["My Availability", CalendarDays]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
     ...(!poem && scope === "personal" ? [["E-Wallets & withdrawals", CreditCard]] : []),
     ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
@@ -1056,6 +1058,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Withdrawal operations" && financeManage && validScope && <Suspense fallback={<p role="status">Loading withdrawal operations…</p>}><WithdrawalOperationsWorkspace/></Suspense>}
           {page === "E-Wallet sandbox" && import.meta.env.DEV && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
           {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
+          {(page === "My Schedule" || page === "My Availability") && personalWorkspace && validScope && (
+            <Suspense fallback={<p role="status">Loading schedule…</p>}>
+              <WorkAvailabilitySchedule userId={session.user.id} view={page === "My Availability" ? "availability" : "schedule"} />
+            </Suspense>
+          )}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={`${scope}-${page}`}
@@ -1218,7 +1225,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             ["Workforce payables","Earnings",CreditCard],
             ["My profile","Profile",UserRound],
           ].map(([target,label,Icon])=>{
-            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations"].includes(page):target==="My Assigned Surveys"?page==="My Assigned Surveys":target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
+            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?page==="My Assigned Surveys":target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
             const C=Icon as typeof LayoutDashboard;
             return <button key={String(target)} type="button" className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>change(String(target))}><C size={20}/><span>{String(label)}</span></button>;
           })}

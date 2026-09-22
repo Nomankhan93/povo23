@@ -1,3 +1,9 @@
+# Current release: FieldLance 2.37.0
+
+Workforce Scheduling, Availability, Capacity & Assignment Safety. Field Workers can configure private weekly availability, unavailable dates and parallel-project limits; recruiters receive privacy-safe conflict/capacity summaries before formal offers, and hard conflicts are enforced server-side. See docs/PHASE-2.37.0.md, docs/UPGRADE-2.37.0.md and docs/VALIDATION-2.37.0.md.
+
+## Previous release
+
 # Current release: FieldLance 2.36.1
 
 Partner Self-Publishing & Platform Moderation. Active Partner Organization Admins now publish their own survey templates and projects directly without a FieldLance pre-approval queue. FieldLance survey-management staff retain audited post-publication Block / Remove from operation / Restore authority; restrictions pause forward recruitment, assignment and collection while preserving history. See docs/PHASE-2.36.1.md, docs/UPGRADE-2.36.1.md and docs/VALIDATION-2.36.1.md.
