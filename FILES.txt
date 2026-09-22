@@ -65,6 +65,7 @@ docs/PHASE-2.29.md
 docs/PHASE-2.3.md
 docs/PHASE-2.30.0.md
 docs/PHASE-2.30.1.md
+docs/PHASE-2.31.0.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
 docs/PHASE-2.4.md
@@ -146,6 +147,7 @@ docs/UPGRADE-2.3.1.md
 docs/UPGRADE-2.3.md
 docs/UPGRADE-2.30.0.md
 docs/UPGRADE-2.30.1.md
+docs/UPGRADE-2.31.0.md
 docs/UPGRADE-2.4.1.md
 docs/UPGRADE-2.4.2.md
 docs/UPGRADE-2.4.md
@@ -215,6 +217,7 @@ docs/VALIDATION-2.29.md
 docs/VALIDATION-2.3.1.md
 docs/VALIDATION-2.30.0.md
 docs/VALIDATION-2.30.1.md
+docs/VALIDATION-2.31.0.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
 docs/VALIDATION-2.4.md
@@ -248,6 +251,7 @@ scripts/generate-project-metadata.mjs
 scripts/generate-types.mjs
 scripts/local-env.mjs
 scripts/schema-test-db.mjs
+scripts/test-analytics-client231.mjs
 scripts/test-area-operations.mjs
 scripts/test-area-picker.mjs
 scripts/test-branding2195.mjs
@@ -308,6 +312,7 @@ scripts/test-phase229.mjs
 scripts/test-phase23.mjs
 scripts/test-phase230.mjs
 scripts/test-phase2301.mjs
+scripts/test-phase231.mjs
 scripts/test-phase24.mjs
 scripts/test-phase25.mjs
 scripts/test-phase26.mjs
@@ -338,6 +343,9 @@ src/components/ui/ActionDialog.tsx
 src/components/ui/FieldLanceBrand.tsx
 src/components/ui/Pager.tsx
 src/components/ui/WorkflowOverview.tsx
+src/features/analytics/model.ts
+src/features/analytics/ReportsWorkspace.tsx
+src/features/analytics/useOperationalSummary.ts
 src/features/assistance/AssistanceLedgerWorkspace.tsx
 src/features/assistance/AssistancePanel.tsx
 src/features/audit/EventList.tsx
@@ -494,5 +502,6 @@ supabase/migrations/20261010000200_organization_settings_team_compliance.sql
 supabase/migrations/20261011000100_field_worker_reputation_certificates.sql
 supabase/migrations/20261012000100_project_workspace_completion.sql
 supabase/migrations/20261012000200_project_workspace_stabilization.sql
+supabase/migrations/20261013000100_operational_analytics_reporting.sql
 tsconfig.json
 vite.config.ts

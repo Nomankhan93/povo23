@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.30.1
+Release: 2.31.0
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.30.1 PRODUCT BOUNDARIES =====
+===== CURRENT 2.31.0 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.30.1 stabilizes document deletion, draft-safe navigation, pending application counts and lazy feature boundaries.
 - 2.30.0 completes the project workspace: distinct Overview/Team/Recruitment/Field Work/Responses/Cases/Finance/Governance/Documents/Activity surfaces, current-project locked finance/governance, private project documents, and a guarded project activity feed.
@@ -54,8 +54,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 63
-Migration head: 20261012000200_project_workspace_stabilization.sql
+Ordered migration files: 64
+Migration head: 20261013000100_operational_analytics_reporting.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -121,12 +121,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261011000100_field_worker_reputation_certificates.sql
 - 20261012000100_project_workspace_completion.sql
 - 20261012000200_project_workspace_stabilization.sql
+- 20261013000100_operational_analytics_reporting.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 78
-TypeScript/TSX source files: 99
-Markdown docs: 228
-Inventory files (excluding local/build/temp/backup state): 498
+Test scripts (scripts/test-*.mjs): 80
+TypeScript/TSX source files: 102
+Markdown docs: 231
+Inventory files (excluding local/build/temp/backup state): 507
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -155,7 +156,7 @@ npm run test:operations
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.30.1 stabilizes the project workspace over the existing authorization and finance/case/survey architecture.
+FieldLance 2.31.0 adds permission-scoped operational reporting, exact dashboard totals and audited exports.
 The next recommended phase is 2.31 URL Routing, Deep Links & Mobile Information Architecture: bookmarkable project/case/notification destinations, natural browser history, and a mobile-first Field Worker bottom navigation without changing backend authority.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.

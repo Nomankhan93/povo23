@@ -1,3 +1,9 @@
+# Current permissions note — FieldLance 2.31.0
+
+Operational Analytics, Dashboard Accuracy & Reporting. Permission-scoped exact totals, paginated drill-downs, UTC filters, monthly current-state trends and audited CSV exports. See docs/PHASE-2.31.0.md and docs/UPGRADE-2.31.0.md.
+
+## Previous release
+
 # Current permissions note — FieldLance 2.30.1
 
 2.30.1: project navigation awaits device drafts; storage SELECT permits deleting objects only for active project managers so guarded deletion can finish. Existing database role authority remains unchanged.

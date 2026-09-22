@@ -1,3 +1,4 @@
+import type {ReportSelection} from "../analytics/model";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CalendarDays, ClipboardCheck, Coins, MapPin, Users } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
@@ -30,11 +31,13 @@ export function ProjectOverview({
   canManageProject,
   canManageFinance,
   onOpenTab,
+  onReport,
 }: {
   projectId: string;
   geographies: Geo[];
   canManageProject: boolean;
   canManageFinance: boolean;
+  onReport: (selection:ReportSelection)=>void;
   onOpenTab: (tab: "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity") => void;
 }) {
   const [summary, setSummary] = useState<Summary>(empty);
@@ -61,9 +64,9 @@ export function ProjectOverview({
       if (canManageProject) {
         const managed = await Promise.all([
           db!.from("work_assignments").select("id", { count: "exact", head: true }).eq("survey_project_id", projectId).in("status", ["offered", "active"]),
-          db!.from("work_opportunities").select("id", { count: "exact", head: true }).eq("survey_project_id", projectId).eq("status", "open"),
+          db!.from("work_opportunities").select("id", { count: "exact", head: true }).eq("survey_project_id", projectId).eq("status", "open").eq("publication_state","published").eq("applications_open",true),
           db!.from("work_applications").select("id", { count: "exact", head: true }).eq("survey_project_id", projectId).in("status", ["pending", "shortlisted"]),
-          db!.from("beneficiary_cases").select("id", { count: "exact", head: true }).eq("project_id", projectId).neq("status", "closed"),
+          db!.from("beneficiary_cases").select("id", { count: "exact", head: true }).eq("project_id", projectId).not("status", "in", "(closed,cancelled)"),
         ]);
         for (const result of managed) if (result.error) throw result.error;
         activeAssignments = managed[0].count || 0;
@@ -131,11 +134,11 @@ export function ProjectOverview({
         </section>
 
         <div className="project-metric-grid">
-          <button type="button" className="project-metric" onClick={() => onOpenTab("responses")}><ClipboardCheck/><span><small>Pending review</small><strong>{summary.submitted}</strong><em>{summary.correction} need correction</em></span></button>
+          <button type="button" className="project-metric" onClick={() => onReport({kind:"responses",status:"submitted"})}><ClipboardCheck/><span><small>Pending review</small><strong>{summary.submitted}</strong><em>{summary.correction} need correction</em></span></button>
           <button type="button" className="project-metric" onClick={() => onOpenTab("team")}><Users/><span><small>Project staff</small><strong>{summary.staff.filter((row) => row.status === "active").length}</strong><em>current visible roster</em></span></button>
           {canManageProject && <button type="button" className="project-metric" onClick={() => onOpenTab("field-work")}><MapPin/><span><small>Field assignments</small><strong>{summary.activeAssignments ?? 0}</strong><em>offered or active</em></span></button>}
           {canManageProject && <button type="button" className="project-metric" onClick={() => onOpenTab("recruitment")}><Users/><span><small>Recruitment</small><strong>{summary.applications ?? 0}</strong><em>{summary.openOpportunities ?? 0} open opportunities</em></span></button>}
-          {canManageProject && <button type="button" className="project-metric" onClick={() => onOpenTab("cases")}><ClipboardCheck/><span><small>Open cases</small><strong>{summary.cases ?? 0}</strong><em>project-scoped impact work</em></span></button>}
+          {canManageProject && <button type="button" className="project-metric" onClick={() => onReport({kind:"cases",status:"__active"})}><ClipboardCheck/><span><small>Open cases</small><strong>{summary.cases ?? 0}</strong><em>project-scoped impact work</em></span></button>}
           {canManageFinance && <button type="button" className="project-metric" onClick={() => onOpenTab("finance")}><Coins/><span><small>Funding coverage</small><strong>{summary.funding?.shortfall ? "Attention" : "Covered"}</strong><em>{summary.funding ? `${project.compensation_currency} ${Number(summary.funding.coverage_available || 0).toLocaleString()} available` : "Loading finance"}</em></span></button>}
         </div>
 

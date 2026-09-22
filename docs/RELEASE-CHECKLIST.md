@@ -1,3 +1,9 @@
+# Current release checklist — FieldLance 2.31.0
+
+Operational Analytics, Dashboard Accuracy & Reporting. Permission-scoped exact totals, paginated drill-downs, UTC filters, monthly current-state trends and audited CSV exports. See docs/PHASE-2.31.0.md and docs/UPGRADE-2.31.0.md.
+
+## Previous release
+
 # Current release checklist — FieldLance 2.30.1
 
 - [ ] Installer source check and backup verified.

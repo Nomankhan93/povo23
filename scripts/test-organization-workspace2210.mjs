@@ -58,7 +58,7 @@ await ok('Organization Home exposes the recommended operational metrics', async 
     'Active projects',
     'Open opportunities',
     'New applications',
-    'Active Field Workers',
+    'Active assignments',
     'Submitted surveys',
     'Active cases',
   ]) assert.match(dashboard, new RegExp(label));

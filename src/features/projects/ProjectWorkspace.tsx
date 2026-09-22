@@ -1,3 +1,4 @@
+import type {ReportSelection} from "../analytics/model";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ProjectTeamWorkspace } from "./ProjectTeamWorkspace";
 import { ProjectOverview } from "./ProjectOverview";
@@ -10,6 +11,7 @@ const ProjectGovernance = lazy(() => import("../governance/ProjectGovernance").t
 import { db } from "../../lib/supabase/client";
 import type { Geo } from "../geography/model";
 
+const ReportsWorkspace = lazy(()=>import("../analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const BeneficiaryCasesWorkspace = lazy(() =>
   import("../cases/BeneficiaryCasesWorkspace").then((module) => ({ default: module.BeneficiaryCasesWorkspace })),
 );
@@ -17,10 +19,11 @@ const BeneficiaryCasesWorkspace = lazy(() =>
 import { protectProjectNavigation } from "./projectNavigation";
 
 type Org = { id: string; name: string; status: string; logo_path?: string | null; logo_updated_at?: string | null };
-type Tab = "overview" | "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
+type Tab = "reports" | "overview" | "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
 type TabItem = { id: Tab; label: string; hint: string };
 
 const allTabs: TabItem[] = [
+  {id:"reports",label:"Reports",hint:"Filtered totals, trends and operational records"},
   { id: "overview", label: "Overview", hint: "Project health, targets, delivery signals, and next actions" },
   { id: "team", label: "Team", hint: "Project staff, roles, area scope, and operating plans" },
   { id: "recruitment", label: "Recruitment", hint: "Opportunities, applications, offers, invitations, and assignments" },
@@ -62,6 +65,7 @@ export function ProjectWorkspace({
   surveyManage: boolean;
   onNavigate: (page: string) => void;
 }) {
+  const [reportSelection,setReportSelection]=useState<ReportSelection|null>(null);
   const [tab, setTab] = useState<Tab>("overview");
   const [navigationError, setNavigationError] = useState("");
   const [navigating, setNavigating] = useState(false);
@@ -126,12 +130,14 @@ export function ProjectWorkspace({
 
     {navigationError && <p className="notice error" role="alert">{navigationError}</p>}
     <Suspense fallback={<p role="status">Loading project section…</p>}>
+    {tab === "reports" && <ReportsWorkspace key={`${projectId}-${reportSelection?.kind}-${reportSelection?.status}`} organization={projectOrg} projectId={projectId} geographies={geographies} initial={reportSelection}/>}
     {tab === "overview" && <ProjectOverview
       projectId={projectId}
       geographies={geographies}
       canManageProject={canManageProject}
       canManageFinance={canManageFinance}
       onOpenTab={openTab}
+      onReport={selection=>{setReportSelection(selection);openTab("reports")}}
     />}
 
     {tab === "team" && <ProjectTeamWorkspace

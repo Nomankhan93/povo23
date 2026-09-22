@@ -1,3 +1,5 @@
+import {useOperationalSummary} from "../analytics/useOperationalSummary";
+import type {ReportSelection} from "../analytics/model";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -34,6 +36,7 @@ type OrganizationDashboardProps = {
   organization: Organization;
   unread: number;
   onNavigate: (page: string) => void;
+  onReport: (selection: ReportSelection) => void;
 };
 
 const dateLabel = (value: string | null | undefined) => {
@@ -42,16 +45,16 @@ const dateLabel = (value: string | null | undefined) => {
   return new Intl.DateTimeFormat("en-PK", { day: "numeric", month: "short", year: "numeric" }).format(new Date(normalized));
 };
 
-function Metric({ icon, label, value, detail }: { icon: ReactNode; label: string; value: string | number; detail: string }) {
+function Metric({ icon, label, value, detail, onClick }: { icon: ReactNode; label: string; value: string | number; detail: string; onClick:()=>void }) {
   return (
-    <article className="organization-metric">
+    <button type="button" className="organization-metric" onClick={onClick}>
       <span className="organization-metric-icon">{icon}</span>
       <div>
         <small>{label}</small>
         <strong>{value}</strong>
         <p>{detail}</p>
       </div>
-    </article>
+    </button>
   );
 }
 
@@ -64,7 +67,7 @@ function CompactState({ value }: { value: string }) {
   return <span className={`organization-state ${tone}`}>{human(value)}</span>;
 }
 
-export function OrganizationDashboard({ organization, unread, onNavigate }: OrganizationDashboardProps) {
+export function OrganizationDashboard({ organization, unread, onNavigate, onReport }: OrganizationDashboardProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -78,6 +81,8 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState(0);
+  const analytics=useOperationalSummary(organization.id,null,revision);
+  const n=analytics.count;
 
   useEffect(() => {
     let live = true;
@@ -86,11 +91,11 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
 
     const loadBase = async () => {
       const results = await Promise.allSettled([
-        db!.from("survey_projects").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(100),
-        db!.from("work_opportunities").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(150),
-        db!.from("work_applications").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(250),
-        db!.from("work_assignments").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(250),
-        db!.from("beneficiary_cases").select("*").eq("organization_id", organization.id).order("updated_at", { ascending: false }).limit(250),
+        db!.from("survey_projects").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(8),
+        db!.from("work_opportunities").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(8),
+        db!.from("work_applications").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(8),
+        db!.from("work_assignments").select("*").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(8),
+        db!.from("beneficiary_cases").select("*").eq("organization_id", organization.id).order("updated_at", { ascending: false }).limit(8),
         db!.from("organization_programs").select("name").eq("organization_id", organization.id),
         db!.from("organization_areas").select("geography_id").eq("organization_id", organization.id),
       ]);
@@ -125,13 +130,13 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
       const assignmentIds = nextAssignments.map((item) => item.id);
       const detailResults = await Promise.allSettled([
         projectIds.length
-          ? db!.from("survey_responses").select("*").in("project_id", projectIds).order("created_at", { ascending: false }).limit(500)
+          ? db!.from("survey_responses").select("*").in("project_id", projectIds).order("created_at", { ascending: false }).limit(8)
           : Promise.resolve({ data: [] as Response[], error: null }),
         projectIds.length
-          ? db!.from("assistance_entries").select("*").in("project_id", projectIds).order("created_at", { ascending: false }).limit(500)
+          ? db!.from("assistance_entries").select("*").in("project_id", projectIds).order("created_at", { ascending: false }).limit(8)
           : Promise.resolve({ data: [] as Assistance[], error: null }),
         assignmentIds.length
-          ? db!.from("work_payable_units").select("*").in("assignment_id", assignmentIds).order("created_at", { ascending: false }).limit(500)
+          ? db!.from("work_payable_units").select("*").in("assignment_id", assignmentIds).order("created_at", { ascending: false }).limit(8)
           : Promise.resolve({ data: [] as Payable[], error: null }),
       ]);
       if (!live) return;
@@ -173,31 +178,31 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
     return activeCases.filter((item) => item.follow_up_on && item.follow_up_on <= today).length;
   }, [activeCases]);
 
-  const nextAction = pendingApplications.length
+  const nextAction = n("applications","pending")
     ? {
         eyebrow: "RECRUITMENT QUEUE",
-        title: `${pendingApplications.length} new Field Worker application${pendingApplications.length === 1 ? "" : "s"} need review`,
+        title: `${n("applications","pending")} new Field Worker application${n("applications","pending") === 1 ? "" : "s"} need review`,
         copy: "Review application-scoped profile snapshots, shortlist candidates and keep selection decisions moving.",
         button: "Review applications",
         page: "Workforce marketplace",
       }
-    : selectedApplications.length
+    : n("applications","selected")
       ? {
           eyebrow: "SELECTION READY",
-          title: `${selectedApplications.length} selected candidate${selectedApplications.length === 1 ? " is" : "s are"} ready for a formal offer`,
+          title: `${n("applications","selected")} selected candidate${n("applications","selected") === 1 ? " is" : "s are"} ready for a formal offer`,
           copy: "Send assignment offers through the existing recruitment workflow. Survey access remains inactive until the Field Worker accepts.",
           button: "Send offers",
           page: "Workforce marketplace",
         }
-      : dueFollowUps
+      : (analytics.data?.due_cases||0)
         ? {
             eyebrow: "CASE FOLLOW-UP",
-            title: `${dueFollowUps} beneficiary follow-up${dueFollowUps === 1 ? " is" : "s are"} due`,
+            title: `${(analytics.data?.due_cases||0)} beneficiary follow-up${(analytics.data?.due_cases||0) === 1 ? " is" : "s are"} due`,
             copy: "Open the case workspace to record follow-up outcomes and keep unresolved needs visible.",
             button: "Open cases",
             page: "Beneficiary cases",
           }
-        : activeProjects.length && !openOpportunities.length
+        : n("projects","active") && !n("opportunities","open")
           ? {
               eyebrow: "BUILD YOUR FIELD TEAM",
               title: "Your active projects have no open recruitment opportunities",
@@ -205,7 +210,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
               button: "Open recruitment",
               page: "Workforce marketplace",
             }
-          : !activeProjects.length
+          : !n("projects","active")
             ? {
                 eyebrow: "START DELIVERY",
                 title: "Create or activate a project to begin field operations",
@@ -215,12 +220,14 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
               }
             : {
                 eyebrow: "OPERATIONS HEALTHY",
-                title: `${activeProjects.length} active project${activeProjects.length === 1 ? "" : "s"} are ready for coordinated delivery`,
+                title: `${n("projects","active")} active project${n("projects","active") === 1 ? "" : "s"} are ready for coordinated delivery`,
                 copy: "Use the organization workspace to keep recruitment, survey delivery, cases, assistance and payables aligned.",
                 button: "Review projects",
                 page: "Survey projects",
               };
 
+  if (analytics.loading) return <section className="panel" role="status">Loading accurate operational totals…</section>;
+  if (analytics.error) return <section className="panel"><p className="notice error" role="alert">{analytics.error}</p><button onClick={()=>setRevision(v=>v+1)}>Retry dashboard</button></section>;
   return (
     <section className="organization-dashboard" aria-label="Organization daily workspace">
       <section className="organization-hero">
@@ -247,12 +254,12 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
       {error && <p className="notice" role="status">{error}</p>}
 
       <div className="organization-metric-grid" aria-label="Organization workspace metrics">
-        <Metric icon={<BriefcaseBusiness size={18} />} label="Active projects" value={activeProjects.length} detail={`${projects.length} projects visible`} />
-        <Metric icon={<Send size={18} />} label="Open opportunities" value={openOpportunities.length} detail={`${applications.length} total applications`} />
-        <Metric icon={<FileCheck2 size={18} />} label="New applications" value={pendingApplications.length} detail={`${selectedApplications.length} selected for offer`} />
-        <Metric icon={<Users size={18} />} label="Active Field Workers" value={activeWorkerCount} detail={`${offeredAssignments.length} offers awaiting response`} />
-        <Metric icon={<ClipboardCheck size={18} />} label="Submitted surveys" value={submittedSurveys} detail={`${approvedSurveys} approved responses`} />
-        <Metric icon={<HeartHandshake size={18} />} label="Active cases" value={activeCases.length} detail={`${dueFollowUps} follow-ups due`} />
+        <Metric onClick={()=>onReport({kind:"projects",status:"active"})} icon={<BriefcaseBusiness size={18} />} label="Active projects" value={n("projects","active")} detail={`${n("projects")} projects visible`} />
+        <Metric onClick={()=>onReport({kind:"opportunities",status:"open"})} icon={<Send size={18} />} label="Open opportunities" value={n("opportunities","open")} detail={`${n("applications")} total applications`} />
+        <Metric onClick={()=>onReport({kind:"applications",status:"pending"})} icon={<FileCheck2 size={18} />} label="New applications" value={n("applications","pending")} detail={`${n("applications","selected")} selected for offer`} />
+        <Metric onClick={()=>onReport({kind:"assignments",status:"active"})} icon={<Users size={18} />} label="Active assignments" value={n("assignments","active")} detail={`${analytics.data?.active_workers||0} distinct Field Workers`} />
+        <Metric onClick={()=>onReport({kind:"responses",status:"submitted"})} icon={<ClipboardCheck size={18} />} label="Submitted surveys" value={n("responses","submitted")} detail={`${n("responses","approved")} approved responses`} />
+        <Metric onClick={()=>onReport({kind:"cases",status:"__active"})} icon={<HeartHandshake size={18} />} label="Active cases" value={(n("cases")-n("cases","closed")-n("cases","cancelled"))} detail={`${(analytics.data?.due_cases||0)} follow-ups due`} />
       </div>
 
       <section className="organization-next-action">
@@ -262,7 +269,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
 
       <div className="organization-dashboard-grid">
         <section className="organization-card">
-          <div className="organization-card-heading"><div><span className="eyebrow">PROJECT DELIVERY</span><h3>Active projects</h3></div><button className="link" onClick={() => onNavigate("Survey projects")}>View all</button></div>
+          <div className="organization-card-heading"><div><span className="eyebrow">PROJECT DELIVERY</span><h3>Latest projects</h3></div><button className="link" onClick={() => onNavigate("Survey projects")}>View all</button></div>
           <div className="organization-compact-list">
             {projects.slice(0, 4).map((project) => (
               <article key={project.id}>
@@ -270,7 +277,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
                 <CompactState value={project.status} />
               </article>
             ))}
-            {!projects.length && <div className="organization-empty"><BriefcaseBusiness size={20} /><div><strong>No projects yet</strong><p>Create a project to connect recruitment and field delivery.</p></div></div>}
+            {!n("projects") && <div className="organization-empty"><BriefcaseBusiness size={20} /><div><strong>No projects yet</strong><p>Create a project to connect recruitment and field delivery.</p></div></div>}
           </div>
         </section>
 
@@ -283,16 +290,16 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
                 <CompactState value={application.status} />
               </article>
             ))}
-            {!applications.length && <div className="organization-empty"><Users size={20} /><div><strong>No applications yet</strong><p>Published opportunities will feed the organization recruitment pipeline.</p></div></div>}
+            {!n("applications") && <div className="organization-empty"><Users size={20} /><div><strong>No applications yet</strong><p>Published opportunities will feed the organization recruitment pipeline.</p></div></div>}
           </div>
         </section>
 
         <section className="organization-card">
           <div className="organization-card-heading"><div><span className="eyebrow">BENEFICIARY OPERATIONS</span><h3>Cases & assistance</h3></div><HeartHandshake size={20} /></div>
           <div className="organization-fact-grid">
-            <div><small>Active cases</small><strong>{activeCases.length}</strong><span>{dueFollowUps} follow-ups due</span></div>
-            <div><small>Assistance delivered</small><strong>{recordedAssistance}</strong><span>Recorded ledger entries</span></div>
-            <div><small>Approved surveys</small><strong>{approvedSurveys}</strong><span>{responses.length} recent responses loaded</span></div>
+            <div><small>Active cases</small><strong>{(n("cases")-n("cases","closed")-n("cases","cancelled"))}</strong><span>{(analytics.data?.due_cases||0)} follow-ups due</span></div>
+            <div><small>Assistance delivered</small><strong>{n("assistance","recorded")}</strong><span>Recorded ledger entries</span></div>
+            <div><small>Approved surveys</small><strong>{n("responses","approved")}</strong><span>{responses.length} recent response previews loaded</span></div>
             <div><small>Coverage</small><strong>{areaCount}</strong><span>{programCount} active program areas</span></div>
           </div>
           <div className="organization-card-actions"><button className="secondary" onClick={() => onNavigate("Beneficiary cases")}>Open cases</button><button className="secondary" onClick={() => onNavigate("Assistance ledger")}>Assistance ledger</button></div>
@@ -301,9 +308,9 @@ export function OrganizationDashboard({ organization, unread, onNavigate }: Orga
         <section className="organization-card">
           <div className="organization-card-heading"><div><span className="eyebrow">WORKFORCE FINANCE</span><h3>Assignments & payables</h3></div><CircleDollarSign size={20} /></div>
           <div className="organization-fact-grid">
-            <div><small>Active assignments</small><strong>{activeAssignments.length}</strong><span>{activeWorkerCount} active Field Workers</span></div>
-            <div><small>Offers waiting</small><strong>{offeredAssignments.length}</strong><span>Pending Field Worker response</span></div>
-            <div><small>Eligible payable units</small><strong>{eligiblePayables}</strong><span>Open payables for authorized review</span></div>
+            <div><small>Active assignments</small><strong>{n("assignments","active")}</strong><span>{(analytics.data?.active_workers||0)} active Field Workers</span></div>
+            <div><small>Offers waiting</small><strong>{n("assignments","offered")}</strong><span>Pending Field Worker response</span></div>
+            <div><small>Eligible payable units</small><strong>{n("payables","eligible")}</strong><span>Open payables for authorized review</span></div>
             <div><small>Unread updates</small><strong>{unread}</strong><span>Organization/account notifications</span></div>
           </div>
           <div className="organization-card-actions"><button className="secondary" onClick={() => onNavigate("Workforce payables")}>Open payables</button><button className="secondary" onClick={() => onNavigate("Project funding")}>Project finance</button></div>

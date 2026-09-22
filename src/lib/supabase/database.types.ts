@@ -4842,6 +4842,17 @@ p_note: string | null;
 offline_capture_upload_complete: { Args: {
 p_id: string | null;
 }; Returns: boolean };
+operational_report: { Args: {
+p_org?: string | null;
+p_project?: string | null;
+p_geo?: string | null;
+p_from?: string | null;
+p_to?: string | null;
+p_kind?: string | null;
+p_status?: string | null;
+p_offset?: number | null;
+p_export?: boolean | null;
+}; Returns: Json };
 operational_task_queue: { Args: {
 p_view?: string | null;
 p_organization?: string | null;

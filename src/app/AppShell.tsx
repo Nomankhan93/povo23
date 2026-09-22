@@ -1,3 +1,4 @@
+import type {ReportSelection} from "../features/analytics/model";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
@@ -43,6 +44,7 @@ import { OrganizationDashboard } from "../features/organizations/OrganizationDas
 import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
 import { TaskCenter } from "../features/operations/TaskCenter";
 import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
+const ReportsWorkspace = lazy(() => import("../features/analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const ProjectWorkspace = lazy(() => import("../features/projects/ProjectWorkspace").then(m => ({default: m.ProjectWorkspace})));
 import { workspaceTeamPermission } from "../features/projects/workspacePermissions";
 import {OrganizationSettings, OrganizationInvitationInbox} from "../features/organizations/OrganizationSettings";
@@ -87,6 +89,7 @@ import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
+  const [reportSelection,setReportSelection]=useState<ReportSelection|null>(null);
   const [collapsed, setCollapsed] = useState(readSidebarCollapsed);
   function toggleSidebar() { setCollapsed(old => {saveSidebarCollapsed(!old);return !old;}); }
   const [account, setAccount] = useState<Row | null>(null),
@@ -413,6 +416,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
   const organizationNav = ([
+    ["Reports & Analytics", Activity],
     ["Reputation & Certificates", ShieldCheck],
     ["Organization Settings", Building2],
     ["Overview", LayoutDashboard],
@@ -433,6 +437,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Activity", Activity],
   ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
   const staffNav = ([
+    ["Reports & Analytics", Activity],
     ["Overview", LayoutDashboard],
     ["Task Center", ClipboardList],
     ...(volunteers ? [["Volunteers", Users], ["Reputation & Certificates", ShieldCheck]] : []),
@@ -455,6 +460,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     : projectScope
     ? ([
         ["Project workspace", LayoutDashboard],
+        ["Reports & Analytics", Activity],
         ["Task Center", ClipboardList],
         ["Survey projects", ShieldCheck],
         ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
@@ -477,6 +483,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setSelected(null);
     setOrgEdit(null);
   };
+  const openReport = (selection:ReportSelection) => {setReportSelection(selection);change("Reports & Analytics")};
   const openProjectWorkspace = (project: Row) => {
     void flushActiveDraft().then(() => {
       setFocusedProject(project);
@@ -671,6 +678,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {access.enrollment === 'legacy' && <div className="notice" role="status">Your existing Field Worker access has been preserved. Confirm if you want to use this workspace. <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Confirm Field Worker enrollment</button></div>}
           {accessWorkspace && <section className="panel"><h2>No operational workspace is currently available</h2><p>Your membership may be inactive or your onboarding may be incomplete. Organization members need an authorized admin or project assignment for operational access.</p><button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button><button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button><button onClick={load}>Refresh access</button></section>}
           {validScope && nav.some(([name]) => name === page) && <>
+          {page === "Reports & Analytics" && validScope && (poem||organizationWorkspace||projectScope) && <ReportsWorkspace key={`${scope}-${reportSelection?.kind}-${reportSelection?.status}`} organization={organizationWorkspace?scope:null} projectId={projectScopeId} geographies={geographies} initial={reportSelection}/>}
           {page === "Overview" && (
             <>
               {personalWorkspace ? (
@@ -686,6 +694,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   organization={myOrgs.find((item) => item.id === scope) as Database['public']['Tables']['organizations']['Row']}
                   unread={unreadNotifications}
                   onNavigate={change}
+                onReport={openReport}
                 />
               ) : poem ? (
                 <FieldLanceStaffDashboard
@@ -697,6 +706,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   canManageFinance={financeManage}
                   superAdmin={Boolean(superAdmin)}
                   onNavigate={change}
+                onReport={openReport}
                 />
               ) : (
                 <WorkflowOverview staff={false} personal={false} profileStatus={my?.status === "verified" ? "Active" : human(my?.status || "draft")} unread={unreadNotifications} allowed={nav.map(([name])=>name)} onNavigate={change} onField={openField}/>

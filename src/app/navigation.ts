@@ -130,7 +130,7 @@ export function staffPageLabel(page: string) {
 }
 
 export type WorkspaceKind = 'personal' | 'organization' | 'staff' | 'project' | 'onboarding' | 'access';
-const overview = ['Overview','Project workspace','Access status','Task Center','Notifications'];
+const overview = ['Overview','Project workspace','Access status','Task Center','Notifications','Reports & Analytics'];
 const impact = ['Canonical registry','Beneficiary cases','Assistance ledger','Data sharing'];
 const workspaceGroups: Record<WorkspaceKind, readonly NavigationGroup[]> = {
   personal: [
