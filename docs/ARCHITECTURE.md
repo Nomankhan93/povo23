@@ -1,3 +1,15 @@
+# Current architecture note — FieldLance 2.36.1
+
+Partner Self-Publishing & Platform Moderation. Organization-owned template/project drafts remain the authoring envelopes, but active Organization Admins now publish them directly into the existing immutable `survey_templates` and operational `survey_projects` models. FieldLance pre-approval queues are retired; historical review evidence remains for provenance.
+
+## 2.36.1 moderation architecture
+
+Published templates/projects carry separate moderation state (`allowed`, `blocked`, `removed`) rather than overloading template immutability or `survey_projects.status`. FieldLance survey-management staff moderate through guarded RPCs with mandatory reasons and append-only `content_moderation_events`. A blocked/removed template cascades a template-origin restriction to dependent projects. A temporary block makes forward operations ineligible through effective database gates while preserving existing commitment state. Remove from operation additionally closes recruitment/opportunities, deactivates direct survey assignments and cancels pending/offered/active workforce items. Neither action deletes historical survey, beneficiary, case, assistance, payable or audit records. Restoring a block can resume preserved commitments; restoring removed content does not recreate cancelled work.
+
+RLS and guarded RPCs remain authoritative. Organization drafts are private to active Organization Admins; cross-Organization template use remains denied. Project Manager and Area Focal roles gain no project/template publication or platform-moderation authority.
+
+## Previous release
+
 # Current architecture note — FieldLance 2.36.0
 
 URL Routing, Deep Links, Workspace Navigation & Mobile Field Worker IA. Canonical browser paths now restore authorized workspace/page/project context, browser history is draft-safe, project tabs and case/recruitment records support deep links, and the Field Worker mobile workspace has Home / Work / Field / Earnings / Profile primary navigation. No database migration is added. See docs/PHASE-2.36.0.md, docs/UPGRADE-2.36.0.md and docs/VALIDATION-2.36.0.md.

@@ -211,7 +211,7 @@ export function SurveyProjectDetail({
       </button>
       <h2>{project.title}</h2>
       <p>
-        {template?.name} · v{template?.version} · {project.status}
+        {template?.name} · v{template?.version} · {project.status} · moderation {project.moderation_status}
       </p>
       <p>{project.purpose}</p>
       <p>
@@ -229,18 +229,23 @@ export function SurveyProjectDetail({
           {error}
         </p>
       )}
+      {project.moderation_status !== "allowed" && (
+        <p className="notice error" role="status">
+          FieldLance moderation is active: {project.moderation_reason || "This project is restricted."} Historical records remain available, but new recruitment, assignments and field collection are paused.
+        </p>
+      )}
       {message && <p role="status">{message}</p>}
-      {showFieldWork && review && project.status === "active" && openRecruitment && (
+      {showFieldWork && review && project.status === "active" && project.moderation_status === "allowed" && openRecruitment && (
         <button className="secondary" onClick={openRecruitment}>
           Open project recruitment
         </button>
       )}
-      {showFieldWork && manage && project.status === "active" && (
+      {showFieldWork && manage && project.status === "active" && project.moderation_status === "allowed" && (
         <button className="secondary" disabled={busy} onClick={() => setCloseRequested(true)}>
           Close collection
         </button>
       )}
-      {showFieldWork && manageAssignments && (
+      {showFieldWork && manageAssignments && project.moderation_status === "allowed" && (
         <details className="survey-question">
           <summary>Direct survey access / operational override</summary>
           <form onSubmit={findVolunteers}>
@@ -304,7 +309,7 @@ export function SurveyProjectDetail({
           ))}
         </details>
       )}
-      {showFieldWork && assigned && project.status === "active" && (
+      {showFieldWork && assigned && project.status === "active" && project.moderation_status === "allowed" && (
         <button
           className="primary"
           disabled={busy}

@@ -8,10 +8,10 @@ import { Pager } from "../../components/ui/Pager";
 
 type Draft = Database["public"]["Tables"]["survey_template_drafts"]["Row"];
 type ReviewEvent = Database["public"]["Tables"]["survey_template_review_events"]["Row"];
-type Tab = "mine" | "library" | "review";
+type Tab = "mine" | "library";
 
 const statusLabel = (value: string) => value.replaceAll("_", " ");
-const editableNgoStatus = (value: string) => value === "draft" || value === "changes_requested";
+const editableNgoStatus = (value: string) => value !== "approved";
 
 export function SurveyTemplates({
   organization = null,
@@ -37,9 +37,8 @@ export function SurveyTemplates({
     [dirty, setDirty] = useState(false),
     [preview, setPreview] = useState(false),
     [drafts, setDrafts] = useState<Draft[]>([]),
-    [reviewQueue, setReviewQueue] = useState<Draft[]>([]),
     [reviewEvents, setReviewEvents] = useState<ReviewEvent[]>([]),
-    [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+    [moderationNotes, setModerationNotes] = useState<Record<string, string>>({});
 
   const eventsByDraft = useMemo(() => {
     const grouped = new Map<string, ReviewEvent[]>();
@@ -79,20 +78,7 @@ export function SurveyTemplates({
       if (eventResult.error) setError(eventResult.error.message);
       else setReviewEvents(eventResult.data || []);
 
-      if (manage) {
-        const queue = await db!
-          .from("survey_template_drafts")
-          .select("*")
-          .not("organization_id", "is", null)
-          .eq("review_status", "submitted")
-          .order("submitted_at", { ascending: true })
-          .limit(100);
-        if (!live) return;
-        if (queue.error) setError(queue.error.message);
-        else setReviewQueue(queue.data || []);
-      } else {
-        setReviewQueue([]);
-      }
+
     }
     void loadDrafts();
     return () => {
@@ -176,7 +162,7 @@ export function SurveyTemplates({
           });
       setVersion(v);
       setDirty(false);
-      setMessage(ngoMode ? "NGO template draft saved." : "Draft saved.");
+      setMessage(ngoMode ? "Organization template draft saved." : "Draft saved.");
       setRev((n) => n + 1);
     } catch (e) {
       setError((e as Error).message);
@@ -206,8 +192,8 @@ export function SurveyTemplates({
       const errors = dependencyErrors(qs);
       if (errors.length) throw new Error(errors.join(" "));
       if (ngoMode) {
-        await rpc("submit_template_draft", { p_id: draftId, p_version: version });
-        setMessage("Submitted to FieldLance for review. This revision is locked until FieldLance requests changes or decides it.");
+        await rpc("publish_organization_template_draft", { p_id: draftId, p_version: version });
+        setMessage("Published immediately as an immutable Organization template. FieldLance may moderate published content if required.");
       } else {
         await rpc("publish_template_draft", { p_id: draftId, p_version: version });
         setMessage("Published. Existing versions and their projects remain unchanged.");
@@ -221,25 +207,19 @@ export function SurveyTemplates({
     }
   }
 
-  async function reviewDraft(draft: Draft, decision: "changes_requested" | "rejected" | "approved") {
+  async function moderateTemplate(template: Template, action: "block" | "remove" | "restore") {
+    const reason = (moderationNotes[template.id] || "").trim();
+    if (reason.length < 3) {
+      setError("Enter a moderation reason of at least 3 characters.");
+      return;
+    }
     setBusy(true);
     setError("");
     setMessage("");
     try {
-      await rpc("review_template_draft", {
-        p_id: draft.id,
-        p_decision: decision,
-        p_note: reviewNotes[draft.id] || "",
-        p_version: draft.version,
-      });
-      setMessage(
-        decision === "approved"
-          ? "Template approved and published as an immutable version."
-          : decision === "rejected"
-            ? "Template rejected. The decision is preserved in review history."
-            : "Changes requested. The NGO can edit and resubmit the same draft.",
-      );
-      setReviewNotes((current) => ({ ...current, [draft.id]: "" }));
+      await rpc("moderate_survey_template", { p_id: template.id, p_action: action, p_reason: reason });
+      setModerationNotes((current) => ({ ...current, [template.id]: "" }));
+      setMessage(action === "restore" ? "Template restriction cleared. Temporarily blocked work can resume; operationally removed work remains closed or cancelled and must be reopened or reassigned deliberately." : "Template moderation applied. Projects using it are paused from new operational work.");
       setRev((n) => n + 1);
     } catch (e) {
       setError((e as Error).message);
@@ -259,52 +239,23 @@ export function SurveyTemplates({
 
   return (
     <section className="panel detail">
-      <h2>{ngoMode ? "NGO survey templates" : "Survey templates"}</h2>
+      <h2>{ngoMode ? "Organization survey templates" : "Survey templates"}</h2>
       <p>
         {ngoMode
-          ? "Create organization-owned drafts with the existing FieldLance template builder. FieldLance approval publishes an immutable version; submitted drafts cannot be edited unless changes are requested."
-          : "FieldLance-authored drafts can still publish directly. NGO submissions use a separate review queue and publish only after an explicit FieldLance decision."}
+          ? "Create and publish Organization-owned survey templates directly. Published versions are immutable; FieldLance may block or remove published content through audited moderation when required."
+          : "FieldLance-authored drafts publish directly. Partner Organizations also self-publish; this workspace provides post-publication moderation rather than an approval queue."}
       </p>
       <div className="actions">
         <button type="button" disabled={busy} aria-pressed={tab === "mine"} onClick={() => setTab("mine")}>My templates</button>
         <button type="button" disabled={busy} aria-pressed={tab === "library"} onClick={() => setTab("library")}>Template library</button>
-        {manage && <button type="button" disabled={busy} aria-pressed={tab === "review"} onClick={() => setTab("review")}>NGO review queue {reviewQueue.length ? `(${reviewQueue.length})` : ""}</button>}
       </div>
 
       {error && <p role="alert" className="notice error">{error}</p>}
       {message && <p role="status" className="notice success">{message}</p>}
 
-      {tab === "review" && manage && (
-        <div>
-          <h3>Submitted NGO templates</h3>
-          <p>Review is server-authorized. Approval atomically creates an immutable published template owned by the submitting NGO.</p>
-          {!reviewQueue.length && <p>No NGO templates are waiting for review.</p>}
-          {reviewQueue.map((draft) => (
-            <article className="document-row" key={draft.id}>
-              <strong>{draft.name || "Untitled template"}</strong>
-              <p>{(draft.questions as unknown as Question[]).length} questions · revision {draft.version} · submitted {draft.submitted_at ? new Date(draft.submitted_at).toLocaleString() : "recently"}</p>
-              <details>
-                <summary>Review questions and history</summary>
-                <ol>{(draft.questions as unknown as Question[]).map((q) => <li key={q.id}>{q.label} ({q.type}){q.required ? " · required" : ""}</li>)}</ol>
-                {(eventsByDraft.get(draft.id) || []).length > 0 && <ul>{(eventsByDraft.get(draft.id) || []).map((event) => <li key={event.id}>{statusLabel(event.action)} · {event.note || "No note"}</li>)}</ul>}
-              </details>
-              <label className="field">
-                Review note
-                <textarea maxLength={1000} value={reviewNotes[draft.id] || ""} onChange={(e) => setReviewNotes((current) => ({ ...current, [draft.id]: e.target.value }))} />
-              </label>
-              <div className="actions">
-                <button type="button" disabled={busy} onClick={() => void reviewDraft(draft, "changes_requested")}>Request changes</button>
-                <button type="button" disabled={busy} onClick={() => void reviewDraft(draft, "rejected")}>Reject</button>
-                <button className="primary" type="button" disabled={busy} onClick={() => void reviewDraft(draft, "approved")}>Approve & publish</button>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-
       {tab === "library" && (
         <div>
-          <p>Read-only starter templates. “Use template” creates a new editable {ngoMode ? "NGO-owned" : "FieldLance-owned"} draft; the starter library itself remains application-managed.</p>
+          <p>Read-only starter templates. “Use template” creates a new editable {ngoMode ? "Organization-owned" : "FieldLance-owned"} draft; the starter library itself remains application-managed.</p>
           {templateLibrary.map((t) => (
             <article className="document-row" key={t.id}>
               <h3>{t.name}</h3>
@@ -320,8 +271,8 @@ export function SurveyTemplates({
         <h3>{ngoMode ? "Organization drafts" : "Saved FieldLance drafts and publication recovery"}</h3>
         <p>
           {ngoMode
-            ? "Draft ownership belongs to the NGO, not one individual admin. Another active NGO Admin can continue an editable organization draft."
-            : "Your latest FieldLance author drafts. NGO submissions are handled in the review queue."}
+            ? "Draft ownership belongs to the Organization, not one individual admin. Another active Organization Admin can continue and publish an editable draft."
+            : "Your latest FieldLance author drafts. Partner Organization drafts stay private until they are self-published."}
         </p>
         {drafts.map((draft) => {
           const editable = ngoMode ? editableNgoStatus(draft.review_status) && !draft.published_id : !draft.published_id;
@@ -379,18 +330,42 @@ export function SurveyTemplates({
               <button className="secondary" type="button" disabled={qs.length >= 50 || busy} onClick={() => { setDirty(true); setQs((q) => [...q, { id: "q_" + crypto.randomUUID().replaceAll("-", ""), label: "", type: "text", required: false }]); }}>Add question</button>
               <button type="button" onClick={() => void saveDraft()}>Save draft</button>
               <button type="button" onClick={() => setPreview((p) => !p)}>Preview form</button>
-              <button className="primary" disabled={busy || !qs.length || dirty || !version}>{ngoMode ? "Submit to FieldLance" : "Publish immutable version"}</button>
+              <button className="primary" disabled={busy || !qs.length || dirty || !version}>{ngoMode ? "Publish Organization version" : "Publish immutable version"}</button>
             </div>
           </fieldset>
         </form>
         {preview && <TemplatePreview questions={qs} />}
 
-        <h3>{ngoMode ? "Approved organization templates" : "Published versions"}</h3>
+        <h3>{ngoMode ? "Published organization templates" : "Published versions and moderation"}</h3>
         {rows.map((t) => (
           <article className="document-row" key={t.id}>
             <strong>{t.name} · v{t.version}</strong>
-            <p>{(t.questions as unknown as Question[]).length} questions{t.organization_id ? " · NGO-owned" : " · FieldLance-owned"}</p>
+            <p>{(t.questions as unknown as Question[]).length} questions{t.organization_id ? " · Organization-owned" : " · FieldLance-owned"} · moderation {t.moderation_status}</p>
+            {t.moderation_status !== "allowed" && <p className="notice error">FieldLance moderation: {t.moderation_reason || "Restricted"}</p>}
             <button className="secondary" disabled={busy} onClick={() => openDraft(t.name, t.questions as unknown as Question[], { published_template_id: t.id })}>Use as next-version draft</button>
+            {manage && (
+              <div className="review">
+                <label className="field">
+                  Moderation reason
+                  <textarea
+                    maxLength={1000}
+                    value={moderationNotes[t.id] || ""}
+                    onChange={(event) => setModerationNotes((current) => ({ ...current, [t.id]: event.target.value }))}
+                    placeholder={t.moderation_status === "allowed" ? "Reason for blocking or removing this template" : "Reason for restoring this template"}
+                  />
+                </label>
+                <div className="actions">
+                  {t.moderation_status === "allowed" ? (
+                    <>
+                      <button type="button" disabled={busy} onClick={() => void moderateTemplate(t, "block")}>Block</button>
+                      <button type="button" disabled={busy} onClick={() => void moderateTemplate(t, "remove")}>Remove from operation</button>
+                    </>
+                  ) : (
+                    <button className="primary" type="button" disabled={busy} onClick={() => void moderateTemplate(t, "restore")}>Restore</button>
+                  )}
+                </div>
+              </div>
+            )}
           </article>
         ))}
         <Pager page={page} more={more} busy={busy} onChange={setPage} />

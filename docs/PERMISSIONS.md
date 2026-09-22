@@ -1,3 +1,19 @@
+# Current permissions note — FieldLance 2.36.1
+
+Partner Self-Publishing & Platform Moderation. Active Organization Admins may publish their own saved survey-template and project drafts directly. FieldLance survey-management roles no longer approve those drafts before publication; they govern published content through audited post-publication moderation.
+
+## 2.36.1 permissions
+
+- **Organization Admin:** create/edit private own-Organization template/project drafts and publish them directly; use allowed FieldLance templates or allowed own-Organization templates for own projects; read moderation reason/history for own published content.
+- **FieldLance Survey Manager/Admin:** retain direct FieldLance template/project creation and may block, remove from operation, or restore any published survey template/project with a mandatory reason. They do not need to pre-approve Partner Organization publication.
+- **Project Manager / Area Focal Person:** receive no new template/project publication authority and no platform-moderation authority. Existing project/area operations remain scoped by current RLS/RPC rules.
+- **Other Organization / ordinary member / Field Worker:** cannot read another Organization's private drafts or private Organization-owned templates unless an existing authorized project relationship permits historical template access.
+- **Moderation effects:** both blocked and removed content reject new recruitment/assignment/collection actions. A temporary block preserves existing commitment state so it can resume after restore; Remove from operation closes/cancels forward recruitment and assignment state. Historical authorized records are preserved, and restoring removed content does not silently recreate cancelled work.
+- **Hard delete is not the moderation default:** `removed` is an operational moderation state so project/template provenance, finance, survey, case and audit history remain intact.
+- **Independent Verification:** Organization/Field Worker/beneficiary verification remains separate and unchanged; publishing a project/template does not imply verification, and verification does not pre-approve project/template content.
+
+## Previous release
+
 # Current permissions note — FieldLance 2.36.0
 
 URL Routing, Deep Links, Workspace Navigation & Mobile Field Worker IA. Canonical browser paths now restore authorized workspace/page/project context, browser history is draft-safe, project tabs and case/recruitment records support deep links, and the Field Worker mobile workspace has Home / Work / Field / Earnings / Profile primary navigation. No database migration is added. See docs/PHASE-2.36.0.md, docs/UPGRADE-2.36.0.md and docs/VALIDATION-2.36.0.md.

@@ -44,7 +44,8 @@ export function SurveyProjects({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [rev, setRev] = useState(0),
-    [create, setCreate] = useState(false);
+    [create, setCreate] = useState(false),
+    [moderationNotes, setModerationNotes] = useState<Record<string, string>>({});
   useEffect(() => {
     let live = true;
     setBusy(true);
@@ -102,7 +103,7 @@ export function SurveyProjects({
       .limit(1000)
       .then((r) => {
         if (r.error) setError(r.error.message);
-        else setTemplates(r.data || []);
+        else setTemplates((r.data || []).filter((template) => template.moderation_status === "allowed"));
       });
   }, [create]);
   async function save(e: FormEvent<HTMLFormElement>) {
@@ -130,6 +131,25 @@ export function SurveyProjects({
       setRev((n) => n + 1);
     } catch (e) {
       setError((e as Error).message);
+      setBusy(false);
+    }
+  }
+
+  async function moderateProject(project: Project, action: "block" | "remove" | "restore") {
+    const reason = (moderationNotes[project.id] || "").trim();
+    if (reason.length < 3) {
+      setError("Enter a moderation reason of at least 3 characters.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await rpc("moderate_survey_project", { p_id: project.id, p_action: action, p_reason: reason });
+      setModerationNotes((current) => ({ ...current, [project.id]: "" }));
+      setRev((n) => n + 1);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
       setBusy(false);
     }
   }
@@ -172,11 +192,9 @@ export function SurveyProjects({
           {error}
         </p>
       )}
-      {(manage || organization) && (
+      {organization && !manage && (
         <SurveyProjectDrafts
-          organization={manage ? null : organization}
-          manage={manage}
-          orgs={orgs}
+          organization={organization}
           geographies={geographies}
           onChanged={() => setRev((n) => n + 1)}
         />
@@ -206,7 +224,7 @@ export function SurveyProjects({
               <select name="template" required>
                 <option value="">Choose version</option>
                 {templates
-                  .filter((t) => Boolean(createOrganization) && (t.organization_id === null || t.organization_id === createOrganization))
+                  .filter((t) => Boolean(createOrganization) && t.moderation_status === "allowed" && (t.organization_id === null || t.organization_id === createOrganization))
                   .map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.name} · v{t.version}{t.organization_id ? " · NGO" : " · FieldLance"}
@@ -243,7 +261,7 @@ export function SurveyProjects({
             <textarea name="purpose" required minLength={10} maxLength={2000} />
           </label>
           <label className="field">
-            Approved consent notice
+            Consent notice
             <textarea name="notice" required minLength={20} maxLength={5000} />
           </label>
           <p>
@@ -260,16 +278,42 @@ export function SurveyProjects({
         <article key={p.id} className="document-row">
           <h3>{p.title}</h3>
           <p>
-            {p.status} · {p.start_date} – {p.end_date} · target {p.target}
+            {p.status} · moderation {p.moderation_status} · {p.start_date} – {p.end_date} · target {p.target}
           </p>
+          {p.moderation_status !== "allowed" && (
+            <p className="notice error">FieldLance moderation: {p.moderation_reason || "Restricted"}</p>
+          )}
           <p>
             {geographyPath(p.geography_id, geographies)
               .map((g) => g.name)
               .join(" / ")}
           </p>
-          <button className="secondary" onClick={() => setChosen(p)}>
-            Open project
-          </button>
+          <div className="actions">
+            <button className="secondary" onClick={() => setChosen(p)}>Open project</button>
+          </div>
+          {manage && (
+            <div className="review">
+              <label className="field">
+                Moderation reason
+                <textarea
+                  maxLength={1000}
+                  value={moderationNotes[p.id] || ""}
+                  onChange={(event) => setModerationNotes((current) => ({ ...current, [p.id]: event.target.value }))}
+                  placeholder={p.moderation_status === "allowed" ? "Reason for blocking or removing this project" : "Reason for restoring or changing moderation"}
+                />
+              </label>
+              <div className="actions">
+                {p.moderation_status === "allowed" ? (
+                  <>
+                    <button type="button" disabled={busy} onClick={() => void moderateProject(p, "block")}>Block</button>
+                    <button type="button" disabled={busy} onClick={() => void moderateProject(p, "remove")}>Remove from operation</button>
+                  </>
+                ) : (
+                  <button className="primary" type="button" disabled={busy} onClick={() => void moderateProject(p, "restore")}>Restore</button>
+                )}
+              </div>
+            </div>
+          )}
         </article>
       ))}
       {!busy && !rows.length && <p>No projects available in this workspace.</p>}

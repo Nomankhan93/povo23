@@ -1,3 +1,9 @@
+# Current release: FieldLance 2.36.1
+
+Partner Self-Publishing & Platform Moderation. Active Partner Organization Admins now publish their own survey templates and projects directly without a FieldLance pre-approval queue. FieldLance survey-management staff retain audited post-publication Block / Remove from operation / Restore authority; restrictions pause forward recruitment, assignment and collection while preserving history. See docs/PHASE-2.36.1.md, docs/UPGRADE-2.36.1.md and docs/VALIDATION-2.36.1.md.
+
+## Previous release
+
 # Current release: FieldLance 2.36.0
 
 URL Routing, Deep Links, Workspace Navigation & Mobile Field Worker IA. Canonical browser paths now restore authorized workspace/page/project context, browser history is draft-safe, project tabs and case/recruitment records support deep links, and the Field Worker mobile workspace has Home / Work / Field / Earnings / Profile primary navigation. No database migration is added. See docs/PHASE-2.36.0.md, docs/UPGRADE-2.36.0.md and docs/VALIDATION-2.36.0.md.

@@ -1036,6 +1036,39 @@ review_required?: boolean;
 };
 Relationships: [];
 };
+content_moderation_events: {
+Row: {
+id: number;
+entity_type: string;
+entity_id: string;
+organization_id: string | null;
+action: string;
+reason: string;
+actor_id: string;
+created_at: string;
+};
+Insert: {
+id?: number;
+entity_type: string;
+entity_id: string;
+organization_id?: string | null;
+action: string;
+reason: string;
+actor_id: string;
+created_at?: string;
+};
+Update: {
+id?: number;
+entity_type?: string;
+entity_id?: string;
+organization_id?: string | null;
+action?: string;
+reason?: string;
+actor_id?: string;
+created_at?: string;
+};
+Relationships: [];
+};
 data_access_events: {
 Row: {
 id: number;
@@ -3332,6 +3365,12 @@ operational_completed_at: string | null;
 financially_reconciled_at: string | null;
 fully_closed_at: string | null;
 closure_note: string;
+moderation_status: string;
+moderation_reason: string;
+moderated_by: string | null;
+moderated_at: string | null;
+moderation_origin: string;
+moderation_template_id: string | null;
 };
 Insert: {
 id?: string;
@@ -3366,6 +3405,12 @@ operational_completed_at?: string | null;
 financially_reconciled_at?: string | null;
 fully_closed_at?: string | null;
 closure_note?: string;
+moderation_status?: string;
+moderation_reason?: string;
+moderated_by?: string | null;
+moderated_at?: string | null;
+moderation_origin?: string;
+moderation_template_id?: string | null;
 };
 Update: {
 id?: string;
@@ -3400,6 +3445,12 @@ operational_completed_at?: string | null;
 financially_reconciled_at?: string | null;
 fully_closed_at?: string | null;
 closure_note?: string;
+moderation_status?: string;
+moderation_reason?: string;
+moderated_by?: string | null;
+moderated_at?: string | null;
+moderation_origin?: string;
+moderation_template_id?: string | null;
 };
 Relationships: [];
 };
@@ -3602,6 +3653,10 @@ created_by: string;
 created_at: string;
 organization_id: string | null;
 source_draft_id: string | null;
+moderation_status: string;
+moderation_reason: string;
+moderated_by: string | null;
+moderated_at: string | null;
 };
 Insert: {
 id?: string;
@@ -3612,6 +3667,10 @@ created_by: string;
 created_at?: string;
 organization_id?: string | null;
 source_draft_id?: string | null;
+moderation_status?: string;
+moderation_reason?: string;
+moderated_by?: string | null;
+moderated_at?: string | null;
 };
 Update: {
 id?: string;
@@ -3622,6 +3681,10 @@ created_by?: string;
 created_at?: string;
 organization_id?: string | null;
 source_draft_id?: string | null;
+moderation_status?: string;
+moderation_reason?: string;
+moderated_by?: string | null;
+moderated_at?: string | null;
 };
 Relationships: [];
 };
@@ -4815,6 +4878,16 @@ p_version: number | null;
 mark_notification_read: { Args: {
 p_id: number | null;
 }; Returns: undefined };
+moderate_survey_project: { Args: {
+p_id: string | null;
+p_action: string | null;
+p_reason: string | null;
+}; Returns: undefined };
+moderate_survey_template: { Args: {
+p_id: string | null;
+p_action: string | null;
+p_reason: string | null;
+}; Returns: undefined };
 my_e_wallet_withdrawals: { Args: {
 p_before?: string | null;
 p_limit?: number | null;
@@ -4945,6 +5018,14 @@ p_project?: string | null;
 p_priority?: string | null;
 p_action_page?: string | null;
 p_action_label?: string | null;
+}; Returns: string };
+publish_organization_project_draft: { Args: {
+p_id: string | null;
+p_version: number | null;
+}; Returns: string };
+publish_organization_template_draft: { Args: {
+p_id: string | null;
+p_version: number | null;
 }; Returns: string };
 publish_project_policy: { Args: {
 p_project: string | null;

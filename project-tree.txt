@@ -69,6 +69,7 @@
 ./docs/PHASE-2.30.1.md
 ./docs/PHASE-2.31.0.md
 ./docs/PHASE-2.36.0.md
+./docs/PHASE-2.36.1.md
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
 ./docs/PHASE-2.4.md
@@ -152,6 +153,7 @@
 ./docs/UPGRADE-2.30.1.md
 ./docs/UPGRADE-2.31.0.md
 ./docs/UPGRADE-2.36.0.md
+./docs/UPGRADE-2.36.1.md
 ./docs/UPGRADE-2.4.1.md
 ./docs/UPGRADE-2.4.2.md
 ./docs/UPGRADE-2.4.md
@@ -223,6 +225,7 @@
 ./docs/VALIDATION-2.30.1.md
 ./docs/VALIDATION-2.31.0.md
 ./docs/VALIDATION-2.36.0.md
+./docs/VALIDATION-2.36.1.md
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
 ./docs/VALIDATION-2.4.md
@@ -296,9 +299,6 @@
 ./scripts/test-phase214.mjs
 ./scripts/test-phase2141.mjs
 ./scripts/test-phase2142.mjs
-./scripts/test-phase2142.mjs.bak
-./scripts/test-phase2142.mjs.bak-20260922-122415
-./scripts/test-phase2142.mjs.bak-20260922-122457
 ./scripts/test-phase215.mjs
 ./scripts/test-phase2151.mjs
 ./scripts/test-phase216.mjs
@@ -324,6 +324,7 @@
 ./scripts/test-phase2301.mjs
 ./scripts/test-phase231.mjs
 ./scripts/test-phase236.mjs
+./scripts/test-phase2361.mjs
 ./scripts/test-phase24.mjs
 ./scripts/test-phase25.mjs
 ./scripts/test-phase26.mjs
@@ -554,6 +555,7 @@
 ./supabase/migrations/20261012000100_project_workspace_completion.sql
 ./supabase/migrations/20261012000200_project_workspace_stabilization.sql
 ./supabase/migrations/20261013000100_operational_analytics_reporting.sql
+./supabase/migrations/20261013000200_partner_self_publish_platform_moderation.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

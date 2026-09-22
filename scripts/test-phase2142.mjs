@@ -39,7 +39,7 @@ await ok('response queue supports server-side status filtering without widening 
 await ok('focal review UI is separated from assignment-management controls',async()=>{
  assert.match(app,/projectScopeAssignment\?\.role === "project_manager"/);
  assert.match(app,/manageAssignments=\{canManageProjectAssignments\}/);
- assert.match(detail,/\{showFieldWork && manageAssignments && \(/);
+ assert.match(detail,/\{showFieldWork && manageAssignments && project\.moderation_status === "allowed" && \(/);
  assert.doesNotMatch(detail,/\{review && \(\s*<details className="survey-question">/);
 });
 await ok('revoked workspace resolves an eligible scope instead of granting personal access',async()=>{
