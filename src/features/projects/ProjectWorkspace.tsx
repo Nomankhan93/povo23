@@ -13,6 +13,7 @@ import { db } from "../../lib/supabase/client";
 import type { Geo } from "../geography/model";
 
 const ReportsWorkspace = lazy(()=>import("../analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
+const AttendanceWorkspace = lazy(()=>import("../workforce/AttendanceWorkspace").then(m=>({default:m.AttendanceWorkspace})));
 const BeneficiaryCasesWorkspace = lazy(() =>
   import("../cases/BeneficiaryCasesWorkspace").then((module) => ({ default: module.BeneficiaryCasesWorkspace })),
 );
@@ -174,19 +175,22 @@ export function ProjectWorkspace({
       <WorkforceMarketplace userId={userId} organization={projectOrg} mode="project" projectScopeId={projectId} personalView="all" geographies={geographies} orgs={orgs} focusKind={routeEntityKind === "application" || routeEntityKind === "assignment" ? routeEntityKind : null} focusId={routeEntityId} onFocusChange={(kind,id)=>onRouteChange?.("recruitment",kind,id)} />
     </section>}
 
-    {tab === "field-work" && <SurveyProjects
-      userId={userId}
-      organization={null}
-      projectId={projectId}
-      manage={surveyManage}
-      review={true}
-      manageAssignments={canManageRecruitment}
-      orgs={orgs as any}
-      geographies={geographies}
-      workspaceMode="field-work"
-      openRecruitment={canManageRecruitment ? () => openTab("recruitment") : undefined}
-      onBackToWorkspace={() => openTab("overview")}
-    />}
+    {tab === "field-work" && <section className="project-workspace-section">
+      <AttendanceWorkspace userId={userId} projectId={projectId} canManage={canManageProject} view="attendance" />
+      <SurveyProjects
+        userId={userId}
+        organization={null}
+        projectId={projectId}
+        manage={surveyManage}
+        review={true}
+        manageAssignments={canManageRecruitment}
+        orgs={orgs as any}
+        geographies={geographies}
+        workspaceMode="field-work"
+        openRecruitment={canManageRecruitment ? () => openTab("recruitment") : undefined}
+        onBackToWorkspace={() => openTab("overview")}
+      />
+    </section>}
 
     {tab === "responses" && <SurveyProjects
       userId={userId}

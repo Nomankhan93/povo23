@@ -79,7 +79,46 @@ try{
   await as('worker');
   const offered=(await rows('select version from public.work_assignments where id=$1',[assignment]))[0];
   await call('respond_work_assignment',[assignment,'accepted',offered.version]);
-  const unit=await call('claim_work_payable',[assignment,dates.today,'Completed approved field work for manual settlement test']);
+  const attendanceTimes=(await rows(
+    "select now()::text start,(now()+interval '1 second')::text finish"
+  ))[0];
+
+  const attendanceStarted=await call('start_assignment_work_session',[
+    assignment,
+    attendanceTimes.start,
+    24.8607,
+    67.0011,
+    20,
+    'granted',
+    '',
+    crypto.randomUUID()
+  ]);
+
+  const attendanceSubmitted=await call('checkout_assignment_work_session',[
+    attendanceStarted.id,
+    attendanceTimes.finish,
+    24.8610,
+    67.0020,
+    25,
+    'granted',
+    '',
+    'Completed approved field work for manual settlement test.',
+    crypto.randomUUID(),
+    attendanceStarted.version
+  ]);
+
+  await as('ngo');
+
+  const attendanceApproved=await call('review_attendance_session',[
+    attendanceStarted.id,
+    'approve',
+    'Verified attendance for manual settlement test.',
+    attendanceSubmitted.version
+  ]);
+
+  assert.ok(attendanceApproved.payable_unit_id);
+
+  const unit=attendanceApproved.payable_unit_id;
   await as('ngo');
   const unitRow=(await rows('select version from public.work_payable_units where id=$1',[unit]))[0];
   await call('act_work_payable',[unit,'approve',null,'Approve funded manual-settlement entitlement',null,null,null,unitRow.version,crypto.randomUUID(),null]);

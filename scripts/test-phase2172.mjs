@@ -66,7 +66,48 @@ try{
   await as('collector');
   const offered=(await rows('select version from public.work_assignments where id=$1',[assignment]))[0];
   await call('respond_work_assignment',[assignment,'accepted',offered.version]);
-  const unit=await call('claim_work_payable',[assignment,dates.today,'Completed documented field work for finance bridge validation']);
+  const attendanceTimes=(await rows(
+    "select now()::text start,(now()+interval '1 second')::text finish"
+  ))[0];
+
+  await as('collector');
+
+  const attendanceStarted=await call('start_assignment_work_session',[
+    assignment,
+    attendanceTimes.start,
+    24.8607,
+    67.0011,
+    20,
+    'granted',
+    '',
+    crypto.randomUUID()
+  ]);
+
+  const attendanceSubmitted=await call('checkout_assignment_work_session',[
+    attendanceStarted.id,
+    attendanceTimes.finish,
+    24.8610,
+    67.0020,
+    25,
+    'granted',
+    '',
+    'Completed documented field work for finance bridge validation.',
+    crypto.randomUUID(),
+    attendanceStarted.version
+  ]);
+
+  await as('manager');
+
+  const attendanceApproved=await call('review_attendance_session',[
+    attendanceStarted.id,
+    'approve',
+    'Verified attendance for finance bridge validation.',
+    attendanceSubmitted.version
+  ]);
+
+  assert.ok(attendanceApproved.payable_unit_id);
+
+  const unit=attendanceApproved.payable_unit_id;
 
   await ok('payable finance bridge surfaces are immutable finance-only reconciliation metadata',async()=>{
     await as('ngo');

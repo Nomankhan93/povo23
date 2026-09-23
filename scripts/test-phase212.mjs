@@ -65,7 +65,78 @@ await db.exec('RESET ROLE');await db.query("update public.survey_responses set s
 await ok('retroactive contract amendment refused',async()=>deny(()=>call('offer_work_amendment',[assignment,150,dates.today,'Retroactive terms change'])));
 const amendment=await call('offer_work_amendment',[assignment,150,dates.end,'New future agreed rate']);await ok('NGO cannot accept for volunteer',async()=>deny(()=>call('respond_work_amendment',[amendment,'accepted'])));await as('a');await call('respond_work_amendment',[amendment,'accepted']);await as('ngo');await ok('accepted future rate leaves existing earned units unchanged',async()=>{assert.equal(Number((await current()).rate),120.25);assert.equal((await rows('select status from public.work_contract_amendments where id=$1',[amendment]))[0].status,'accepted')});await db.exec('RESET ROLE');await ok('effective terms choose agreed rate by work date',async()=>{const x=(await rows('select app_private.payable_effective_terms(w,$2::date) terms from public.work_assignments w where id=$1',[assignment,dates.end]))[0].terms;assert.equal(Number(x.rate),150);const y=(await rows('select app_private.payable_effective_terms(w,$2::date) terms from public.work_assignments w where id=$1',[assignment,dates.today]))[0].terms;assert.equal(Number(y.rate),120.25)});
 await db.exec('RESET ROLE');await ok('contract rate cannot mutate',async()=>deny(()=>db.query('update public.work_assignments set rate=999 where id=$1',[assignment]),/immutable/));
-const daily=await fixture('daily_rate','b');await as('b');const day=await call('claim_work_payable',[daily,dates.today,'Worked field attendance']);await ok('one attendance claim per assignment per day',async()=>assert.equal(await call('claim_work_payable',[daily,dates.today,'Retry attendance claim']),day));await ok('future attendance rejected',async()=>deny(()=>call('claim_work_payable',[daily,dates.end,'Future date claim'])));
+const daily=await fixture('daily_rate','b');
+await as('b');
+
+const attendanceTimes=(await rows(
+  "select (now()-interval '2 hours')::text start,(now()-interval '30 minutes')::text finish"
+))[0];
+
+const dailyStarted=await call('start_assignment_work_session',[
+  daily,
+  attendanceTimes.start,
+  24.8607,
+  67.0011,
+  20,
+  'granted',
+  '',
+  crypto.randomUUID()
+]);
+
+const dailySubmitted=await call('checkout_assignment_work_session',[
+  dailyStarted.id,
+  attendanceTimes.finish,
+  24.8610,
+  67.0020,
+  25,
+  'granted',
+  '',
+  'Worked field attendance',
+  crypto.randomUUID(),
+  dailyStarted.version
+]);
+
+await as('ngo');
+
+await call('review_attendance_session',[
+  dailyStarted.id,
+  'approve',
+  'Verified attendance for payable regression.',
+  dailySubmitted.version
+]);
+
+await as('b');
+
+const dailyWorkDate=String(dailyStarted.work_date).slice(0,10);
+
+const day=await call('claim_work_payable',[
+  daily,
+  dailyWorkDate,
+  'Worked field attendance'
+]);
+
+await ok(
+  'one attendance-backed claim per assignment per day',
+  async()=>assert.equal(
+    await call('claim_work_payable',[
+      daily,
+      dailyWorkDate,
+      'Retry attendance claim'
+    ]),
+    day
+  )
+);
+
+await ok(
+  'future attendance rejected',
+  async()=>deny(
+    ()=>call('claim_work_payable',[
+      daily,
+      dates.end,
+      'Future date claim'
+    ])
+  )
+);
 await as('super');await call('set_membership',[org,ids.b,'ngo_admin','active']);await as('b');u=(await rows('select * from public.work_payable_units where id=$1',[day]))[0];await ok('NGO admin cannot approve their own earnings',async()=>deny(async()=>call('act_work_payable',await args('approve'))));await as('ngo');await call('act_work_payable',await args('approve'));
 await db.exec('RESET ROLE');await db.query("update public.work_assignments set status='cancelled',cancelled_at=now() where id=$1",[daily]);const fixed=await fixture('fixed_assignment','b');await as('b');await ok('fixed payment requires completed assignment',async()=>deny(()=>call('claim_work_payable',[fixed,dates.today,'Fixed work completed'])));await db.exec('RESET ROLE');await db.query("update public.work_assignments set status='completed',completed_at=now() where id=$1",[fixed]);await as('b');const f=await call('claim_work_payable',[fixed,dates.today,'Fixed work completed']);assert.equal(await call('claim_work_payable',[fixed,dates.today,'Same fixed completion']),f);
 await db.exec('RESET ROLE');await ok('journal cannot be rewritten even by maintenance SQL',async()=>deny(()=>db.query("update public.work_payable_events set note='Rewrite' where id=$1",[payment]),/append-only/));

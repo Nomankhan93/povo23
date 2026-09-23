@@ -1,3 +1,18 @@
+# Current permissions note — FieldLance 2.38.0
+
+Attendance and location evidence are assignment/project scoped. Location capture is explicit at check-in/check-out and does not create background tracking authority.
+
+## 2.38 permissions
+
+- **Field Worker:** start/end only own active accepted assignment sessions, read own attendance/timesheets, and resubmit correction-requested sessions.
+- **Organization Admin / active Project Manager:** manage project attendance policy and review/adjust submitted attendance for their authorized project. They cannot rewrite raw captured timestamps/location evidence.
+- **FieldLance survey/admin authority:** may retain project attendance oversight/read access through existing platform project authority, but does not gain routine attendance approval/policy mutation solely from that platform role.
+- **Area Focal Person:** no new broad attendance-management authority in this phase.
+- **Unrelated Organization/user:** cannot read another project's/worker's attendance or private location evidence.
+- **Finance boundary:** attendance approval may create/reuse a pending daily-rate payable unit; it does not grant payable approval, funding or payout authority.
+
+## Previous release
+
 # Current permissions note — FieldLance 2.37.0
 
 Field Worker scheduling data is private by default. Organizations receive only the minimum aggregate signal needed to prepare a safe formal assignment.

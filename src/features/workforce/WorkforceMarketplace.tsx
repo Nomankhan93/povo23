@@ -89,6 +89,7 @@ export function WorkforceMarketplace({
   focusKind = null,
   focusId = null,
   onFocusChange,
+  onAttendance,
 }: {
   userId: string;
   organization: string | null;
@@ -100,6 +101,7 @@ export function WorkforceMarketplace({
   focusKind?: "application" | "assignment" | null;
   focusId?: string | null;
   onFocusChange?: (kind: "application" | "assignment", id: string) => void;
+  onAttendance?: (assignmentId: string) => void;
 }) {
   const [projects, setProjects] = useState<Project[]>([]),
     [opportunities, setOpportunities] = useState<Opportunity[]>([]),
@@ -489,7 +491,7 @@ export function WorkforceMarketplace({
                   {a.status === "offered" && <div className="workforce-offer-callout"><div><strong>Formal assignment offer</strong><p>Accept to activate this assignment and its survey access. Compensation and terms are frozen for this offer.</p></div><div className="actions"><button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button><button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button></div></div>}
                   {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Survey access is active. Open Survey projects to conduct assigned surveys.</p>}
                   {a.status === "completed" && <p className="notice success">Completed assignment is retained in your verified FieldLance work history.</p>}
-                  <button className="link" type="button" onClick={()=>onFocusChange?.("assignment",a.id)}>Open assignment link</button>
+                  <div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("assignment",a.id)}>Open assignment link</button>{a.status === "active" && <button className="secondary" type="button" onClick={()=>onAttendance?.(a.id)}>Attendance / timesheet</button>}</div>
                 </article>
               ))}
               {directSurveyAssignments.map((sa) => {

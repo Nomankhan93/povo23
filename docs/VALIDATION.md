@@ -1,5 +1,5 @@
-# Validation index — FieldLance 2.37.0
+# Validation index — FieldLance 2.38.0
 
-Current: [VALIDATION-2.37.0.md](VALIDATION-2.37.0.md).
+Current: [VALIDATION-2.38.0.md](VALIDATION-2.38.0.md).
 
-Previous: [VALIDATION-2.36.1.md](VALIDATION-2.36.1.md).
+Previous: [VALIDATION-2.37.0.md](VALIDATION-2.37.0.md).

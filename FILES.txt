@@ -69,6 +69,7 @@ docs/PHASE-2.31.0.md
 docs/PHASE-2.36.0.md
 docs/PHASE-2.36.1.md
 docs/PHASE-2.37.0.md
+docs/PHASE-2.38.0.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
 docs/PHASE-2.4.md
@@ -154,6 +155,7 @@ docs/UPGRADE-2.31.0.md
 docs/UPGRADE-2.36.0.md
 docs/UPGRADE-2.36.1.md
 docs/UPGRADE-2.37.0.md
+docs/UPGRADE-2.38.0.md
 docs/UPGRADE-2.4.1.md
 docs/UPGRADE-2.4.2.md
 docs/UPGRADE-2.4.md
@@ -227,6 +229,7 @@ docs/VALIDATION-2.31.0.md
 docs/VALIDATION-2.36.0.md
 docs/VALIDATION-2.36.1.md
 docs/VALIDATION-2.37.0.md
+docs/VALIDATION-2.38.0.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
 docs/VALIDATION-2.4.md
@@ -325,6 +328,7 @@ scripts/test-phase231.mjs
 scripts/test-phase236.mjs
 scripts/test-phase2361.mjs
 scripts/test-phase237.mjs
+scripts/test-phase238.mjs
 scripts/test-phase24.mjs
 scripts/test-phase25.mjs
 scripts/test-phase26.mjs
@@ -436,6 +440,8 @@ src/features/volunteers/ProfileForm.tsx
 src/features/volunteers/ProfilePhoto.tsx
 src/features/volunteers/profileStructure.ts
 src/features/volunteers/StructuredProfileFields.tsx
+src/features/workforce/attendanceOfflineStore.ts
+src/features/workforce/AttendanceWorkspace.tsx
 src/features/workforce/FieldWorkerDashboard.tsx
 src/features/workforce/InvitationsPanel.tsx
 src/features/workforce/InviteVolunteer.tsx
@@ -519,5 +525,7 @@ supabase/migrations/20261012000200_project_workspace_stabilization.sql
 supabase/migrations/20261013000100_operational_analytics_reporting.sql
 supabase/migrations/20261013000200_partner_self_publish_platform_moderation.sql
 supabase/migrations/20261013000300_workforce_scheduling_assignment_safety.sql
+supabase/migrations/20261013000400_assignment_attendance_timesheets_location.sql
+supabase/migrations/20261013000410_attendance_rls_helper_permissions.sql
 tsconfig.json
 vite.config.ts

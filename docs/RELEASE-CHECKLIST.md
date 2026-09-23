@@ -1,3 +1,26 @@
+# Current release checklist — FieldLance 2.38.0
+
+Assignment Attendance, Work Sessions, Timesheets, Explicit Location Evidence & Daily-Payable Integration. One forward migration is included.
+
+## 2.38 release checks
+
+- [ ] Patch `--check` passes against the validated 2.37.0 source baseline.
+- [ ] `npm ci` completes.
+- [ ] `npx supabase migration up --local` applies `20261013000400_assignment_attendance_timesheets_location.sql` without reset.
+- [ ] `npm run types:check` passes.
+- [ ] `npm run test:attendance-238` passes.
+- [ ] Full `npm run test`, `npm run check`, `npm run release:consistency`, `npm run preflight` and `npm run test:local` pass.
+- [ ] Field Worker explicitly checks in/out only against an active accepted assignment.
+- [ ] Required/preferred/not-required location policy behaves correctly and no background tracking is performed.
+- [ ] Captured vs received timestamps expose delayed/offline sync instead of rewriting evidence time.
+- [ ] Organization Admin / active Project Manager can review; FieldLance staff are oversight-only for routine attendance and Area Focal does not gain broad approval authority.
+- [ ] Reviewer corrections preserve raw evidence and append adjustment history.
+- [ ] Approved daily-rate attendance creates/reuses exactly one day payable unit; financial approval/payment stays separate.
+- [ ] Fixed-assignment and per-verified-survey payable semantics remain unchanged.
+- [ ] Cross-Organization attendance/location RLS tests pass.
+
+## Previous release
+
 # Current release checklist — FieldLance 2.37.0
 
 Workforce Scheduling, Availability, Capacity & Assignment Safety. One forward migration is included.

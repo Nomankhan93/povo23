@@ -34,6 +34,138 @@ worker_enrollment?: string;
 };
 Relationships: [];
 };
+assignment_session_locations: {
+Row: {
+id: string;
+session_id: string;
+event_type: string;
+latitude: number | null;
+longitude: number | null;
+accuracy_m: number | null;
+permission_state: string;
+quality: string;
+note: string;
+captured_at: string;
+received_at: string;
+request_id: string;
+};
+Insert: {
+id?: string;
+session_id: string;
+event_type: string;
+latitude?: number | null;
+longitude?: number | null;
+accuracy_m?: number | null;
+permission_state: string;
+quality: string;
+note?: string;
+captured_at: string;
+received_at?: string;
+request_id: string;
+};
+Update: {
+id?: string;
+session_id?: string;
+event_type?: string;
+latitude?: number | null;
+longitude?: number | null;
+accuracy_m?: number | null;
+permission_state?: string;
+quality?: string;
+note?: string;
+captured_at?: string;
+received_at?: string;
+request_id?: string;
+};
+Relationships: [];
+};
+assignment_work_sessions: {
+Row: {
+id: string;
+assignment_id: string;
+project_id: string;
+organization_id: string;
+worker_id: string;
+work_date: string;
+timezone: string;
+location_policy_snapshot: string;
+max_accuracy_m_snapshot: number;
+check_in_captured_at: string;
+check_in_received_at: string;
+check_out_captured_at: string | null;
+check_out_received_at: string | null;
+effective_check_in_at: string;
+effective_check_out_at: string | null;
+status: string;
+worker_note: string;
+submitted_at: string | null;
+reviewed_by: string | null;
+reviewed_at: string | null;
+review_note: string;
+payable_unit_id: string | null;
+start_request_id: string;
+version: number;
+created_at: string;
+updated_at: string;
+};
+Insert: {
+id?: string;
+assignment_id: string;
+project_id: string;
+organization_id: string;
+worker_id: string;
+work_date: string;
+timezone: string;
+location_policy_snapshot: string;
+max_accuracy_m_snapshot: number;
+check_in_captured_at: string;
+check_in_received_at?: string;
+check_out_captured_at?: string | null;
+check_out_received_at?: string | null;
+effective_check_in_at: string;
+effective_check_out_at?: string | null;
+status?: string;
+worker_note?: string;
+submitted_at?: string | null;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string;
+payable_unit_id?: string | null;
+start_request_id: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Update: {
+id?: string;
+assignment_id?: string;
+project_id?: string;
+organization_id?: string;
+worker_id?: string;
+work_date?: string;
+timezone?: string;
+location_policy_snapshot?: string;
+max_accuracy_m_snapshot?: number;
+check_in_captured_at?: string;
+check_in_received_at?: string;
+check_out_captured_at?: string | null;
+check_out_received_at?: string | null;
+effective_check_in_at?: string;
+effective_check_out_at?: string | null;
+status?: string;
+worker_note?: string;
+submitted_at?: string | null;
+reviewed_by?: string | null;
+reviewed_at?: string | null;
+review_note?: string;
+payable_unit_id?: string | null;
+start_request_id?: string;
+version?: number;
+created_at?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
 assistance_distribution_deliveries: {
 Row: {
 assistance_id: string;
@@ -415,6 +547,69 @@ created_by?: string;
 created_at?: string;
 updated_by?: string;
 updated_at?: string;
+};
+Relationships: [];
+};
+attendance_adjustments: {
+Row: {
+id: string;
+session_id: string;
+previous_check_in_at: string;
+previous_check_out_at: string | null;
+effective_check_in_at: string;
+effective_check_out_at: string | null;
+reason: string;
+actor_id: string;
+created_at: string;
+};
+Insert: {
+id?: string;
+session_id: string;
+previous_check_in_at: string;
+previous_check_out_at?: string | null;
+effective_check_in_at: string;
+effective_check_out_at?: string | null;
+reason: string;
+actor_id: string;
+created_at?: string;
+};
+Update: {
+id?: string;
+session_id?: string;
+previous_check_in_at?: string;
+previous_check_out_at?: string | null;
+effective_check_in_at?: string;
+effective_check_out_at?: string | null;
+reason?: string;
+actor_id?: string;
+created_at?: string;
+};
+Relationships: [];
+};
+attendance_events: {
+Row: {
+id: string;
+session_id: string;
+event_type: string;
+actor_id: string | null;
+detail: Json;
+created_at: string;
+};
+Insert: {
+id?: string;
+session_id: string;
+event_type: string;
+actor_id?: string | null;
+detail?: Json;
+created_at?: string;
+};
+Update: {
+id?: string;
+session_id?: string;
+event_type?: string;
+actor_id?: string | null;
+detail?: Json;
+created_at?: string;
 };
 Relationships: [];
 };
@@ -2794,6 +2989,33 @@ granted_at?: string;
 };
 Relationships: [];
 };
+project_attendance_policies: {
+Row: {
+project_id: string;
+timezone: string;
+location_policy: string;
+max_accuracy_m: number;
+updated_by: string | null;
+updated_at: string;
+};
+Insert: {
+project_id: string;
+timezone?: string;
+location_policy?: string;
+max_accuracy_m?: number;
+updated_by?: string | null;
+updated_at?: string;
+};
+Update: {
+project_id?: string;
+timezone?: string;
+location_policy?: string;
+max_accuracy_m?: number;
+updated_by?: string | null;
+updated_at?: string;
+};
+Relationships: [];
+};
 project_documents: {
 Row: {
 id: string;
@@ -4474,6 +4696,13 @@ p_start: string | null;
 p_end: string | null;
 p_reason: string | null;
 }; Returns: string };
+adjust_attendance_times: { Args: {
+p_session: string | null;
+p_check_in: string | null;
+p_check_out: string | null;
+p_reason: string | null;
+p_version: number | null;
+}; Returns: Json };
 admin_e_wallet_operations_queue: { Args: {
 p_status?: string | null;
 p_provider?: string | null;
@@ -4539,6 +4768,16 @@ p_category?: string | null;
 p_from?: string | null;
 p_to?: string | null;
 p_limit?: number | null;
+}; Returns: Json };
+attendance_session_history: { Args: {
+p_session: string | null;
+}; Returns: Json };
+attendance_workspace: { Args: {
+p_project?: string | null;
+p_from?: string | null;
+p_to?: string | null;
+p_status?: string | null;
+p_page?: number | null;
 }; Returns: Json };
 authorize_data_access_request: { Args: {
 p_request: string | null;
@@ -4666,6 +4905,18 @@ p_user: string | null;
 p_start: string | null;
 p_end: string | null;
 p_target_surveys?: number | null;
+}; Returns: Json };
+checkout_assignment_work_session: { Args: {
+p_session: string | null;
+p_captured_at: string | null;
+p_latitude: number | null;
+p_longitude: number | null;
+p_accuracy_m: number | null;
+p_permission_state: string | null;
+p_location_note: string | null;
+p_worker_note: string | null;
+p_request: string | null;
+p_version: number | null;
 }; Returns: Json };
 claim_work_payable: { Args: {
 p_assignment: string | null;
@@ -5060,6 +5311,9 @@ p_project: string | null;
 p_before?: number | null;
 p_limit?: number | null;
 }; Returns: Json };
+project_attendance_policy: { Args: {
+p_project: string | null;
+}; Returns: Json };
 project_closure_status: { Args: {
 p_project: string | null;
 }; Returns: Json };
@@ -5301,6 +5555,11 @@ p_id: string | null;
 p_status: string | null;
 p_version: number | null;
 }; Returns: undefined };
+resubmit_attendance_session: { Args: {
+p_session: string | null;
+p_worker_note: string | null;
+p_version: number | null;
+}; Returns: Json };
 reverse_finance_journal: { Args: {
 p_journal: string | null;
 p_idempotency_key: string | null;
@@ -5324,6 +5583,12 @@ p_decision: string | null;
 p_note: string | null;
 p_version: number | null;
 }; Returns: undefined };
+review_attendance_session: { Args: {
+p_session: string | null;
+p_action: string | null;
+p_note: string | null;
+p_version: number | null;
+}; Returns: Json };
 review_canonical_match: { Args: {
 p_person: string | null;
 p_other: string | null;
@@ -5624,6 +5889,12 @@ set_profile_sharing: { Args: {
 p_org: string | null;
 p_allowed: boolean | null;
 }; Returns: undefined };
+set_project_attendance_policy: { Args: {
+p_project: string | null;
+p_timezone: string | null;
+p_location_policy: string | null;
+p_max_accuracy_m: number | null;
+}; Returns: Json };
 set_project_compensation_defaults: { Args: {
 p_project: string | null;
 p_work_mode: string | null;
@@ -5689,6 +5960,16 @@ p_wallet: string | null;
 p_outcome: string | null;
 p_event_key: string | null;
 }; Returns: string };
+start_assignment_work_session: { Args: {
+p_assignment: string | null;
+p_captured_at: string | null;
+p_latitude: number | null;
+p_longitude: number | null;
+p_accuracy_m: number | null;
+p_permission_state: string | null;
+p_location_note: string | null;
+p_request: string | null;
+}; Returns: Json };
 start_manual_e_wallet_withdrawal: { Args: {
 p_withdrawal: string | null;
 p_version: number | null;

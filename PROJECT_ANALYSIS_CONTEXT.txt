@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.37.0
+Release: 2.38.0
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,16 +14,20 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.37.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.38.0 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.30.1 stabilizes document deletion, draft-safe navigation, pending application counts and lazy feature boundaries.
 - 2.36.0 adds canonical browser routes for personal, Organization, Staff and project workspaces; deep links never replace RLS/RPC authorization.
 - 2.36.1 retires Partner Organization project/template pre-approval: active Organization Admins publish their own saved drafts directly while FieldLance survey-management staff govern published content through audited block/remove/restore moderation.
 - 2.37.0 adds private structured Field Worker availability, date exceptions, capacity preferences and privacy-preserving assignment conflict summaries. Hard capacity conflicts are enforced on offered/active work assignments below the UI.
+- 2.38.0 adds assignment-bound explicit attendance/work sessions and timesheets. Location evidence is captured only on explicit check-in/check-out according to project policy; continuous/background tracking, polygon geofencing and biometric attendance are not introduced.
+- 2.38.0 stores raw capture time separately from server receive time and keeps reviewer effective-time corrections in immutable adjustment/event history. Project IANA timezone determines the work date.
+- Organization Admin and active Project Manager manage attendance policy/review. FieldLance platform survey authority retains authorized oversight/read access but is not a routine attendance approver solely because of the platform role; Area Focal gains no broad attendance-management authority.
+- Approved daily-rate attendance creates/reuses the existing work_payable_units day record; finance approval/payment stays on the existing payable/finance authority. fixed_assignment and per_verified_survey semantics remain unchanged and hourly-rate pay is not added.
 - Moderation is separate from project active/closed state and template immutability. Temporary blocks pause effective recruitment/assignment/collection without destroying commitment state; operational removal closes/cancels forward work while preserving historical survey/case/assistance/payable/audit records. Restoring removed content never silently recreates cancelled work.
 - Browser Back/Forward waits for active field-draft persistence; failed persistence restores the previous route instead of silently unmounting field work.
 - Project workspace tabs, beneficiary cases and recruitment application/assignment focus can be restored from canonical URLs. Personal mobile navigation exposes Home / Work / Field / Earnings / Profile while secondary tools remain in the drawer.
-- 2.36.0 added no database migration and was built directly on the validated 2.31.0 baseline. 2.36.1 adds one forward moderation/self-publication migration and 2.37.0 adds one forward workforce-scheduling migration. Planned scopes previously labelled 2.32-2.35 are not present and must not later ship with a lower package version.
+- 2.36.0 added no database migration and was built directly on the validated 2.31.0 baseline. 2.36.1 adds moderation/self-publication, 2.37.0 workforce scheduling, and 2.38.0 attendance/location/payable integration as forward migrations. Planned scopes previously labelled 2.32-2.35 are not present and must not later ship with a lower package version.
 - 2.30.0 completes the project workspace: distinct Overview/Team/Recruitment/Field Work/Responses/Cases/Finance/Governance/Documents/Activity surfaces, current-project locked finance/governance, private project documents, and a guarded project activity feed.
 - Project-document mutation follows existing project-management authority. Active project staff may read ready project documents; project activity remains manager-only. Existing survey evidence and organization-compliance storage remain authoritative.
 - 2.19.0 adds beneficiary cases/requests; 2.19.1 adds planning-only distribution plans; 2.19.2 records controlled delivery into assistance_entries with canonical duplicate-support controls; 2.19.3 adds structured follow-up, outcomes and controlled close/reopen lifecycle history.
@@ -61,8 +65,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 66
-Migration head: 20261013000300_workforce_scheduling_assignment_safety.sql
+Ordered migration files: 68
+Migration head: 20261013000410_attendance_rls_helper_permissions.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -131,12 +135,14 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000100_operational_analytics_reporting.sql
 - 20261013000200_partner_self_publish_platform_moderation.sql
 - 20261013000300_workforce_scheduling_assignment_safety.sql
+- 20261013000400_assignment_attendance_timesheets_location.sql
+- 20261013000410_attendance_rls_helper_permissions.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 83
-TypeScript/TSX source files: 104
-Markdown docs: 240
-Inventory files (excluding local/build/temp/backup state): 523
+Test scripts (scripts/test-*.mjs): 84
+TypeScript/TSX source files: 106
+Markdown docs: 243
+Inventory files (excluding local/build/temp/backup state): 531
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -161,6 +167,7 @@ npm run test:operations
 npm run test:routing-236
 npm run test:self-publish-2361
 npm run test:workforce-scheduling-237
+npm run test:attendance-238
 
 ===== KNOWN SCALE / OPERATIONS LIMITS =====
 - Supporting UI lists still use bounded fetches in several places (for example account/organization/membership/event selectors).
@@ -168,9 +175,9 @@ npm run test:workforce-scheduling-237
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.37.0 adds privacy-preserving workforce scheduling and assignment conflict control on top of the 2.36 routing and 2.36.1 self-publication/moderation foundation.
-Future releases must use versions greater than 2.37.0. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
-The next planned feature phase is 2.38 Attendance, Timesheets & Location Operations. Keep continuous/background tracking out of scope; location evidence should be explicit and session/assignment-bound.
+FieldLance 2.38.0 adds explicit assignment attendance, work-session timesheets, check-in/out location evidence and daily-rate payable integration on top of the 2.37 scheduling foundation.
+Future releases must use versions greater than 2.38.0. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+The next planned feature phase is 2.39 Case Ownership & Area-Scoped Case Operations. Keep attendance/location privacy boundaries stable and do not broaden Area Focal authority without explicit geography-scoped case design.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary; Area Focal case access remains deferred until an explicit area-scoped design exists.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

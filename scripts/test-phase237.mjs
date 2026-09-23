@@ -133,10 +133,13 @@ try{
     assert.equal(clean.status,'clear');
   });
 
-  await ok('2.37 adds exactly one forward migration after 2.36.1 moderation',async()=>{
+  await ok('2.37 scheduling migration immediately follows 2.36.1 moderation',async()=>{
     const migrations=readdirSync('supabase/migrations').filter(x=>x.endsWith('.sql')).sort();
-    assert.equal(migrations.at(-1),'20261013000300_workforce_scheduling_assignment_safety.sql');
-    assert.equal(migrations.at(-2),'20261013000200_partner_self_publish_platform_moderation.sql');
+    const prior='20261013000200_partner_self_publish_platform_moderation.sql';
+    const current='20261013000300_workforce_scheduling_assignment_safety.sql';
+    const priorIndex=migrations.indexOf(prior),currentIndex=migrations.indexOf(current);
+    assert.ok(priorIndex>=0,'2.36.1 moderation migration is missing');
+    assert.equal(currentIndex,priorIndex+1,'2.37 scheduling migration must immediately follow 2.36.1 moderation');
   });
 
   console.log(`\n${passed} FieldLance 2.37 Workforce Scheduling & Assignment Safety scenarios passed.`);

@@ -1,3 +1,9 @@
+# Current release: FieldLance 2.38.0
+
+Assignment Attendance, Work Sessions, Timesheets, Explicit Location Evidence & Daily-Payable Integration. Field Workers explicitly check in/out against active assignments; Organization Admins and active Project Managers review attendance; location evidence is explicit and session-bound rather than continuous. Approved daily-rate attendance creates/reuses the existing payable day unit while finance approval/payment remains separate. See docs/PHASE-2.38.0.md, docs/UPGRADE-2.38.0.md and docs/VALIDATION-2.38.0.md.
+
+## Previous release
+
 # Current release: FieldLance 2.37.0
 
 Workforce Scheduling, Availability, Capacity & Assignment Safety. Field Workers can configure private weekly availability, unavailable dates and parallel-project limits; recruiters receive privacy-safe conflict/capacity summaries before formal offers, and hard conflicts are enforced server-side. See docs/PHASE-2.37.0.md, docs/UPGRADE-2.37.0.md and docs/VALIDATION-2.37.0.md.

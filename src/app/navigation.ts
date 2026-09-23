@@ -11,6 +11,8 @@ export const navigationGroups: readonly NavigationGroup[] = [
       "Available Opportunities",
       "My Applications",
       "My Assigned Surveys",
+      "My Attendance",
+      "My Timesheets",
       "My Schedule",
       "My Availability",
       "Invitations",
@@ -75,6 +77,8 @@ export const personalNavigationLabels: Readonly<Record<string, string>> = {
   "Workforce payables": "Earnings",
   "E-Wallets & withdrawals": "Wallet & withdrawals",
   Notifications: "Updates",
+  "My Attendance": "Attendance",
+  "My Timesheets": "Timesheets",
   "My Schedule": "My schedule",
   "My Availability": "Availability",
 };

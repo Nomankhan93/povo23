@@ -87,6 +87,7 @@ import { ProfilePhoto } from "../features/volunteers/ProfilePhoto";
 import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
 const WorkforceMarketplace = lazy(() => import("../features/workforce/WorkforceMarketplace").then(m => ({default:m.WorkforceMarketplace})));
 const WorkAvailabilitySchedule = lazy(() => import("../features/workforce/WorkAvailabilitySchedule").then(m => ({default:m.WorkAvailabilitySchedule})));
+const AttendanceWorkspace = lazy(() => import("../features/workforce/AttendanceWorkspace").then(m => ({default:m.AttendanceWorkspace})));
 import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
 import { db, rpc } from "../lib/supabase/client";
 import type { Database } from "../lib/supabase/database.types";
@@ -431,7 +432,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal" && !projectScope) ? [["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
-    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Schedule", CalendarDays], ["My Availability", CalendarDays]] : []),
+    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Attendance", CalendarDays], ["My Timesheets", CalendarDays], ["My Schedule", CalendarDays], ["My Availability", CalendarDays]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
     ...(!poem && scope === "personal" ? [["E-Wallets & withdrawals", CreditCard]] : []),
     ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
@@ -1063,6 +1064,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
               <WorkAvailabilitySchedule userId={session.user.id} view={page === "My Availability" ? "availability" : "schedule"} />
             </Suspense>
           )}
+          {(page === "My Attendance" || page === "My Timesheets") && personalWorkspace && validScope && (
+            <Suspense fallback={<p role="status">Loading attendance…</p>}>
+              <AttendanceWorkspace userId={session.user.id} view={page === "My Timesheets" ? "timesheets" : "attendance"} initialAssignmentId={browserRoute.entityKind === "assignment" ? browserRoute.entityId : null} />
+            </Suspense>
+          )}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={`${scope}-${page}`}
@@ -1076,6 +1082,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               focusKind={browserRoute.entityKind === "application" || browserRoute.entityKind === "assignment" ? browserRoute.entityKind : null}
               focusId={browserRoute.entityId}
               onFocusChange={(kind,id)=>{const targetPage=personalWorkspace?(kind==="application"?"My Applications":"My Assigned Surveys"):page;setPageState(targetPage);syncRoute({scope,page:targetPage,entityKind:kind,entityId:id});}}
+              onAttendance={personalWorkspace?(id)=>{setPageState("My Attendance");syncRoute({scope,page:"My Attendance",entityKind:"assignment",entityId:id});}:undefined}
             />
           )}
           {validScope && <OrganizationInvitationInbox userId={session.user.id} onChanged={load}/>}
@@ -1225,7 +1232,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             ["Workforce payables","Earnings",CreditCard],
             ["My profile","Profile",UserRound],
           ].map(([target,label,Icon])=>{
-            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?page==="My Assigned Surveys":target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
+            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?["My Assigned Surveys","My Attendance","My Timesheets"].includes(page):target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
             const C=Icon as typeof LayoutDashboard;
             return <button key={String(target)} type="button" className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>change(String(target))}><C size={20}/><span>{String(label)}</span></button>;
           })}

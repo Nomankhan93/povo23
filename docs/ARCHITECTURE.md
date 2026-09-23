@@ -1,3 +1,15 @@
+# Current architecture note — FieldLance 2.38.0
+
+Assignment attendance is an evidence layer over existing `work_assignments`, not a replacement assignment or payment system. `assignment_work_sessions` records explicit worker check-in/check-out, raw and effective timestamps, review state and payable linkage. `assignment_session_locations` stores at most explicit check-in/out location evidence; `attendance_events` and `attendance_adjustments` preserve append-only workflow/history.
+
+## 2.38 attendance architecture
+
+Project attendance policy provides an IANA timezone, explicit location requirement (`required`, `preferred`, `not_required`) and accuracy threshold. Timestamps are stored as `timestamptz`; the project timezone determines the authoritative work date. The encrypted browser attendance queue preserves captured versus received time during temporary connectivity loss after the app has loaded. No continuous/background tracking, polygon geofence or biometric attendance is introduced.
+
+Attendance review is operational authority: Organization Admin / active Project Manager can review and correct submitted sessions; FieldLance platform survey authority retains authorized read-only oversight rather than routine approval; Area Focal receives no new broad attendance authority. Approved `daily_rate` attendance creates/reuses an existing `work_payable_units` day record, but payable approval/payment remains in the existing finance workflow. `fixed_assignment` and `per_verified_survey` semantics are unchanged and no hourly compensation type is added.
+
+## Previous release
+
 # Current architecture note — FieldLance 2.37.0
 
 Workforce Scheduling, Availability, Capacity & Assignment Safety adds a private scheduling layer beside the existing authoritative `work_assignments` model. New worker availability tables store weekly rules, workload preferences and date exceptions; guarded RPCs expose only the signed-in worker's schedule or a privacy-preserving conflict summary to authorized project workforce managers.
