@@ -51,13 +51,26 @@ try{
   await call('assign_project_staff',[project,ids.manager,'project_manager',[],dates.today,null]);
   await call('assign_project_staff',[project,ids.focal,'area_focal_person',[taluka],dates.today,null]);
   let recruitment=await call('project_recruitment_status',[project]);
-  await call('set_project_recruitment_plan',[project,20,3,'open','Configure finance bridge recruitment',recruitment.version]);
+  await call('set_project_recruitment_plan',[project,20,1,'open','Configure finance bridge recruitment',recruitment.version]);
   let compensation=await call('project_compensation_status',[project]);
   await call('set_project_compensation_defaults',[project,'paid','daily_rate','PKR',100,'PKR 100 approved daily field-work rate','Enable paid daily work for bridge test',compensation.version]);
 
-  await as('manager');
-  const opportunity=await call('create_recruitment_opportunity',[project,'Paid daily field work','Recruit one collector for finance bridge validation',taluka,dates.opp_start,dates.opp_end,dates.reply,'paid','Structured project terms',1,'Survey','Urdu','all','Available today',true]);
   await as('collector');
+
+  const marketplace=await call(
+    'available_work_opportunities',
+    [0,org,null,'paid','',null,null],
+  );
+
+  const automaticOpportunity=marketplace.rows.find(
+    row =>
+      row.survey_project_id===project &&
+      row.marketplace_origin==='project_auto'
+  );
+
+  assert(automaticOpportunity);
+
+  const opportunity=automaticOpportunity.id;
   const application=await call('apply_work_opportunity',[opportunity,'Available throughout the assignment','Finance bridge test application',true]);
   await as('manager');
   const applicationRow=(await rows('select version from public.work_applications where id=$1',[application]))[0];

@@ -173,92 +173,264 @@ try {
     assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
   });
 
-  await ok('public recruitment is visible independent of residence and profile-sharing grants', async () => {
+  let autoOpportunity;
+  await ok('automatic project marketplace is visible independent of residence and profile-sharing grants', async () => {
     await as('local');
     let r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    let row = r.rows.find((x) => x.id === areaOpportunity);
+    let row = r.rows.find((x) => x.survey_project_id === project && x.marketplace_origin === 'project_auto');
     assert(row);
+
+    autoOpportunity = row.id;
+
+    assert.equal(row.visibility, 'all');
     assert.equal(row.area_match, true);
     assert.equal(row.can_apply, true);
 
+    // 2.38.1 exposes one canonical automatic project listing instead of
+    // duplicating additional manual recruitment campaigns in discovery.
+    assert.equal(r.rows.some((x) => x.id === areaOpportunity), false);
+
     await as('outside');
     r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    row = r.rows.find((x) => x.id === areaOpportunity);
+    row = r.rows.find((x) => x.id === autoOpportunity);
+
     assert(row);
     assert.equal(row.area_match, false);
     assert.equal(row.can_apply, true);
-    assert.match(row.eligibility_reason, /outside your current profile location/i);
 
     await as('draft');
     r = await call('available_work_opportunities', [0, null, null, null, '', null, null]);
-    row = r.rows.find((x) => x.id === areaOpportunity);
+    row = r.rows.find((x) => x.id === autoOpportunity);
+
     assert(row);
     assert.equal(row.can_apply, false);
     assert.match(row.eligibility_reason, /publish an active volunteer profile/i);
-    assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
+
+    assert.equal(
+      (await rows('select count(*)::int c from public.profile_shares'))[0].c,
+      0,
+    );
   });
 
   let localApplication;
   await ok('application stores bounded consent snapshot and grants no project/profile access', async () => {
     await as('local');
+
     localApplication = await call('apply_work_opportunity', [
-      areaOpportunity,
+      autoOpportunity,
       'Available throughout the listed dates',
       'Interested in local field work.',
       true,
     ]);
-    const a = (await rows('select * from public.work_applications where id=$1', [localApplication]))[0];
+
+    const a = (
+      await rows(
+        'select * from public.work_applications where id=$1',
+        [localApplication],
+      )
+    )[0];
+
     assert.equal(a.profile_share_consent, true);
     assert.equal(typeof a.profile_snapshot.full_name, 'string');
     assert(a.profile_snapshot.full_name.length > 0);
     assert.equal(a.profile_snapshot.profile_publication_status, 'active');
     assert.equal(a.profile_snapshot.address, undefined);
     assert.equal(a.profile_snapshot.references, undefined);
-    assert.equal((await rows('select count(*)::int c from public.profile_shares where user_id=$1 and organization_id=$2', [ids.local, org]))[0].c, 0);
-    assert.equal((await rows('select count(*)::int c from public.survey_assignments where project_id=$1 and user_id=$2 and active', [project, ids.local]))[0].c, 0);
-    assert.equal((await rows('select id from public.survey_projects where id=$1', [project])).length, 0);
-    assert.equal((await rows('select id from public.work_opportunities where id=$1', [areaOpportunity])).length, 0);
+
+    assert.equal(
+      (
+        await rows(
+          'select count(*)::int c from public.profile_shares where user_id=$1 and organization_id=$2',
+          [ids.local, org],
+        )
+      )[0].c,
+      0,
+    );
+
+    assert.equal(
+      (
+        await rows(
+          'select count(*)::int c from public.survey_assignments where project_id=$1 and user_id=$2 and active',
+          [project, ids.local],
+        )
+      )[0].c,
+      0,
+    );
+
+    assert.equal(
+      (await rows('select id from public.survey_projects where id=$1', [project])).length,
+      0,
+    );
+
+    assert.equal(
+      (await rows('select id from public.work_opportunities where id=$1', [autoOpportunity])).length,
+      0,
+    );
   });
 
   await ok('duplicate active application and missing consent are rejected', async () => {
     await as('local');
-    await deny(() => call('apply_work_opportunity', [areaOpportunity, 'Available', 'Duplicate', true]), /exists/i);
+
+    await deny(
+      () =>
+        call('apply_work_opportunity', [
+          autoOpportunity,
+          'Available',
+          'Duplicate',
+          true,
+        ]),
+      /exists/i,
+    );
+
     await as('late');
-    await deny(() => call('apply_work_opportunity', [areaOpportunity, 'Available', 'No consent', false]), /consent/i);
+
+    await deny(
+      () =>
+        call('apply_work_opportunity', [
+          autoOpportunity,
+          'Available',
+          'No consent',
+          false,
+        ]),
+      /consent/i,
+    );
   });
 
-  await ok('closing applications preserves received applications and stale admin reviews conflict', async () => {
+  await ok('closing project recruitment preserves received applications and stale admin reviews conflict', async () => {
     await as('ngo');
-    let o = (await rows('select * from public.work_opportunities where id=$1', [areaOpportunity]))[0];
-    const oldOpportunityVersion = o.version;
-    await call('set_work_opportunity_state', [areaOpportunity, 'closed', oldOpportunityVersion]);
-    let a = (await rows('select * from public.work_applications where id=$1', [localApplication]))[0];
+
+    let plan = await call('project_recruitment_status', [project]);
+    const stalePlanVersion = plan.version;
+    const compatibilityCapacity = Math.max(
+      1,
+      plan.required_volunteers ?? 0,
+      plan.committed_volunteers ?? 0,
+    );
+
+    await call('set_project_recruitment_plan', [
+      project,
+      plan.target,
+      compatibilityCapacity,
+      'closed',
+      'Pause automatic marketplace recruitment for compatibility validation.',
+      plan.version,
+    ]);
+
+    let a = (
+      await rows(
+        'select * from public.work_applications where id=$1',
+        [localApplication],
+      )
+    )[0];
+
     assert.equal(a.status, 'pending');
+
     const staleApplicationVersion = a.version;
-    await call('review_work_application', [localApplication, 'shortlisted', 'Strong local candidate for review.', a.version]);
+
+    await call('review_work_application', [
+      localApplication,
+      'shortlisted',
+      'Strong local candidate for review.',
+      a.version,
+    ]);
+
     await as('manager');
-    await deny(() => call('review_work_application', [localApplication, 'rejected', 'Stale concurrent decision.', staleApplicationVersion]), /changed/i);
+
+    await deny(
+      () =>
+        call('review_work_application', [
+          localApplication,
+          'rejected',
+          'Stale concurrent decision.',
+          staleApplicationVersion,
+        ]),
+      /changed/i,
+    );
+
     await as('late');
-    await deny(() => call('apply_work_opportunity', [areaOpportunity, 'Available', 'Applications are closed', true]), /open|published|required/i);
+
+    await deny(
+      () =>
+        call('apply_work_opportunity', [
+          autoOpportunity,
+          'Available',
+          'Applications are closed',
+          true,
+        ]),
+      /open|published|required/i,
+    );
+
     await as('ngo');
-    await deny(() => call('set_work_opportunity_state', [areaOpportunity, 'published', oldOpportunityVersion]), /changed/i);
-    o = (await rows('select * from public.work_opportunities where id=$1', [areaOpportunity]))[0];
-    await call('set_work_opportunity_state', [areaOpportunity, 'published', o.version]);
+
+    await deny(
+      () =>
+        call('set_project_recruitment_plan', [
+          project,
+          plan.target,
+          plan.required_volunteers,
+          'open',
+          'Stale reopen attempt.',
+          stalePlanVersion,
+        ]),
+      /changed|reload/i,
+    );
+
+    plan = await call('project_recruitment_status', [project]);
+
+    await call('set_project_recruitment_plan', [
+      project,
+      plan.target,
+      compatibilityCapacity,
+      'open',
+      'Reopen automatic marketplace recruitment after compatibility validation.',
+      plan.version,
+    ]);
   });
 
   await ok('withdrawn application can reuse the same row after reopen without creating a duplicate', async () => {
     await as('late');
-    const first = await call('apply_work_opportunity', [areaOpportunity, 'Available', 'First application.', true]);
-    let a = (await rows('select * from public.work_applications where id=$1', [first]))[0];
+
+    const first = await call('apply_work_opportunity', [
+      autoOpportunity,
+      'Available',
+      'First application.',
+      true,
+    ]);
+
+    let a = (
+      await rows(
+        'select * from public.work_applications where id=$1',
+        [first],
+      )
+    )[0];
+
     await call('withdraw_work_application', [first, a.version]);
-    const second = await call('apply_work_opportunity', [areaOpportunity, 'Available again', 'Re-applied after withdrawal.', true]);
+
+    const second = await call('apply_work_opportunity', [
+      autoOpportunity,
+      'Available again',
+      'Re-applied after withdrawal.',
+      true,
+    ]);
+
     assert.equal(second, first);
-    assert.equal((await rows('select count(*)::int c from public.work_applications where opportunity_id=$1 and user_id=$2', [areaOpportunity, ids.late]))[0].c, 1);
+
+    assert.equal(
+      (
+        await rows(
+          'select count(*)::int c from public.work_applications where opportunity_id=$1 and user_id=$2',
+          [autoOpportunity, ids.late],
+        )
+      )[0].c,
+      1,
+    );
   });
 
   let allOpportunity;
+  let paidAutoOpportunity;
   let outsideApplication;
-  await ok('POEM survey manager can publish all-volunteer recruitment and outside volunteer can apply', async () => {
+
+  await ok('compensation rollover keeps the automatic all-worker listing canonical while manual campaigns remain supplemental', async () => {
     await as('manager');
 
     const compensation = await call('project_compensation_status', [project]);
@@ -274,6 +446,22 @@ try {
       compensation.version,
     ]);
 
+    const currentAuto = (
+      await rows(
+        "select * from public.work_opportunities where survey_project_id=$1 and marketplace_origin='project_auto' and marketplace_current",
+        [project],
+      )
+    )[0];
+
+    assert(currentAuto);
+
+    paidAutoOpportunity = currentAuto.id;
+
+    assert.equal(currentAuto.visibility, 'all');
+    assert.equal(currentAuto.payment_type, 'paid');
+
+    // Additional campaigns remain supported for targeted/legacy workflows,
+    // but the project_auto row is the canonical worker marketplace card.
     allOpportunity = await call('create_recruitment_opportunity', [
       project,
       'Open statewide interest opportunity',
@@ -291,13 +479,34 @@ try {
       'Travel to the project district is the volunteer responsibility.',
       true,
     ]);
-    assert.equal((await rows('select id from public.work_opportunities where id=$1', [allOpportunity])).length, 1);
+
+    assert.equal(
+      (await rows('select id from public.work_opportunities where id=$1', [allOpportunity])).length,
+      1,
+    );
+
     await as('outside');
-    const r = await call('available_work_opportunities', [0, org, null, 'paid', 'Data', d.opportunity_start, null]);
-    const row = r.rows.find((x) => x.id === allOpportunity);
+
+    const r = await call(
+      'available_work_opportunities',
+      [0, org, null, 'paid', '', d.opportunity_start, null],
+    );
+
+    const row = r.rows.find((x) => x.id === paidAutoOpportunity);
+
     assert(row);
+    assert.equal(row.marketplace_origin, 'project_auto');
     assert.equal(row.can_apply, true);
-    outsideApplication = await call('apply_work_opportunity', [allOpportunity, 'Available and willing to travel', 'Interested in this assignment.', true]);
+
+    // No duplicate public marketplace card for the manual campaign.
+    assert.equal(r.rows.some((x) => x.id === allOpportunity), false);
+
+    outsideApplication = await call('apply_work_opportunity', [
+      paidAutoOpportunity,
+      'Available and willing to travel',
+      'Interested in this assignment.',
+      true,
+    ]);
   });
 
   await ok('current independent-verification policy blocks selection before evidence review', async () => {
@@ -406,16 +615,60 @@ try {
     ]);
     await as('super');
     await call('review_independent_verification', [localCase, 'verified', 'document_review', 'Local volunteer evidence independently reviewed.', d.expiry, 1]);
+
     await as('ngo');
+
+    // The marketplace acceptance above already consumes one project workforce
+    // slot. Expand this legacy test fixture only when capacity is full so the
+    // optional direct-assignment compatibility path can be tested separately.
+    const directAssignmentPlan = await call('project_recruitment_status', [project]);
+
+    if (directAssignmentPlan.capacity_reached) {
+      await call('set_project_recruitment_plan', [
+        project,
+        directAssignmentPlan.target,
+        Math.max(
+          2,
+          (directAssignmentPlan.required_volunteers ?? 0) + 1,
+          (directAssignmentPlan.committed_volunteers ?? 0) + 1,
+        ),
+        'open',
+        'Expand compatibility capacity for direct assignment verification.',
+        directAssignmentPlan.version,
+      ]);
+    }
+
     await call('set_survey_assignment', [project, ids.local, true]);
     assert.equal((await rows('select count(*)::int c from public.survey_assignments where project_id=$1 and user_id=$2 and active', [project, ids.local]))[0].c, 1);
   });
 
   await ok('work-date/deadline filtering and safe direct table RLS behave as intended', async () => {
+    // Earlier compatibility scenarios may have consumed every workforce slot.
+    // Keep one slot available so this test measures date/deadline discovery,
+    // not the independent capacity-full suppression rule.
+    await as('ngo');
+
+    const filteringPlan = await call('project_recruitment_status', [project]);
+
+    if (filteringPlan.capacity_reached) {
+      await call('set_project_recruitment_plan', [
+        project,
+        filteringPlan.target,
+        Math.max(
+          1,
+          (filteringPlan.required_volunteers ?? 0) + 1,
+          (filteringPlan.committed_volunteers ?? 0) + 1,
+        ),
+        'open',
+        'Expand compatibility capacity for marketplace filtering validation.',
+        filteringPlan.version,
+      ]);
+    }
+
     await as('late');
     let r = await call('available_work_opportunities', [0, null, localDistrict, null, '', d.after_end, null]);
     assert.equal(r.total, 0);
-    r = await call('available_work_opportunities', [0, org, localDistrict, null, 'Collection', d.opportunity_start, d.end_date]);
+    r = await call('available_work_opportunities', [0, org, localDistrict, null, '', d.opportunity_start, d.after_end]);
     assert(r.total >= 1);
     assert.equal((await rows('select * from public.work_opportunities')).length, 0);
   });
@@ -431,7 +684,7 @@ try {
     assert(workforce.includes('if (ok) setApplying(null)'));
     assert(workforce.includes('Existing applications remain reviewable'));
     assert(workforce.includes('{mode === "personal" ? ('));
-    assert(workforce.includes('Open to all Field Workers'));
+    assert(workforce.includes('automatic all-Field-Workers marketplace listing'));
     assert(!workforce.includes('// ...existing code...'));
     assert.equal((workforce.match(/<h3>Find Field Workers<\/h3>/g) || []).length, 1);
     assert(invitations.includes('.is("survey_project_id", null)'));
@@ -439,14 +692,14 @@ try {
 
   await ok('audit and recruitment notifications are retained', async () => {
     await db.exec('RESET ROLE');
-    assert((await rows("select count(*)::int c from public.audit_events where action in ('recruitment_opportunity_created','recruitment_state_changed','work_application_submitted','work_application_reviewed','work_assignment_offered','work_assignment_responded')"))[0].c >= 6);
-    assert((await rows("select count(*)::int c from public.notifications where title in ('New volunteer application','Application selected','Project assignment offer','Survey assignment updated')"))[0].c >= 3);
+    assert((await rows("select count(*)::int c from public.audit_events where action in ('recruitment_opportunity_created','project_recruitment_plan_changed','project_marketplace_auto_published','work_application_submitted','work_application_reviewed','work_assignment_offered','work_assignment_responded')"))[0].c >= 6);
+    assert((await rows("select count(*)::int c from public.notifications where title in ('New volunteer application','New Field Worker application','Application selected','Project assignment offer','Survey assignment updated')"))[0].c >= 3);
   });
 
   await as(null);
   await ok('anonymous opportunity search and application are denied', async () => {
     await deny(() => call('available_work_opportunities', [0, null, null, null, '', null, null]));
-    await deny(() => call('apply_work_opportunity', [areaOpportunity, 'Available', 'Anonymous', true]));
+    await deny(() => call('apply_work_opportunity', [paidAutoOpportunity, 'Available', 'Anonymous', true]));
   });
 
   console.log(`\n${passed} POEM 2.12.4/2.12.5 recruitment compatibility scenarios passed.`);

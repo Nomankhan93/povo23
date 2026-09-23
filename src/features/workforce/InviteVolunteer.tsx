@@ -90,7 +90,7 @@ export function InviteVolunteer({
             </button>
           </form>
           {!busy && !rows.length && (
-            <p>Create a survey-project opportunity in Workforce marketplace first.</p>
+            <p>Publish the project first; FieldLance creates its marketplace listing automatically.</p>
           )}
           <div className="actions">
             <button

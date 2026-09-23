@@ -168,18 +168,18 @@ try {
     }
 
     for (const marker of [
-      'Available opportunities',
+      'Available projects',
       'My applications',
       'My assigned surveys',
       '{mode === "personal" ? (',
-      'Open to all Field Workers',
+      'automatic all-Field-Workers marketplace listing',
     ]) {
       assert(source.includes(marker), `missing marketplace UI marker: ${marker}`);
     }
 
     assert.equal(source.includes('// ...existing code...'), false);
     assert.equal((source.match(/<h3>Find Field Workers<\/h3>/g) || []).length, 1);
-    assert.equal((source.match(/<h3>Recruitment opportunities<\/h3>/g) || []).length, 1);
+    assert.equal((source.match(/<h3>Recruitment listings<\/h3>/g) || []).length, 1);
   });
 
   await ok('every public application table retains RLS', async () => {

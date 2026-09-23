@@ -46,7 +46,7 @@ try{
 
   await as('ngo');
   let recruitment=await call('project_recruitment_status',[project]);
-  await call('set_project_recruitment_plan',[project,20,2,'open','Configure stabilization recruitment',recruitment.version]);
+  await call('set_project_recruitment_plan',[project,20,1,'open','Configure stabilization recruitment',recruitment.version]);
   let compensation=await call('project_compensation_status',[project]);
   await call('set_project_compensation_defaults',[project,'paid','daily_rate','PKR',500,'PKR 500 approved daily field-work rate','Enable paid work for wallet stabilization test',compensation.version]);
 
@@ -55,8 +55,22 @@ try{
   await call('record_organization_funding',[source,1500,crypto.randomUUID(),'Record stabilization funding']);
   await as('ngo');
   await call('reserve_project_funding',[project,'PKR',500,crypto.randomUUID(),'Reserve approved earnings for stabilization test']);
-  const opportunity=await call('create_recruitment_opportunity',[project,'Paid stabilization test','Recruit one paid collector',taluka,dates.opp_start,dates.opp_end,dates.reply,'paid','Structured terms',1,'Survey','Urdu','all','Available',true]);
   await as('worker');
+
+  const marketplace=await call(
+    'available_work_opportunities',
+    [0,org,null,'paid','',null,null],
+  );
+
+  const automaticOpportunity=marketplace.rows.find(
+    row =>
+      row.survey_project_id===project &&
+      row.marketplace_origin==='project_auto'
+  );
+
+  assert(automaticOpportunity);
+
+  const opportunity=automaticOpportunity.id;
   const application=await call('apply_work_opportunity',[opportunity,'Available','Stabilization application',true]);
   await as('ngo');
   const appRow=(await rows('select version from public.work_applications where id=$1',[application]))[0];

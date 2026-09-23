@@ -178,7 +178,8 @@ try{
     const workforce=readFileSync('src/features/workforce/WorkforceMarketplace.tsx','utf8');
     assert.match(projectUi,/COMPENSATION DEFAULTS/);
     assert.match(projectUi,/set_project_compensation_defaults/);
-    assert.match(projectUi,/Existing published opportunities, assignment contracts and payable units keep their original terms/);
+    assert.match(projectUi,/Defaults are snapshotted into the automatic project marketplace listing/);
+    assert.match(projectUi,/New compensation defaults apply only to future opportunity snapshots and do not rewrite existing assignments or payables/);
     assert.match(workforce,/Compensation is inherited from the recruitment opportunity snapshot/);
     assert.match(workforce,/Contract compensation:/);
     assert.doesNotMatch(workforce,/name="compensation"/);

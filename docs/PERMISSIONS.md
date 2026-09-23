@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.38.0
+# Current permissions note — FieldLance 2.38.1
+
+Project marketplace discovery no longer depends on a permanent Organization profile share or prior Organization-driven worker search. Any active Field Worker account may browse the safe public recruitment projection for published/open projects; applying still requires the existing active/verified Field Worker profile and creates only an application-scoped recruitment snapshot. Project publication does not grant survey-data access: actual field work still requires Organization selection, a formal offer and worker acceptance.
+
+Automatic public listings follow project recruitment/moderation state. Manual targeted or invite-only campaigns and direct worker discovery remain optional, separately authorized workflows; they are not prerequisites for public project discovery.
+
+## 2.38.1 marketplace permissions
 
 Attendance and location evidence are assignment/project scoped. Location capture is explicit at check-in/check-out and does not create background tracking authority.
 
@@ -453,3 +459,11 @@ Candidate search returns profile information only where the NGO already has prof
 | Activate organization / first NGO Admin membership | No | Approval RPC only | No |
 
 Direct application/document table writes are not granted to authenticated clients; mutations use audited security-definer RPCs with owner/manager checks.
+
+## 2.38.1 project marketplace recruitment
+
+- Any active Field Worker account may discover canonical automatic listings for active projects while project recruitment is effectively open; a verified/published Field Worker profile is required to apply.
+- Discovery and application do **not** require a permanent Organization profile-share grant. Applying stores only the existing application-scoped recruitment profile snapshot/consent.
+- Organization Admin / authorized Project Manager review applications and send formal offers. Assignment activation still requires Field Worker acceptance.
+- Direct `Find Field Workers`, shortlists and invitations remain optional secondary workflows and retain their existing access controls.
+- Automatic listings cannot be independently closed/re-published through `set_work_opportunity_state`; project recruitment controls are authoritative.

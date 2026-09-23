@@ -32,6 +32,9 @@ type AvailableRow = Pick<Opportunity, "id" | "organization_id" | "title" | "desc
   area_match: boolean;
   can_apply: boolean;
   eligibility_reason: string;
+  project_required_volunteers: number | null;
+  marketplace_origin: string;
+  marketplace_current: boolean;
 };
 type Candidate = {
   user_id: string;
@@ -362,10 +365,10 @@ export function WorkforceMarketplace({
       ? "Project recruitment"
       : "Workforce operations";
   const organizationCopy = mode === "ngo"
-    ? "Publish opportunities, review Field Worker applications and activate accountable project assignments."
+    ? "Published projects appear automatically in the Field Worker marketplace. Review applications, optionally run targeted campaigns, and activate accountable assignments."
     : mode === "project"
-      ? "Recruit and manage Field Workers within this authorized project scope."
-      : "Oversee recruitment, applications and assignments across authorized organizations.";
+      ? "This published project is automatically discoverable to Field Workers while recruitment is open; review applicants and manage formal assignments here."
+      : "Oversee automatic project marketplace listings, applications and assignments across authorized organizations.";
 
   return (
     <section className="panel detail workforce-marketplace workforce-marketplace-v2">
@@ -377,7 +380,7 @@ export function WorkforceMarketplace({
         <>
           <WorkerJourney active={personalView} />
           <div className="workforce-metric-grid" aria-label="Field Worker marketplace summary">
-            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open opportunities" value={availableTotal} detail="Published work you can explore" />
+            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open projects" value={availableTotal} detail="Published projects you can explore" />
             <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} still in recruitment`} />
             <WorkforceMetric icon={<Send size={18} />} label="Offers" value={offeredAssignmentCount} detail="Awaiting your decision" />
             <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount + directSurveyAssignments.length} detail="Survey access currently active" />
@@ -385,7 +388,7 @@ export function WorkforceMarketplace({
 
           {showOpportunities && <>
             <div className="workforce-section-heading">
-              <div><span className="eyebrow">DISCOVER WORK</span><h3>Available opportunities</h3><p>Published opportunities from active organizations. Applying shares only an application-scoped recruitment snapshot.</p></div>
+              <div><span className="eyebrow">DISCOVER WORK</span><h3>Available projects</h3><p>Every published project with open recruitment appears automatically. No permanent Organization profile access is required; applying shares only an application-scoped recruitment snapshot.</p></div>
               <span className="workforce-count">{availableTotal} available</span>
             </div>
             <div className="workforce-filter-card">
@@ -419,14 +422,14 @@ export function WorkforceMarketplace({
                     <WorkforceMeta icon={<MapPin size={15} />} label="Work area" value={location || "Area not listed"} />
                     <WorkforceMeta icon={<CalendarDays size={15} />} label="Work dates" value={`${shortDate(o.start_date)} – ${shortDate(o.end_date)}`} />
                     <WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={opportunityCompensation(o)} />
-                    <WorkforceMeta icon={<UsersRound size={15} />} label="Positions" value={`${o.required_volunteers} Field Worker${o.required_volunteers === 1 ? "" : "s"}`} />
+                    <WorkforceMeta icon={<UsersRound size={15} />} label="Project capacity" value={o.project_required_volunteers === null ? "Open / not configured" : `${o.project_required_volunteers} Field Worker${o.project_required_volunteers === 1 ? "" : "s"}`} />
                     <WorkforceMeta icon={<Clock3 size={15} />} label="Apply by" value={new Date(o.reply_by).toLocaleString()} />
                   </div>
                   {o.eligibility_note && <p className="workforce-helper"><strong>Selection note:</strong> {o.eligibility_note}</p>}
                   {o.visibility === "area" && !o.area_match && <p className="notice">This work area is outside your current profile location. You may still apply if you can work there.</p>}
                   {!o.can_apply && o.eligibility_reason && <p className="notice">{o.eligibility_reason}</p>}
                   <div className="workforce-card-actions">
-                    <span className="workforce-deadline">{o.visibility === "invite_only" ? "Invite only" : "Open recruitment"}</span>
+                    <span className="workforce-deadline">{o.marketplace_origin === "project_auto" ? "Auto-published project" : o.visibility === "invite_only" ? "Invite only" : "Open recruitment"}</span>
                     {o.application_status ? <Badge value={o.application_status} /> : o.invitation_status ? <span className="badge pending">Invitation {human(o.invitation_status)} · respond from Invitations</span> : (
                       <button className="primary" disabled={busy || !o.can_apply} onClick={() => setApplying(o)}>Apply <ArrowRight size={15} /></button>
                     )}
@@ -434,7 +437,7 @@ export function WorkforceMarketplace({
                 </article>;
               })}
             </div>
-            {!available.length && !busy && <WorkforceEmpty icon={<Search size={22} />} title="No matching opportunities" copy="No published opportunities match these filters. Draft, closed and expired recruitment is not shown." />}
+            {!available.length && !busy && <WorkforceEmpty icon={<Search size={22} />} title="No matching projects" copy="No published projects with open recruitment match these filters. Closed, moderated and completed recruitment is not shown." />}
             {availableTotal > 0 && <div className="workforce-pagination">
               <button className="secondary" disabled={busy || availablePage === 0} onClick={() => setAvailablePage((p) => Math.max(0, p - 1))}>Previous</button>
               <span>Page {availablePage + 1} of {availablePages} · {availableTotal} opportunit{availableTotal === 1 ? "y" : "ies"}</span>
@@ -509,7 +512,7 @@ export function WorkforceMarketplace({
         <>
           <div className="workforce-org-hero">
             <div><span className="eyebrow">RECRUITMENT HUB</span><h2>{organizationHeading}</h2><p>{organizationCopy}</p></div>
-            <button className="primary" onClick={() => { selectOrganizationView("opportunities"); setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>{create ? "Close form" : "+ Create opportunity"}</button>
+            <button className="secondary" onClick={() => { selectOrganizationView("opportunities"); setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>{create ? "Close optional campaign" : "+ Optional targeted campaign"}</button>
           </div>
 
           <div className="workforce-metric-grid" aria-label="Organization recruitment summary">
@@ -531,7 +534,7 @@ export function WorkforceMarketplace({
           {organizationView === "opportunities" && <>
             {create && (
               <form onSubmit={createOpportunity} className="workforce-inline-form workforce-create-opportunity">
-                <div className="workforce-section-heading compact"><div><span className="eyebrow">NEW RECRUITMENT</span><h3>Create project opportunity</h3><p>Publish field work from an active survey project. Compensation is inherited and snapshotted from project defaults.</p></div></div>
+                <div className="workforce-section-heading compact"><div><span className="eyebrow">OPTIONAL TARGETED RECRUITMENT</span><h3>Create an additional campaign</h3><p>Not required for normal recruitment: every published project already has an automatic all-Field-Workers marketplace listing. Use this only for a targeted or invitation workflow.</p></div></div>
                 <div className="form-grid">
                   {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenCreateProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select required value={createProjectId} onChange={(e) => { const id=e.target.value; setCreateProjectId(id); setCreateArea(projectMap.get(id)?.geography_id || null); }}><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}
                   <label className="field">Opportunity title<input name="title" required minLength={3} maxLength={150} /></label>
@@ -540,7 +543,7 @@ export function WorkforceMarketplace({
                   <label className="field">End<input key={`end-${createProjectId}`} name="end" type="date" min={chosenCreateProject?.start_date} max={chosenCreateProject?.end_date} defaultValue={chosenCreateProject?.end_date || ""} required /></label>
                   <label className="field">Application deadline<input name="reply" type="datetime-local" required /></label>
                   <label className="field">Project compensation<input readOnly value={projectCompensation(chosenCreateProject)} /></label>
-                  <label className="field">Recruitment access<select name="visibility" defaultValue="area"><option value="all">Open to all Field Workers</option><option value="area">Open to all Field Workers — selected work area</option><option value="invite_only">Invite only</option></select></label>
+                  <label className="field">Recruitment access<select name="visibility" defaultValue="invite_only"><option value="invite_only">Invite only / targeted</option><option value="area">Additional area campaign</option><option value="all">Additional public campaign</option></select></label>
                   <label className="field">Publication<select name="publication" defaultValue="published"><option value="published">Publish now</option><option value="draft">Save as draft</option></select></label>
                   <label className="field">Required skill (optional)<input name="skill" maxLength={100} /></label>
                   <label className="field">Required language (optional)<input name="language" maxLength={100} /></label>
@@ -552,7 +555,7 @@ export function WorkforceMarketplace({
                 <div className="actions"><button className="secondary" type="button" onClick={() => { setCreate(false); setCreateProjectId(""); setCreateArea(null); }}>Cancel</button><button className="primary" disabled={busy || !createProjectId || !createArea}>Save recruitment</button></div>
               </form>
             )}
-            <div className="workforce-section-heading"><div><span className="eyebrow">PUBLISHED WORK</span><h3>Recruitment opportunities</h3><p>Manage draft, open and closed recruitment without affecting applications already received.</p></div><span className="workforce-count">{opportunities.length} total</span></div>
+            <div className="workforce-section-heading"><div><span className="eyebrow">PROJECT MARKETPLACE</span><h3>Recruitment listings</h3><p>Published projects are listed automatically for all Field Workers. Automatic listings follow the project recruitment plan; additional manual campaigns are optional.</p></div><span className="workforce-count">{opportunities.length} total</span></div>
             <div className="workforce-card-grid">
               {opportunities.map((o) => {
                 const project = projectMap.get(o.survey_project_id || "");
@@ -561,18 +564,20 @@ export function WorkforceMarketplace({
                 return <article className="workforce-opportunity-card organization" key={o.id}>
                   <div className="workforce-card-header"><div className="workforce-card-icon"><BriefcaseBusiness size={19} /></div><div className="workforce-card-title"><span>{project?.title || "Survey project"}</span><h4>{o.title}</h4><small>{location || "Area not listed"}</small></div><Badge value={opportunityState(o)} /></div>
                   <p className="workforce-card-description">{o.description}</p>
-                  <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Positions" value={`${o.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} received`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Deadline" value={new Date(o.reply_by).toLocaleString()} /></div>
+                  <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Project capacity" value={project?.required_volunteers == null ? "Open / not configured" : `${project.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} received`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Marketplace through" value={new Date(o.reply_by).toLocaleString()} /></div>
                   <div className="workforce-chip-row"><span>{opportunityCompensation(o)}</span>{o.required_skill && <span>{o.required_skill}</span>}{o.required_language && <span>{o.required_language}</span>}</div>
-                  <div className="workforce-card-actions"><span>{human(o.visibility)} recruitment</span><div className="actions">
+                  <div className="workforce-card-actions"><span>{o.marketplace_origin === "project_auto" ? "Automatic all-Field-Workers listing" : `${human(o.visibility)} recruitment`}</span><div className="actions">
                     {applicationCount > 0 && <button className="secondary" onClick={() => { setApplicationFilter("all"); selectOrganizationView("applications"); }}>View applicants</button>}
-                    {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
-                    {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
-                    {o.publication_state === "published" && o.status === "open" && !o.applications_open && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Applications reopened.")}>Reopen applications</button>}
+                    {o.marketplace_origin === "project_auto" ? <span className="workforce-helper">Use the project recruitment plan to pause or reopen this listing.</span> : <>
+                      {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
+                      {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
+                      {o.publication_state === "published" && o.status === "open" && !o.applications_open && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Applications reopened.")}>Reopen applications</button>}
+                    </>}
                   </div></div>
                 </article>;
               })}
             </div>
-            {!opportunities.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No recruitment opportunities yet" copy="Create an opportunity from an active survey project so eligible Field Workers can discover and apply." action={<button className="primary" onClick={() => setCreate(true)}>+ Create opportunity</button>} />}
+            {!opportunities.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No published project listings yet" copy="Publish an active project and FieldLance will create its workforce marketplace listing automatically. No separate opportunity is required." />}
           </>}
 
           {organizationView === "applications" && <>
@@ -611,7 +616,7 @@ export function WorkforceMarketplace({
           </>}
 
           {organizationView === "field_workers" && <>
-            <div className="workforce-section-heading"><div><span className="eyebrow">DIRECT RECRUITMENT</span><h3>Find Field Workers</h3><p>Search eligible Field Workers for a project. Formal assignment still requires an accepted application, invitation or selected shortlist source.</p></div></div>
+            <div className="workforce-section-heading"><div><span className="eyebrow">OPTIONAL DIRECT RECRUITMENT</span><h3>Find Field Workers</h3><p>This is a secondary workflow only. Organizations do not need to search workers first: Field Workers can discover every published project, apply, and enter the formal offer flow.</p></div></div>
             <form onSubmit={findCandidates} className="workforce-search-card">
               <div className="form-grid">
                 {mode === "project" ? <label className="field">Survey project<input readOnly value={chosenProject?.title || "Authorized project"} /></label> : <label className="field">Survey project<select value={projectId} onChange={(e) => { setProjectId(e.target.value); setCandidates([]); setOffer(null); }} required><option value="">Choose active project</option>{activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select></label>}

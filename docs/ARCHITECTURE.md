@@ -1,4 +1,10 @@
-# Current architecture note — FieldLance 2.38.0
+# Current architecture note — FieldLance 2.38.1
+
+Published active projects are now the canonical public workforce-discovery unit. Project publication automatically creates one current `project_auto` marketplace listing with `visibility = 'all'`; Field Workers discover and apply without granting permanent Organization profile access, while application-scoped recruitment snapshots preserve bounded consent. Manual recruitment campaigns and direct worker search remain optional secondary workflows.
+
+Automatic listings follow authoritative project recruitment, moderation, capacity and compensation state. Compensation changes roll the current automatic listing forward instead of mutating historical applications or assignments, and project closure/moderation blocks forward discovery while retaining history.
+
+## 2.38.1 automatic marketplace architecture
 
 Assignment attendance is an evidence layer over existing `work_assignments`, not a replacement assignment or payment system. `assignment_work_sessions` records explicit worker check-in/check-out, raw and effective timestamps, review state and payable linkage. `assignment_session_locations` stores at most explicit check-in/out location evidence; `attendance_events` and `attendance_adjustments` preserve append-only workflow/history.
 
@@ -415,3 +421,9 @@ The workforce candidate RPC returns aggregate history only. It does not disclose
 Partner NGO onboarding is a separate approval workflow rather than direct creation of an active `organizations` record. `partner_ngo_applications` holds the representative's draft/review lifecycle and structured programs/operating areas. `partner_ngo_application_documents` holds private evidence metadata; bytes live in the private `poem-ngo-applications` bucket.
 
 Approval is the boundary that creates the active organization and first `ngo_admin` membership. A personal FieldLance account remains the human identity; FieldLance does not create or encourage shared NGO credentials.
+
+## 2.38.1 automatic project marketplace publishing
+
+A materialized/published `survey_projects` row is now the canonical public recruitment unit. A private trigger creates one current `project_auto` `work_opportunities` snapshot per project and keeps its discoverability aligned with project recruitment/moderation state. The public Field Worker marketplace returns the canonical current listing rather than requiring an Organization to create a separate opportunity first.
+
+The listing remains a compensation snapshot boundary: changing project compensation closes the prior current automatic listing and creates a new current snapshot for future applicants. Historical applications and assignment contracts keep the terms of their original opportunity. Application consent remains bounded to the recruitment snapshot and does not create permanent `profile_shares` access.

@@ -162,22 +162,68 @@ try{
 
   await ok('volunteer discovery closes dynamically at target without mutating published opportunity history',async()=>{
     await as('collectorD');
-    let available=await call('available_work_opportunities',[0,null,null,null,'',null,null]);
-    assert.equal(available.rows.some(row=>row.id===opportunity),true);
+
+    let available=await call(
+      'available_work_opportunities',
+      [0,null,null,null,'',null,null],
+    );
+
+    const automaticListing=available.rows.find(
+      row =>
+        row.survey_project_id===project &&
+        row.marketplace_origin==='project_auto'
+    );
+
+    assert(automaticListing);
+
+    // 2.38.1 exposes one canonical project_auto listing to workers.
+    // The separately-created manual public campaign remains historical/
+    // management data and is intentionally suppressed from duplicate discovery.
+    assert.equal(
+      available.rows.some(row=>row.id===opportunity),
+      false,
+    );
 
     const responseC=await save('collectorC','Target Person C');
+
     await as('manager');
-    await call('review_survey_response',[responseC,'approved','Third accepted response reaches increased target',1]);
+
+    await call(
+      'review_survey_response',
+      [responseC,'approved','Third accepted response reaches increased target',1],
+    );
+
     plan=await call('project_recruitment_status',[project]);
+
     assert.equal(plan.approved,3);
     assert.equal(plan.target_reached,true);
     assert.equal(plan.effective_open,false);
 
     await as('collectorD');
-    available=await call('available_work_opportunities',[0,null,null,null,'',null,null]);
-    assert.equal(available.rows.some(row=>row.id===opportunity),false);
+
+    available=await call(
+      'available_work_opportunities',
+      [0,null,null,null,'',null,null],
+    );
+
+    assert.equal(
+      available.rows.some(
+        row =>
+          row.survey_project_id===project &&
+          row.marketplace_origin==='project_auto'
+      ),
+      false,
+    );
+
     await db.exec('RESET ROLE');
-    const historical=(await rows('select publication_state,applications_open,status from public.work_opportunities where id=$1',[opportunity]))[0];
+
+    const historical=(
+      await rows(
+        'select publication_state,applications_open,status from public.work_opportunities where id=$1',
+        [opportunity],
+      )
+    )[0];
+
     assert.equal(historical.publication_state,'published');
     assert.equal(historical.applications_open,true);
     assert.equal(historical.status,'open');

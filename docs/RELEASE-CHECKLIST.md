@@ -1,6 +1,25 @@
-# Current release checklist — FieldLance 2.38.0
+# Current release checklist — FieldLance 2.38.1
 
-Assignment Attendance, Work Sessions, Timesheets, Explicit Location Evidence & Daily-Payable Integration. One forward migration is included.
+Automatic Project Marketplace Publishing. One forward migration is included on top of the validated 2.38.0 attendance release and its 00410 permission hotfix.
+
+## 2.38.1 release checks
+
+- [ ] Patch `--check` passes against the validated FieldLance 2.38.0 source baseline.
+- [ ] `npm ci` completes.
+- [ ] `npx supabase migration up --local` applies `20261013000420_automatic_project_marketplace_publishing.sql` without reset.
+- [ ] `npm run types:generate && npm run types:check` passes.
+- [ ] `npm run test:auto-marketplace-2381` passes.
+- [ ] Publishing an active project creates exactly one current `project_auto` marketplace listing with all-Field-Worker visibility.
+- [ ] A Field Worker with no permanent Organization profile share can discover the published project and submit an application-scoped recruitment snapshot.
+- [ ] Project recruitment close/reopen and platform moderation block/restore forward discovery without deleting history.
+- [ ] Project compensation changes roll the automatic listing forward while preserving historical applications/assignment terms and preventing duplicate active project applications.
+- [ ] Manual targeted/invite campaigns and direct worker search remain optional secondary workflows.
+- [ ] Actual survey access still requires selection, formal offer and Field Worker acceptance.
+- [ ] Full `npm run test`, `npm run check`, `npm run release:consistency`, `npm run preflight` and `npm run test:local` pass.
+
+## Previous release — FieldLance 2.38.0
+
+Assignment Attendance, Work Sessions, Timesheets, Explicit Location Evidence & Daily-Payable Integration.
 
 ## 2.38 release checks
 
@@ -103,3 +122,11 @@ Operational Analytics, Dashboard Accuracy & Reporting. Permission-scoped exact t
 - [ ] Production lazy feature loading and mobile layout verified.
 
 See docs/UPGRADE-2.30.1.md and docs/VALIDATION-2.30.1.md.
+
+## 2.38.1 automatic marketplace
+- [ ] New published project creates exactly one current `project_auto` marketplace listing.
+- [ ] Active Field Worker can discover the project without any permanent `profile_shares` row.
+- [ ] Application uses application-scoped snapshot consent and does not create permanent profile access.
+- [ ] Recruitment close/moderation hides the automatic listing; reopen/restore re-enables it when project rules allow.
+- [ ] Compensation changes roll forward a new current listing while old application/assignment terms remain historical.
+- [ ] Organization-first worker search remains optional, not a prerequisite.

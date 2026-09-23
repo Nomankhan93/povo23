@@ -4391,6 +4391,8 @@ currency: string | null;
 rate: number | null;
 compensation_note: string | null;
 compensation_snapshot_version: number | null;
+marketplace_origin: string;
+marketplace_current: boolean;
 };
 Insert: {
 id?: string;
@@ -4422,6 +4424,8 @@ currency?: string | null;
 rate?: number | null;
 compensation_note?: string | null;
 compensation_snapshot_version?: number | null;
+marketplace_origin?: string;
+marketplace_current?: boolean;
 };
 Update: {
 id?: string;
@@ -4453,6 +4457,8 @@ currency?: string | null;
 rate?: number | null;
 compensation_note?: string | null;
 compensation_snapshot_version?: number | null;
+marketplace_origin?: string;
+marketplace_current?: boolean;
 };
 Relationships: [];
 };

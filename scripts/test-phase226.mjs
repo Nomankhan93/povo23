@@ -43,8 +43,16 @@ try{
   await as('ngo');
   await call('reserve_project_funding',[project,'PKR',100,crypto.randomUUID(),'Reserve one paid opportunity']);
   await as('ngo');
-  const opportunity=await call('create_recruitment_opportunity',[project,'Funded paid opportunity','One funded field assignment',taluka,d.opp_start,d.opp_end,d.reply,'paid','Ignored compatibility text',1,'Survey','Urdu','all','Funded coverage required',true]);
-  await ok('published paid opportunity creates an atomic pending funding commitment',async()=>{
+
+  const automaticRows=await rows(
+    "select id from public.work_opportunities where survey_project_id=$1 and marketplace_origin='project_auto' and marketplace_current=true",
+    [project],
+  );
+
+  assert.equal(automaticRows.length,1);
+
+  const opportunity=automaticRows[0].id;
+  await ok('automatic published project opportunity creates an atomic pending funding commitment',async()=>{
     const c=(await rows('select project_id,amount,status from public.project_funding_commitments where opportunity_id=$1',[opportunity]))[0];
     assert.equal(c.project_id,project);assert.equal(Number(c.amount),100);assert.equal(c.status,'pending');
     const assurance=await call('project_funding_assurance',[project,'PKR']);

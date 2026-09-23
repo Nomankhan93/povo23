@@ -1,3 +1,9 @@
+# Current release: FieldLance 2.38.1
+
+Automatic Project Marketplace Publishing. Every published active project receives a canonical all-Field-Workers marketplace listing automatically; permanent Organization profile sharing and Organization-first worker search are not prerequisites. Field Workers discover a project, apply with an application-scoped profile snapshot, the Organization reviews/selects, sends a formal offer, and the worker accepts before assignment activation. See docs/PHASE-2.38.1.md, docs/UPGRADE-2.38.1.md and docs/VALIDATION-2.38.1.md.
+
+## Previous release
+
 # Current release: FieldLance 2.38.0
 
 Assignment Attendance, Work Sessions, Timesheets, Explicit Location Evidence & Daily-Payable Integration. Field Workers explicitly check in/out against active assignments; Organization Admins and active Project Managers review attendance; location evidence is explicit and session-bound rather than continuous. Approved daily-rate attendance creates/reuses the existing payable day unit while finance approval/payment remains separate. See docs/PHASE-2.38.0.md, docs/UPGRADE-2.38.0.md and docs/VALIDATION-2.38.0.md.
