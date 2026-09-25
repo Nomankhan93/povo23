@@ -23,6 +23,7 @@ const pageToSlug: Readonly<Record<string, string>> = {
   "My Assigned Surveys": "field",
   "My Attendance": "attendance",
   "My Timesheets": "timesheets",
+  "My Field Map": "map",
   "My Schedule": "schedule",
   "My Availability": "availability",
   "My Cases": "cases",
@@ -100,6 +101,7 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
     if (parts[1] === "field" && parts[2] === "cases") return {kind:"personal",scopeHint:"personal",page:"My Cases",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"case":null,entityId:parts[3]||null};
     if (parts[1] === "field" && parts[2] === "follow-ups") return {kind:"personal",scopeHint:"personal",page:"My Follow-ups",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "timesheets") return {kind:"personal",scopeHint:"personal",page:"My Timesheets",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
+    if (parts[1] === "field" && parts[2] === "map") return {kind:"personal",scopeHint:"personal",page:"My Field Map",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field") return {kind:"personal",scopeHint:"personal",page:"My Assigned Surveys",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     return genericRoute("personal","personal",null,parts[1],parts[2]);
   }
@@ -162,6 +164,7 @@ export function routePath(target: RouteTarget): string {
     if (page === "My Assigned Surveys") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}` : "/app/field";
     if (page === "My Attendance") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}/attendance` : "/app/field/attendance";
     if (page === "My Timesheets") return "/app/field/timesheets";
+    if (page === "My Field Map") return "/app/field/map";
     if (page === "My Schedule") return "/app/work/schedule";
     if (page === "My Availability") return "/app/work/availability";
     if (page === "My Cases") return entityKind === "case" && entityId ? `/app/field/cases/${encodeURIComponent(entityId)}` : "/app/field/cases";

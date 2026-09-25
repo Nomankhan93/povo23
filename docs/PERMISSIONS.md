@@ -1,3 +1,13 @@
+# Current permissions note — FieldLance 2.40.0
+
+- `field_operations_map(...)` requires an active account and never makes coordinates public.
+- Field Workers using the personal map can read only their own operational evidence; passing another worker ID is rejected.
+- Project Managers/Organization-authorized managers can read authorized project map evidence.
+- Area Focal Persons can read only evidence whose collection/case geography is inside their assigned project geography.
+- Delegated case-visit evidence remains dependent on explicit active case responsibility; map visibility does not grant beneficiary, assistance or finance authority.
+- Geography boundary write/remove/catalog RPCs are FieldLance-admin only; the raw boundary table is not directly readable by authenticated users.
+- Geographic quality/warnings are review signals only and do not create fraud, disciplinary or payment authority.
+
 # Current permissions note — FieldLance 2.39.0
 
 Project marketplace discovery no longer depends on a permanent Organization profile share or prior Organization-driven worker search. Any active Field Worker account may browse the safe public recruitment projection for published/open projects; applying still requires the existing active/verified Field Worker profile and creates only an application-scoped recruitment snapshot. Project publication does not grant survey-data access: actual field work still requires Organization selection, a formal offer and worker acceptance.

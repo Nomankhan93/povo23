@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { rpc } from "../../lib/supabase/client";
 import { activeNode, Geo, geographyPath, levels } from "./model";
+import { GeographyBoundaryManager } from "./GeographyBoundaryManager";
 export function GeographyManager({
   rows,
   refresh,
@@ -149,6 +150,7 @@ export function GeographyManager({
           </button>
         </div>
       </form>
+      <GeographyBoundaryManager rows={rows} />
       <input
         className="area-search"
         aria-label="Search areas"

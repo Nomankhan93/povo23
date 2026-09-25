@@ -77,6 +77,7 @@
 ./docs/PHASE-2.4.1.md
 ./docs/PHASE-2.4.2.md
 ./docs/PHASE-2.4.md
+./docs/PHASE-2.40.0.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -165,6 +166,7 @@
 ./docs/UPGRADE-2.4.1.md
 ./docs/UPGRADE-2.4.2.md
 ./docs/UPGRADE-2.4.md
+./docs/UPGRADE-2.40.0.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -241,6 +243,7 @@
 ./docs/VALIDATION-2.4.1.md
 ./docs/VALIDATION-2.4.2.md
 ./docs/VALIDATION-2.4.md
+./docs/VALIDATION-2.40.0.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -342,6 +345,7 @@
 ./scripts/test-phase2381.mjs
 ./scripts/test-phase239.mjs
 ./scripts/test-phase24.mjs
+./scripts/test-phase240.mjs
 ./scripts/test-phase25.mjs
 ./scripts/test-phase26.mjs
 ./scripts/test-phase27.mjs
@@ -401,11 +405,14 @@
 ./src/features/geography
 ./src/features/geography/areaSelection.ts
 ./src/features/geography/AreaSelector.tsx
+./src/features/geography/GeographyBoundaryManager.tsx
 ./src/features/geography/GeographyManager.tsx
 ./src/features/geography/GeographyPicker.tsx
 ./src/features/geography/model.tsx
 ./src/features/governance
 ./src/features/governance/ProjectGovernance.tsx
+./src/features/maps
+./src/features/maps/FieldOperationsMap.tsx
 ./src/features/needs
 ./src/features/needs/model.tsx
 ./src/features/needs/NeedDetail.tsx
@@ -582,6 +589,7 @@
 ./supabase/migrations/20261013000420_automatic_project_marketplace_publishing.sql
 ./supabase/migrations/20261013000430_case_ownership_delegated_operations.sql
 ./supabase/migrations/20261013000431_case_ownership_task_rls_helper_permission.sql
+./supabase/migrations/20261013000440_field_operations_map_geographic_quality.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

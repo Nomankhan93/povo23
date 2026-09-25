@@ -23,6 +23,7 @@ type Need={id:string;category:string;description:string;priority:string;status:s
 type DetailFollowup={
   id:string;parent_followup_id:string|null;need_id:string|null;followup_type:string;due_on:string;status:'scheduled'|'completed'|'cancelled';outcome_status:string|null;
   observations:string|null;beneficiary_feedback:string|null;next_action:string|null;next_follow_up_on:string|null;last_reason:string;version:number;created_at:string;completed_at:string|null;cancellation_reason:string|null;
+  location_latitude:number|null;location_longitude:number|null;location_accuracy_m:number|null;location_permission_state:string|null;location_note:string|null;location_captured_at:string|null;location_recorded_by:string|null;
 };
 type Detail={
   case:{id:string;case_no:number;title:string;summary:string;priority:string;status:string;follow_up_on:string|null;geography_id:string;version:number};
@@ -72,7 +73,7 @@ export function DelegatedCasesWorkspace({view='cases',projectId=null,initialCase
   return <section className="registry-operations" aria-label={view==='cases'?'My delegated beneficiary cases':'My delegated beneficiary follow-ups'}>
     <div className="panel-title">
       <div><span className="eyebrow">DELEGATED FIELD OPERATIONS</span><h2>{view==='cases'?'My Cases':'My Follow-ups'}</h2></div>
-      <Badge value="2.39.0"/>
+      <Badge value="2.40.0"/>
     </div>
     <div className="notice"><strong>Only explicitly delegated cases are shown.</strong> Case access also requires your current project and geography authority. Assistance approvals, finance and organization administration remain outside this workspace.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
@@ -151,10 +152,27 @@ function DelegatedFollowupCard({followup,busy,run}:{followup:DetailFollowup;busy
     {followup.status==='completed'&&<><p><strong>Outcome: {label(followup.outcome_status||'completed')}</strong> · {followup.observations}</p>{followup.beneficiary_feedback&&<p>Beneficiary feedback: {followup.beneficiary_feedback}</p>}<p>Next action: {followup.next_action}{followup.next_follow_up_on?` · next ${followup.next_follow_up_on}`:''}</p></>}
     {followup.status==='cancelled'&&<p>Cancelled: {followup.cancellation_reason}</p>}
     {followup.status==='scheduled'&&<details className="survey-question"><summary>Complete follow-up</summary>
+      <FollowupLocationCapture followup={followup} busy={busy} run={run}/>
       <form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('complete_beneficiary_case_followup',{p_id:followup.id,p_outcome:val(form,'outcome'),p_observations:val(form,'observations'),p_feedback:val(form,'feedback')||null,p_next_action:val(form,'next_action'),p_next_follow_up:val(form,'next_follow_up')||null,p_need_status:val(form,'need_status')||null,p_reason:val(form,'reason'),p_version:followup.version}),'Follow-up outcome recorded.')}}>
         <fieldset disabled={busy}><div className="form-grid"><label className="field">Outcome<select name="outcome" defaultValue="unresolved"><option value="resolved">Resolved</option><option value="partially_resolved">Partially resolved</option><option value="unresolved">Unresolved</option><option value="further_assistance_required">Further assistance required</option><option value="referred">Referred</option><option value="unable_to_verify">Unable to verify</option></select></label><label className="field">Need status (if linked)<select name="need_status"><option value="">No change</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="met">Met</option><option value="closed">Closed</option><option value="needs_review">Needs review</option></select></label><label className="field">Next follow-up<input name="next_follow_up" type="date"/></label></div><label className="field">Observations<textarea name="observations" required minLength={5} maxLength={4000}/></label><label className="field">Beneficiary feedback<textarea name="feedback" maxLength={4000}/></label><label className="field">Next action<textarea name="next_action" required minLength={3} maxLength={2000}/></label><label className="field">Completion reason<textarea name="reason" required minLength={5} maxLength={2000}/></label><button className="primary">Record outcome</button></fieldset>
       </form>
     </details>}
     {followup.status==='scheduled'&&<form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('cancel_beneficiary_case_followup',{p_id:followup.id,p_reason:val(form,'reason'),p_version:followup.version}),'Follow-up cancelled.')}}><label className="field">Cancellation reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="secondary" disabled={busy}>Cancel follow-up</button></form>}
   </article>;
+}
+
+function FollowupLocationCapture({followup,busy,run}:{followup:DetailFollowup;busy:boolean;run:(task:()=>Promise<unknown>,message:string)=>Promise<unknown>}){
+  const [working,setWorking]=useState(false),[reason,setReason]=useState(''),[error,setError]=useState('');
+  if(!['field_visit','office_visit'].includes(followup.followup_type))return null;
+  if(followup.location_permission_state)return <div className="followup-location-evidence"><strong>Visit location evidence recorded</strong><p>{followup.location_latitude!=null&&followup.location_longitude!=null?`${Number(followup.location_latitude).toFixed(5)}, ${Number(followup.location_longitude).toFixed(5)} · ${Math.round(Number(followup.location_accuracy_m||0))} m accuracy`:followup.location_note||'Location unavailable'}{followup.location_captured_at?` · ${new Date(followup.location_captured_at).toLocaleString()}`:''}</p></div>;
+  async function save(latitude:number|null,longitude:number|null,accuracy:number|null,permission:string,note:string,capturedAt:string|null){
+    const result=await run(()=>call('record_beneficiary_case_followup_location',{p_id:followup.id,p_latitude:latitude,p_longitude:longitude,p_accuracy_m:accuracy,p_permission_state:permission,p_note:note,p_captured_at:capturedAt,p_request_id:crypto.randomUUID()}),'Visit location evidence recorded.');
+    return result!==null;
+  }
+  function capture(){
+    setError('');setWorking(true);
+    if(!navigator.geolocation){setError('Browser location is unavailable. Record an unavailable reason instead.');setWorking(false);return}
+    navigator.geolocation.getCurrentPosition(position=>{void save(position.coords.latitude,position.coords.longitude,position.coords.accuracy,'granted','',new Date(position.timestamp).toISOString()).finally(()=>setWorking(false))},failure=>{setError(failure.message+' — retry or record an unavailable reason.');setWorking(false)},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  }
+  return <div className="followup-location-capture"><strong>Explicit visit location</strong><p>Optional evidence for this field/office visit only. No background tracking is used.</p><button type="button" className="secondary" disabled={busy||working} onClick={capture}>{working?'Locating…':'Capture current location'}</button><div className="followup-location-unavailable"><label className="field">If location is unavailable<input value={reason} minLength={5} maxLength={500} onChange={event=>setReason(event.target.value)} placeholder="Permission denied, GPS unavailable, indoor visit…"/></label><button type="button" className="secondary" disabled={busy||working||reason.trim().length<5} onClick={()=>{setWorking(true);setError('');void save(null,null,null,'unavailable',reason.trim(),null).finally(()=>setWorking(false))}}>Record unavailable</button></div>{error&&<p className="notice warning" role="status">{error}</p>}</div>;
 }

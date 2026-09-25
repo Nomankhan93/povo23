@@ -1,3 +1,9 @@
+# Current architecture note — FieldLance 2.40.0
+
+2.40 adds a provider-independent field-map read model over existing evidence rather than a second location subsystem. `field_operations_map(...)` is the guarded aggregation boundary for survey GPS answers, `assignment_session_locations`, and explicit delegated case-visit location evidence. PostgreSQL evaluates optional audited Polygon/MultiPolygon geography boundaries and returns review-only quality/warning states; MapLibre is only the presentation layer. Personal maps are self-only, Area Focal reads remain project+geography scoped, and no background tracking API is introduced.
+
+The browser loads pinned MapLibre GL JS 6.11.2 as an ES module and uses the OpenFreeMap Liberty style. The provider URL is isolated from database/location authority so a future self-hosted tile stack can replace it without changing operational evidence or authorization.
+
 # Current architecture note — FieldLance 2.39.0
 
 Published active projects are now the canonical public workforce-discovery unit. Project publication automatically creates one current `project_auto` marketplace listing with `visibility = 'all'`; Field Workers discover and apply without granting permanent Organization profile access, while application-scoped recruitment snapshots preserve bounded consent. Manual recruitment campaigns and direct worker search remain optional secondary workflows.

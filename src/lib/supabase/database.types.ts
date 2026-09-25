@@ -792,6 +792,15 @@ completed_at: string | null;
 cancelled_by: string | null;
 cancelled_at: string | null;
 cancellation_reason: string | null;
+location_latitude: number | null;
+location_longitude: number | null;
+location_accuracy_m: number | null;
+location_permission_state: string | null;
+location_note: string | null;
+location_captured_at: string | null;
+location_received_at: string | null;
+location_request_id: string | null;
+location_recorded_by: string | null;
 };
 Insert: {
 id: string;
@@ -821,6 +830,15 @@ completed_at?: string | null;
 cancelled_by?: string | null;
 cancelled_at?: string | null;
 cancellation_reason?: string | null;
+location_latitude?: number | null;
+location_longitude?: number | null;
+location_accuracy_m?: number | null;
+location_permission_state?: string | null;
+location_note?: string | null;
+location_captured_at?: string | null;
+location_received_at?: string | null;
+location_request_id?: string | null;
+location_recorded_by?: string | null;
 };
 Update: {
 id?: string;
@@ -850,6 +868,15 @@ completed_at?: string | null;
 cancelled_by?: string | null;
 cancelled_at?: string | null;
 cancellation_reason?: string | null;
+location_latitude?: number | null;
+location_longitude?: number | null;
+location_accuracy_m?: number | null;
+location_permission_state?: string | null;
+location_note?: string | null;
+location_captured_at?: string | null;
+location_received_at?: string | null;
+location_request_id?: string | null;
+location_recorded_by?: string | null;
 };
 Relationships: [];
 };
@@ -2263,6 +2290,72 @@ code?: string;
 source_note?: string;
 active?: boolean;
 created_at?: string;
+};
+Relationships: [];
+};
+geography_boundaries: {
+Row: {
+geography_id: string;
+geometry: Json;
+source_note: string;
+source_version: string;
+created_by: string;
+created_at: string;
+updated_by: string;
+updated_at: string;
+};
+Insert: {
+geography_id: string;
+geometry: Json;
+source_note: string;
+source_version?: string;
+created_by: string;
+created_at?: string;
+updated_by: string;
+updated_at?: string;
+};
+Update: {
+geography_id?: string;
+geometry?: Json;
+source_note?: string;
+source_version?: string;
+created_by?: string;
+created_at?: string;
+updated_by?: string;
+updated_at?: string;
+};
+Relationships: [];
+};
+geography_boundary_revisions: {
+Row: {
+id: number;
+geography_id: string;
+revision_kind: string;
+geometry: Json;
+source_note: string;
+source_version: string;
+actor_id: string;
+recorded_at: string;
+};
+Insert: {
+id?: number;
+geography_id: string;
+revision_kind: string;
+geometry: Json;
+source_note: string;
+source_version?: string;
+actor_id: string;
+recorded_at?: string;
+};
+Update: {
+id?: number;
+geography_id?: string;
+revision_kind?: string;
+geometry?: Json;
+source_note?: string;
+source_version?: string;
+actor_id?: string;
+recorded_at?: string;
 };
 Relationships: [];
 };
@@ -5263,6 +5356,14 @@ p_code: string | null;
 p_note: string | null;
 p_request: string | null;
 }; Returns: Json };
+field_operations_map: { Args: {
+p_project?: string | null;
+p_from?: string | null;
+p_to?: string | null;
+p_worker?: string | null;
+p_geography?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 field_worker_certificates: { Args: {
 p_user?: string | null;
 }; Returns: Json };
@@ -5305,6 +5406,9 @@ p_id: string | null;
 finish_project_document_delete: { Args: {
 p_id: string | null;
 }; Returns: undefined };
+geography_boundary_catalog: { Args: {
+p_geography?: string | null;
+}; Returns: Json };
 get_shared_beneficiary_summary: { Args: {
 p_grant: string | null;
 }; Returns: Json };
@@ -5568,6 +5672,16 @@ p_next: string | null;
 p_duplicate_override_reason: string | null;
 p_plan_version: number | null;
 }; Returns: string };
+record_beneficiary_case_followup_location: { Args: {
+p_id: string | null;
+p_latitude: number | null;
+p_longitude: number | null;
+p_accuracy_m: number | null;
+p_permission_state: string | null;
+p_note: string | null;
+p_captured_at: string | null;
+p_request_id: string | null;
+}; Returns: Json };
 record_organization_funding: { Args: {
 p_source: string | null;
 p_amount: number | null;
@@ -5591,6 +5705,10 @@ p_opportunity: string | null;
 p_reason: string | null;
 p_request: string | null;
 }; Returns: string };
+remove_geography_boundary: { Args: {
+p_geography: string | null;
+p_reason: string | null;
+}; Returns: undefined };
 remove_worker_unavailable_period: { Args: {
 p_id: string | null;
 }; Returns: undefined };
@@ -5841,6 +5959,12 @@ p_code: string | null;
 p_source: string | null;
 p_active: boolean | null;
 }; Returns: string };
+save_geography_boundary: { Args: {
+p_geography: string | null;
+p_geojson: Json | null;
+p_source: string | null;
+p_source_version?: string | null;
+}; Returns: Json };
 save_my_e_wallet: { Args: {
 p_provider: string | null;
 p_account_title: string | null;

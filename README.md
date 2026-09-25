@@ -1,3 +1,7 @@
+# Current release: FieldLance 2.40.0
+
+Field Operations Map & Geographic Quality. Project teams now have a permission-scoped Map workspace and Field Workers have `/app/field/map` for their own explicit field evidence. MapLibre/OpenFreeMap renders existing survey GPS, attendance check-in/check-out and explicitly captured case-visit locations. Optional audited GeoJSON geography boundaries enable review-only inside/outside classification; missing boundaries return `unable_to_determine`. No continuous/background tracking is introduced. See `docs/PHASE-2.40.0.md`, `docs/UPGRADE-2.40.0.md` and `docs/VALIDATION-2.40.0.md`.
+
 # Current release: FieldLance 2.39.0
 
 Case Ownership & Delegated Field Operations. Existing beneficiary cases can now be explicitly delegated to an eligible Field Worker or geography-authorized Area Focal Person with immutable ownership history. Delegated users receive bounded My Cases / My Follow-ups access and existing follow-up Task Center responsibility without gaining finance, assistance-approval or broad Organization permissions. See docs/PHASE-2.39.0.md, docs/UPGRADE-2.39.0.md and docs/VALIDATION-2.39.0.md.

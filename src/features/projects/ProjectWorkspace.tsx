@@ -14,6 +14,7 @@ import type { Geo } from "../geography/model";
 
 const ReportsWorkspace = lazy(()=>import("../analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const AttendanceWorkspace = lazy(()=>import("../workforce/AttendanceWorkspace").then(m=>({default:m.AttendanceWorkspace})));
+const FieldOperationsMap = lazy(()=>import("../maps/FieldOperationsMap").then(m=>({default:m.FieldOperationsMap})));
 const BeneficiaryCasesWorkspace = lazy(() =>
   import("../cases/BeneficiaryCasesWorkspace").then((module) => ({ default: module.BeneficiaryCasesWorkspace })),
 );
@@ -21,7 +22,7 @@ const BeneficiaryCasesWorkspace = lazy(() =>
 import { protectProjectNavigation } from "./projectNavigation";
 
 type Org = { id: string; name: string; status: string; logo_path?: string | null; logo_updated_at?: string | null };
-export type ProjectWorkspaceTab = "reports" | "overview" | "team" | "recruitment" | "field-work" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
+export type ProjectWorkspaceTab = "reports" | "overview" | "team" | "recruitment" | "field-work" | "map" | "responses" | "cases" | "finance" | "governance" | "documents" | "activity";
 type Tab = ProjectWorkspaceTab;
 type TabItem = { id: Tab; label: string; hint: string };
 
@@ -31,6 +32,7 @@ const allTabs: TabItem[] = [
   { id: "team", label: "Team", hint: "Project staff, roles, area scope, and operating plans" },
   { id: "recruitment", label: "Recruitment", hint: "Opportunities, applications, offers, invitations, and assignments" },
   { id: "field-work", label: "Field Work", hint: "Assignments, collection controls, and active field operations" },
+  { id: "map", label: "Map", hint: "Explicit field evidence, assigned geography, GPS quality, and review signals" },
   { id: "responses", label: "Responses", hint: "Submitted responses, review queues, and registry outcomes" },
   { id: "cases", label: "Cases", hint: "Beneficiary cases, assistance requests, delivery, and follow-up" },
   { id: "finance", label: "Finance", hint: "Funding coverage, commitments, payables, and closure readiness" },
@@ -191,6 +193,8 @@ export function ProjectWorkspace({
         onBackToWorkspace={() => openTab("overview")}
       />
     </section>}
+
+    {tab === "map" && <FieldOperationsMap projectId={projectId} geographies={geographies} />}
 
     {tab === "responses" && <SurveyProjects
       userId={userId}

@@ -1,3 +1,20 @@
+# Current release checklist — FieldLance 2.40.0
+
+## 2.40 release checks
+
+- [ ] `20261013000440_field_operations_map_geographic_quality.sql` applies after 2.39 migrations.
+- [ ] `npm run types:generate` and `npm run types:check` pass after migration.
+- [ ] `npm run metadata:generate` and `npm run metadata:check` pass.
+- [ ] `npm run test:field-map-240` passes.
+- [ ] `npm run test:attendance-238` and `npm run test:case-ownership-239` remain green.
+- [ ] `npm run preflight` and `npm run test:local` pass.
+- [ ] Personal map cannot query another worker; cross-Organization project-map access is denied.
+- [ ] Area Focal only receives assigned-geography evidence.
+- [ ] Missing boundary returns `unable_to_determine`; poor/missing GPS remains reviewable.
+- [ ] No continuous/background location watcher or public coordinate endpoint was introduced.
+- [ ] MapLibre/OpenFreeMap loads successfully in the intended deployment environment.
+- [ ] Only after all local checks pass: `npx supabase db push`, inspect `git diff --check`, commit and push.
+
 # Current release checklist — FieldLance 2.39.0
 
 Automatic Project Marketplace Publishing. One forward migration is included on top of the validated 2.38.0 attendance release and its 00410 permission hotfix.
