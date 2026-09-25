@@ -1,3 +1,9 @@
+# Current release: FieldLance 2.39.0
+
+Case Ownership & Delegated Field Operations. Existing beneficiary cases can now be explicitly delegated to an eligible Field Worker or geography-authorized Area Focal Person with immutable ownership history. Delegated users receive bounded My Cases / My Follow-ups access and existing follow-up Task Center responsibility without gaining finance, assistance-approval or broad Organization permissions. See docs/PHASE-2.39.0.md, docs/UPGRADE-2.39.0.md and docs/VALIDATION-2.39.0.md.
+
+## Previous release
+
 # Current release: FieldLance 2.38.1
 
 Automatic Project Marketplace Publishing. Every published active project receives a canonical all-Field-Workers marketplace listing automatically; permanent Organization profile sharing and Organization-first worker search are not prerequisites. Field Workers discover a project, apply with an application-scoped profile snapshot, the Organization reviews/selects, sends a formal offer, and the worker accepts before assignment activation. See docs/PHASE-2.38.1.md, docs/UPGRADE-2.38.1.md and docs/VALIDATION-2.38.1.md.

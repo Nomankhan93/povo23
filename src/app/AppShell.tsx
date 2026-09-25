@@ -60,6 +60,7 @@ const EWalletWithdrawalWorkspace = lazy(()=>import("../features/payments/EWallet
 const MockEWalletSandbox = import.meta.env.DEV ? lazy(()=>import("../features/payments/MockEWalletSandbox").then(m=>({default:m.MockEWalletSandbox}))) : () => null;
 const WithdrawalOperationsWorkspace = lazy(()=>import("../features/payments/WithdrawalOperationsWorkspace").then(m=>({default:m.WithdrawalOperationsWorkspace})));
 const BeneficiaryCasesWorkspace = lazy(()=>import("../features/cases/BeneficiaryCasesWorkspace").then(m=>({default:m.BeneficiaryCasesWorkspace})));
+const DelegatedCasesWorkspace = lazy(()=>import("../features/cases/DelegatedCasesWorkspace").then(m=>({default:m.DelegatedCasesWorkspace})));
 const AssistanceLedgerWorkspace = lazy(()=>import("../features/assistance/AssistanceLedgerWorkspace").then(m=>({default:m.AssistanceLedgerWorkspace})));
 const VerificationWorkspace = lazy(() => import("../features/verification/VerificationWorkspace").then(m => ({default:m.VerificationWorkspace})));
 const ProjectGovernance = lazy(() => import("../features/governance/ProjectGovernance").then(m => ({default:m.ProjectGovernance})));
@@ -432,7 +433,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ...(surveyManage || (!poem && scope !== "personal" && !projectScope) ? [["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
-    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Attendance", CalendarDays], ["My Timesheets", CalendarDays], ["My Schedule", CalendarDays], ["My Availability", CalendarDays]] : []),
+    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Attendance", CalendarDays], ["My Timesheets", CalendarDays], ["My Schedule", CalendarDays], ["My Availability", CalendarDays], ["My Cases", HeartHandshake], ["My Follow-ups", HeartHandshake]] : []),
     ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
     ...(!poem && scope === "personal" ? [["E-Wallets & withdrawals", CreditCard]] : []),
     ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
@@ -494,6 +495,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         ["Task Center", ClipboardList],
         ["Survey projects", ShieldCheck],
         ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
+        ...(projectScopeAssignment?.role === "area_focal_person" ? [["Beneficiary cases", HeartHandshake]] : []),
         ["Notifications", Bell],
         ["Activity", Activity],
       ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
@@ -1069,6 +1071,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
               <AttendanceWorkspace userId={session.user.id} view={page === "My Timesheets" ? "timesheets" : "attendance"} initialAssignmentId={browserRoute.entityKind === "assignment" ? browserRoute.entityId : null} />
             </Suspense>
           )}
+          {(page === "My Cases" || page === "My Follow-ups") && personalWorkspace && validScope && (
+            <Suspense fallback={<p role="status">Loading delegated case operations…</p>}>
+              <DelegatedCasesWorkspace view={page === "My Follow-ups" ? "followups" : "cases"} initialCaseId={page === "My Cases" && browserRoute.entityKind === "case" ? browserRoute.entityId : null} onSelectedCaseChange={(caseId)=>{if(page!=="My Cases")setPageState("My Cases");syncRoute({scope,page:"My Cases",entityKind:caseId?"case":null,entityId:caseId});}} />
+            </Suspense>
+          )}
           {(["Workforce marketplace", "Available Opportunities", "My Applications", "My Assigned Surveys", "Recruitment"].includes(page)) && validScope && (surveyManage || !poem) && (
             <WorkforceMarketplace
               key={`${scope}-${page}`}
@@ -1173,6 +1180,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Canonical registry" && validScope && surveyManage && (
             <Suspense fallback={<p>Loading canonical registry…</p>}><CanonicalWorkbench /></Suspense>
           )}
+          {page === "Beneficiary cases" && validScope && projectScope && projectScopeAssignment?.role === "area_focal_person" && (
+            <Suspense fallback={<p role="status">Loading delegated project cases…</p>}>
+              <DelegatedCasesWorkspace key={`delegated-cases-${projectScopeId}`} view="cases" projectId={projectScopeId} initialCaseId={browserRoute.entityKind==="case"?browserRoute.entityId:null} onSelectedCaseChange={(caseId)=>syncRoute({scope,page:"Beneficiary cases",entityKind:caseId?"case":null,entityId:caseId})}/>
+            </Suspense>
+          )}
           {page === "Beneficiary cases" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
             <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}><BeneficiaryCasesWorkspace key={`cases-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId} initialCaseId={browserRoute.entityKind==="case"?browserRoute.entityId:null} onSelectedCaseChange={(caseId)=>syncRoute({scope,page:"Beneficiary cases",entityKind:caseId?"case":null,entityId:caseId})}/></Suspense>
           )}
@@ -1232,7 +1244,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             ["Workforce payables","Earnings",CreditCard],
             ["My profile","Profile",UserRound],
           ].map(([target,label,Icon])=>{
-            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?["My Assigned Surveys","My Attendance","My Timesheets"].includes(page):target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
+            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?["My Assigned Surveys","My Attendance","My Timesheets","My Cases","My Follow-ups"].includes(page):target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
             const C=Icon as typeof LayoutDashboard;
             return <button key={String(target)} type="button" className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>change(String(target))}><C size={20}/><span>{String(label)}</span></button>;
           })}

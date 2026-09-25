@@ -71,6 +71,7 @@ docs/PHASE-2.36.1.md
 docs/PHASE-2.37.0.md
 docs/PHASE-2.38.0.md
 docs/PHASE-2.38.1.md
+docs/PHASE-2.39.0.md
 docs/PHASE-2.4.1.md
 docs/PHASE-2.4.2.md
 docs/PHASE-2.4.md
@@ -158,6 +159,7 @@ docs/UPGRADE-2.36.1.md
 docs/UPGRADE-2.37.0.md
 docs/UPGRADE-2.38.0.md
 docs/UPGRADE-2.38.1.md
+docs/UPGRADE-2.39.0.md
 docs/UPGRADE-2.4.1.md
 docs/UPGRADE-2.4.2.md
 docs/UPGRADE-2.4.md
@@ -233,6 +235,7 @@ docs/VALIDATION-2.36.1.md
 docs/VALIDATION-2.37.0.md
 docs/VALIDATION-2.38.0.md
 docs/VALIDATION-2.38.1.md
+docs/VALIDATION-2.39.0.md
 docs/VALIDATION-2.4.1.md
 docs/VALIDATION-2.4.2.md
 docs/VALIDATION-2.4.md
@@ -333,6 +336,7 @@ scripts/test-phase2361.mjs
 scripts/test-phase237.mjs
 scripts/test-phase238.mjs
 scripts/test-phase2381.mjs
+scripts/test-phase239.mjs
 scripts/test-phase24.mjs
 scripts/test-phase25.mjs
 scripts/test-phase26.mjs
@@ -374,6 +378,7 @@ src/features/auth/AccountAccess.tsx
 src/features/auth/Auth.tsx
 src/features/auth/entryIntent.ts
 src/features/cases/BeneficiaryCasesWorkspace.tsx
+src/features/cases/DelegatedCasesWorkspace.tsx
 src/features/finance/ProjectFundingWorkspace.tsx
 src/features/geography/areaSelection.ts
 src/features/geography/AreaSelector.tsx
@@ -532,5 +537,7 @@ supabase/migrations/20261013000300_workforce_scheduling_assignment_safety.sql
 supabase/migrations/20261013000400_assignment_attendance_timesheets_location.sql
 supabase/migrations/20261013000410_attendance_rls_helper_permissions.sql
 supabase/migrations/20261013000420_automatic_project_marketplace_publishing.sql
+supabase/migrations/20261013000430_case_ownership_delegated_operations.sql
+supabase/migrations/20261013000431_case_ownership_task_rls_helper_permission.sql
 tsconfig.json
 vite.config.ts

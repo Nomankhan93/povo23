@@ -25,6 +25,8 @@ const pageToSlug: Readonly<Record<string, string>> = {
   "My Timesheets": "timesheets",
   "My Schedule": "schedule",
   "My Availability": "availability",
+  "My Cases": "cases",
+  "My Follow-ups": "follow-ups",
   Invitations: "invitations",
   "Workforce payables": "earnings",
   "E-Wallets & withdrawals": "wallet",
@@ -95,6 +97,8 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
     if (parts[1] === "work" && parts[2] === "schedule") return {kind:"personal",scopeHint:"personal",page:"My Schedule",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "work" && parts[2] === "availability") return {kind:"personal",scopeHint:"personal",page:"My Availability",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "attendance") return {kind:"personal",scopeHint:"personal",page:"My Attendance",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
+    if (parts[1] === "field" && parts[2] === "cases") return {kind:"personal",scopeHint:"personal",page:"My Cases",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"case":null,entityId:parts[3]||null};
+    if (parts[1] === "field" && parts[2] === "follow-ups") return {kind:"personal",scopeHint:"personal",page:"My Follow-ups",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "timesheets") return {kind:"personal",scopeHint:"personal",page:"My Timesheets",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field") return {kind:"personal",scopeHint:"personal",page:"My Assigned Surveys",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     return genericRoute("personal","personal",null,parts[1],parts[2]);
@@ -160,6 +164,8 @@ export function routePath(target: RouteTarget): string {
     if (page === "My Timesheets") return "/app/field/timesheets";
     if (page === "My Schedule") return "/app/work/schedule";
     if (page === "My Availability") return "/app/work/availability";
+    if (page === "My Cases") return entityKind === "case" && entityId ? `/app/field/cases/${encodeURIComponent(entityId)}` : "/app/field/cases";
+    if (page === "My Follow-ups") return "/app/field/follow-ups";
     return `/app/${pageSlug(page)}`;
   }
   if (scope === "poem") {

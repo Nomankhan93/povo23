@@ -1,4 +1,4 @@
-# Current permissions note — FieldLance 2.38.1
+# Current permissions note — FieldLance 2.39.0
 
 Project marketplace discovery no longer depends on a permanent Organization profile share or prior Organization-driven worker search. Any active Field Worker account may browse the safe public recruitment projection for published/open projects; applying still requires the existing active/verified Field Worker profile and creates only an application-scoped recruitment snapshot. Project publication does not grant survey-data access: actual field work still requires Organization selection, a formal offer and worker acceptance.
 
@@ -467,3 +467,11 @@ Direct application/document table writes are not granted to authenticated client
 - Organization Admin / authorized Project Manager review applications and send formal offers. Assignment activation still requires Field Worker acceptance.
 - Direct `Find Field Workers`, shortlists and invitations remain optional secondary workflows and retain their existing access controls.
 - Automatic listings cannot be independently closed/re-published through `set_work_opportunity_state`; project recruitment controls are authoritative.
+
+## 2.39 delegated case permissions
+
+- Project Manager / NGO Admin / existing FieldLance survey authority keep existing full beneficiary-case management.
+- A Field Worker receives delegated case/follow-up access only after explicit case assignment and only while the active survey assignment covers the case geography.
+- An Area Focal Person receives delegated case/follow-up access only after explicit case assignment and only while current project-staff areas cover the case geography.
+- Delegation does not grant assistance approval, finance, Organization settings, broad beneficiary registry access or unrelated cases.
+- Reassignment/unassignment is manager-only, version-guarded and audited.

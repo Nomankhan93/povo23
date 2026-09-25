@@ -643,6 +643,99 @@ created_at?: string;
 };
 Relationships: [];
 };
+beneficiary_case_assignment_events: {
+Row: {
+id: number;
+case_id: string;
+assignment_id: string | null;
+event_type: string;
+from_user_id: string | null;
+from_role: string | null;
+to_user_id: string | null;
+to_role: string | null;
+reason: string;
+actor_id: string | null;
+recorded_at: string;
+};
+Insert: {
+id?: number;
+case_id: string;
+assignment_id?: string | null;
+event_type: string;
+from_user_id?: string | null;
+from_role?: string | null;
+to_user_id?: string | null;
+to_role?: string | null;
+reason: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Update: {
+id?: number;
+case_id?: string;
+assignment_id?: string | null;
+event_type?: string;
+from_user_id?: string | null;
+from_role?: string | null;
+to_user_id?: string | null;
+to_role?: string | null;
+reason?: string;
+actor_id?: string | null;
+recorded_at?: string;
+};
+Relationships: [];
+};
+beneficiary_case_assignments: {
+Row: {
+id: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+geography_id: string;
+user_id: string;
+owner_role: string;
+status: string;
+assigned_by: string;
+assigned_at: string;
+ended_by: string | null;
+ended_at: string | null;
+end_reason: string;
+version: number;
+};
+Insert: {
+id?: string;
+case_id: string;
+organization_id: string;
+project_id: string;
+geography_id: string;
+user_id: string;
+owner_role: string;
+status?: string;
+assigned_by: string;
+assigned_at?: string;
+ended_by?: string | null;
+ended_at?: string | null;
+end_reason?: string;
+version?: number;
+};
+Update: {
+id?: string;
+case_id?: string;
+organization_id?: string;
+project_id?: string;
+geography_id?: string;
+user_id?: string;
+owner_role?: string;
+status?: string;
+assigned_by?: string;
+assigned_at?: string;
+ended_by?: string | null;
+ended_at?: string | null;
+end_reason?: string;
+version?: number;
+};
+Relationships: [];
+};
 beneficiary_case_followup_revisions: {
 Row: {
 followup_id: string;
@@ -4833,6 +4926,9 @@ p_id: string | null;
 begin_workspace_onboarding: { Args: {
 p_kind: string | null;
 }; Returns: undefined };
+beneficiary_case_assignment_candidates: { Args: {
+p_case: string | null;
+}; Returns: Json };
 beneficiary_case_detail: { Args: {
 p_case: string | null;
 }; Returns: Json };
@@ -4849,6 +4945,9 @@ beneficiary_case_intake_options: { Args: {
 p_organization?: string | null;
 p_project?: string | null;
 p_person?: string | null;
+}; Returns: Json };
+beneficiary_case_ownership_detail: { Args: {
+p_case: string | null;
 }; Returns: Json };
 beneficiary_case_queue: { Args: {
 p_organization?: string | null;
@@ -4929,6 +5028,12 @@ p_assignment: string | null;
 p_day: string | null;
 p_note: string | null;
 }; Returns: string };
+clear_beneficiary_case_owner: { Args: {
+p_case: string | null;
+p_reason: string | null;
+p_expected_assignment: string | null;
+p_expected_version: number | null;
+}; Returns: undefined };
 close_beneficiary_case: { Args: {
 p_case: string | null;
 p_category: string | null;
@@ -5247,6 +5352,19 @@ p_id: string | null;
 p_action: string | null;
 p_reason: string | null;
 }; Returns: undefined };
+my_delegated_case_detail: { Args: {
+p_case: string | null;
+}; Returns: Json };
+my_delegated_case_queue: { Args: {
+p_view?: string | null;
+p_project?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
+my_delegated_followup_queue: { Args: {
+p_view?: string | null;
+p_project?: string | null;
+p_limit?: number | null;
+}; Returns: Json };
 my_e_wallet_withdrawals: { Args: {
 p_before?: string | null;
 p_limit?: number | null;
@@ -5867,6 +5985,14 @@ p_reason: string | null;
 p_case_version: number | null;
 p_link_version: number | null;
 }; Returns: undefined };
+set_beneficiary_case_owner: { Args: {
+p_case: string | null;
+p_user: string | null;
+p_owner_role: string | null;
+p_reason: string | null;
+p_expected_assignment: string | null;
+p_expected_version: number | null;
+}; Returns: string };
 set_default_e_wallet: { Args: {
 p_wallet: string | null;
 }; Returns: undefined };

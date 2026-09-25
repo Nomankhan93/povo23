@@ -1,4 +1,4 @@
-# Current architecture note — FieldLance 2.38.1
+# Current architecture note — FieldLance 2.39.0
 
 Published active projects are now the canonical public workforce-discovery unit. Project publication automatically creates one current `project_auto` marketplace listing with `visibility = 'all'`; Field Workers discover and apply without granting permanent Organization profile access, while application-scoped recruitment snapshots preserve bounded consent. Manual recruitment campaigns and direct worker search remain optional secondary workflows.
 
@@ -427,3 +427,7 @@ Approval is the boundary that creates the active organization and first `ngo_adm
 A materialized/published `survey_projects` row is now the canonical public recruitment unit. A private trigger creates one current `project_auto` `work_opportunities` snapshot per project and keeps its discoverability aligned with project recruitment/moderation state. The public Field Worker marketplace returns the canonical current listing rather than requiring an Organization to create a separate opportunity first.
 
 The listing remains a compensation snapshot boundary: changing project compensation closes the prior current automatic listing and creates a new current snapshot for future applicants. Historical applications and assignment contracts keep the terms of their original opportunity. Application consent remains bounded to the recruitment snapshot and does not create permanent `profile_shares` access.
+
+## 2.39 case ownership boundary
+
+FieldLance reuses the existing beneficiary-case, follow-up and Task Center stacks. `beneficiary_case_assignments` adds one active operational owner, while immutable assignment events preserve handoffs. Delegated Field Worker / Area Focal reads use bounded security-definer RPCs; direct case RLS remains manager-scoped. Field Worker eligibility is tied to active survey collection geography, and Area Focal eligibility is tied to active project-staff geography.

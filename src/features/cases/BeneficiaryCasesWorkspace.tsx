@@ -21,6 +21,7 @@ type Intake={projects:ProjectOption[];people:PersonOption[];responses:ResponseOp
 type CaseRow={
   id:string;case_no:number;organization_id:string;organization_name:string;project_id:string;project_title:string;person_id:string;beneficiary_name:string;registry_no:number;
   title:string;summary:string;priority:string;status:string;follow_up_on:string|null;version:number;updated_at:string;
+  owner_user_id:string|null;owner_name:string|null;owner_role:'field_worker'|'area_focal_person'|null;owner_eligible:boolean|null;
   active_needs:number;draft_requests:number;submitted_requests:number;approved_requests:number;
 };
 type Queue={rows:CaseRow[];summary:Record<string,number>;limit:number};
@@ -78,6 +79,12 @@ type CaseDetail={
   can_approve_requests:boolean;
 };
 
+
+type CaseOwnerAssignment={id:string;user_id:string;name:string|null;owner_role:'field_worker'|'area_focal_person';status:string;assigned_at:string;version:number;eligible:boolean};
+type CaseOwnerCandidate={user_id:string;name:string|null;owner_role:'field_worker'|'area_focal_person';scope_label:string};
+type CaseOwnerEvent={id:number;event_type:string;from_user_id:string|null;from_name:string|null;from_role:string|null;to_user_id:string|null;to_name:string|null;to_role:string|null;reason:string;actor_id:string|null;recorded_at:string};
+type CaseOwnership={current_assignment:CaseOwnerAssignment|null;history:CaseOwnerEvent[];candidates:CaseOwnerCandidate[]};
+
 export function BeneficiaryCasesWorkspace({organization=null,projectId=null,initialCaseId=null,onSelectedCaseChange}:{organization?:string|null;projectId?:string|null;initialCaseId?:string|null;onSelectedCaseChange?:(caseId:string|null)=>void}){
   const [queue,setQueue]=useState<Queue>({rows:[],summary:{},limit:100});
   const [planQueue,setPlanQueue]=useState<DistributionQueue>({rows:[],summary:{},limit:100});
@@ -88,6 +95,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null,init
   const [selectedPerson,setSelectedPerson]=useState('');
   const [selectedCase,setSelectedCase]=useState<string|null>(initialCaseId);
   const [detail,setDetail]=useState<CaseDetail|null>(null);
+  const [ownership,setOwnership]=useState<CaseOwnership|null>(null);
   const [status,setStatus]=useState('');
   const [priority,setPriority]=useState('');
   const [planStatus,setPlanStatus]=useState('');
@@ -142,9 +150,12 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null,init
   },[organization,selectedProject,selectedPerson,revision]);
 
   useEffect(()=>{
-    if(!selectedCase){setDetail(null);return}
+    if(!selectedCase){setDetail(null);setOwnership(null);return}
     let live=true;
-    call('beneficiary_case_detail',{p_case:selectedCase}).then(result=>{if(live)setDetail(result as CaseDetail)}).catch(e=>{if(live){setError((e as Error).message);selectCase(null)}});
+    Promise.all([
+      call('beneficiary_case_detail',{p_case:selectedCase}),
+      call('beneficiary_case_ownership_detail',{p_case:selectedCase}),
+    ]).then(([caseResult,ownershipResult])=>{if(live){setDetail(caseResult as CaseDetail);setOwnership(ownershipResult as CaseOwnership)}}).catch(e=>{if(live){setError((e as Error).message);selectCase(null)}});
     return()=>{live=false};
   },[selectedCase,revision]);
 
@@ -174,6 +185,8 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null,init
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
     <div className="stats">
       <article className="stat"><div>Total cases</div><b>{queue.summary.total??0}</b></article>
+      <article className="stat"><div>Assigned owners</div><b>{queue.summary.assigned??0}</b></article>
+      <article className="stat"><div>Unassigned</div><b>{queue.summary.unassigned??0}</b></article>
       <article className="stat"><div>Requests awaiting review</div><b>{queue.summary.submitted_requests??0}</b></article>
       <article className="stat"><div>Approved awaiting plan</div><b>{planQueue.summary.awaiting_plan??0}</b></article>
       <article className="stat"><div>Draft plans</div><b>{planQueue.summary.draft??0}</b></article>
@@ -195,6 +208,7 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null,init
       {queue.rows.map(row=><article className="document-row" key={row.id}>
         <div className="panel-title"><div><strong>CASE-{row.case_no} · {row.title}</strong><p>{row.beneficiary_name} · BEN-{row.registry_no} · {row.project_title}</p></div><Badge value={row.status}/></div>
         <p>{row.priority} priority · {row.active_needs} active need(s) · {row.submitted_requests} awaiting review · {row.approved_requests} approved</p>
+        <p><strong>Owner:</strong> {row.owner_name?`${row.owner_name} · ${title(row.owner_role||'')}`:'Unassigned'}{row.owner_name&&row.owner_eligible===false?' · authority expired':''}</p>
         <p>{row.summary}</p>
         <button className="secondary" onClick={()=>selectCase(row.id)}>Open case</button>
       </article>)}
@@ -252,6 +266,19 @@ export function BeneficiaryCasesWorkspace({organization=null,projectId=null,init
       <p>{detail.case.summary}</p>
       <p><strong>{detail.case.priority} priority · {title(detail.case.status)}</strong> · Follow-up {detail.case.follow_up_on||'not scheduled'} · v{detail.case.version}</p>
       <p>Last case reason: {detail.case.last_reason}</p>
+
+      {ownership&&<section aria-label="Case ownership">
+        <div className="panel-title"><div><h4>Case ownership</h4><p>Delegate this case without granting broader project, beneficiary or finance access.</p></div><Badge value={ownership.current_assignment?.eligible===false?'authority expired':ownership.current_assignment?'assigned':'unassigned'}/></div>
+        {ownership.current_assignment?<article className="document-row">
+          <p><strong>{ownership.current_assignment.name||ownership.current_assignment.user_id}</strong> · {title(ownership.current_assignment.owner_role)} · assigned {new Date(ownership.current_assignment.assigned_at).toLocaleString()}</p>
+          {!ownership.current_assignment.eligible&&<p className="notice error">The owner's underlying project/geography authority is no longer current. Reassign this case.</p>}
+          {detail.case.status!=='closed'&&<form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget);void run(()=>call('clear_beneficiary_case_owner',{p_case:detail.case.id,p_reason:val(form,'reason'),p_expected_assignment:ownership.current_assignment?.id||null,p_expected_version:ownership.current_assignment?.version??null}),'Case owner removed.')}}><label className="field">Unassignment reason<input name="reason" required minLength={5} maxLength={2000}/></label><button className="secondary" disabled={busy}>Remove owner</button></form>}
+        </article>:<p className="notice">No operational owner is assigned. Project Managers / NGO Admin can keep the case unassigned or delegate it below.</p>}
+        {detail.case.status!=='closed'&&<form onSubmit={event=>{event.preventDefault();const form=new FormData(event.currentTarget),raw=val(form,'candidate'),candidate=ownership.candidates.find(c=>`${c.owner_role}:${c.user_id}`===raw);if(!candidate){setError('Choose an eligible case owner.');return}void run(()=>call('set_beneficiary_case_owner',{p_case:detail.case.id,p_user:candidate.user_id,p_owner_role:candidate.owner_role,p_reason:val(form,'reason'),p_expected_assignment:ownership.current_assignment?.id||null,p_expected_version:ownership.current_assignment?.version??null}),ownership.current_assignment?'Case owner reassigned.':'Case owner assigned.')}}>
+          <fieldset disabled={busy||!ownership.candidates.length}><label className="field">Eligible owner<select name="candidate" required defaultValue=""><option value="">Choose Field Worker or Area Focal</option>{ownership.candidates.map(c=><option key={`${c.owner_role}:${c.user_id}`} value={`${c.owner_role}:${c.user_id}`}>{c.name||c.user_id} · {title(c.owner_role)} · {c.scope_label}</option>)}</select></label><label className="field">Assignment / reassignment reason<textarea name="reason" required minLength={5} maxLength={2000}/></label><button className="primary">{ownership.current_assignment?'Reassign case':'Assign case'}</button></fieldset>
+        </form>}
+        <details><summary>Ownership history ({ownership.history.length})</summary>{!ownership.history.length?<p>No ownership events yet.</p>:ownership.history.map(e=><p key={e.id}>{new Date(e.recorded_at).toLocaleString()} · {title(e.event_type)} · {e.from_name?`${e.from_name}${e.from_role?` (${title(e.from_role)})`:''} → `:''}{e.to_name?`${e.to_name}${e.to_role?` (${title(e.to_role)})`:''}`:'unassigned'} · {e.reason}</p>)}</details>
+      </section>}
 
       {detail.case.status!=='closed'?<details className="survey-question">
         <summary>Review case status/details</summary>

@@ -15,6 +15,8 @@ export const navigationGroups: readonly NavigationGroup[] = [
       "My Timesheets",
       "My Schedule",
       "My Availability",
+      "My Cases",
+      "My Follow-ups",
       "Invitations",
       "Workforce payables",
       "E-Wallets & withdrawals",
@@ -81,6 +83,8 @@ export const personalNavigationLabels: Readonly<Record<string, string>> = {
   "My Timesheets": "Timesheets",
   "My Schedule": "My schedule",
   "My Availability": "Availability",
+  "My Cases": "My cases",
+  "My Follow-ups": "My follow-ups",
 };
 
 export function workspacePageLabel(page: string, personal: boolean) {
@@ -144,6 +148,7 @@ const workspaceGroups: Record<WorkspaceKind, readonly NavigationGroup[]> = {
   personal: [
     {label:'Overview',pages:overview},
     {label:'Find work',pages:['Available Opportunities','My Applications','Invitations','My Assigned Surveys','My Schedule','My Availability','Survey projects']},
+    {label:'Field operations',pages:['My Cases','My Follow-ups']},
     {label:'Career',pages:['Work experience','Reputation & Certificates','Workforce payables','E-Wallets & withdrawals']},
     {label:'Profile',pages:['My profile','Verification','Private documents']},
     {label:'More',pages:['Partner NGOs','Activity']},

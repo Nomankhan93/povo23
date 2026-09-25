@@ -1,6 +1,8 @@
-# Validation index — FieldLance 2.38.1
+See [FieldLance 2.39.0 validation](VALIDATION-2.39.0.md) for the current case-ownership and delegated-operations release checks.
 
-Current: [VALIDATION-2.38.1.md](VALIDATION-2.38.1.md).
+# Current validation — FieldLance 2.39.0
+
+Current: [VALIDATION-2.39.0.md](VALIDATION-2.39.0.md).
 
 Previous: [VALIDATION-2.37.0.md](VALIDATION-2.37.0.md).
 

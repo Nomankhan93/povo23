@@ -1,4 +1,4 @@
-# Current release checklist — FieldLance 2.38.1
+# Current release checklist — FieldLance 2.39.0
 
 Automatic Project Marketplace Publishing. One forward migration is included on top of the validated 2.38.0 attendance release and its 00410 permission hotfix.
 
@@ -130,3 +130,10 @@ See docs/UPGRADE-2.30.1.md and docs/VALIDATION-2.30.1.md.
 - [ ] Recruitment close/moderation hides the automatic listing; reopen/restore re-enables it when project rules allow.
 - [ ] Compensation changes roll forward a new current listing while old application/assignment terms remain historical.
 - [ ] Organization-first worker search remains optional, not a prerequisite.
+
+## 2.39 release checks
+
+- Apply `20261013000430_case_ownership_delegated_operations.sql` locally before cloud push.
+- Generate database types and project metadata.
+- Run `npm run test:case-ownership-239`, `npm run preflight` and `npm run test:local`.
+- Manually validate Field Worker and Area Focal delegated-case visibility, reassignment, Task Center handoff and access removal after authority revocation.
