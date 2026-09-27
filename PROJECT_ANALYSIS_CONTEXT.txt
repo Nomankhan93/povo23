@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.40.0
+Release: 2.40.1
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,13 +14,14 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.40.0 PRODUCT BOUNDARIES =====
+===== CURRENT 2.40.1 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.30.1 stabilizes document deletion, draft-safe navigation, pending application counts and lazy feature boundaries.
 - 2.36.0 adds canonical browser routes for personal, Organization, Staff and project workspaces; deep links never replace RLS/RPC authorization.
 - 2.36.1 retires Partner Organization project/template pre-approval: active Organization Admins publish their own saved drafts directly while FieldLance survey-management staff govern published content through audited block/remove/restore moderation.
 - 2.37.0 adds private structured Field Worker availability, date exceptions, capacity preferences and privacy-preserving assignment conflict summaries. Hard capacity conflicts are enforced on offered/active work assignments below the UI.
 - 2.39.0 adds explicit named beneficiary-case ownership and delegated Field Worker / Area Focal follow-up operations. It reuses beneficiary_cases, beneficiary_case_followups and operational_tasks rather than creating parallel systems.
+- 2.40.1 stabilizes versioned case evidence, attendance policy refresh, encrypted attendance writes and boundary validation; see current upgrade and validation notes.
 - 2.40.0 adds Field Operations Map and Geographic Quality on top of existing survey GPS, attendance check-in/out and delegated case-visit evidence. MapLibre is presentation only; PostgreSQL remains the quality/authorization authority.
 - Authoritative optional Polygon/MultiPolygon GeoJSON boundaries enable point-in-area review signals. When a boundary is missing, FieldLance returns unable_to_determine rather than guessing; geographic flags are review signals, never automatic fraud findings.
 - The personal /app/field/map surface is own-evidence only. Project managers see authorized project evidence, while Area Focal map access remains constrained by assigned project geography. Continuous/background worker tracking is not introduced.
@@ -46,7 +47,7 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Partner NGO onboarding uses Organization → Operating Areas → Programs → Documents → Review; approval creates the organization and first NGO Admin membership. Draft logos remain private and approval synchronizes the logo to organization presentation.
 - Open recruitment uses application-scoped profile snapshots; live NGO volunteer access is project/assignment/invitation scoped.
 - Historical permanent profile-share schema remains only for compatibility and is not a current UI workflow.
-- Survey capture includes encrypted device drafts/queue and reconnect synchronization; full cold-start offline/PWA caching remains outside the current baseline.
+- Survey capture includes encrypted device drafts/queue and reconnect synchronization; the field worker caches the root shell; deep-link cold-start offline navigation still needs validation.
 - Worker payable accounting, verified organization funding, project reservation and payable-to-finance reconciliation exist; 2.18.2 adds guarded manual JazzCash/Easypaisa settlement and provider reconciliation without live provider API custody.
 - Project Manager and Area Focal Person workspaces include RLS-filtered operational metrics, area coverage, recent response queues and direct review navigation; broad NGO administration remains separate.
 - Active Organization Admins can create organization-owned survey-template drafts and directly publish immutable Organization template versions; no FieldLance pre-approval queue is required.
@@ -72,8 +73,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 72
-Migration head: 20261013000440_field_operations_map_geographic_quality.sql
+Ordered migration files: 73
+Migration head: 20261013000450_field_evidence_attendance_stabilization.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -148,12 +149,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000430_case_ownership_delegated_operations.sql
 - 20261013000431_case_ownership_task_rls_helper_permission.sql
 - 20261013000440_field_operations_map_geographic_quality.sql
+- 20261013000450_field_evidence_attendance_stabilization.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 87
+Test scripts (scripts/test-*.mjs): 89
 TypeScript/TSX source files: 109
-Markdown docs: 252
-Inventory files (excluding local/build/temp/backup state): 550
+Markdown docs: 255
+Inventory files (excluding local/build/temp/backup state): 557
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -190,7 +192,7 @@ npm run test:field-map-240
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
 FieldLance 2.40.0 adds provider-independent Field Operations Map, explicit case-visit location evidence, audited geography boundaries and review-only geographic/attendance consistency signals on top of existing survey, attendance and delegated-case systems.
-Future releases must use versions greater than 2.40.0. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+Future releases must use versions greater than 2.40.1. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
 The next planned feature phase is 2.41 Supervisor Quality & Exception Review. Reuse 2.40 review signals and existing Task Center rather than creating a second case/task system.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.

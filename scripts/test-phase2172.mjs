@@ -75,6 +75,8 @@ try{
   await as('manager');
   const applicationRow=(await rows('select version from public.work_applications where id=$1',[application]))[0];
   await call('review_work_application',[application,'selected','Selected for finance bridge test',applicationRow.version]);
+  // This finance fixture uses UTC payment dates; align attendance's work date explicitly.
+  await call('set_project_attendance_policy',[project,'UTC','preferred',100]);
   const assignment=await call('create_work_assignment',[project,ids.collector,'application',application,'volunteer','none','USD',null,10,dates.start,dates.finish,'Perform approved field work under the accepted daily-rate contract.']);
   await as('collector');
   const offered=(await rows('select version from public.work_assignments where id=$1',[assignment]))[0];

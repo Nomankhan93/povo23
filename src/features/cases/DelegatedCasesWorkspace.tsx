@@ -1,4 +1,5 @@
 import {useCallback,useEffect,useState,type FormEvent} from 'react';
+import {APP_VERSION} from '../../app/version';
 import {Badge} from '../../shared/ui/FormFields';
 import {EmptyState} from '../../components/ui/WorkflowOverview';
 import {rpc} from '../../lib/supabase/client';
@@ -73,7 +74,7 @@ export function DelegatedCasesWorkspace({view='cases',projectId=null,initialCase
   return <section className="registry-operations" aria-label={view==='cases'?'My delegated beneficiary cases':'My delegated beneficiary follow-ups'}>
     <div className="panel-title">
       <div><span className="eyebrow">DELEGATED FIELD OPERATIONS</span><h2>{view==='cases'?'My Cases':'My Follow-ups'}</h2></div>
-      <Badge value="2.40.0"/>
+      <Badge value={APP_VERSION}/>
     </div>
     <div className="notice"><strong>Only explicitly delegated cases are shown.</strong> Case access also requires your current project and geography authority. Assistance approvals, finance and organization administration remain outside this workspace.</div>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
@@ -163,10 +164,16 @@ function DelegatedFollowupCard({followup,busy,run}:{followup:DetailFollowup;busy
 
 function FollowupLocationCapture({followup,busy,run}:{followup:DetailFollowup;busy:boolean;run:(task:()=>Promise<unknown>,message:string)=>Promise<unknown>}){
   const [working,setWorking]=useState(false),[reason,setReason]=useState(''),[error,setError]=useState('');
+  const [pending,setPending]=useState<Record<string,unknown>|null>(null);
   if(!['field_visit','office_visit'].includes(followup.followup_type))return null;
   if(followup.location_permission_state)return <div className="followup-location-evidence"><strong>Visit location evidence recorded</strong><p>{followup.location_latitude!=null&&followup.location_longitude!=null?`${Number(followup.location_latitude).toFixed(5)}, ${Number(followup.location_longitude).toFixed(5)} · ${Math.round(Number(followup.location_accuracy_m||0))} m accuracy`:followup.location_note||'Location unavailable'}{followup.location_captured_at?` · ${new Date(followup.location_captured_at).toLocaleString()}`:''}</p></div>;
   async function save(latitude:number|null,longitude:number|null,accuracy:number|null,permission:string,note:string,capturedAt:string|null){
-    const result=await run(()=>call('record_beneficiary_case_followup_location',{p_id:followup.id,p_latitude:latitude,p_longitude:longitude,p_accuracy_m:accuracy,p_permission_state:permission,p_note:note,p_captured_at:capturedAt,p_request_id:crypto.randomUUID()}),'Visit location evidence recorded.');
+    return submit({p_id:followup.id,p_latitude:latitude,p_longitude:longitude,p_accuracy_m:accuracy,p_permission_state:permission,p_note:note,p_captured_at:capturedAt,p_request_id:crypto.randomUUID(),p_version:followup.version});
+  }
+  async function submit(args:Record<string,unknown>){
+    setPending(args);
+    const result=await run(()=>call('record_beneficiary_case_followup_location_versioned',args),'Visit location evidence recorded.');
+    if(result!==null)setPending(null);
     return result!==null;
   }
   function capture(){
@@ -174,5 +181,5 @@ function FollowupLocationCapture({followup,busy,run}:{followup:DetailFollowup;bu
     if(!navigator.geolocation){setError('Browser location is unavailable. Record an unavailable reason instead.');setWorking(false);return}
     navigator.geolocation.getCurrentPosition(position=>{void save(position.coords.latitude,position.coords.longitude,position.coords.accuracy,'granted','',new Date(position.timestamp).toISOString()).finally(()=>setWorking(false))},failure=>{setError(failure.message+' — retry or record an unavailable reason.');setWorking(false)},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   }
-  return <div className="followup-location-capture"><strong>Explicit visit location</strong><p>Optional evidence for this field/office visit only. No background tracking is used.</p><button type="button" className="secondary" disabled={busy||working} onClick={capture}>{working?'Locating…':'Capture current location'}</button><div className="followup-location-unavailable"><label className="field">If location is unavailable<input value={reason} minLength={5} maxLength={500} onChange={event=>setReason(event.target.value)} placeholder="Permission denied, GPS unavailable, indoor visit…"/></label><button type="button" className="secondary" disabled={busy||working||reason.trim().length<5} onClick={()=>{setWorking(true);setError('');void save(null,null,null,'unavailable',reason.trim(),null).finally(()=>setWorking(false))}}>Record unavailable</button></div>{error&&<p className="notice warning" role="status">{error}</p>}</div>;
+  return <div className="followup-location-capture"><strong>Explicit visit location</strong><p>Optional evidence for this field/office visit only. No background tracking is used.</p><button type="button" className="secondary" disabled={busy||working||Boolean(pending)} onClick={capture}>{working?'Locating…':'Capture current location'}</button><div className="followup-location-unavailable"><label className="field">If location is unavailable<input value={reason} minLength={5} maxLength={500} onChange={event=>setReason(event.target.value)} placeholder="Permission denied, GPS unavailable, indoor visit…"/></label><button type="button" className="secondary" disabled={busy||working||Boolean(pending)||reason.trim().length<5} onClick={()=>{setWorking(true);setError('');void save(null,null,null,'unavailable',reason.trim(),null).finally(()=>setWorking(false))}}>Record unavailable</button></div>{pending&&<button type="button" className="secondary" disabled={busy||working} onClick={()=>{setWorking(true);void submit(pending).finally(()=>setWorking(false));}}>Retry saved capture</button>}{error&&<p className="notice warning" role="status">{error}</p>}</div>;
 }

@@ -5682,6 +5682,17 @@ p_note: string | null;
 p_captured_at: string | null;
 p_request_id: string | null;
 }; Returns: Json };
+record_beneficiary_case_followup_location_versioned: { Args: {
+p_id: string | null;
+p_latitude: number | null;
+p_longitude: number | null;
+p_accuracy_m: number | null;
+p_permission_state: string | null;
+p_note: string | null;
+p_captured_at: string | null;
+p_request_id: string | null;
+p_version: number | null;
+}; Returns: Json };
 record_organization_funding: { Args: {
 p_source: string | null;
 p_amount: number | null;

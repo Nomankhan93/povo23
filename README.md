@@ -1,3 +1,7 @@
+# Current release: FieldLance 2.40.1
+
+Field Evidence, Attendance & Release Stabilization. Versioned case-visit capture preserves revisions and authorized exact retries; delegated detail includes location evidence. Attendance policy refresh and encrypted device writes are stabilized. Invalid boundary geometry fails closed to unknown quality. See docs/PHASE-2.40.1.md, docs/UPGRADE-2.40.1.md and docs/VALIDATION-2.40.1.md. Existing permission boundaries remain in force.
+
 # Current release: FieldLance 2.40.0
 
 Field Operations Map & Geographic Quality. Project teams now have a permission-scoped Map workspace and Field Workers have `/app/field/map` for their own explicit field evidence. MapLibre/OpenFreeMap renders existing survey GPS, attendance check-in/check-out and explicitly captured case-visit locations. Optional audited GeoJSON geography boundaries enable review-only inside/outside classification; missing boundaries return `unable_to_determine`. No continuous/background tracking is introduced. See `docs/PHASE-2.40.0.md`, `docs/UPGRADE-2.40.0.md` and `docs/VALIDATION-2.40.0.md`.

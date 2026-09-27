@@ -46,36 +46,44 @@ export function AttendanceWorkspace({
   userId:string;projectId?:string|null;canManage?:boolean;view?:"attendance"|"timesheets";initialAssignmentId?:string|null;
 }){
   const projectView=Boolean(projectId);
-  const [workspace,setWorkspace]=useState<Workspace|null>(null),[assignments,setAssignments]=useState<Assignment[]>([]),[policy,setPolicy]=useState<Policy|null>(null),[selectedAssignment,setSelectedAssignment]=useState(initialAssignmentId||""),[selected,setSelected]=useState<AttendanceRow|null>(null),[page,setPage]=useState(0),[status,setStatus]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[notice,setNotice]=useState(""),[locationNote,setLocationNote]=useState(""),[workNote,setWorkNote]=useState(""),[reviewNote,setReviewNote]=useState(""),[pending,setPending]=useState<PendingSummary[]>([]),[revision,setRevision]=useState(0);
+  const [workspace,setWorkspace]=useState<Workspace|null>(null),[assignments,setAssignments]=useState<Assignment[]>([]),[policyState,setPolicy]=useState<Policy|null>(null),[selectedAssignment,setSelectedAssignment]=useState(initialAssignmentId||""),[selected,setSelected]=useState<AttendanceRow|null>(null),[page,setPage]=useState(0),[status,setStatus]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[notice,setNotice]=useState(""),[locationNote,setLocationNote]=useState(""),[workNote,setWorkNote]=useState(""),[reviewNote,setReviewNote]=useState(""),[pending,setPending]=useState<PendingSummary[]>([]),[revision,setRevision]=useState(0);
   const [adjustIn,setAdjustIn]=useState(""),[adjustOut,setAdjustOut]=useState(""),[adjustReason,setAdjustReason]=useState("");
-  const manageAttendance=Boolean(projectId&&canManage&&policy?.can_manage);
   const assignment=assignments.find(a=>a.id===selectedAssignment)||null;
+  const policyProject=projectId||assignment?.survey_project_id;
+  const policy=policyState?.project_id===policyProject?policyState:null;
+  const manageAttendance=Boolean(projectId&&canManage&&policy?.can_manage);
   const openSession=workspace?.rows.find(r=>r.status==="open"&&(!selectedAssignment||r.assignment_id===selectedAssignment))||null;
   const pendingForAssignment=pending.find(p=>p.assignmentId===selectedAssignment)||null;
 
   async function load(){
     setLoading(true);setError("");
     try{
-      const [w,p,a,q]=await Promise.all([
+      const [w,a,q]=await Promise.all([
         (rpc as any)("attendance_workspace",{p_project:projectId,p_from:fromDate(),p_to:today(),p_status:status||null,p_page:page}) as Promise<Workspace>,
-        projectId?(rpc as any)("project_attendance_policy",{p_project:projectId}) as Promise<Policy>:Promise.resolve(null),
         !projectId?db!.from("work_assignments").select("*").eq("user_id",userId).eq("status","active").order("start_date").limit(100):Promise.resolve({data:[],error:null}),
         !projectId?pendingAttendance(userId):Promise.resolve([]),
       ]);
       if((a as any).error)throw (a as any).error;
-      setWorkspace(w);setPolicy(p);setAssignments(((a as any).data||[]) as Assignment[]);setPending(q);
+      setWorkspace(w);setAssignments(((a as any).data||[]) as Assignment[]);setPending(q);
       if(!projectId&&!selectedAssignment){const first=initialAssignmentId||(((a as any).data||[])[0]?.id||"");if(first)setSelectedAssignment(first);}
     }catch(e){setError((e as Error).message);}finally{setLoading(false);}
   }
-  useEffect(()=>{void load();},[projectId,page,status,revision]);
-  useEffect(()=>{if(!projectId&&!selectedAssignment)return;const pid=projectId||assignment?.survey_project_id;if(!pid)return;void (rpc as any)("project_attendance_policy",{p_project:pid}).then((p:Policy)=>setPolicy(p)).catch((e:Error)=>setError(e.message));},[projectId,selectedAssignment,assignment?.survey_project_id]);
+  useEffect(()=>{void load();},[projectId,userId,page,status,revision]);
+  useEffect(()=>{
+    let current=true;
+    if(!policyProject){setPolicy(null);return;}
+    void (rpc as any)("project_attendance_policy",{p_project:policyProject}).then((p:Policy)=>{if(current)setPolicy(p);}).catch((e:Error)=>{
+      if(current){if(!networkError(e))setPolicy(null);setError(e.message);}
+    });
+    return()=>{current=false;};
+  },[policyProject,userId,revision]);
   useEffect(()=>{if(projectId)return;const sync=()=>{if(navigator.onLine)void syncPending();};window.addEventListener("online",sync);return()=>window.removeEventListener("online",sync);},[projectId,userId]);
 
   async function run(fn:()=>Promise<unknown>,message:string){setBusy(true);setError("");setNotice("");try{await fn();setNotice(message);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
-  async function syncPending(){setBusy(true);setError("");try{const result=await syncAttendanceQueue(userId);setNotice(result.failed?`${result.synced} attendance record(s) synced; ${result.failed} still need attention.`:`${result.synced} pending attendance record(s) synced.`);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function syncPending(){setBusy(true);setError("");try{const result=await syncAttendanceQueue(userId);setNotice(result.failed?`${result.synced} attendance record(s) synced; ${result.failed} still need attention. ${result.errors.join("; ")}`:`${result.synced} pending attendance record(s) synced.`);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
 
   async function start(){
-    if(!assignment||!policy)return;setBusy(true);setError("");setNotice("");
+    if(!assignment||!policy||loading)return;setBusy(true);setError("");setNotice("");
     try{
       const location=await captureLocation(policy);
       if(policy.location_policy==="required"&&location.permission!=="granted")throw Error("This project requires location permission for check-in.");
@@ -88,7 +96,8 @@ export function AttendanceWorkspace({
   }
 
   async function finish(session:AttendanceRow|null,pendingStart=false){
-    if(!policy||(!session&&!pendingStart)||workNote.trim().length<2){setError("Add a short workday note before ending field work.");return;}
+    if(!policy||loading){setError("Attendance policy is unavailable. Refresh before ending field work.");return;}
+    if((!session&&!pendingStart)||workNote.trim().length<2){setError("Add a short workday note before ending field work.");return;}
     setBusy(true);setError("");setNotice("");
     try{
       const location=await captureLocation(policy);
@@ -122,9 +131,9 @@ export function AttendanceWorkspace({
       {!assignments.length&&!loading&&<p className="notice">No active formal assignment is available for attendance.</p>}
       {assignments.length>0&&<label className="field">Assignment<select value={selectedAssignment} onChange={e=>{setSelectedAssignment(e.target.value);setLocationNote("");setWorkNote("")}}>{assignments.map(a=><option key={a.id} value={a.id}>{a.project_title} · {a.organization_name}</option>)}</select></label>}
       {assignment&&policy&&<div className="attendance-assignment-card"><div><strong>{assignment.project_title}</strong><p>{assignment.organization_name} · {assignment.start_date} → {assignment.end_date} · {human(assignment.compensation_type)}</p><small>Timezone: {policy.timezone} · Location: {human(policy.location_policy)} · Accuracy warning: ±{policy.max_accuracy_m}m</small></div><Badge value={assignment.status}/></div>}
-      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
+      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
       {openSession&&<div className="attendance-live"><span className="attendance-live-dot"/><div><strong>Field session active</strong><p>Started {timestamp(openSession.check_in_captured_at)} · {openSession.check_in_quality?human(openSession.check_in_quality):"location pending"}</p></div></div>}
-      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
+      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
       {pendingForAssignment?.hasCheckout&&<p className="notice warning">This workday is queued on this device and will be submitted when connectivity returns.</p>}
     </section>}
 

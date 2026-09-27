@@ -1,3 +1,4 @@
+import {assertOwner} from "../surveys/offlineSurveyStore";
 import {rpc} from "../../lib/supabase/client";
 
 type JsonObject = Record<string, unknown>;
@@ -46,16 +47,45 @@ async function decrypt<T>(cipher:Cipher):Promise<T>{const k=await key(),plain=aw
 function id(ownerId:string,assignmentId:string){return `${ownerId}:${assignmentId}`;}
 function changed(){window.dispatchEvent(new Event("fieldlance:attendance-queue-change"));}
 async function read(ownerId:string,assignmentId:string){const db=await openDb(),tx=db.transaction("queue","readonly"),row=await request(tx.objectStore("queue").get(id(ownerId,assignmentId))) as Stored|undefined;await done(tx);if(!row||row.ownerId!==ownerId)return null;return{row,payload:await decrypt<PendingPayload>(row.cipher)};}
-async function write(ownerId:string,assignmentId:string,payload:PendingPayload,createdAt=Date.now()){const db=await openDb(),tx=db.transaction("queue","readwrite");tx.objectStore("queue").put({id:id(ownerId,assignmentId),ownerId,assignmentId,createdAt,updatedAt:Date.now(),cipher:await encrypt(payload)} satisfies Stored);await done(tx);changed();}
-async function remove(ownerId:string,assignmentId:string){const db=await openDb(),tx=db.transaction("queue","readwrite");tx.objectStore("queue").delete(id(ownerId,assignmentId));await done(tx);changed();}
+// Encrypt before opening the transaction: WebCrypto yields beyond IDB's active task.
+async function write(ownerId:string,assignmentId:string,payload:PendingPayload,previous?:Stored){
+  const cipher=await encrypt(payload);await assertOwner(ownerId);
+  const db=await openDb(),tx=db.transaction("queue","readwrite"),completed=done(tx),store=tx.objectStore("queue");
+  const current=await request(store.get(id(ownerId,assignmentId))) as Stored|undefined;
+  if(current?.cipher.data!==previous?.cipher.data){await completed;throw new Error("Pending attendance changed in another tab; refresh before retrying");}
+  store.put({id:id(ownerId,assignmentId),ownerId,assignmentId,createdAt:previous?.createdAt??Date.now(),updatedAt:Date.now(),cipher} satisfies Stored);
+  await completed;changed();
+}
+async function remove(ownerId:string,row:Stored){
+  await assertOwner(ownerId);const db=await openDb(),tx=db.transaction("queue","readwrite"),completed=done(tx),store=tx.objectStore("queue");
+  const current=await request(store.get(row.id)) as Stored|undefined;
+  if(current&&current.cipher.data!==row.cipher.data){await completed;throw new Error("Pending attendance changed during sync; sync again to submit remaining evidence");}
+  store.delete(row.id);await completed;changed();
+}
 
-export async function queueAttendanceStart(ownerId:string,args:AttendanceStartPayload){const current=await read(ownerId,args.p_assignment);if(current?.payload.checkout)throw new Error("A pending checkout already exists for this assignment");await write(ownerId,args.p_assignment,{assignmentId:args.p_assignment,start:args},current?.row.createdAt);}
-export async function queueAttendanceCheckout(ownerId:string,assignmentId:string,args:AttendanceCheckoutPayload){const current=await read(ownerId,assignmentId);await write(ownerId,assignmentId,{assignmentId,start:current?.payload.start,checkout:args},current?.row.createdAt);}
-export async function pendingAttendance(ownerId:string):Promise<PendingAttendanceSummary[]>{const db=await openDb(),tx=db.transaction("queue","readonly"),rows=await request(tx.objectStore("queue").getAll()) as Stored[];await done(tx);const result=[] as PendingAttendanceSummary[];for(const row of rows.filter(r=>r.ownerId===ownerId)){try{const p=await decrypt<PendingPayload>(row.cipher);result.push({id:row.id,assignmentId:row.assignmentId,hasStart:Boolean(p.start),hasCheckout:Boolean(p.checkout),updatedAt:row.updatedAt});}catch{/* Unreadable local evidence is intentionally not surfaced as usable. */}}return result.sort((a,b)=>a.updatedAt-b.updatedAt);}
+export async function queueAttendanceStart(ownerId:string,args:AttendanceStartPayload){
+  await assertOwner(ownerId);const current=await read(ownerId,args.p_assignment);
+  if(current){if(JSON.stringify(current.payload.start)===JSON.stringify(args))return;throw new Error("A pending attendance record already exists; sync it before starting again");}
+  await write(ownerId,args.p_assignment,{assignmentId:args.p_assignment,start:args});
+}
+export async function queueAttendanceCheckout(ownerId:string,assignmentId:string,args:AttendanceCheckoutPayload){
+  await assertOwner(ownerId);const current=await read(ownerId,assignmentId);
+  if(current?.payload.checkout){if(JSON.stringify(current.payload.checkout)===JSON.stringify(args))return;throw new Error("A pending checkout already exists; sync it before trying again");}
+  await write(ownerId,assignmentId,{assignmentId,start:current?.payload.start,checkout:args},current?.row);
+}
+export async function pendingAttendance(ownerId:string):Promise<PendingAttendanceSummary[]>{
+  await assertOwner(ownerId);const db=await openDb(),tx=db.transaction("queue","readonly"),rows=await request(tx.objectStore("queue").getAll()) as Stored[];await done(tx);
+  const result:PendingAttendanceSummary[]=[];
+  for(const row of rows.filter(r=>r.ownerId===ownerId)){
+    let p:PendingPayload;try{p=await decrypt<PendingPayload>(row.cipher);}catch{throw new Error("Saved attendance could not be decrypted; keep this device's data and contact support");}
+    result.push({id:row.id,assignmentId:row.assignmentId,hasStart:Boolean(p.start),hasCheckout:Boolean(p.checkout),updatedAt:row.updatedAt});
+  }
+  await assertOwner(ownerId);return result.sort((a,b)=>a.updatedAt-b.updatedAt);
+}
 
-export async function syncAttendanceQueue(ownerId:string){const db=await openDb(),tx=db.transaction("queue","readonly"),rows=await request(tx.objectStore("queue").getAll()) as Stored[];await done(tx);let synced=0;const errors:string[]=[];for(const row of rows.filter(r=>r.ownerId===ownerId).sort((a,b)=>a.createdAt-b.createdAt)){try{const payload=await decrypt<PendingPayload>(row.cipher);let sessionId=payload.checkout?.p_session||"",version=payload.checkout?.p_version||1;if(payload.start){const started=await (rpc as any)("start_assignment_work_session",payload.start) as JsonObject;sessionId=String(started.id||sessionId);version=Number(started.version||version);}
-      if(payload.checkout){const checkout={...payload.checkout,p_session:sessionId,p_version:version};await (rpc as any)("checkout_assignment_work_session",checkout);}
-      await remove(ownerId,row.assignmentId);synced+=1;
+export async function syncAttendanceQueue(ownerId:string){await assertOwner(ownerId);const db=await openDb(),tx=db.transaction("queue","readonly"),rows=await request(tx.objectStore("queue").getAll()) as Stored[];await done(tx);let synced=0;const errors:string[]=[];for(const row of rows.filter(r=>r.ownerId===ownerId).sort((a,b)=>a.createdAt-b.createdAt)){try{const payload=await decrypt<PendingPayload>(row.cipher);let sessionId=payload.checkout?.p_session||"",version=payload.checkout?.p_version||1;if(payload.start){await assertOwner(ownerId);const started=await (rpc as any)("start_assignment_work_session",payload.start) as JsonObject;sessionId=String(started.id||sessionId);version=Number(started.version||version);}
+      if(payload.checkout){await assertOwner(ownerId);const checkout={...payload.checkout,p_session:sessionId,p_version:version};await (rpc as any)("checkout_assignment_work_session",checkout);}
+      await remove(ownerId,row);synced+=1;
     }catch(error){errors.push(`${row.assignmentId}: ${(error as Error).message}`);}}
   return{synced,failed:errors.length,errors};
 }

@@ -1,3 +1,7 @@
+# Current validation — FieldLance 2.40.1
+
+See [VALIDATION-2.40.1.md](VALIDATION-2.40.1.md) for patch checks and remaining deployment validation.
+
 See [FieldLance 2.40.0 validation](VALIDATION-2.40.0.md) for the current Field Operations Map & Geographic Quality release checks.
 
 # Current validation — FieldLance 2.40.0

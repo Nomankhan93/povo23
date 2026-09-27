@@ -1,3 +1,7 @@
+# Current release checklist — FieldLance 2.40.1
+
+Field Evidence, Attendance & Release Stabilization. Versioned case-visit capture preserves revisions and authorized exact retries; delegated detail includes location evidence. Attendance policy refresh and encrypted device writes are stabilized. Invalid boundary geometry fails closed to unknown quality. See docs/PHASE-2.40.1.md, docs/UPGRADE-2.40.1.md and docs/VALIDATION-2.40.1.md. Existing permission boundaries remain in force.
+
 # Current release checklist — FieldLance 2.40.0
 
 ## 2.40 release checks

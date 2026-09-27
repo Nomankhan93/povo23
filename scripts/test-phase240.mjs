@@ -132,7 +132,7 @@ try{
   await call('assign_project_staff',[project,ids.focalB,'area_focal_person',[districtB],dates.start,dates.finish]);
   await db.exec('RESET ROLE');
   for(const [worker,geo,label] of [[ids.workerA,districtA,'Map Worker A'],[ids.workerB,districtB,'Map Worker B']]){
-    await db.query("update public.volunteer_profiles set status='verified',geography_id=$1,details=jsonb_build_object('full_name',$2) where user_id=$3",[geo,label,worker]);
+    await db.query("update public.volunteer_profiles set status='verified',geography_id=$1,details=jsonb_build_object('full_name',$2::text) where user_id=$3",[geo,label,worker]);
     await db.query('insert into public.survey_assignments(project_id,user_id,active,collection_geography_id) values($1,$2,true,$3)',[project,worker,geo]);
   }
   const hhA=(await rows('insert into public.registry_households(project_id,label,geography_id,created_by) values($1,$2,$3,$4) returning id',[project,'Map A',districtA,ids.workerA]))[0].id;
@@ -143,7 +143,7 @@ try{
   const insertResponse=async(person,worker,geo,gps)=>rows("insert into public.survey_responses(project_id,person_id,collector_id,answers,consent,status,review_note,reviewed_by,reviewed_at,collection_geography_id) values($1,$2,$3,$4::jsonb,$5::jsonb,'approved','Map fixture',$6,now(),$7) returning id",[project,person,worker,JSON.stringify({gps,q:'ok'}),JSON.stringify({agreed:true,method:'verbal'}),ids.ngo,geo]);
   const sourceResponse=(await insertResponse(personA,ids.workerA,districtA,{latitude:25,longitude:67,accuracy:20,captured_at:now}))[0].id;
   await insertResponse(personA,ids.workerA,districtA,{latitude:25,longitude:69,accuracy:20,captured_at:now});
-  await insertResponse(personA,ids.workerA,districtA,{latitude:25,longitude:67,accuracy:250,captured_at:now});
+  await insertResponse(personA,ids.workerA,districtA,{latitude:25,longitude:67,accuracy:350,captured_at:now});
   await insertResponse(personA,ids.workerA,districtA,{unavailable_reason:'Location permission unavailable'});
   await insertResponse(personB,ids.workerB,districtB,{latitude:25,longitude:69,accuracy:20,captured_at:now});
 
@@ -190,9 +190,12 @@ try{
     const visit=result.rows.find(x=>x.layer==='case_follow_up'&&x.source_id===followId);assert.ok(visit);assert.equal(visit.quality,'within_assigned_area');
   });
 
+  const {evidenceRegression}=await import('./test-field-evidence2401.mjs');
+  await evidenceRegression({db,as,call,rows,ok,ids,caseId,followId,now,dates,districtA,squareA});
+
   await db.exec('RESET ROLE');
-  const assignment=(await rows(`insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,currency,rate,target_surveys,start_date,end_date,terms_note,status,offered_by,responded_at,collection_geography_id) values($1,$2,$3,'Map Worker A','2.40 Field Map NGO','2.40 Field Map Project','shortlist','volunteer','none','PKR',null,10,$4,$5,'Map attendance fixture','active',$6,now(),$7) returning id`,[project,org,ids.workerA,dates.start,dates.finish,ids.ngo,districtA]))[0].id;
-  await as('ngo');await call('set_project_attendance_policy',[project,'UTC','optional',100]);
+  const assignment=(await rows(`insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,currency,rate,target_surveys,start_date,end_date,terms_note,status,offered_by,responded_at,collection_geography_id) values($1,$2,$3,'Map Worker A','2.40 Field Map NGO','2.40 Field Map Project','shortlist','volunteer','none','PKR',null,10,$4,$5,'Map attendance fixture','active',$6,now()-interval '3 hours',$7) returning id`,[project,org,ids.workerA,dates.start,dates.finish,ids.ngo,districtA]))[0].id;
+  await as('ngo');await call('set_project_attendance_policy',[project,'UTC','preferred',100]);
   await as('workerA');
   const times=(await rows("select (now()-interval '2 hours')::text a,(now()-interval '1 hour')::text b"))[0];
   const started=await call('start_assignment_work_session',[assignment,times.a,25,67,15,'granted','','24000000-0000-4000-8000-000000000101']);

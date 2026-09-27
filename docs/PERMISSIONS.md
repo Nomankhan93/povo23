@@ -1,3 +1,7 @@
+# Current permissions note — FieldLance 2.40.1
+
+Field Evidence, Attendance & Release Stabilization. Versioned case-visit capture preserves revisions and authorized exact retries; delegated detail includes location evidence. Attendance policy refresh and encrypted device writes are stabilized. Invalid boundary geometry fails closed to unknown quality. See docs/PHASE-2.40.1.md, docs/UPGRADE-2.40.1.md and docs/VALIDATION-2.40.1.md. Existing permission boundaries remain in force.
+
 # Current permissions note — FieldLance 2.40.0
 
 - `field_operations_map(...)` requires an active account and never makes coordinates public.

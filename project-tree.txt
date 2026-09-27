@@ -78,6 +78,7 @@
 ./docs/PHASE-2.4.2.md
 ./docs/PHASE-2.4.md
 ./docs/PHASE-2.40.0.md
+./docs/PHASE-2.40.1.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -167,6 +168,7 @@
 ./docs/UPGRADE-2.4.2.md
 ./docs/UPGRADE-2.4.md
 ./docs/UPGRADE-2.40.0.md
+./docs/UPGRADE-2.40.1.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -244,6 +246,7 @@
 ./docs/VALIDATION-2.4.2.md
 ./docs/VALIDATION-2.4.md
 ./docs/VALIDATION-2.40.0.md
+./docs/VALIDATION-2.40.1.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -272,6 +275,7 @@
 ./scripts/bootstrap-admin.mjs
 ./scripts/build-field-worker.mjs
 ./scripts/check-env.mjs
+./scripts/check-release-secrets.mjs
 ./scripts/generate-project-metadata.mjs
 ./scripts/generate-types.mjs
 ./scripts/local-env.mjs
@@ -279,12 +283,14 @@
 ./scripts/test-analytics-client231.mjs
 ./scripts/test-area-operations.mjs
 ./scripts/test-area-picker.mjs
+./scripts/test-attendance-client2401.mjs
 ./scripts/test-branding2195.mjs
 ./scripts/test-capture-client.mjs
 ./scripts/test-correctness276.mjs
 ./scripts/test-current-state-stabilization.mjs
 ./scripts/test-database.mjs
 ./scripts/test-earnings-wallet2250.mjs
+./scripts/test-field-evidence2401.mjs
 ./scripts/test-field-storage211.mjs
 ./scripts/test-field-worker-workspace2200.mjs
 ./scripts/test-field-worker211.mjs
@@ -590,6 +596,7 @@
 ./supabase/migrations/20261013000430_case_ownership_delegated_operations.sql
 ./supabase/migrations/20261013000431_case_ownership_task_rls_helper_permission.sql
 ./supabase/migrations/20261013000440_field_operations_map_geographic_quality.sql
+./supabase/migrations/20261013000450_field_evidence_attendance_stabilization.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts
