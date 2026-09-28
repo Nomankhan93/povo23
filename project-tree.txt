@@ -79,6 +79,7 @@
 ./docs/PHASE-2.4.md
 ./docs/PHASE-2.40.0.md
 ./docs/PHASE-2.40.1.md
+./docs/PHASE-2.41.0.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -169,6 +170,7 @@
 ./docs/UPGRADE-2.4.md
 ./docs/UPGRADE-2.40.0.md
 ./docs/UPGRADE-2.40.1.md
+./docs/UPGRADE-2.41.0.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -247,6 +249,7 @@
 ./docs/VALIDATION-2.4.md
 ./docs/VALIDATION-2.40.0.md
 ./docs/VALIDATION-2.40.1.md
+./docs/VALIDATION-2.41.0.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -276,6 +279,10 @@
 ./scripts/build-field-worker.mjs
 ./scripts/check-env.mjs
 ./scripts/check-release-secrets.mjs
+./scripts/fixtures
+./scripts/fixtures/device241
+./scripts/fixtures/device241/client.js
+./scripts/fixtures/device241/main.jsx
 ./scripts/generate-project-metadata.mjs
 ./scripts/generate-types.mjs
 ./scripts/local-env.mjs
@@ -285,10 +292,12 @@
 ./scripts/test-area-picker.mjs
 ./scripts/test-attendance-client2401.mjs
 ./scripts/test-branding2195.mjs
+./scripts/test-browser241.mjs
 ./scripts/test-capture-client.mjs
 ./scripts/test-correctness276.mjs
 ./scripts/test-current-state-stabilization.mjs
 ./scripts/test-database.mjs
+./scripts/test-device241.mjs
 ./scripts/test-earnings-wallet2250.mjs
 ./scripts/test-field-evidence2401.mjs
 ./scripts/test-field-storage211.mjs
@@ -469,7 +478,9 @@
 ./src/features/surveys/activeDraft.ts
 ./src/features/surveys/capture.ts
 ./src/features/surveys/CaptureFields.tsx
+./src/features/surveys/deviceFreshness.ts
 ./src/features/surveys/fieldAttachments.ts
+./src/features/surveys/fieldDeviceLifecycle.ts
 ./src/features/surveys/model.tsx
 ./src/features/surveys/OfflineFieldWorkspace.tsx
 ./src/features/surveys/OfflineShellStatus.tsx
@@ -496,6 +507,7 @@
 ./src/features/volunteers/profileStructure.ts
 ./src/features/volunteers/StructuredProfileFields.tsx
 ./src/features/workforce
+./src/features/workforce/attendanceDownload.ts
 ./src/features/workforce/attendanceOfflineStore.ts
 ./src/features/workforce/AttendanceWorkspace.tsx
 ./src/features/workforce/FieldWorkerDashboard.tsx

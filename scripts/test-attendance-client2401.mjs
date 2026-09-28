@@ -7,10 +7,10 @@ import React from 'react';
 import {create,act} from 'react-test-renderer';
 const require=createRequire(import.meta.url);
 function load(file,mocks,extra=""){const module={exports:{}};const code=ts.transpileModule(readFileSync(file,'utf8')+extra,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;new Function('require','module','exports',code)(name=>name in mocks?mocks[name]:require(name),module,module.exports);return module.exports;}
-globalThis.window=new EventTarget();window.indexedDB=indexedDB;globalThis.indexedDB=indexedDB;
+globalThis.window=new EventTarget();window.setInterval=setInterval;window.clearInterval=clearInterval;window.indexedDB=indexedDB;globalThis.indexedDB=indexedDB;
 Object.defineProperty(globalThis,'navigator',{value:{onLine:true},configurable:true});
 let owner='alice',fail=false,calls=[],onRpc=null;
-const mocks={'../../lib/supabase/client':{rpc:async(name,args)=>{calls.push({name,args});if(onRpc)await onRpc(name,args);if(fail)throw Error('Network unavailable');return{id:'session',version:1};}},'../surveys/offlineSurveyStore':{assertOwner:async id=>{if(id!==owner)throw Error('Owner mismatch');}}};
+const mocks={'../../lib/supabase/client':{rpc:async(name,args)=>{calls.push({name,args});if(onRpc)await onRpc(name,args);if(fail)throw Error('Network unavailable');return{id:'session',version:1};}},'../surveys/offlineSurveyStore':{fieldGeneration:()=> '0',assertFieldGeneration:()=>{},assertOwner:async id=>{if(id!==owner)throw Error('Owner mismatch');}}};
 const store=()=>load('src/features/workforce/attendanceOfflineStore.ts',mocks);
 let queue=store();
 const start={p_assignment:'assignment-a',p_captured_at:new Date().toISOString(),p_latitude:null,p_longitude:null,p_accuracy_m:null,p_permission_state:'not_requested',p_location_note:'',p_request:'start-request'};
@@ -52,7 +52,7 @@ const client={db:{from:()=>{const query={select:()=>query,eq:()=>query,order:()=
   if(name==='start_assignment_work_session'){rows=[{id:'session',assignment_id:'a',status:'open',version:1,check_in_captured_at:start.p_captured_at,check_in_accuracy_m:null,check_out_accuracy_m:null,check_in_latitude:null,check_in_longitude:null,check_out_latitude:null,check_out_longitude:null,duration_minutes:null}];return{id:'session',version:1};}
   if(name==='checkout_assignment_work_session'){checkoutCalls++;rows=[];return{};}throw Error(name);
 }};
-const {AttendanceWorkspace}=load('src/features/workforce/AttendanceWorkspace.tsx',{'../../lib/supabase/client':client,'./attendanceOfflineStore':{pendingAttendance:async()=>[],syncAttendanceQueue:async()=>({synced:0,failed:0,errors:[]})},'../../shared/ui/FormFields':{Badge:()=>null,human:v=>v||''},'lucide-react':new Proxy({},{get:()=>()=>null})});
+const {AttendanceWorkspace}=load('src/features/workforce/AttendanceWorkspace.tsx',{'../../lib/supabase/client':client,'./attendanceDownload':{readAttendanceDownload:async()=>null,attendanceFreshness:()=>({usable:false,label:'Not downloaded'}),downloadAttendance:async()=>null,invalidateAttendanceDownload:async()=>{}},'./attendanceOfflineStore':{pendingAttendance:async()=>[],syncAttendanceQueue:async()=>({synced:0,failed:0,errors:[]})},'../../shared/ui/FormFields':{Badge:()=>null,human:v=>v||''},'lucide-react':new Proxy({},{get:()=>()=>null})});
 let view;await act(async()=>{view=create(React.createElement(AttendanceWorkspace,{userId:'alice'}));});
 const text=node=>typeof node==='string'?node:(node?.children||[]).map(text).join('');
 const button=label=>view.root.findAllByType('button').find(n=>text(n).includes(label));

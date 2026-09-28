@@ -1,13 +1,14 @@
 import {db,rpc} from '../../lib/supabase/client';
 import type {Database,Json} from '../../lib/supabase/database.types';
 import {validateFile} from '../../lib/files/validateFile';
-import {assertOwner,getFieldRecord,fieldRecords,putFieldRecord,putFieldRecords,deleteFieldRecord,fieldInventory} from './offlineSurveyStore';
+import {fieldGeneration,assertFieldGeneration,assertOwner,getFieldRecord,fieldRecords,putFieldRecord,putFieldRecords,deleteFieldRecord,fieldInventory} from './offlineSurveyStore';
 import {resumeTus} from './tusUpload';
 export type LocalAttachment={id:string;project:string;question:string;filename:string;mime:string;size:number;consent:Json;url?:string;offset:number;state:'saved locally'|'uploading'|'uploaded'|'failed';error:string};
 type SaveArgs=Database['public']['Functions']['save_survey_response']['Args'];
 const bytes64=(bytes:Uint8Array)=>{let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s)};
 const from64=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 export async function stageAttachment(owner:string,project:string,question:string,file:File,consent:Json,photo:boolean) {
+ const generation=fieldGeneration(owner);
  await assertOwner(owner);
  const c=consent as Record<string,Json>;
  if(c.agreed!==true||!['adult_subject','representative'].includes(String(c.capture_authority)))throw Error('Record consent and attachment authority before capture');
@@ -19,13 +20,14 @@ export async function stageAttachment(owner:string,project:string,question:strin
  if(existing.reduce((n,r)=>n+r.value.size,0)+file.size>50*1024*1024)throw Error('50 MiB device attachment limit reached. Sync and clean acknowledged copies first');
  const id=crypto.randomUUID(),bytes=new Uint8Array(await file.arrayBuffer());
  const metadata:LocalAttachment={id,project,question,filename:file.name,mime,size:file.size,consent,offset:0,state:'saved locally',error:''};
- await putFieldRecords(owner,[{kind:'attachment',key:id,value:metadata},{kind:'attachment-bytes',key:id,value:bytes64(bytes)}]);
+ assertFieldGeneration(owner,generation);await putFieldRecords(owner,[{kind:'attachment',key:id,value:metadata},{kind:'attachment-bytes',key:id,value:bytes64(bytes)}]);
  return `local-file:${id}`;
 }
 export async function uploadAttachment(owner:string,id:string) {
+ const generation=fieldGeneration(owner);
  const file=await getFieldRecord<LocalAttachment>(owner,'attachment',id);if(!file)throw Error('Device attachment is missing; original survey retained');
  await assertOwner(owner);
- const save=()=>putFieldRecord(owner,'attachment',id,file);
+ const save=()=>{assertFieldGeneration(owner,generation);return putFieldRecord(owner,'attachment',id,file)};
  try{
    // Confirm acknowledged objects before trying another TUS URL.
    if(await rpc('offline_capture_upload_complete',{p_id:id})){file.state='uploaded';file.offset=file.size;file.error='';await save();return id}

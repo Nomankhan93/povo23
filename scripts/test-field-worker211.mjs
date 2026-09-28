@@ -10,10 +10,11 @@ assert(cached.includes('/index.html'));
 for(const path of cached)if(path!=='/')assert(existsSync('dist'+path),path);
 assert(cached.every(p=>p==='/'||p==='/index.html'||p==='/manifest.webmanifest'||p==='/fieldlance-icon-192.png'||p==='/fieldlance-icon-512.png'||p==='/apple-touch-icon.png'||p.startsWith('/assets/')));
 console.log('PASS offline shell precaches only existing static build assets');
-for(const [url,method,mode] of [['https://poem.example.test/api/private','GET','cors'],['https://db.example.test/rest/v1/persons','GET','cors'],['https://poem.example.test/','POST','navigate'],['https://poem.example.test/reset?token=secret','GET','navigate']]){
+for(const [url,method,mode] of [['https://poem.example.test/api/private','GET','cors'],['https://db.example.test/rest/v1/persons','GET','cors'],['https://poem.example.test/','POST','navigate'],['https://poem.example.test/reset?token=secret','GET','navigate'],['https://poem.example.test/app?code=secret','GET','navigate'],['https://poem.example.test/app/api-lookalike','POST','navigate']]){
  let intercepted=false;handlers.fetch({request:{url,method,mode},respondWith(){intercepted=true}});assert.equal(intercepted,false,url);
 }
 let response;handlers.fetch({request:{url:'https://poem.example.test/',method:'GET',mode:'navigate'},respondWith:p=>response=p});assert.equal((await response).cached,'/index.html');
-console.log('PASS root offline navigation works without caching API, auth or foreign requests');
+for(const route of ['/app/field/attendance','/app/work/assignments/one/attendance','/app/field/%25','/app/field?tab=download']){handlers.fetch({request:{url:'https://poem.example.test'+route,method:'GET',mode:'navigate'},respondWith:p=>response=p});assert.equal((await response).cached,'/index.html');}
+console.log('PASS root and app offline navigation reuse only static shell; API/auth/foreign requests bypass cache');
 handlers.activate({waitUntil:p=>work=p});await work;assert.deepEqual(deleted,['fieldlance-field-shell-old']);
 console.log('PASS worker activation leaves unrelated app caches intact');

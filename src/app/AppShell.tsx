@@ -76,7 +76,8 @@ const SurveyTemplates = lazy(() =>
   })),
 );
 import {flushActiveDraft} from "../features/surveys/activeDraft";
-import {fieldInventory,lockFieldDevice} from "../features/surveys/offlineSurveyStore";
+import {lockFieldDevice} from "../features/surveys/offlineSurveyStore";
+import {deviceInventory} from "../features/surveys/fieldDeviceLifecycle";
 import { SurveySyncStatus } from "../features/surveys/SurveySyncStatus";
 
 const Directory = lazy(() => import("../features/volunteers/Directory").then(m => ({default:m.Directory})));
@@ -371,7 +372,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   }
   async function logout() {
     try{await flushActiveDraft()}catch(e){setError((e as Error).message);return;}
-    try{const copies=await fieldInventory(session.user.id);if((copies.queue.length||copies.drafts.length)&&!window.confirm("Unsynchronized field copies remain on this device. Sign out and retain them encrypted for this account? Use Offline field → Erase my device data for explicit shared-device cleanup."))return;}catch{if(!window.confirm("Device inventory unavailable. Sign out without deleting any field copies?"))return;}
+    try{const copies=await deviceInventory(session.user.id);if((Object.values(copies.unsynced).some(n=>n>0))&&!window.confirm("Unsynchronized field copies remain on this device. Sign out and retain them encrypted for this account? Use Offline field → Erase my device data for explicit shared-device cleanup."))return;}catch{if(!window.confirm("Device inventory unavailable. Sign out without deleting any field copies?"))return;}
     lockFieldDevice();
     const { error } = await db!.auth.signOut({scope:'local'});
     if (error) setError(error.message);

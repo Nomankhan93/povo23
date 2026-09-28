@@ -1,3 +1,7 @@
+# Current validation — FieldLance 2.41.0
+
+See [VALIDATION-2.41.0.md](VALIDATION-2.41.0.md) for automated and browser acceptance coverage.
+
 # Current validation — FieldLance 2.40.1
 
 See [VALIDATION-2.40.1.md](VALIDATION-2.40.1.md) for patch checks and remaining deployment validation.

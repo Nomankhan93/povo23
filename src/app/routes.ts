@@ -85,7 +85,8 @@ function projectRoute(kind: AppRoute["kind"], scopeHint: string, organizationId:
 }
 
 export function parseAppRoute(pathname = location.pathname): AppRoute {
-  const parts = clean(pathname);
+  let parts:string[];
+  try { parts=clean(pathname); } catch { return {kind:"unknown",scopeHint:null,page:null,organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null}; }
   if (!parts.length) return {kind:"root",scopeHint:null,page:null,organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
   if (parts[0] === "reset") return {kind:"reset",scopeHint:null,page:null,organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
   if (parts[0] === "access") return {kind:"access",scopeHint:"access",page:"Access status",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};

@@ -5,9 +5,11 @@ import type {Database} from "../../lib/supabase/database.types";
 import {Badge,human} from "../../shared/ui/FormFields";
 import {pendingAttendance,queueAttendanceCheckout,queueAttendanceStart,syncAttendanceQueue,type AttendanceCheckoutPayload,type AttendanceStartPayload} from "./attendanceOfflineStore";
 
+import {readAttendanceDownload,downloadAttendance,invalidateAttendanceDownload,attendanceFreshness,type AttendanceDownload} from "./attendanceDownload";
+
 type Tables=Database["public"]["Tables"];
-type Assignment=Tables["work_assignments"]["Row"];
-type Policy={project_id:string;timezone:string;location_policy:"required"|"preferred"|"not_required";max_accuracy_m:number;updated_at:string;can_manage:boolean};
+export type Assignment=Tables["work_assignments"]["Row"];
+export type Policy={project_id:string;timezone:string;location_policy:"required"|"preferred"|"not_required";max_accuracy_m:number;updated_at:string;can_manage:boolean};
 type AttendanceRow={
   id:string;assignment_id:string;project_id:string;organization_id:string;worker_id:string;work_date:string;timezone:string;
   location_policy_snapshot:string;max_accuracy_m_snapshot:number;check_in_captured_at:string;check_in_received_at:string;
@@ -18,7 +20,7 @@ type AttendanceRow={
   check_in_latitude:number|null;check_in_longitude:number|null;check_in_accuracy_m:number|null;check_in_permission_state:string|null;check_in_quality:string|null;check_in_location_note:string|null;
   check_out_latitude:number|null;check_out_longitude:number|null;check_out_accuracy_m:number|null;check_out_permission_state:string|null;check_out_quality:string|null;check_out_location_note:string|null;
 };
-type Workspace={rows:AttendanceRow[];count:number;summary:{open:number;submitted:number;approved:number;correction_required:number;rejected:number};can_manage:boolean;page:number;from:string;to:string};
+export type Workspace={rows:AttendanceRow[];count:number;summary:{open:number;submitted:number;approved:number;correction_required:number;rejected:number};can_manage:boolean;page:number;from:string;to:string};
 type Capture={latitude:number|null;longitude:number|null;accuracy:number|null;permission:string};
 type PendingSummary={id:string;assignmentId:string;hasStart:boolean;hasCheckout:boolean;updatedAt:number};
 
@@ -45,6 +47,9 @@ export function AttendanceWorkspace({
 }:{
   userId:string;projectId?:string|null;canManage?:boolean;view?:"attendance"|"timesheets";initialAssignmentId?:string|null;
 }){
+  const [download,setDownload]=useState<AttendanceDownload|null>(null),[online,setOnline]=useState(navigator.onLine);
+  const [,tick]=useState(0);
+  useEffect(()=>{const connection=()=>setOnline(navigator.onLine);window.addEventListener("online",connection);window.addEventListener("offline",connection);const timer=window.setInterval(()=>tick(n=>n+1),30000);return()=>{window.removeEventListener("online",connection);window.removeEventListener("offline",connection);window.clearInterval(timer);};},[]);
   const projectView=Boolean(projectId);
   const [workspace,setWorkspace]=useState<Workspace|null>(null),[assignments,setAssignments]=useState<Assignment[]>([]),[policyState,setPolicy]=useState<Policy|null>(null),[selectedAssignment,setSelectedAssignment]=useState(initialAssignmentId||""),[selected,setSelected]=useState<AttendanceRow|null>(null),[page,setPage]=useState(0),[status,setStatus]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[notice,setNotice]=useState(""),[locationNote,setLocationNote]=useState(""),[workNote,setWorkNote]=useState(""),[reviewNote,setReviewNote]=useState(""),[pending,setPending]=useState<PendingSummary[]>([]),[revision,setRevision]=useState(0);
   const [adjustIn,setAdjustIn]=useState(""),[adjustOut,setAdjustOut]=useState(""),[adjustReason,setAdjustReason]=useState("");
@@ -55,47 +60,64 @@ export function AttendanceWorkspace({
   const openSession=workspace?.rows.find(r=>r.status==="open"&&(!selectedAssignment||r.assignment_id===selectedAssignment))||null;
   const pendingForAssignment=pending.find(p=>p.assignmentId===selectedAssignment)||null;
 
-  async function load(){
+  async function load(current:()=>boolean){
     setLoading(true);setError("");
     try{
+      if(!projectId){
+        const cached=await readAttendanceDownload(userId);if(!current())return;setDownload(cached);
+        if(!navigator.onLine){
+          setAssignments(cached?.assignments||[]);setWorkspace(cached?.workspace||null);setPending(await pendingAttendance(userId));
+          if(!selectedAssignment&&cached?.assignments[0])setSelectedAssignment(cached.assignments[0].id);
+          if(!cached)setError("Attendance is not downloaded on this device. Connect and use Download / refresh attendance.");
+          return;
+        }
+      }
       const [w,a,q]=await Promise.all([
         (rpc as any)("attendance_workspace",{p_project:projectId,p_from:fromDate(),p_to:today(),p_status:status||null,p_page:page}) as Promise<Workspace>,
         !projectId?db!.from("work_assignments").select("*").eq("user_id",userId).eq("status","active").order("start_date").limit(100):Promise.resolve({data:[],error:null}),
         !projectId?pendingAttendance(userId):Promise.resolve([]),
       ]);
+      if(!current())return;
       if((a as any).error)throw (a as any).error;
       setWorkspace(w);setAssignments(((a as any).data||[]) as Assignment[]);setPending(q);
       if(!projectId&&!selectedAssignment){const first=initialAssignmentId||(((a as any).data||[])[0]?.id||"");if(first)setSelectedAssignment(first);}
-    }catch(e){setError((e as Error).message);}finally{setLoading(false);}
+    }catch(e){if(current())setError((e as Error).message);}finally{if(current())setLoading(false);}
   }
-  useEffect(()=>{void load();},[projectId,userId,page,status,revision]);
+  useEffect(()=>{let current=true;void load(()=>current);return()=>{current=false;};},[projectId,userId,page,status,revision,online]);
   useEffect(()=>{
     let current=true;
     if(!policyProject){setPolicy(null);return;}
+    if(!online){setPolicy(download?.policies[policyProject]||null);return;}
     void (rpc as any)("project_attendance_policy",{p_project:policyProject}).then((p:Policy)=>{if(current)setPolicy(p);}).catch((e:Error)=>{
-      if(current){if(!networkError(e))setPolicy(null);setError(e.message);}
+      if(current){if(!networkError(e)||!download||!attendanceFreshness(download).usable)setPolicy(null);setError(e.message);}
     });
     return()=>{current=false;};
-  },[policyProject,userId,revision]);
-  useEffect(()=>{if(projectId)return;const sync=()=>{if(navigator.onLine)void syncPending();};window.addEventListener("online",sync);return()=>window.removeEventListener("online",sync);},[projectId,userId]);
+  },[policyProject,userId,revision,online,download]);
+  useEffect(()=>{if(projectId)return;const sync=()=>{if(navigator.onLine)void syncPending(false);};window.addEventListener("online",sync);return()=>window.removeEventListener("online",sync);},[projectId,userId]);
 
   async function run(fn:()=>Promise<unknown>,message:string){setBusy(true);setError("");setNotice("");try{await fn();setNotice(message);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
-  async function syncPending(){setBusy(true);setError("");try{const result=await syncAttendanceQueue(userId);setNotice(result.failed?`${result.synced} attendance record(s) synced; ${result.failed} still need attention. ${result.errors.join("; ")}`:`${result.synced} pending attendance record(s) synced.`);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function syncPending(force=true){setBusy(true);setError("");try{const result=await syncAttendanceQueue(userId,force);if(result.synced)await refreshExistingDownload();setNotice(result.failed?`${result.synced} attendance record(s) synced; ${result.failed} still need attention. ${result.errors.join("; ")}`:`${result.synced} pending attendance record(s) synced.`);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
 
+  const offlineReady=Boolean(download&&download.ownerId===userId&&attendanceFreshness(download).usable);
+  async function refreshDownload(){setBusy(true);setError("");try{setDownload(await downloadAttendance(userId));setNotice("Attendance assignments and policy downloaded for up to 24 hours. Sync always rechecks server access.");setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function refreshExistingDownload(){if(download&&navigator.onLine&&await readAttendanceDownload(userId)){try{setDownload(await downloadAttendance(userId));}catch{await invalidateAttendanceDownload(userId);setError("Action saved on server, but attendance download could not be refreshed. Refresh it before going offline.");setDownload(null);}}}
   async function start(){
-    if(!assignment||!policy||loading)return;setBusy(true);setError("");setNotice("");
+    if(!assignment||!policy||loading)return;
+    if(!navigator.onLine&&(!download||download.ownerId!==userId||!attendanceFreshness(download).usable)){setError("Attendance download expired or is unavailable. Reconnect and refresh; pending evidence is retained.");return;}setBusy(true);setError("");setNotice("");
     try{
       const location=await captureLocation(policy);
       if(policy.location_policy==="required"&&location.permission!=="granted")throw Error("This project requires location permission for check-in.");
       if(policy.location_policy==="preferred"&&location.permission!=="granted"&&locationNote.trim().length<2)throw Error("Add a short reason when preferred location evidence is unavailable.");
+      if(!navigator.onLine&&(!download||!attendanceFreshness(download).usable))throw Error("Attendance download expired during capture. Reconnect and refresh.");
       const args:AttendanceStartPayload={p_assignment:assignment.id,p_captured_at:new Date().toISOString(),p_latitude:location.latitude,p_longitude:location.longitude,p_accuracy_m:location.accuracy,p_permission_state:location.permission,p_location_note:locationNote.trim(),p_request:crypto.randomUUID()};
       if(!navigator.onLine){await queueAttendanceStart(userId,args);setPending(await pendingAttendance(userId));setNotice("Check-in saved encrypted on this device and will sync when online.");}
-      else try{await (rpc as any)("start_assignment_work_session",args);setNotice("Field work started. Location was captured only for this explicit check-in.");setRevision(v=>v+1);}catch(e){if(!networkError(e))throw e;await queueAttendanceStart(userId,args);setPending(await pendingAttendance(userId));setNotice("Network unavailable. Check-in saved encrypted on this device for later sync.");}
+      else try{await (rpc as any)("start_assignment_work_session",args);setNotice("Field work started. Location was captured only for this explicit check-in.");await refreshExistingDownload();setRevision(v=>v+1);}catch(e){if(!networkError(e))throw e;await queueAttendanceStart(userId,args);setPending(await pendingAttendance(userId));setNotice("Network unavailable. Check-in saved encrypted on this device for later sync.");}
       setLocationNote("");
     }catch(e){setError((e as Error).message);}finally{setBusy(false);}
   }
 
   async function finish(session:AttendanceRow|null,pendingStart=false){
+    if(!navigator.onLine&&(!download||download.ownerId!==userId||!attendanceFreshness(download).usable)){setError("Attendance download expired or is unavailable. Reconnect and refresh; pending evidence is retained.");return;}
     if(!policy||loading){setError("Attendance policy is unavailable. Refresh before ending field work.");return;}
     if((!session&&!pendingStart)||workNote.trim().length<2){setError("Add a short workday note before ending field work.");return;}
     setBusy(true);setError("");setNotice("");
@@ -103,9 +125,10 @@ export function AttendanceWorkspace({
       const location=await captureLocation(policy);
       if(policy.location_policy==="required"&&location.permission!=="granted")throw Error("This project requires location permission for checkout.");
       if(policy.location_policy==="preferred"&&location.permission!=="granted"&&locationNote.trim().length<2)throw Error("Add a short reason when preferred location evidence is unavailable.");
+      if(!navigator.onLine&&(!download||!attendanceFreshness(download).usable))throw Error("Attendance download expired during capture. Reconnect and refresh.");
       const args:AttendanceCheckoutPayload={p_session:session?.id||"",p_captured_at:new Date().toISOString(),p_latitude:location.latitude,p_longitude:location.longitude,p_accuracy_m:location.accuracy,p_permission_state:location.permission,p_location_note:locationNote.trim(),p_worker_note:workNote.trim(),p_request:crypto.randomUUID(),p_version:session?.version||1};
       if(pendingStart||!navigator.onLine){await queueAttendanceCheckout(userId,selectedAssignment,args);setPending(await pendingAttendance(userId));setNotice("Checkout and submission saved encrypted on this device and will sync when online.");}
-      else try{await (rpc as any)("checkout_assignment_work_session",args);setNotice("Workday ended and submitted for review.");setRevision(v=>v+1);}catch(e){if(!networkError(e))throw e;await queueAttendanceCheckout(userId,selectedAssignment,args);setPending(await pendingAttendance(userId));setNotice("Network unavailable. Checkout saved encrypted for later sync.");}
+      else try{await (rpc as any)("checkout_assignment_work_session",args);setNotice("Workday ended and submitted for review.");await refreshExistingDownload();setRevision(v=>v+1);}catch(e){if(!networkError(e))throw e;await queueAttendanceCheckout(userId,selectedAssignment,args);setPending(await pendingAttendance(userId));setNotice("Network unavailable. Checkout saved encrypted for later sync.");}
       setWorkNote("");setLocationNote("");
     }catch(e){setError((e as Error).message);}finally{setBusy(false);}
   }
@@ -122,6 +145,7 @@ export function AttendanceWorkspace({
       <button className="secondary" disabled={busy||loading} onClick={()=>setRevision(v=>v+1)}><RefreshCw size={15}/> Refresh</button>
     </header>
     {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
+    {!projectId&&<div className="notice"><strong>Attendance on this device</strong><p>{download?attendanceFreshness(download).label:"No attendance download. Connect and download before field use."}</p><p>Includes up to 100 active assignments and open work sessions. Offline saves remain pending until server acceptance.</p><button className="secondary" disabled={busy||!online} onClick={()=>void refreshDownload()}>Download / refresh attendance</button></div>}
     {!projectId&&pending.length>0&&<div className="notice warning"><WifiOff size={16}/><span>{pending.length} attendance record(s) are waiting on encrypted device sync.</span><button className="secondary" disabled={busy||!navigator.onLine} onClick={()=>void syncPending()}>Sync now</button></div>}
 
     {manageAttendance&&policy&&<form className="attendance-policy" onSubmit={savePolicy}><div><strong>Attendance policy</strong><p>Project timezone defines the workday. Location can be required, preferred, or not required.</p></div><label>Timezone<input name="timezone" defaultValue={policy.timezone} required/></label><label>Location<select name="location_policy" defaultValue={policy.location_policy}><option value="required">Required</option><option value="preferred">Preferred</option><option value="not_required">Not required</option></select></label><label>Accuracy warning (m)<input name="max_accuracy_m" type="number" min="5" max="5000" step="1" defaultValue={policy.max_accuracy_m}/></label><button className="secondary" disabled={busy}>Save policy</button></form>}
@@ -131,9 +155,9 @@ export function AttendanceWorkspace({
       {!assignments.length&&!loading&&<p className="notice">No active formal assignment is available for attendance.</p>}
       {assignments.length>0&&<label className="field">Assignment<select value={selectedAssignment} onChange={e=>{setSelectedAssignment(e.target.value);setLocationNote("");setWorkNote("")}}>{assignments.map(a=><option key={a.id} value={a.id}>{a.project_title} · {a.organization_name}</option>)}</select></label>}
       {assignment&&policy&&<div className="attendance-assignment-card"><div><strong>{assignment.project_title}</strong><p>{assignment.organization_name} · {assignment.start_date} → {assignment.end_date} · {human(assignment.compensation_type)}</p><small>Timezone: {policy.timezone} · Location: {human(policy.location_policy)} · Accuracy warning: ±{policy.max_accuracy_m}m</small></div><Badge value={assignment.status}/></div>}
-      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
+      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
       {openSession&&<div className="attendance-live"><span className="attendance-live-dot"/><div><strong>Field session active</strong><p>Started {timestamp(openSession.check_in_captured_at)} · {openSession.check_in_quality?human(openSession.check_in_quality):"location pending"}</p></div></div>}
-      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
+      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
       {pendingForAssignment?.hasCheckout&&<p className="notice warning">This workday is queued on this device and will be submitted when connectivity returns.</p>}
     </section>}
 

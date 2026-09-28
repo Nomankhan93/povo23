@@ -8,6 +8,7 @@ const OfflineFieldWorkspace=lazy(()=>import("../features/surveys/OfflineFieldWor
 import {offlineOwner,rememberFieldOwner,lockFieldDevice} from "../features/surveys/offlineSurveyStore";
 import {CertificateVerification} from "../features/workforce/ReputationCertificates";
 import { Workspace } from "./AppShell";
+import {parseAppRoute} from "./routes";
 export function App() {
   const [connection,setConnection]=useState(navigator.onLine);
   const [field,setField]=useState(!navigator.onLine),[cachedOwner,setCachedOwner]=useState(offlineOwner());
@@ -67,7 +68,9 @@ export function App() {
       </div>
     );
   if(new URLSearchParams(location.search).has('certificate'))return <CertificateVerification/>;
-  if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} back={()=>setField(false)}/></Suspense>;
+  if(!connection&&!cachedOwner&&!recovery)return <main className="panel"><h1>Field device locked</h1><p>Connect and sign in as the owner to reopen downloaded data. Device copies have not been deleted.</p></main>;
+  if(field&&cachedOwner&&!recovery&&parseAppRoute().kind==="unknown")return <main className="panel"><h1>Page not found</h1><p>This address is invalid. Your downloaded data is unchanged.</p><a href="/app/field">Open downloaded field workspace</a></main>;
+  if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;
   if (!ready)
     return (
       <div className="setup" role="status">
