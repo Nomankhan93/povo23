@@ -20,6 +20,7 @@ export function SurveyProjects({
   onBackToWorkspace,
   workspaceMode = "full",
   openWorkspace,
+  initialResponseId = null,
 }: {
   userId: string;
   organization: string | null;
@@ -33,6 +34,7 @@ export function SurveyProjects({
   onBackToWorkspace?: () => void;
   workspaceMode?: "full" | "field-work" | "responses";
   openWorkspace?: (project: Project) => void;
+  initialResponseId?: string | null;
 }) {
   const [collectionArea,setCollectionArea]=useState<string|null>(null);
   const [createOrganization,setCreateOrganization]=useState("");
@@ -46,6 +48,7 @@ export function SurveyProjects({
     [rev, setRev] = useState(0),
     [create, setCreate] = useState(false),
     [moderationNotes, setModerationNotes] = useState<Record<string, string>>({});
+  useEffect(() => { setChosen(null); setPage(0); }, [projectId]);
   useEffect(() => {
     let live = true;
     setBusy(true);
@@ -166,6 +169,7 @@ export function SurveyProjects({
         openRecruitment={openRecruitment}
         workspaceMode={workspaceMode}
         openWorkspace={openWorkspace}
+        initialResponseId={initialResponseId}
         backLabel={projectId ? "Project workspace" : "All projects"}
         back={() => {
           if (projectId && onBackToWorkspace) {

@@ -1,3 +1,9 @@
+# Current architecture note — FieldLance 2.41.2
+
+2.41.2 stabilizes browser validation using native Chromium connectivity controls and an uncached transport probe. The expiry fixture uses ordered timestamps after synchronization completes. No production architecture or database changes.
+
+Paged map RPC computes full authorized filtered totals. UI view preferences are session-memory only; returning to the map re-fetches authorized evidence pages.
+
 # Current architecture note — FieldLance 2.41.0
 
 Offline Routing & Device Recovery. Supported app routes reopen the static offline shell; downloaded survey and attendance data stay owner-scoped. Unified inventory, explicit owner erase, attendance receipts/retry states and expiring attendance downloads complete the field device lifecycle. Backend authorization remains authoritative at sync. See docs/PHASE-2.41.0.md, docs/UPGRADE-2.41.0.md and docs/VALIDATION-2.41.0.md.
@@ -445,3 +451,9 @@ The listing remains a compensation snapshot boundary: changing project compensat
 ## 2.39 case ownership boundary
 
 FieldLance reuses the existing beneficiary-case, follow-up and Task Center stacks. `beneficiary_case_assignments` adds one active operational owner, while immutable assignment events preserve handoffs. Delegated Field Worker / Area Focal reads use bounded security-definer RPCs; direct case RLS remains manager-scoped. Field Worker eligibility is tied to active survey collection geography, and Area Focal eligibility is tied to active project-staff geography.
+
+## 2.41.1 map completeness architecture
+
+`field_operations_map_page(...)` is the current map read contract. It derives authorized survey, attendance and case-visit evidence, applies server-side operational filters, computes full matched counters, and returns a bounded keyset page. The older `field_operations_map(...)` remains compatibility-only. MapLibre remains presentation; PostgreSQL remains the location-quality and authorization authority.
+
+The review list and markers use the same returned page, while summary counters describe the full filtered authorized set. Boundary geometry is returned only for authorized page/project scope. Source actions are capability hints only; destination surfaces still enforce existing RLS/RPC authorization.

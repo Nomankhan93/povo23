@@ -1,6 +1,6 @@
-# Current release: FieldLance 2.41.0
+# Current release: FieldLance 2.41.2
 
-Offline Routing & Device Recovery. Supported app routes reopen the static offline shell; downloaded survey and attendance data stay owner-scoped. Unified inventory, explicit owner erase, attendance receipts/retry states and expiring attendance downloads complete the field device lifecycle. Backend authorization remains authoritative at sync. See docs/PHASE-2.41.0.md, docs/UPGRADE-2.41.0.md and docs/VALIDATION-2.41.0.md.
+Offline Browser Validation & Release Stabilization. Browser validation now verifies native connectivity and uncached network reachability, encrypted offline capture, completed synchronization and a valid expired download. Includes actionable failure diagnostics and the date-only corrective regression fix. Existing map evidence and attendance behavior are preserved. See docs/PHASE-2.41.2.md, docs/UPGRADE-2.41.2.md and docs/VALIDATION-2.41.2.md.
 
 # Current release: FieldLance 2.40.1
 

@@ -1,3 +1,7 @@
+# Current validation — FieldLance 2.41.2
+
+See [VALIDATION-2.41.2.md](VALIDATION-2.41.2.md) for offline browser and current release validation.
+
 # Current validation — FieldLance 2.41.0
 
 See [VALIDATION-2.41.0.md](VALIDATION-2.41.0.md) for automated and browser acceptance coverage.
@@ -22,3 +26,7 @@ Previous: [VALIDATION-2.37.0.md](VALIDATION-2.37.0.md).
 
 ## 2.38.1 automatic project marketplace
 Run `npm run test:auto-marketplace-2381`. Verify publish → automatic marketplace listing → Field Worker application → Organization review/offer → Field Worker acceptance, with no permanent profile-share prerequisite.
+
+## 2.41.1
+
+Run `npm run test:map-review-2411` in addition to the standard type, metadata, preflight and local-Supabase gates. The regression includes a >2,500 evidence fixture, duplicate-free keyset traversal, server-filter consistency, authorization denial paths and source-navigation contracts. See `docs/VALIDATION-2.41.1.md`.

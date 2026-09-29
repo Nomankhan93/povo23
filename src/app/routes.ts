@@ -1,4 +1,4 @@
-export type RouteEntityKind = "application" | "assignment" | "case" | null;
+export type RouteEntityKind = "application" | "assignment" | "case" | "response" | null;
 
 export type AppRoute = {
   kind: "root" | "personal" | "organization" | "staff" | "project" | "onboarding" | "access" | "reset" | "unknown";
@@ -79,6 +79,8 @@ function projectRoute(kind: AppRoute["kind"], scopeHint: string, organizationId:
   let entityKind: RouteEntityKind = null;
   let entityId: string | null = null;
   if (tab === "cases" && rest[1]) { entityKind = "case"; entityId = rest[1]; }
+  if (tab === "responses" && rest[1]) { entityKind = "response"; entityId = rest[1]; }
+  if (tab === "field-work" && rest[1] === "assignments" && rest[2]) { entityKind = "assignment"; entityId = rest[2]; }
   if (tab === "recruitment" && rest[1] === "applications" && rest[2]) { entityKind = "application"; entityId = rest[2]; }
   if (tab === "recruitment" && rest[1] === "assignments" && rest[2]) { entityKind = "assignment"; entityId = rest[2]; }
   return {kind, scopeHint, page:"Project workspace", organizationId, projectId, projectTab:tab, entityKind, entityId};
@@ -98,6 +100,7 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
     if (parts[1] === "work" && parts[2] === "assignments") return {kind:"personal",scopeHint:"personal",page:"My Assigned Surveys",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"assignment":null,entityId:parts[3]||null};
     if (parts[1] === "work" && parts[2] === "schedule") return {kind:"personal",scopeHint:"personal",page:"My Schedule",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "work" && parts[2] === "availability") return {kind:"personal",scopeHint:"personal",page:"My Availability",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
+    if (parts[1] === "field" && parts[2] === "projects" && parts[3] && parts[4] === "responses") return {kind:"personal",scopeHint:"personal",page:"Survey projects",organizationId:null,projectId:parts[3],projectTab:null,entityKind:parts[5]?"response":null,entityId:parts[5]||null};
     if (parts[1] === "field" && parts[2] === "attendance") return {kind:"personal",scopeHint:"personal",page:"My Attendance",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "cases") return {kind:"personal",scopeHint:"personal",page:"My Cases",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"case":null,entityId:parts[3]||null};
     if (parts[1] === "field" && parts[2] === "follow-ups") return {kind:"personal",scopeHint:"personal",page:"My Follow-ups",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
@@ -138,6 +141,8 @@ function pageSlug(page: string) { return pageToSlug[page] || page.toLowerCase().
 
 function projectSuffix(tab = "overview", entityKind: RouteEntityKind = null, entityId: string | null = null) {
   if (tab === "cases" && entityKind === "case" && entityId) return `/cases/${encodeURIComponent(entityId)}`;
+  if (tab === "responses" && entityKind === "response" && entityId) return `/responses/${encodeURIComponent(entityId)}`;
+  if (tab === "field-work" && entityKind === "assignment" && entityId) return `/field-work/assignments/${encodeURIComponent(entityId)}`;
   if (tab === "recruitment" && entityKind === "application" && entityId) return `/recruitment/applications/${encodeURIComponent(entityId)}`;
   if (tab === "recruitment" && entityKind === "assignment" && entityId) return `/recruitment/assignments/${encodeURIComponent(entityId)}`;
   return `/${encodeURIComponent(tab)}`;
@@ -166,6 +171,7 @@ export function routePath(target: RouteTarget): string {
     if (page === "My Attendance") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}/attendance` : "/app/field/attendance";
     if (page === "My Timesheets") return "/app/field/timesheets";
     if (page === "My Field Map") return "/app/field/map";
+    if (page === "Survey projects" && projectId) return entityKind === "response" && entityId ? `/app/field/projects/${encodeURIComponent(projectId)}/responses/${encodeURIComponent(entityId)}` : `/app/field/projects/${encodeURIComponent(projectId)}/responses`;
     if (page === "My Schedule") return "/app/work/schedule";
     if (page === "My Availability") return "/app/work/availability";
     if (page === "My Cases") return entityKind === "case" && entityId ? `/app/field/cases/${encodeURIComponent(entityId)}` : "/app/field/cases";

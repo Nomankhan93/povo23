@@ -22,6 +22,7 @@ function shouldIgnore(relPath, isDirectory) {
   if (!isDirectory && (p === '.env' || (p.startsWith('.env.') && p !== '.env.example'))) return true;
   if (!isDirectory && (p.endsWith('.log') || p.endsWith('.tsbuildinfo'))) return true;
   if (!isDirectory && /\.before-.*-fix$/.test(p)) return true;
+  if (p === 'scripts/.test-browser241-diagnostic.mjs' || p === 'scripts/.test-corrective2411.before-date-fix.mjs') return true;
   return false;
 }
 
@@ -100,13 +101,14 @@ function generateAnalysisContext(files) {
     'PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.',
     'Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.',
     '',
-    '===== CURRENT 2.41.0 PRODUCT BOUNDARIES =====',
+    '===== CURRENT 2.41.2 PRODUCT BOUNDARIES =====',
     '- One personal FieldLance account can access multiple authorized workspaces.',
     '- 2.30.1 stabilizes document deletion, draft-safe navigation, pending application counts and lazy feature boundaries.',
     '- 2.36.0 adds canonical browser routes for personal, Organization, Staff and project workspaces; deep links never replace RLS/RPC authorization.',
     '- 2.36.1 retires Partner Organization project/template pre-approval: active Organization Admins publish their own saved drafts directly while FieldLance survey-management staff govern published content through audited block/remove/restore moderation.',
     '- 2.37.0 adds private structured Field Worker availability, date exceptions, capacity preferences and privacy-preserving assignment conflict summaries. Hard capacity conflicts are enforced on offered/active work assignments below the UI.',
     '- 2.39.0 adds explicit named beneficiary-case ownership and delegated Field Worker / Area Focal follow-up operations. It reuses beneficiary_cases, beneficiary_case_followups and operational_tasks rather than creating parallel systems.',
+    '- 2.41.1 replaces capped map summaries with an authorized paged evidence contract: server-side filters, true matched totals, keyset loading, accessible review list, scoped source actions and renderer-failure fallback. The 2.40 map RPC remains compatibility-only.',
     '- 2.41.0 adds safe app-route offline shell fallback, combined survey/attendance device inventory, explicit owner erase, attendance sync receipts and expiring downloaded attendance access.',
     '- 2.40.1 stabilizes versioned case evidence, attendance policy refresh, encrypted attendance writes and boundary validation; see current upgrade and validation notes.',
     '- 2.40.0 adds Field Operations Map and Geographic Quality on top of existing survey GPS, attendance check-in/out and delegated case-visit evidence. MapLibre is presentation only; PostgreSQL remains the quality/authorization authority.',
@@ -199,16 +201,19 @@ function generateAnalysisContext(files) {
     'npm run test:auto-marketplace-2381',
     'npm run test:case-ownership-239',
     'npm run test:field-map-240',
+    'npm run test:map-review-2411',
+    'npm run test:browser-map-2411',
     '',
     '===== KNOWN SCALE / OPERATIONS LIMITS =====',
     '- Supporting UI lists still use bounded fetches in several places (for example account/organization/membership/event selectors).',
+    '- Field Operations Map now reports full matched totals and keyset pages, but production-scale query plans and basemap/CDN behavior still require hosted/runtime verification.',
     '- Communication Center now supports 50-row paging, archive/history, deep links, preferences and scoped broadcasts; external email/push/SMS/WhatsApp delivery remains deferred.',
     '- Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.',
     '',
     '===== NEXT DEVELOPMENT BOUNDARY =====',
-    'FieldLance 2.40.0 adds provider-independent Field Operations Map, explicit case-visit location evidence, audited geography boundaries and review-only geographic/attendance consistency signals on top of existing survey, attendance and delegated-case systems.',
-    'Future releases must use versions greater than 2.41.0. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.',
-    'The next planned feature phase is 2.41 Supervisor Quality & Exception Review. Reuse 2.40 review signals and existing Task Center rather than creating a second case/task system.',
+    'FieldLance 2.41.2 stabilizes offline browser validation with native network-state control, an uncached transport probe, completed-sync sequencing, valid expired fixtures and actionable failure diagnostics. The date-only corrective regression selects PostgreSQL text; no production or SQL changes are introduced.',
+    'Future releases must use versions greater than 2.41.2. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.',
+    'The next planned patch is 2.41.2 Notification Actions & Context: replace title-based inference with explicit event/source/action metadata while reusing the current notification center.',
     'Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.',
     'Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.',
     'Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.',

@@ -1,3 +1,4 @@
+import type { FieldMapViewStore } from "../maps/fieldMapViewState";
 import type {ReportSelection} from "../analytics/model";
 import type {RouteEntityKind} from "../../app/routes";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -55,6 +56,9 @@ export function ProjectWorkspace({
   platformFinance,
   surveyManage,
   onNavigate,
+  onOpenDelegatedCase,
+  mapViewStore,
+  mapViewKey,
   routeTab = null,
   routeEntityKind = null,
   routeEntityId = null,
@@ -73,6 +77,9 @@ export function ProjectWorkspace({
   platformFinance: boolean;
   surveyManage: boolean;
   onNavigate: (page: string) => void;
+  onOpenDelegatedCase?: (caseId: string) => void;
+  mapViewStore?: FieldMapViewStore;
+  mapViewKey?: string;
   routeTab?: ProjectWorkspaceTab | null;
   routeEntityKind?: RouteEntityKind;
   routeEntityId?: string | null;
@@ -178,7 +185,7 @@ export function ProjectWorkspace({
     </section>}
 
     {tab === "field-work" && <section className="project-workspace-section">
-      <AttendanceWorkspace userId={userId} projectId={projectId} canManage={canManageProject} view="attendance" />
+      <AttendanceWorkspace userId={userId} projectId={projectId} canManage={canManageProject} view="attendance" initialAssignmentId={routeEntityKind === "assignment" ? routeEntityId : null} />
       <SurveyProjects
         userId={userId}
         organization={null}
@@ -194,7 +201,13 @@ export function ProjectWorkspace({
       />
     </section>}
 
-    {tab === "map" && <FieldOperationsMap projectId={projectId} geographies={geographies} />}
+    {tab === "map" && <FieldOperationsMap key={mapViewKey || projectId} viewStateStore={mapViewStore} viewStateKey={mapViewKey || projectId} projectId={projectId} geographies={geographies} onOpenSource={(row) => {
+      if (!row.source_context_id) return;
+      if (row.source_kind === "response") void navigate(() => { setTab("responses"); onRouteChange?.("responses","response",row.source_context_id); });
+      else if (row.source_kind === "attendance") void navigate(() => { setTab("field-work"); onRouteChange?.("field-work","assignment",row.source_context_id); });
+      else if (row.source_kind === "case" && canManageCases) void navigate(() => { setTab("cases"); onRouteChange?.("cases","case",row.source_context_id); });
+      else if (row.source_kind === "case") void navigate(() => onOpenDelegatedCase?.(row.source_context_id));
+    }} />}
 
     {tab === "responses" && <SurveyProjects
       userId={userId}
@@ -206,6 +219,7 @@ export function ProjectWorkspace({
       orgs={orgs as any}
       geographies={geographies}
       workspaceMode="responses"
+      initialResponseId={routeEntityKind === "response" ? routeEntityId : null}
       openRecruitment={canManageRecruitment ? () => openTab("recruitment") : undefined}
       onBackToWorkspace={() => openTab("overview")}
     />}

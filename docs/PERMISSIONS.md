@@ -1,3 +1,9 @@
+# Current permissions note — FieldLance 2.41.2
+
+2.41.2 changes validation only; existing owner isolation, device locking, erasure, freshness and server authorization remain unchanged.
+
+Historical own map evidence does not imply source access. Survey source actions require current project-read and owner/reviewer permission; destinations retain their RLS checks.
+
 # Current permissions note — FieldLance 2.41.0
 
 Offline Routing & Device Recovery. Supported app routes reopen the static offline shell; downloaded survey and attendance data stay owner-scoped. Unified inventory, explicit owner erase, attendance receipts/retry states and expiring attendance downloads complete the field device lifecycle. Backend authorization remains authoritative at sync. See docs/PHASE-2.41.0.md, docs/UPGRADE-2.41.0.md and docs/VALIDATION-2.41.0.md.
@@ -493,3 +499,12 @@ Direct application/document table writes are not granted to authenticated client
 - An Area Focal Person receives delegated case/follow-up access only after explicit case assignment and only while current project-staff areas cover the case geography.
 - Delegation does not grant assistance approval, finance, Organization settings, broad beneficiary registry access or unrelated cases.
 - Reassignment/unassignment is manager-only, version-guarded and audited.
+
+## 2.41.1 map evidence permissions
+
+- Personal map: the signed-in Field Worker can request only their own evidence.
+- Project Field Worker: only their own evidence in that project.
+- Area Focal: only evidence allowed by active project + assigned geography authority.
+- Project/organization managers: existing project-management authority applies; no new organization-wide location grant is introduced.
+- Source navigation is exposed only when the actor can read that source class, and the target query/RPC re-checks permission.
+- Geography filters do not independently authorize boundary geometry.

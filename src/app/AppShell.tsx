@@ -27,7 +27,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { EventList } from "../features/audit/EventList";
 import { AccountAccess } from "../features/auth/AccountAccess";
 import {resolveWorkspace, workspaceHome, readPreferredWorkspace, rememberPreferredWorkspace, type WorkspaceAccess} from "../features/workspaces/access";
@@ -90,6 +90,7 @@ import { InvitationsPanel } from "../features/workforce/InvitationsPanel";
 const WorkforceMarketplace = lazy(() => import("../features/workforce/WorkforceMarketplace").then(m => ({default:m.WorkforceMarketplace})));
 const WorkAvailabilitySchedule = lazy(() => import("../features/workforce/WorkAvailabilitySchedule").then(m => ({default:m.WorkAvailabilitySchedule})));
 const AttendanceWorkspace = lazy(() => import("../features/workforce/AttendanceWorkspace").then(m => ({default:m.AttendanceWorkspace})));
+import type { FieldMapViewStore } from "../features/maps/fieldMapViewState";
 const FieldOperationsMap = lazy(() => import("../features/maps/FieldOperationsMap").then(m => ({default:m.FieldOperationsMap})));
 import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
 import { db, rpc } from "../lib/supabase/client";
@@ -97,6 +98,7 @@ import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
+  const fieldMapViews = useMemo<FieldMapViewStore>(() => new Map(), [session.user.id]);
   const [browserRoute,setBrowserRoute]=useState(()=>parseAppRoute());
   const [reportSelection,setReportSelection]=useState<ReportSelection|null>(null);
   const [collapsed, setCollapsed] = useState(readSidebarCollapsed);
@@ -209,7 +211,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       setFilter("all");
     }
     setPageState(nextPage);
-    if (!isExplicitRoute(browserRoute)) syncRoute({scope:resolved,page:nextPage},true);
+    if (browserRoute.kind === "root") syncRoute({scope:resolved,page:nextPage},true);
   }
   async function switchWorkspace(next: string) {
     const request = ++requestId.current;
@@ -637,6 +639,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
       </div>
     );
   if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={load}>Retry</button><button onClick={logout}>Sign out</button></div>;
+  if (browserRoute.kind === "unknown") return (
+    <main className="setup">
+      <h1>Page not found</h1>
+      <p>This address is invalid. Your FieldLance data is unchanged.</p>
+      <a href={routePath({scope,page:workspaceHome(scope)})}>Open your workspace</a>
+    </main>
+  );
   return (
     <div className={`app ${collapsed ? "nav-collapsed" : "nav-expanded"} ${personalWorkspace ? "has-mobile-worker-nav" : ""}`} onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
       <a className="skip-link" href="#workspace-content">Skip to content</a>
@@ -1075,7 +1084,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
           )}
           {page === "My Field Map" && personalWorkspace && validScope && (
             <Suspense fallback={<p role="status">Loading field map…</p>}>
-              <FieldOperationsMap geographies={geographies} />
+              <FieldOperationsMap key={`${session.user.id}:${scope}`} viewStateStore={fieldMapViews} viewStateKey={`${session.user.id}:${scope}:personal`} geographies={geographies} onOpenSource={(row) => {
+                if (!row.source_context_id) return;
+                if (row.source_kind === "response") { setPageState("Survey projects"); syncRoute({scope,page:"Survey projects",projectId:row.project_id,entityKind:"response",entityId:row.source_context_id}); }
+                else if (row.source_kind === "attendance") { setPageState("My Attendance"); syncRoute({scope,page:"My Attendance",entityKind:"assignment",entityId:row.source_context_id}); }
+                else if (row.source_kind === "case") { setPageState("My Cases"); syncRoute({scope,page:"My Cases",entityKind:"case",entityId:row.source_context_id}); }
+              }} />
             </Suspense>
           )}
           {(page === "My Cases" || page === "My Follow-ups") && personalWorkspace && validScope && (
@@ -1158,6 +1172,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
               platformFinance={financeManage}
               surveyManage={surveyManage}
               onNavigate={change}
+              mapViewStore={fieldMapViews}
+              mapViewKey={`${session.user.id}:${scope}:${workspaceProjectId}`}
+              onOpenDelegatedCase={(caseId) => {
+                const targetPage = scope === "personal" ? "My Cases" : "Beneficiary cases";
+                setPageState(targetPage);
+                syncRoute({scope,page:targetPage,entityKind:"case",entityId:caseId});
+              }}
               routeTab={browserRoute.projectId===workspaceProjectId ? browserRoute.projectTab as ProjectWorkspaceTab | null : null}
               routeEntityKind={browserRoute.projectId===workspaceProjectId ? browserRoute.entityKind : null}
               routeEntityId={browserRoute.projectId===workspaceProjectId ? browserRoute.entityId : null}
@@ -1170,7 +1191,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 key={scope}
                 userId={session.user.id}
                 organization={scope === "personal" || poem || projectScope ? null : scope}
-                projectId={projectScopeId}
+                projectId={projectScopeId || (scope === "personal" && browserRoute.page === "Survey projects" ? browserRoute.projectId : null)}
+                initialResponseId={browserRoute.page === "Survey projects" && browserRoute.entityKind === "response" ? browserRoute.entityId : null}
                 manage={surveyManage}
                 review={surveyManage || projectScope || (!poem && scope !== "personal")}
                 manageAssignments={canManageProjectAssignments}

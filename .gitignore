@@ -7,6 +7,8 @@ dist/
 supabase/.temp/
 supabase/.branches/
 *.log
+scripts/.test-browser241-diagnostic.mjs
+scripts/.test-corrective2411.before-date-fix.mjs
 
 .poem-patch-backups/
 .library-test-*/

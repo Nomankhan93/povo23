@@ -1,3 +1,15 @@
+# Current release checklist — FieldLance 2.41.2
+
+## 2.41.2 release gate
+
+- Run `npm run preflight`.
+- Run `npm run test:browser-241`, `npm run test:browser-network-2412` and `npm run test:browser-map-2411` with Chromium installed.
+- Keep diagnostic backups out of the release; run `npm run metadata:generate` and `git diff --check`.
+- Record the local Supabase result separately with `npm run test:local`; simulated browser transport is not a live backend acceptance test.
+- No new migration; retain the corrected 2.41.1 migration history through `20261013000461_daily_payable_timezone_consistency.sql`.
+
+Validate exact generated types, full preflight, map browser acceptance and real deployment checks before release.
+
 # Current release checklist — FieldLance 2.41.0
 
 Offline Routing & Device Recovery. Supported app routes reopen the static offline shell; downloaded survey and attendance data stay owner-scoped. Unified inventory, explicit owner erase, attendance receipts/retry states and expiring attendance downloads complete the field device lifecycle. Backend authorization remains authoritative at sync. See docs/PHASE-2.41.0.md, docs/UPGRADE-2.41.0.md and docs/VALIDATION-2.41.0.md.
@@ -162,3 +174,15 @@ See docs/UPGRADE-2.30.1.md and docs/VALIDATION-2.30.1.md.
 - Generate database types and project metadata.
 - Run `npm run test:case-ownership-239`, `npm run preflight` and `npm run test:local`.
 - Manually validate Field Worker and Area Focal delegated-case visibility, reassignment, Task Center handoff and access removal after authority revocation.
+
+## 2.41.1 release gate
+
+- `20261013000460_map_completeness_evidence_review.sql` is the only new schema migration for this patch.
+- `npm run test:map-review-2411` passes with the >2,500-row pagination fixture.
+- Worker, Area Focal and unrelated-organization negative map paths remain denied.
+- Matched totals, loaded counts and partial-result state are visibly distinct.
+- Basemap failure leaves the evidence review list usable.
+- `npx supabase db push --dry-run` shows only intended pending migrations before remote deployment.
+
+
+- Corrected 2.41.1 gate: revoked survey source access hides the source action; map return restores filters/selection/page depth with fresh authorization; delegated-case links retain their case ID. Run `npm run test:browser-map-2411`.

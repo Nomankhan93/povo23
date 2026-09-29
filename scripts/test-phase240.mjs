@@ -82,7 +82,10 @@ await ok('2.40 migration is appended directly after the 2.39 permission fix',asy
   assert.equal(migrations.indexOf(current),migrations.indexOf(prior)+1);
 });
 
-if(process.env.FIELDLANCE_STATIC_ONLY==='1'){console.log(`\n${passed} FieldLance 2.40.0 static contract checks passed.`);process.exit(0)}
+const {mapReviewStatic}=await import('./test-map-review2411.mjs');
+await mapReviewStatic(ok);
+
+if(process.env.FIELDLANCE_STATIC_ONLY==='1'){console.log(`\n${passed} FieldLance 2.40–2.41.1 map static contract checks passed.`);process.exit(0)}
 
 const {schemaDb}=await import('./schema-test-db.mjs');
 const db=await schemaDb();
@@ -221,5 +224,11 @@ try{
     assert.ok(result.rows.length>=1);assert.equal(result.rows.some(x=>x.layer==='survey'),true);
   });
 
-  console.log(`\n${passed} FieldLance 2.40.0 Field Operations Map & Geographic Quality scenarios passed.`);
+  // Restore fixture state before inserting the independent pagination dataset.
+  await db.exec('RESET ROLE');
+  await db.query("update public.survey_projects set moderation_status='allowed',moderation_reason='' where id=$1",[project]);
+  const {mapReviewRegression}=await import('./test-map-review2411.mjs');
+  await mapReviewRegression({db,as,call,rows,ok,ids,project,personA,districtA,districtB,dates});
+
+  console.log(`\n${passed} FieldLance 2.40–2.41.1 map regression scenarios passed.`);
 }finally{await db.close()}

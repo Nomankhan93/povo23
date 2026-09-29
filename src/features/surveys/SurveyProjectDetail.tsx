@@ -32,6 +32,7 @@ export function SurveyProjectDetail({
   openRecruitment,
   workspaceMode = "full",
   openWorkspace,
+  initialResponseId = null,
 }: {
   project: Project;
   userId: string;
@@ -44,6 +45,7 @@ export function SurveyProjectDetail({
   openRecruitment?: () => void;
   workspaceMode?: "full" | "field-work" | "responses";
   openWorkspace?: (project: Project) => void;
+  initialResponseId?: string | null;
 }) {
   const [registryPerson, setRegistryPerson] = useState<string | null>(null);
   const [closeRequested, setCloseRequested] = useState(false);
@@ -81,6 +83,24 @@ export function SurveyProjectDetail({
     [revisions, setRevisions] = useState<
       Tables["survey_response_revisions"]["Row"][]
     >([]);
+  useEffect(() => {
+    if (!initialResponseId) return;
+    setSelected(null);
+    setError("");
+    let live = true;
+    let q = db!.from("survey_responses").select("*").eq("id", initialResponseId).eq("project_id", project.id);
+    if (!review) q = q.eq("collector_id", userId);
+    void q.maybeSingle().then(({ data, error: loadError }) => {
+      if (!live) return;
+      if (loadError) { setError(loadError.message); return; }
+      if (!data) { setError("This survey response is unavailable in your current scope."); return; }
+      setSelected(data as Response);
+      setCollect(false);
+      setEditing(null);
+      setRevisions([]);
+    });
+    return () => { live = false; };
+  }, [initialResponseId, project.id, review, userId]);
   useEffect(() => {
     const synced = (event: Event) => {
       const detail = (event as CustomEvent<{ projectId?: string }>).detail;
