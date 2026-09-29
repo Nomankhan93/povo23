@@ -1,4 +1,4 @@
-export type RouteEntityKind = "application" | "assignment" | "case" | "response" | "task" | null;
+export type RouteEntityKind = "application" | "assignment" | "case" | "response" | "attendance_session" | "task" | null;
 
 export type AppRoute = {
   kind: "root" | "personal" | "organization" | "staff" | "project" | "onboarding" | "access" | "reset" | "unknown";
@@ -101,7 +101,7 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
     if (parts[1] === "work" && parts[2] === "schedule") return {kind:"personal",scopeHint:"personal",page:"My Schedule",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "work" && parts[2] === "availability") return {kind:"personal",scopeHint:"personal",page:"My Availability",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "projects" && parts[3] && parts[4] === "responses") return {kind:"personal",scopeHint:"personal",page:"Survey projects",organizationId:null,projectId:parts[3],projectTab:null,entityKind:parts[5]?"response":null,entityId:parts[5]||null};
-    if (parts[1] === "field" && parts[2] === "attendance") return {kind:"personal",scopeHint:"personal",page:"My Attendance",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
+    if (parts[1] === "field" && parts[2] === "attendance") return {kind:"personal",scopeHint:"personal",page:"My Attendance",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"attendance_session":null,entityId:parts[3]||null};
     if (parts[1] === "field" && parts[2] === "cases") return {kind:"personal",scopeHint:"personal",page:"My Cases",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"case":null,entityId:parts[3]||null};
     if (parts[1] === "field" && parts[2] === "follow-ups") return {kind:"personal",scopeHint:"personal",page:"My Follow-ups",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "timesheets") return {kind:"personal",scopeHint:"personal",page:"My Timesheets",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
@@ -169,6 +169,7 @@ export function routePath(target: RouteTarget): string {
     if (page === "Available Opportunities") return "/app/work/opportunities";
     if (page === "My Applications") return entityKind === "application" && entityId ? `/app/work/applications/${encodeURIComponent(entityId)}` : "/app/work/applications";
     if (page === "My Assigned Surveys") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}` : "/app/field";
+    if (page === "My Attendance" && entityKind === "attendance_session" && entityId) return `/app/field/attendance/${encodeURIComponent(entityId)}`;
     if (page === "My Attendance") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}/attendance` : "/app/field/attendance";
     if (page === "My Timesheets") return "/app/field/timesheets";
     if (page === "My Field Map") return "/app/field/map";

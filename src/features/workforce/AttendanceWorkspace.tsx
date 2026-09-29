@@ -43,9 +43,9 @@ async function captureLocation(policy:Policy):Promise<Capture>{
 }
 
 export function AttendanceWorkspace({
-  userId,projectId=null,canManage=false,view="attendance",initialAssignmentId=null,
+  userId,projectId=null,canManage=false,view="attendance",initialAssignmentId=null,initialSessionId=null,
 }:{
-  userId:string;projectId?:string|null;canManage?:boolean;view?:"attendance"|"timesheets";initialAssignmentId?:string|null;
+  userId:string;projectId?:string|null;canManage?:boolean;view?:"attendance"|"timesheets";initialAssignmentId?:string|null;initialSessionId?:string|null;
 }){
   const [download,setDownload]=useState<AttendanceDownload|null>(null),[online,setOnline]=useState(navigator.onLine);
   const [,tick]=useState(0);
@@ -53,6 +53,20 @@ export function AttendanceWorkspace({
   const projectView=Boolean(projectId);
   const [workspace,setWorkspace]=useState<Workspace|null>(null),[assignments,setAssignments]=useState<Assignment[]>([]),[policyState,setPolicy]=useState<Policy|null>(null),[selectedAssignment,setSelectedAssignment]=useState(initialAssignmentId||""),[selected,setSelected]=useState<AttendanceRow|null>(null),[page,setPage]=useState(0),[status,setStatus]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[notice,setNotice]=useState(""),[locationNote,setLocationNote]=useState(""),[workNote,setWorkNote]=useState(""),[reviewNote,setReviewNote]=useState(""),[pending,setPending]=useState<PendingSummary[]>([]),[revision,setRevision]=useState(0);
   const [adjustIn,setAdjustIn]=useState(""),[adjustOut,setAdjustOut]=useState(""),[adjustReason,setAdjustReason]=useState("");
+  const [linkedSession,setLinkedSession]=useState<AttendanceRow|null>(null),[linkedError,setLinkedError]=useState(""),[linkedLoading,setLinkedLoading]=useState(false);
+  useEffect(()=>{
+    let current=true;setLinkedSession(null);setLinkedError("");setLinkedLoading(Boolean(initialSessionId));
+    if(initialSessionId){
+      if(!online){setLinkedError("Connect to open this linked workday. Your pending device evidence is retained.");setLinkedLoading(false);}
+      else void rpc("attendance_session_detail",{p_session:initialSessionId}).then(value=>{
+        if(!current)return;
+        const row=value as unknown as AttendanceRow|null;
+        if(row&&row.worker_id===userId){setLinkedSession(row);}
+        else setLinkedError("This workday is no longer available, or your access has changed.");
+      }).catch(()=>{if(current)setLinkedError("The linked workday could not be loaded. Refresh to retry.");}).finally(()=>{if(current)setLinkedLoading(false);});
+    }
+    return()=>{current=false;};
+  },[initialSessionId,userId,online,revision]);
   const assignment=assignments.find(a=>a.id===selectedAssignment)||null;
   const policyProject=projectId||assignment?.survey_project_id;
   const policy=policyState?.project_id===policyProject?policyState:null;
@@ -155,7 +169,7 @@ export function AttendanceWorkspace({
       {!assignments.length&&!loading&&<p className="notice">No active formal assignment is available for attendance.</p>}
       {assignments.length>0&&<label className="field">Assignment<select value={selectedAssignment} onChange={e=>{setSelectedAssignment(e.target.value);setLocationNote("");setWorkNote("")}}>{assignments.map(a=><option key={a.id} value={a.id}>{a.project_title} · {a.organization_name}</option>)}</select></label>}
       {assignment&&policy&&<div className="attendance-assignment-card"><div><strong>{assignment.project_title}</strong><p>{assignment.organization_name} · {assignment.start_date} → {assignment.end_date} · {human(assignment.compensation_type)}</p><small>Timezone: {policy.timezone} · Location: {human(policy.location_policy)} · Accuracy warning: ±{policy.max_accuracy_m}m</small></div><Badge value={assignment.status}/></div>}
-      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||!offlineReady} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
+      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
       {openSession&&<div className="attendance-live"><span className="attendance-live-dot"/><div><strong>Field session active</strong><p>Started {timestamp(openSession.check_in_captured_at)} · {openSession.check_in_quality?human(openSession.check_in_quality):"location pending"}</p></div></div>}
       {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
       {pendingForAssignment?.hasCheckout&&<p className="notice warning">This workday is queued on this device and will be submitted when connectivity returns.</p>}
@@ -166,9 +180,12 @@ export function AttendanceWorkspace({
       <div className="attendance-filters"><label>Status<select value={status} onChange={e=>{setStatus(e.target.value);setPage(0)}}><option value="">All statuses</option>{["open","submitted","approved","correction_required","rejected"].map(v=><option key={v} value={v}>{human(v)}</option>)}</select></label></div>
       {workspace&&<div className="attendance-metrics">{Object.entries(workspace.summary).map(([k,v])=><div key={k}><small>{human(k)}</small><strong>{v}</strong></div>)}</div>}
       {loading&&<p role="status">Loading attendance…</p>}
-      <div className="attendance-list">{activeRows.map(row=>{
+      {linkedLoading&&<p role="status">Loading linked workday…</p>}
+      {linkedError&&<p role="alert" className="notice error">{linkedError}</p>}
+      <div className="attendance-list">{(linkedSession?.id===initialSessionId?[linkedSession,...activeRows.filter(row=>row.id!==initialSessionId)]:activeRows.filter(row=>row.id!==initialSessionId)).map(row=>{
         const checkInMap=mapLink(row.check_in_latitude,row.check_in_longitude),checkOutMap=mapLink(row.check_out_latitude,row.check_out_longitude);
-        return <article className={`attendance-row ${selected?.id===row.id?"selected":""}`} key={row.id}>
+        return <article id={`attendance-${row.id}`} className={`attendance-row ${selected?.id===row.id?"selected":""} ${initialSessionId===row.id?"route-focus":""}`} key={row.id}>
+          {initialSessionId===row.id&&<p className="notice">Linked workday · shown independently of recent-workday filters</p>}
           <div className="attendance-row-main"><div><strong>{row.project_title}</strong><p>{projectView?row.volunteer_name:row.organization_name} · {row.work_date}</p></div><Badge value={row.status}/></div>
           <div className="attendance-time-grid"><span><small>Check in</small><strong>{timestamp(row.effective_check_in_at)}</strong></span><span><small>Check out</small><strong>{timestamp(row.effective_check_out_at)}</strong></span><span><small>Duration</small><strong>{duration(row.duration_minutes)}</strong></span><span><small>Payable</small><strong>{row.payable_unit_id?"Linked":row.compensation_type==="daily_rate"&&row.status==="approved"?"Pending link":"—"}</strong></span></div>
           <div className="attendance-location-summary"><span><MapPin size={13}/> In: {row.check_in_quality?human(row.check_in_quality):"—"}{row.check_in_accuracy_m!==null?` ±${Math.round(row.check_in_accuracy_m)}m`:""}{checkInMap&&<a href={checkInMap} target="_blank" rel="noopener noreferrer">Map</a>}</span><span><MapPin size={13}/> Out: {row.check_out_quality?human(row.check_out_quality):"—"}{row.check_out_accuracy_m!==null?` ±${Math.round(row.check_out_accuracy_m)}m`:""}{checkOutMap&&<a href={checkOutMap} target="_blank" rel="noopener noreferrer">Map</a>}</span></div>
@@ -177,7 +194,7 @@ export function AttendanceWorkspace({
           {manageAttendance&&row.status==="submitted"&&<button className="secondary" onClick={()=>{setSelected(row);setReviewNote("");setAdjustIn(row.effective_check_in_at);setAdjustOut(row.effective_check_out_at||"")}}>Review attendance</button>}
         </article>;
       })}</div>
-      {!loading&&!activeRows.length&&<p className="notice">No attendance records match this view.</p>}
+      {!loading&&!activeRows.length&&!linkedSession&&<p className="notice">No attendance records match this view.</p>}
       {workspace&&<div className="actions"><button className="secondary" disabled={page===0||busy} onClick={()=>setPage(p=>p-1)}>Previous</button><span>Page {page+1} · {workspace.count} records</span><button className="secondary" disabled={(page+1)*50>=workspace.count||busy} onClick={()=>setPage(p=>p+1)}>Next</button></div>}
     </section>
 

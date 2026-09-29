@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.3
+# Current permissions note — FieldLance 2.41.4
+
+The new detail RPCs return null for unavailable targets and reuse existing task/attendance read permissions. Anonymous execution is denied. Task lookups also honor requested organization/project scope; no notification grants access.
+
+# Historical permissions note — FieldLance 2.41.3
 
 Notification possession is not authority. Exact notification actions re-check the referenced application, assignment/attendance assignment, survey response, beneficiary case or operational task through current RLS/RPC visibility. Cross-workspace notification navigation refreshes `my_workspace_access`. Deleted, revoked or inaccessible sources remain in notification history but are not opened.
 

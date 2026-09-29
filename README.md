@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.3
+# Current release: FieldLance 2.41.4
+
+Attendance & Notification Correctness. Online attendance no longer requires offline preparation. Notifications retain unavailable feedback, task links fetch exact authorized records independently of queue limits, and new attendance-review links open exact workdays. See docs/PHASE-2.41.4.md, docs/UPGRADE-2.41.4.md and docs/VALIDATION-2.41.4.md.
+
+# Historical release: FieldLance 2.41.3
 
 Notification Routing & Action Context. Actionable notifications now carry explicit event/source/action context for current operational workflows, resolve to canonical entity routes, re-check current source/workspace authorization before navigation, and preserve a controlled fallback for historical notifications. Task Center supports exact task deep links. See docs/PHASE-2.41.3.md, docs/UPGRADE-2.41.3.md and docs/VALIDATION-2.41.3.md.
 

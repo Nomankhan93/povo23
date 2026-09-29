@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 
 // Chromium network transport and native navigator.onLine can diverge under
-// offline emulation. Transport reachability is authoritative for offline
-// acceptance; native navigator state remains a diagnostic signal.
+// offline emulation. Both native state and real transport must match the
+// requested state before capture or navigation is accepted.
 export async function browserNetwork(context,page) {
   const session=await context.newCDPSession(page);
   let expectedOffline=false,overrideSupported=true;
@@ -34,20 +34,7 @@ export async function browserNetwork(context,page) {
       );
     }
 
-    if(expectedOffline) {
-      if(online!==false) {
-        console.log(
-          `INFO ${stage}: transport is offline while native navigator.onLine=${online}; ` +
-          'continuing with transport-authoritative verification',
-        );
-      }
-    } else {
-      assert.equal(
-        online,
-        true,
-        `${stage}: browser navigator.onLine=${online}, expected true after reconnect`,
-      );
-    }
+    assert.equal(online,!expectedOffline,`${stage}: native navigator.onLine disagrees with requested connection state`);
 
     return {online,reachable};
   }

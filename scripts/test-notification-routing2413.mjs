@@ -15,7 +15,8 @@ let passed = 0;
 async function ok(name, fn) { await fn(); passed += 1; console.log(`PASS ${name}`); }
 
 await ok('2.41.3 release and validation command are registered', async () => {
-  assert.equal(pkg.version, '2.41.3');
+  const [major,minor,patch]=pkg.version.split('.').map(Number);
+  assert.ok(major>2 || (major===2 && (minor>41 || (minor===41 && patch>=3))));
   assert.equal(pkg.scripts['test:notification-routing-2413'], 'node scripts/test-notification-routing2413.mjs');
   assert.match(pkg.scripts.test, /test:notification-routing-2413/);
 });
@@ -26,7 +27,7 @@ await ok('forward migration adds explicit event metadata without rewriting notif
   assert.match(migration, /Compatibility only: current 2\.41\.3 producers pass explicit action\/source metadata/);
   assert.match(migration, /legacy_/);
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1), '20261013000470_notification_routing_action_context.sql');
+  assert.equal(migrations.indexOf('20261013000470_notification_routing_action_context.sql'),migrations.indexOf('20261013000461_daily_payable_timezone_consistency.sql')+1);
 });
 
 await ok('recruitment and assignment producers carry exact source/action context', async () => {

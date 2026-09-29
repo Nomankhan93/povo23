@@ -49,7 +49,7 @@ const dateTime = (value: string) => new Intl.DateTimeFormat("en-PK", { day: "num
 const priorityOrder: Record<TaskRow["priority"], number> = { urgent: 0, high: 1, normal: 2, low: 3 };
 
 export function TaskCenter({ mode, organizationId = null, projectId = null, onNavigate, canCreate, initialTaskId = null }: Props) {
-  const [view, setView] = useState<View>(initialTaskId ? "all" : mode === "personal" ? "mine" : "team");
+  const [view, setView] = useState<View>(mode === "personal" ? "mine" : "team");
   const [rows, setRows] = useState<TaskRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
@@ -57,18 +57,22 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
   const [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
+  const [linkedTask, setLinkedTask] = useState<TaskRow | null>(null);
+  const [linkedError, setLinkedError] = useState("");
+  const [linkedLoading, setLinkedLoading] = useState(false);
 
   useEffect(() => {
     let live = true;
     setLoading(true);
     setError("");
+    setRows([]);
     void (async () => {
       await call("refresh_operational_task_escalations", {});
       const payload = await call("operational_task_queue", {
         p_view: view,
         p_organization: organizationId,
         p_project: projectId,
-        p_limit: initialTaskId ? 500 : 200,
+        p_limit: 200,
       }) as QueuePayload;
       if (live) setRows(Array.isArray(payload?.rows) ? payload.rows : []);
     })().catch((cause) => {
@@ -80,11 +84,18 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
   }, [organizationId, projectId, revision, view, initialTaskId]);
 
   useEffect(() => {
-    if (!initialTaskId) return;
-    if (view !== "all") { setView("all"); return; }
-    const timer = window.setTimeout(() => document.getElementById(`task-${initialTaskId}`)?.scrollIntoView({ block: "center" }), 60);
-    return () => window.clearTimeout(timer);
-  }, [initialTaskId, rows.length, view]);
+    let live = true;
+    setLinkedTask(null); setLinkedError(""); setLinkedLoading(Boolean(initialTaskId));
+    if (initialTaskId) {
+      void call("operational_task_detail", { p_task: initialTaskId, p_organization: organizationId, p_project: projectId }).then(value => {
+        if (!live) return;
+        if (value) setLinkedTask(value as TaskRow);
+        else setLinkedError("This task is no longer available, or your access has changed.");
+      }).catch(() => { if (live) setLinkedError("The linked task could not be loaded. Refresh to retry."); })
+        .finally(() => { if (live) setLinkedLoading(false); });
+    }
+    return () => { live = false; };
+  }, [initialTaskId, organizationId, projectId, revision]);
 
   const metrics = useMemo(() => {
     const active = rows.filter((task) => ["open", "in_progress"].includes(task.status));
@@ -96,10 +107,11 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
     };
   }, [rows]);
 
-  const ordered = useMemo(() => [...rows].sort((a, b) => {
+  const ordered = useMemo(() => [...rows.filter(task => task.id !== initialTaskId)].sort((a, b) => {
     if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
     return new Date(a.due_at).getTime() - new Date(b.due_at).getTime();
-  }), [rows]);
+  }), [rows, initialTaskId]);
+  const displayRows = linkedTask && linkedTask.id === initialTaskId ? [linkedTask, ...ordered] : ordered;
 
   const act = async (task: TaskRow, action: string) => {
     setBusy(task.id + action);
@@ -166,6 +178,8 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
 
     {error && <div className="notice error" role="alert">{error}</div>}
     {notice && <div className="notice success" role="status">{notice}</div>}
+    {linkedLoading && <p role="status">Loading linked task…</p>}
+    {linkedError && <p role="alert" className="notice error">{linkedError}</p>}
 
     <section className="task-center-metrics">
       <Metric icon={<ClipboardList size={18} />} label="Active tasks" value={metrics.active} />
@@ -192,7 +206,8 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
 
     <section className="task-center-list">
       {loading && <p className="task-center-loading">Loading authorized tasks…</p>}
-      {!loading && ordered.map((task) => <article id={`task-${task.id}`} className={`task-center-card ${task.overdue ? "overdue" : ""} ${initialTaskId===task.id ? "route-focus" : ""}`} key={task.id}>
+      {!loading && displayRows.map((task) => <article id={`task-${task.id}`} className={`task-center-card ${task.overdue ? "overdue" : ""} ${initialTaskId===task.id ? "route-focus" : ""}`} key={task.id}>
+        {initialTaskId===task.id && <p className="notice">Linked task · shown independently of queue filters</p>}
         <div className="task-center-card-top">
           <div><span className="eyebrow">{task.sla_label || human(task.task_type)}</span><h3>{task.title}</h3><p>{task.description || "Operational follow-up"}</p></div>
           <div className="task-center-badges"><span className={`task-priority ${task.priority}`}>{human(task.priority)}</span><span className={`task-status ${task.status}`}>{human(task.status)}</span>{task.escalation_level > 0 && <span className="task-escalation">Escalation L{task.escalation_level}</span>}</div>
@@ -211,7 +226,7 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
           {task.status === "completed" && mode !== "personal" && <button className="secondary" disabled={Boolean(busy)} onClick={() => void act(task, "reopen")}>Reopen</button>}
         </div>
       </article>)}
-      {!loading && !ordered.length && <div className="task-center-empty"><CheckCircle2 size={24} /><h3>No tasks in this view</h3><p>When an authorized workflow needs action, FieldLance will surface it here with its SLA and source link.</p></div>}
+      {!loading && !displayRows.length && <div className="task-center-empty"><CheckCircle2 size={24} /><h3>No tasks in this view</h3><p>When an authorized workflow needs action, FieldLance will surface it here with its SLA and source link.</p></div>}
     </section>
   </section>;
 }

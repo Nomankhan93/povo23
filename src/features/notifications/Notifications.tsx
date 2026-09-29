@@ -221,8 +221,8 @@ export function Notifications({
     try {
       if (row.source_ref && !(await notificationSourceVisible(row))) {
         if (!row.read_at) await rpc("mark_notification_read", { p_id: row.id });
-        setNotice("This item is no longer available, or your access has changed. The notification remains in your history.");
         await Promise.all([load(filter, 0, false), refresh()]);
+        setNotice("This item is no longer available, or your access has changed. The notification remains in your history.");
         return;
       }
       if (!row.read_at) await rpc("mark_notification_read", { p_id: row.id });

@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.41.3
+Release: 2.41.4
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -14,7 +14,7 @@ React + TypeScript + Vite modular monolith backed by Supabase Auth/PostgreSQL/Po
 PostgreSQL RLS and guarded RPCs are the authorization boundary; frontend navigation is not a security boundary.
 Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/capture/offline sync, registry/canonical identity, needs/assistance, controlled sharing, governance/verification, templates, workforce recruitment, payables and automatic FieldLance work history.
 
-===== CURRENT 2.41.3 PRODUCT BOUNDARIES =====
+===== CURRENT 2.41.4 PRODUCT BOUNDARIES =====
 - One personal FieldLance account can access multiple authorized workspaces.
 - 2.30.1 stabilizes document deletion, draft-safe navigation, pending application counts and lazy feature boundaries.
 - 2.36.0 adds canonical browser routes for personal, Organization, Staff and project workspaces; deep links never replace RLS/RPC authorization.
@@ -76,8 +76,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 76
-Migration head: 20261013000470_notification_routing_action_context.sql
+Ordered migration files: 77
+Migration head: 20261013000480_attendance_notification_correctness.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -156,12 +156,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000460_map_completeness_evidence_review.sql
 - 20261013000461_daily_payable_timezone_consistency.sql
 - 20261013000470_notification_routing_action_context.sql
+- 20261013000480_attendance_notification_correctness.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 97
+Test scripts (scripts/test-*.mjs): 100
 TypeScript/TSX source files: 114
-Markdown docs: 269
-Inventory files (excluding local/build/temp/backup state): 592
+Markdown docs: 272
+Inventory files (excluding local/build/temp/backup state): 599
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -201,8 +202,8 @@ npm run test:notification-routing-2413
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.41.3 adds explicit notification event/source/action context, entity-aware canonical routes, exact Task Center focus and current-authorization checks before notification navigation. Historical action_page/title inference remains compatibility-only.
-Future releases must use versions greater than 2.41.3. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+FieldLance 2.41.4 restores online attendance without offline preparation, stabilizes offline browser acceptance, preserves unavailable notification feedback, and fetches exact authorized tasks/workdays independently of queue and date-range limits. Legacy attendance links remain compatible.
+Future releases must use versions greater than 2.41.4. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
 The next planned major release is 2.42.0 Concurrent Assignment & Worker Capacity Safety: prove and serialize cross-project capacity decisions under simultaneous requests before production pilot.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.

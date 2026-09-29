@@ -42,6 +42,7 @@ function normalizedSourceKind(value: string | null) {
 }
 
 function exactEntity(kind: string | null): RouteEntityKind {
+  if (kind === "attendance_session") return "attendance_session";
   if (kind === "work_application") return "application";
   if (kind === "work_assignment" || kind === "attendance") return "assignment";
   if (kind === "survey_response") return "response";
@@ -53,7 +54,7 @@ function exactEntity(kind: string | null): RouteEntityKind {
 function defaultPage(kind: string | null, mode: NotificationCenterMode) {
   if (kind === "work_application") return mode === "personal" ? "My Applications" : mode === "project" ? "Recruitment" : "Workforce marketplace";
   if (kind === "work_assignment") return mode === "personal" ? "My Assigned Surveys" : mode === "project" ? "Recruitment" : "Workforce marketplace";
-  if (kind === "attendance") return "My Attendance";
+  if (kind === "attendance" || kind === "attendance_session") return "My Attendance";
   if (kind === "survey_response") return mode === "personal" ? "Survey projects" : "Project workspace";
   if (kind === "beneficiary_case") return mode === "personal" ? "My Cases" : "Beneficiary cases";
   if (kind === "operational_task") return "Task Center";
@@ -110,6 +111,10 @@ export async function notificationSourceVisible(row: Row): Promise<boolean> {
   if (!kind || !ref) return true;
   if (!db && kind !== "beneficiary_case") return false;
 
+  if (kind === "attendance_session") {
+    const result = await rpc("attendance_session_detail", { p_session: ref });
+    return Boolean(result);
+  }
   if (kind === "work_application") {
     const result = await db!.from("work_applications").select("id").eq("id", ref).maybeSingle();
     if (result.error) throw result.error;
@@ -131,8 +136,13 @@ export async function notificationSourceVisible(row: Row): Promise<boolean> {
       if (result.error) throw result.error;
       if (result.data?.id) return true;
     }
-    const delegated = await rpc("my_delegated_case_detail", { p_case: ref }) as Record<string, unknown> | null;
-    return Boolean(delegated && Object.keys(delegated).length);
+    try {
+      const delegated = await rpc("my_delegated_case_detail", { p_case: ref }) as Record<string, unknown> | null;
+      return Boolean(delegated && Object.keys(delegated).length);
+    } catch (error) {
+      if ((error as {code?:string}).code === "P0001" && (error as Error).message === "Assigned beneficiary case access required") return false;
+      throw error;
+    }
   }
   if (kind === "operational_task") {
     const result = await db!.from("operational_tasks").select("id").eq("id", ref).maybeSingle();

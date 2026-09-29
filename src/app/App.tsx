@@ -70,7 +70,7 @@ export function App() {
   if(new URLSearchParams(location.search).has('certificate'))return <CertificateVerification/>;
   if(!connection&&!cachedOwner&&!recovery)return <main className="panel"><h1>Field device locked</h1><p>Connect and sign in as the owner to reopen downloaded data. Device copies have not been deleted.</p></main>;
   if(field&&cachedOwner&&!recovery&&parseAppRoute().kind==="unknown")return <main className="panel"><h1>Page not found</h1><p>This address is invalid. Your downloaded data is unchanged.</p><a href="/app/field">Open downloaded field workspace</a></main>;
-  if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;
+  if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} initialSessionId={parseAppRoute().entityKind==="attendance_session"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;
   if (!ready)
     return (
       <div className="setup" role="status">

@@ -1,6 +1,7 @@
 // Browser acceptance transport fixture. Production code never imports this module.
 const owner=()=>localStorage.getItem('fixture-owner')||'alice';
 const state=()=>JSON.parse(localStorage.getItem('fixture-server')||'{"rows":[],"requests":[]}');
+const trace=(entry)=>{window.fixtureTransportLog=[...(window.fixtureTransportLog||[]),entry].slice(-60);};
 const fixtureOffline=()=>localStorage.getItem('fixture-offline')==='yes';
 
 const save=s=>{
@@ -8,6 +9,7 @@ const save=s=>{
     throw new TypeError('Failed to fetch');
   }
   localStorage.setItem('fixture-server',JSON.stringify(s));
+  trace({savedRequests:s.requests.length,origin:location.origin});
 };
 export const assignment=()=>({id:'assignment-'+owner(),user_id:owner(),survey_project_id:'project',project_title:'Offline pilot',organization_name:'Pilot NGO',organization_id:'ngo',status:'active',compensation_type:'none',work_mode:'volunteer',currency:'PKR',rate:null,start_date:'2026-01-01',end_date:'2027-12-31'});
 export const policy={project_id:'project',timezone:'UTC',location_policy:'not_required',max_accuracy_m:100,updated_at:'2026-09-28T00:00:00Z',can_manage:false};
@@ -56,6 +58,7 @@ export const db={
  rpc(name,args){const result=rpc(name,args).then(data=>({data,error:null}),error=>({data:null,error}));result.abortSignal=()=>result;return result;}
 };
 export async function rpc(name,args){
+ trace({rpc:name,request:args?.p_request,online:navigator.onLine,fixtureOffline:fixtureOffline(),origin:location.origin});
  if(name==='my_workspace_access')return{workspaces:[{id:'personal',label:'Field Worker'}],defaultScope:'personal',worker:true,enrollment:'active',intent:'worker',applications:[]};
  if(!navigator.onLine)throw Error('Offline transport');
  if(name==='project_attendance_policy')return policy;

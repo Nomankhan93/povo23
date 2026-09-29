@@ -30,6 +30,26 @@ try{
    await network.reproduceMismatch();
    console.log('Reproduced blocked transport with native navigator.onLine=true; verifying recovery');
  }
+ if(process.env.FIELDLANCE_TEST_ONLINE_ATTENDANCE==='1'){
+   stage='online without download';
+   await page.evaluate(()=>window.deviceTest.survey.deleteFieldRecord('alice','attendance-download','current'));
+   await page.goto(origin+'/app/work/assignments/assignment-alice/attendance');
+   await page.waitForFunction(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Start field work');return b&&!b.disabled;});
+   assert.equal(await page.evaluate(()=>navigator.onLine),true);
+   await page.getByRole('button',{name:'Start field work',exact:true}).click();
+   await page.getByPlaceholder('What work did you complete today?').fill('Online work without offline preparation');
+   await page.getByRole('button',{name:'End & submit workday',exact:true}).click();
+   await page.getByText('Workday ended and submitted for review.',{exact:true}).waitFor();
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('fixture-server')).requests.length),2);
+   console.log('PASS Chromium online check-in and checkout work without an offline download');
+   stage='online with expired download';
+   await page.evaluate(async()=>{await window.deviceTest.seed();const s=window.deviceTest.survey;const old=await s.getFieldRecord('alice','attendance-download','current');const now=Date.now();await s.putFieldRecord('alice','attendance-download','current',{...old,downloadedAt:new Date(now-86400000).toISOString(),validUntil:new Date(now-1000).toISOString()});});
+   await page.reload();
+   await page.getByText('Downloaded access expired; reconnect and refresh',{exact:true}).waitFor();
+   await page.waitForFunction(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Start field work');return b&&!b.disabled;});
+   assert.deepEqual(errors,[]);
+   console.log('PASS Chromium expired offline preparation does not block authorized online check-in');
+ }else{
  stage='offline deep-link';await network.set(true);await page.goto(origin+'/app/work/assignments/assignment-alice/attendance');await network.verify(stage);
  await page.getByRole('button',{name:'Start field work',exact:true}).waitFor();
  stage='offline check-in';await network.verify(stage);
@@ -44,10 +64,11 @@ try{
  stage='reconnect rejection';await page.evaluate(()=>localStorage.setItem('fixture-reject','yes'));await network.set(false);
  await page.waitForFunction(async()=>Boolean((await window.deviceTest.attendance.attendanceInventory('alice')).find(r=>r.status==='failed')));
  await page.evaluate(()=>localStorage.removeItem('fixture-reject'));
- stage='explicit retry';await page.getByRole('button',{name:/^(?:Sync now|Retry \/ sync attendance)$/}).click();
+ stage='explicit retry';await page.getByRole('button',{name:'Retry / sync attendance',exact:true}).click();
  await page.waitForFunction(async()=>Boolean((await window.deviceTest.attendance.attendanceInventory('alice')).find(r=>r.status==='synced')));
+ await page.getByText('1 attendance records synchronized. 0 failed.',{exact:false}).waitFor();
+ await page.waitForFunction(()=>{const button=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Clean acknowledged copies');return button&&!button.disabled;});
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('fixture-server')).requests.length),2);
- await page.getByText(/^(?:1 pending attendance record\(s\) synced\.|1 attendance records synchronized\. 0 failed\.)$/).waitFor();
  // The acknowledged local attendance copy should no longer remain pending
  // once the retry is accepted and its sync receipt is persisted.
  await page.waitForFunction(async()=>{
@@ -61,9 +82,10 @@ try{
  await page.reload();await network.verify('expired offline reload');await page.getByText('Downloaded access expired; reconnect and refresh',{exact:true}).waitFor();
  assert.equal(await page.getByRole('button',{name:'Start field work',exact:true}).isDisabled(),true);
  console.log('PASS Chromium expired download is visible and new offline captures are blocked');
+ stage='offline exact workday';await page.goto(origin+'/app/field/attendance/offline-session');await network.verify(stage);await page.getByText('Connect to open this linked workday. Your pending device evidence is retained.',{exact:true}).waitFor();
+ console.log('PASS Chromium exact workday deep link explains the connection requirement offline');
  stage='malformed route and owner recovery';await page.goto(origin+'/app/field/%');await network.verify(stage);await page.getByRole('heading',{name:'Page not found'}).waitFor();
  await page.goto(origin+'/app/field');
- await page.getByRole('button',{name:'Offline field',exact:true}).click();
  await page.getByRole('heading',{name:'Offline field workspace',exact:true}).waitFor();
  await page.evaluate(()=>{localStorage.setItem('fixture-owner','bob');window.deviceTest.survey.rememberFieldOwner('bob');});
  await page.getByText('No projects downloaded yet.',{exact:false}).waitFor();assert.equal(await page.getByText('alice downloaded survey',{exact:true}).count(),0);
@@ -86,9 +108,10 @@ try{
  const cachePaths=await page.evaluate(async()=>{const out=[];for(const key of await caches.keys())for(const req of await (await caches.open(key)).keys())out.push(new URL(req.url).pathname);return out;});assert.ok(cachePaths.every(p=>p==='/'||p==='/index.html'||p.startsWith('/assets/')||/\.(png|webmanifest)$/.test(p)));
  await assert.rejects(()=>page.goto(origin+'/reset?token=fixture'),/ERR_INTERNET_DISCONNECTED|ERR_FAILED/);
  assert.deepEqual(errors,[]);console.log('PASS Chromium caches static assets only and bypasses authentication callback navigation');
+ }
  console.log('Browser transport was simulated; no Supabase Auth/Storage server was used.');
 }catch(error){
  const details={stage,browser:browser?.version(),node:process.version,expectedOffline:network?.offline,errors,failedRequests};
- try{details.state=await page.evaluate(async()=>({online:navigator.onLine,owner:window.deviceTest?.survey.offlineOwner(),pending:await window.deviceTest?.attendance.pendingAttendance('alice').catch(e=>({error:String(e)})),inventory:await window.deviceTest?.attendance.attendanceInventory('alice').catch(e=>({error:String(e)})),workdayNotes:[...document.querySelectorAll('textarea')].map(e=>e.value)}));details.body=(await page.locator('body').innerText()).slice(0,12000);}catch(e){details.diagnosticError=String(e);}
+ try{details.state=await page.evaluate(async()=>({transport:window.fixtureTransportLog,server:localStorage.getItem('fixture-server'),online:navigator.onLine,owner:window.deviceTest?.survey.offlineOwner(),pending:await window.deviceTest?.attendance.pendingAttendance('alice').catch(e=>({error:String(e)})),inventory:await window.deviceTest?.attendance.attendanceInventory('alice').catch(e=>({error:String(e)})),workdayNotes:[...document.querySelectorAll('textarea')].map(e=>e.value)}));details.body=(await page.locator('body').innerText()).slice(0,12000);}catch(e){details.diagnosticError=String(e);}
  console.error('BROWSER FAILURE DIAGNOSTICS',JSON.stringify(details,null,2));throw error;
 }finally{await browser?.close();if(server)await new Promise(r=>server.close(r));await rm(temp,{recursive:true,force:true});}

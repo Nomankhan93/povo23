@@ -1102,7 +1102,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           )}
           {(page === "My Attendance" || page === "My Timesheets") && personalWorkspace && validScope && (
             <Suspense fallback={<p role="status">Loading attendance…</p>}>
-              <AttendanceWorkspace userId={session.user.id} view={page === "My Timesheets" ? "timesheets" : "attendance"} initialAssignmentId={browserRoute.entityKind === "assignment" ? browserRoute.entityId : null} />
+              <AttendanceWorkspace userId={session.user.id} view={page === "My Timesheets" ? "timesheets" : "attendance"} initialAssignmentId={browserRoute.entityKind === "assignment" ? browserRoute.entityId : null} initialSessionId={browserRoute.entityKind === "attendance_session" ? browserRoute.entityId : null} />
             </Suspense>
           )}
           {page === "My Field Map" && personalWorkspace && validScope && (

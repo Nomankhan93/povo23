@@ -4964,6 +4964,9 @@ p_from?: string | null;
 p_to?: string | null;
 p_limit?: number | null;
 }; Returns: Json };
+attendance_session_detail: { Args: {
+p_session: string | null;
+}; Returns: Json };
 attendance_session_history: { Args: {
 p_session: string | null;
 }; Returns: Json };
@@ -5523,6 +5526,11 @@ p_kind?: string | null;
 p_status?: string | null;
 p_offset?: number | null;
 p_export?: boolean | null;
+}; Returns: Json };
+operational_task_detail: { Args: {
+p_task: string | null;
+p_organization?: string | null;
+p_project?: string | null;
 }; Returns: Json };
 operational_task_queue: { Args: {
 p_view?: string | null;

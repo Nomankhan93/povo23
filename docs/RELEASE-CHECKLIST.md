@@ -1,4 +1,8 @@
-# Current release checklist — FieldLance 2.41.3
+# Current release checklist — FieldLance 2.41.4
+
+Run preflight, test:browser-241, test:browser-network-2412, test:browser-attendance-2414 and test:browser-map-2411. Apply forward migration 00480 locally before test:local. No deployment or remote migration is performed by the patch installer.
+
+# Historical release checklist — FieldLance 2.41.3
 
 ## 2.41.3 release gate
 

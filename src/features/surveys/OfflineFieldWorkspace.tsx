@@ -14,7 +14,7 @@ import {AttendanceWorkspace} from '../workforce/AttendanceWorkspace';
 import {syncAttendanceQueue} from '../workforce/attendanceOfflineStore';
 import {readAttendanceDownload,downloadAttendance,invalidateAttendanceDownload} from '../workforce/attendanceDownload';
 type Bundle={project:Project;template:Template;owner_id:string;downloaded_at:string;valid_until:string;people:Person[];households:Household[];responses:Response[];geography:unknown;blocked?:string};
-export function OfflineFieldWorkspace({ownerId,back,initialView='surveys',initialAssignmentId=null}:{ownerId:string;back:()=>void;initialView?:'surveys'|'attendance';initialAssignmentId?:string|null}){
+export function OfflineFieldWorkspace({ownerId,back,initialView='surveys',initialAssignmentId=null,initialSessionId=null}:{ownerId:string;back:()=>void;initialView?:'surveys'|'attendance';initialAssignmentId?:string|null;initialSessionId?:string|null}){
  const [view,setView]=useState(initialView);
  const [attendanceRevision,setAttendanceRevision]=useState(0);
  const [,tick]=useState(0);
@@ -62,7 +62,7 @@ export function OfflineFieldWorkspace({ownerId,back,initialView='surveys',initia
    <div className="actions"><button type="button" disabled={collect||busy} onClick={back}>Main workspace</button><button type="button" disabled={collect||busy} onClick={()=>lockFieldDevice()}>Lock device</button><button type="button" disabled={collect||busy} onClick={()=>void logout()}>Lock and sign out</button></div>
    <div className="actions"><button disabled={collect||busy} onClick={()=>setView('surveys')}>Downloaded surveys</button><button disabled={collect||busy} onClick={()=>setView('attendance')}>Attendance</button></div>
    <SurveySyncStatus userId={ownerId}/>
-   {view==='attendance'&&<AttendanceWorkspace key={attendanceRevision} userId={ownerId} initialAssignmentId={initialAssignmentId}/>}
+   {view==='attendance'&&<AttendanceWorkspace key={attendanceRevision} userId={ownerId} initialAssignmentId={initialAssignmentId} initialSessionId={initialSessionId}/>}
    <p>Offline app files and downloaded field data are separate. Pages without downloaded data require a connection. Financial actions, case operations and basemaps are not available offline.</p>
    {error&&<p role="alert" className="notice error">{error}</p>}{notice&&<p role="status">{notice}</p>}
    <p>Device storage: {Math.round((usage.usage||0)/1048576)} MiB used{usage.quota?` of ${Math.round(usage.quota/1048576)} MiB estimated quota`:''}. Downloaded access expires after at most seven days. Remote revocation is checked when connected.</p>
