@@ -5,6 +5,7 @@ const read = (path) => readFileSync(path, 'utf8');
 const pkg = JSON.parse(read('package.json'));
 const migration = read('supabase/migrations/20261009000800_notifications_communication_center.sql');
 const center = read('src/features/notifications/Notifications.tsx');
+const action = read('src/features/notifications/notificationAction.ts');
 const shell = read('src/app/AppShell.tsx');
 const nav = read('src/app/navigation.ts');
 const styles = read('src/styles/design-system.css');
@@ -42,7 +43,10 @@ await ok('actionable inbox supports paging, filters, read-all and archive lifecy
     assert.match(types, new RegExp(`${rpc}: \\{`));
   }
   for (const label of ['All','Unread','Tasks','Recruitment','Finance','Broadcasts','Archived','Mark all read','Load more']) assert.match(center, new RegExp(label));
-  assert.match(center, /onNavigate\(row\.action_page\)/);
+  assert.match(center, /notificationActionTarget/);
+  assert.match(center, /notificationSourceVisible/);
+  assert.match(center, /onOpenTarget\(target\)/);
+  assert.match(action, /row\.action_page \|\| defaultPage/);
 });
 
 await ok('existing event inserts receive category and deep-link metadata without rewriting historical migrations', async () => {

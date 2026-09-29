@@ -83,6 +83,7 @@
 ./docs/PHASE-2.41.0.md
 ./docs/PHASE-2.41.1.md
 ./docs/PHASE-2.41.2.md
+./docs/PHASE-2.41.3.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -176,6 +177,7 @@
 ./docs/UPGRADE-2.41.0.md
 ./docs/UPGRADE-2.41.1.md
 ./docs/UPGRADE-2.41.2.md
+./docs/UPGRADE-2.41.3.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -258,6 +260,7 @@
 ./docs/VALIDATION-2.41.1-CORRECTIVE.md
 ./docs/VALIDATION-2.41.1.md
 ./docs/VALIDATION-2.41.2.md
+./docs/VALIDATION-2.41.3.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -328,6 +331,7 @@
 ./scripts/test-map-review2411.mjs
 ./scripts/test-navigation2252.mjs
 ./scripts/test-notification-center2240.mjs
+./scripts/test-notification-routing2413.mjs
 ./scripts/test-offline-recovery276.mjs
 ./scripts/test-organization-workspace2210.mjs
 ./scripts/test-partner-ngo-application2197.mjs
@@ -451,6 +455,7 @@
 ./src/features/needs/NeedDetail.tsx
 ./src/features/needs/NeedsPanel.tsx
 ./src/features/notifications
+./src/features/notifications/notificationAction.ts
 ./src/features/notifications/Notifications.tsx
 ./src/features/operations
 ./src/features/operations/FieldLanceStaffDashboard.tsx
@@ -629,6 +634,7 @@
 ./supabase/migrations/20261013000450_field_evidence_attendance_stabilization.sql
 ./supabase/migrations/20261013000460_map_completeness_evidence_review.sql
 ./supabase/migrations/20261013000461_daily_payable_timezone_consistency.sql
+./supabase/migrations/20261013000470_notification_routing_action_context.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

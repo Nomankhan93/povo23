@@ -42,13 +42,14 @@ type Props = {
   projectId?: string | null;
   onNavigate: (page: string) => void;
   canCreate: boolean;
+  initialTaskId?: string | null;
 };
 
 const dateTime = (value: string) => new Intl.DateTimeFormat("en-PK", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 const priorityOrder: Record<TaskRow["priority"], number> = { urgent: 0, high: 1, normal: 2, low: 3 };
 
-export function TaskCenter({ mode, organizationId = null, projectId = null, onNavigate, canCreate }: Props) {
-  const [view, setView] = useState<View>(mode === "personal" ? "mine" : "team");
+export function TaskCenter({ mode, organizationId = null, projectId = null, onNavigate, canCreate, initialTaskId = null }: Props) {
+  const [view, setView] = useState<View>(initialTaskId ? "all" : mode === "personal" ? "mine" : "team");
   const [rows, setRows] = useState<TaskRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
@@ -67,7 +68,7 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
         p_view: view,
         p_organization: organizationId,
         p_project: projectId,
-        p_limit: 200,
+        p_limit: initialTaskId ? 500 : 200,
       }) as QueuePayload;
       if (live) setRows(Array.isArray(payload?.rows) ? payload.rows : []);
     })().catch((cause) => {
@@ -76,7 +77,14 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
       if (live) setLoading(false);
     });
     return () => { live = false; };
-  }, [organizationId, projectId, revision, view]);
+  }, [organizationId, projectId, revision, view, initialTaskId]);
+
+  useEffect(() => {
+    if (!initialTaskId) return;
+    if (view !== "all") { setView("all"); return; }
+    const timer = window.setTimeout(() => document.getElementById(`task-${initialTaskId}`)?.scrollIntoView({ block: "center" }), 60);
+    return () => window.clearTimeout(timer);
+  }, [initialTaskId, rows.length, view]);
 
   const metrics = useMemo(() => {
     const active = rows.filter((task) => ["open", "in_progress"].includes(task.status));
@@ -184,7 +192,7 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
 
     <section className="task-center-list">
       {loading && <p className="task-center-loading">Loading authorized tasks…</p>}
-      {!loading && ordered.map((task) => <article className={`task-center-card ${task.overdue ? "overdue" : ""}`} key={task.id}>
+      {!loading && ordered.map((task) => <article id={`task-${task.id}`} className={`task-center-card ${task.overdue ? "overdue" : ""} ${initialTaskId===task.id ? "route-focus" : ""}`} key={task.id}>
         <div className="task-center-card-top">
           <div><span className="eyebrow">{task.sla_label || human(task.task_type)}</span><h3>{task.title}</h3><p>{task.description || "Operational follow-up"}</p></div>
           <div className="task-center-badges"><span className={`task-priority ${task.priority}`}>{human(task.priority)}</span><span className={`task-status ${task.status}`}>{human(task.status)}</span>{task.escalation_level > 0 && <span className="task-escalation">Escalation L{task.escalation_level}</span>}</div>

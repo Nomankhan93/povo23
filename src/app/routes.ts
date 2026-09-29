@@ -1,4 +1,4 @@
-export type RouteEntityKind = "application" | "assignment" | "case" | "response" | null;
+export type RouteEntityKind = "application" | "assignment" | "case" | "response" | "task" | null;
 
 export type AppRoute = {
   kind: "root" | "personal" | "organization" | "staff" | "project" | "onboarding" | "access" | "reset" | "unknown";
@@ -70,7 +70,7 @@ function genericRoute(kind: AppRoute["kind"], scopeHint: string | null, organiza
   let page = slug ? slugToPage[slug] || null : "Overview";
   if(slug === "recruitment" && (kind === "organization" || kind === "staff")) page="Workforce marketplace";
   if(slug === "recruitment" && kind === "project") page="Recruitment";
-  const entityKind: RouteEntityKind = page === "Beneficiary cases" && entity ? "case" : null;
+  const entityKind: RouteEntityKind = page === "Beneficiary cases" && entity ? "case" : page === "Task Center" && entity ? "task" : null;
   return {kind, scopeHint, page, organizationId, projectId:null, projectTab:null, entityKind, entityId:entityKind ? entity || null : null};
 }
 
@@ -162,6 +162,7 @@ export function routePath(target: RouteTarget): string {
     const scopedProjectId=scope.slice("project:".length);
     if(page === "Project workspace") return `/projects/${encodeURIComponent(scopedProjectId)}/overview`;
     if(page === "Recruitment" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/project/${encodeURIComponent(scopedProjectId)}/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
+    if(page === "Task Center" && entityKind === "task" && entityId) return `/project/${encodeURIComponent(scopedProjectId)}/tasks/${encodeURIComponent(entityId)}`;
     return `/project/${encodeURIComponent(scopedProjectId)}/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");
   }
   if (scope === "personal") {
@@ -176,13 +177,16 @@ export function routePath(target: RouteTarget): string {
     if (page === "My Availability") return "/app/work/availability";
     if (page === "My Cases") return entityKind === "case" && entityId ? `/app/field/cases/${encodeURIComponent(entityId)}` : "/app/field/cases";
     if (page === "My Follow-ups") return "/app/field/follow-ups";
+    if (page === "Task Center" && entityKind === "task" && entityId) return `/app/tasks/${encodeURIComponent(entityId)}`;
     return `/app/${pageSlug(page)}`;
   }
   if (scope === "poem") {
     if(page === "Workforce marketplace" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/staff/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
+    if(page === "Task Center" && entityKind === "task" && entityId) return `/staff/tasks/${encodeURIComponent(entityId)}`;
     return `/staff/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");
   }
   if(page === "Workforce marketplace" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/org/${encodeURIComponent(scope)}/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
+  if(page === "Task Center" && entityKind === "task" && entityId) return `/org/${encodeURIComponent(scope)}/tasks/${encodeURIComponent(entityId)}`;
   return `/org/${encodeURIComponent(scope)}/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");
 }
 

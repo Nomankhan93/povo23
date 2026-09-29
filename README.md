@@ -1,3 +1,7 @@
+# Current release: FieldLance 2.41.3
+
+Notification Routing & Action Context. Actionable notifications now carry explicit event/source/action context for current operational workflows, resolve to canonical entity routes, re-check current source/workspace authorization before navigation, and preserve a controlled fallback for historical notifications. Task Center supports exact task deep links. See docs/PHASE-2.41.3.md, docs/UPGRADE-2.41.3.md and docs/VALIDATION-2.41.3.md.
+
 # Current release: FieldLance 2.41.2
 
 Offline Browser Validation & Release Stabilization. Browser validation now verifies native connectivity and uncached network reachability, encrypted offline capture, completed synchronization and a valid expired download. Includes actionable failure diagnostics and the date-only corrective regression fix. Existing map evidence and attendance behavior are preserved. See docs/PHASE-2.41.2.md, docs/UPGRADE-2.41.2.md and docs/VALIDATION-2.41.2.md.

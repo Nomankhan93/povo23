@@ -2638,6 +2638,7 @@ source_kind: string | null;
 source_ref: string | null;
 broadcast_id: string | null;
 archived_at: string | null;
+event_type: string | null;
 };
 Insert: {
 id?: number;
@@ -2656,6 +2657,7 @@ source_kind?: string | null;
 source_ref?: string | null;
 broadcast_id?: string | null;
 archived_at?: string | null;
+event_type?: string | null;
 };
 Update: {
 id?: number;
@@ -2674,6 +2676,7 @@ source_kind?: string | null;
 source_ref?: string | null;
 broadcast_id?: string | null;
 archived_at?: string | null;
+event_type?: string | null;
 };
 Relationships: [];
 };

@@ -1,3 +1,9 @@
+# Current validation — FieldLance 2.41.3
+
+See [VALIDATION-2.41.3.md](VALIDATION-2.41.3.md) for notification routing/action-context validation. Existing 2.41.0–2.41.2 offline, map and browser regressions remain release requirements.
+
+---
+
 # Current validation — FieldLance 2.41.2
 
 See [VALIDATION-2.41.2.md](VALIDATION-2.41.2.md) for offline browser and current release validation.

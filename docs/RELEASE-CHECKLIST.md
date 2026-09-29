@@ -1,3 +1,28 @@
+# Current release checklist — FieldLance 2.41.3
+
+## 2.41.3 release gate
+
+- [ ] `nvm use`
+- [ ] `npm ci`
+- [ ] local Supabase running
+- [ ] `npx supabase migration up --local`
+- [ ] `npm run types:generate`
+- [ ] `npm run types:check`
+- [ ] `npm run test:notification-center`
+- [ ] `npm run test:notification-routing-2413`
+- [ ] `npm run test:browser-241`
+- [ ] `npm run test:browser-network-2412`
+- [ ] `npm run test:browser-map-2411`
+- [ ] `npm run test:corrective-2411`
+- [ ] `npm run test:local`
+- [ ] `npm run build`
+- [ ] `git diff --check`
+- [ ] manual revoked/deleted notification-target check
+
+Notification links must never bypass current RLS/RPC authorization. Historical notifications without exact source context continue through legacy action-page fallback.
+
+---
+
 # Current release checklist — FieldLance 2.41.2
 
 ## 2.41.2 release gate

@@ -1,3 +1,7 @@
+# Current permissions note — FieldLance 2.41.3
+
+Notification possession is not authority. Exact notification actions re-check the referenced application, assignment/attendance assignment, survey response, beneficiary case or operational task through current RLS/RPC visibility. Cross-workspace notification navigation refreshes `my_workspace_access`. Deleted, revoked or inaccessible sources remain in notification history but are not opened.
+
 # Current permissions note — FieldLance 2.41.2
 
 2.41.2 changes validation only; existing owner isolation, device locking, erasure, freshness and server authorization remain unchanged.

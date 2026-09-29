@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
+import type { RouteTarget } from "../../app/routes";
+import { notificationActionTarget, notificationSourceVisible } from "./notificationAction";
 
 type Row = Database["public"]["Tables"]["notifications"]["Row"];
 type Preference = Database["public"]["Tables"]["notification_preferences"]["Row"];
@@ -70,7 +72,8 @@ function actionPages(mode: CenterMode) {
 export function Notifications({
   rows,
   refresh,
-  onNavigate,
+  onOpenTarget,
+  currentScope,
   mode,
   organizationId,
   projectId,
@@ -78,7 +81,8 @@ export function Notifications({
 }: {
   rows: Row[];
   refresh: () => Promise<void>;
-  onNavigate: (page: string) => void;
+  onOpenTarget: (target: RouteTarget) => Promise<void> | void;
+  currentScope: string;
   mode: CenterMode;
   organizationId?: string | null;
   projectId?: string | null;
@@ -210,10 +214,23 @@ export function Notifications({
     finally { setBusy(false); }
   }
 
-  function openAction(row: Row) {
-    if (!row.action_page) return;
-    if (!row.read_at) void markRead(row);
-    onNavigate(row.action_page);
+  async function openAction(row: Row) {
+    const target = notificationActionTarget(row, { mode, currentScope, organizationId, projectId });
+    if (!target) return;
+    setBusy(true); setError(""); setNotice("");
+    try {
+      if (row.source_ref && !(await notificationSourceVisible(row))) {
+        if (!row.read_at) await rpc("mark_notification_read", { p_id: row.id });
+        setNotice("This item is no longer available, or your access has changed. The notification remains in your history.");
+        await Promise.all([load(filter, 0, false), refresh()]);
+        return;
+      }
+      if (!row.read_at) await rpc("mark_notification_read", { p_id: row.id });
+      await refresh();
+      await onOpenTarget(target);
+    } catch (e) {
+      setError((e as Error).message || "This notification target could not be opened.");
+    } finally { setBusy(false); }
   }
 
   return (
@@ -271,7 +288,7 @@ export function Notifications({
           <div className="notification-card-top"><div className="notification-tags"><span className="notification-category">{human(row.category)}</span>{row.priority!=='normal'&&<span className={`notification-priority ${row.priority}`}>{human(row.priority)}</span>}{!row.read_at&&<span className="notification-unread-dot">Unread</span>}</div><small>{new Date(row.created_at).toLocaleString()}</small></div>
           <h3>{row.title}</h3><p>{row.body}</p>
           <div className="notification-card-actions">
-            {row.action_page && <button className="primary" onClick={()=>openAction(row)}>{row.action_label || 'Open'}<ArrowRight size={14}/></button>}
+            {(row.action_page || row.source_kind) && <button className="primary" disabled={busy} onClick={()=>void openAction(row)}>{row.action_label || 'Open'}<ArrowRight size={14}/></button>}
             {!row.read_at && <button className="secondary" disabled={busy} onClick={()=>void markRead(row)}>Mark read</button>}
             <button className="secondary" disabled={busy} onClick={()=>void archive(row,!row.archived_at)}><Archive size={14}/>{row.archived_at ? 'Restore' : 'Archive'}</button>
           </div>

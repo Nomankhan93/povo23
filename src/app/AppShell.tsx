@@ -1,5 +1,5 @@
 import type {ReportSelection} from "../features/analytics/model";
-import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind} from "./routes";
+import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind, type RouteTarget} from "./routes";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
@@ -213,6 +213,29 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setPageState(nextPage);
     if (browserRoute.kind === "root") syncRoute({scope:resolved,page:nextPage},true);
   }
+  async function openNotificationTarget(target: RouteTarget) {
+    const request = ++requestId.current;
+    await flushActiveDraft();
+    const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
+    if (request !== requestId.current) return;
+    setAccess(fresh);
+    const resolved = resolveWorkspace(fresh, target.scope);
+    if (resolved !== target.scope) throw new Error("This notification target is no longer available or your access has changed.");
+    if (resolved !== scopeRef.current) {
+      setScope(resolved);
+      scopeRef.current = resolved;
+      setSelected(null);
+      setFocusedProject(null);
+      setOrgEdit(null);
+      setQuery("");
+      setFilter("all");
+    }
+    rememberPreferredWorkspace(session.user.id, resolved);
+    setPageState(target.page);
+    syncRoute({...target,scope:resolved});
+    setMenu(false);
+  }
+
   async function switchWorkspace(next: string) {
     const request = ++requestId.current;
     try {
@@ -1236,13 +1259,15 @@ export function Workspace({ session, openField }: { session: Session; openField:
               projectId={projectScopeId}
               canCreate={Boolean(organizationWorkspace || (projectScope && canManageProjectAssignments) || (poem && ["admin", "super_admin"].includes(account.platform_role)))}
               onNavigate={change}
+              initialTaskId={browserRoute.entityKind === "task" ? browserRoute.entityId : null}
             />
           )}
           {page === "Notifications" && (
             <Notifications
               rows={notifications}
               refresh={load}
-              onNavigate={change}
+              onOpenTarget={openNotificationTarget}
+              currentScope={scope}
               mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
               organizationId={organizationWorkspace ? scope : null}
               projectId={projectScopeId}

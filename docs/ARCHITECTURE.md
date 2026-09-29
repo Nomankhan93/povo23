@@ -1,3 +1,7 @@
+# Current architecture note — FieldLance 2.41.3
+
+2.41.3 keeps PostgreSQL RLS and guarded RPCs as the authorization boundary while making notification navigation entity-aware. Current notifications can carry explicit `event_type`, `source_kind`, `source_ref`, organization/project context and action metadata. The client re-checks source visibility, refreshes workspace access before cross-scope navigation, and only then opens the canonical entity route. Historical title/action-page inference remains compatibility-only.
+
 # Current architecture note — FieldLance 2.41.2
 
 2.41.2 stabilizes browser validation using native Chromium connectivity controls and an uncached transport probe. The expiry fixture uses ordered timestamps after synchronization completes. No production architecture or database changes.
