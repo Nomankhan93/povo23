@@ -1,6 +1,6 @@
-# Current release: FieldLance 2.41.4
+# Current release: FieldLance 2.41.5
 
-Attendance & Notification Correctness. Online attendance no longer requires offline preparation. Notifications retain unavailable feedback, task links fetch exact authorized records independently of queue limits, and new attendance-review links open exact workdays. See docs/PHASE-2.41.4.md, docs/UPGRADE-2.41.4.md and docs/VALIDATION-2.41.4.md.
+Recruitment & Authorization Hardening. Collection requires an accepted active work assignment; legacy activation paths and unnecessary database grants are closed. Overall release remains on hold for the remaining audit P1s. See docs/PHASE-2.41.5.md, docs/UPGRADE-2.41.5.md, docs/VALIDATION-2.41.5.md and docs/IMPLEMENTATION-2.41.5.md.
 
 # Historical release: FieldLance 2.41.3
 

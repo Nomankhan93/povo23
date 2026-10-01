@@ -383,7 +383,7 @@ export function WorkforceMarketplace({
             <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open projects" value={availableTotal} detail="Published projects you can explore" />
             <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} still in recruitment`} />
             <WorkforceMetric icon={<Send size={18} />} label="Offers" value={offeredAssignmentCount} detail="Awaiting your decision" />
-            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount + directSurveyAssignments.length} detail="Survey access currently active" />
+            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Accepted contracts; collection eligibility is checked separately" />
           </div>
 
           {showOpportunities && <>
@@ -492,7 +492,7 @@ export function WorkforceMarketplace({
                   </div>
                   <p className="workforce-helper"><strong>Terms:</strong> {a.terms_note}</p>
                   {a.status === "offered" && <div className="workforce-offer-callout"><div><strong>Formal assignment offer</strong><p>Accept to activate this assignment and its survey access. Compensation and terms are frozen for this offer.</p></div><div className="actions"><button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button><button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button></div></div>}
-                  {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Survey access is active. Open Survey projects to conduct assigned surveys.</p>}
+                  {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Offer accepted. Open Survey projects to check current collection eligibility; project restrictions, dates and revocation still apply.</p>}
                   {a.status === "completed" && <p className="notice success">Completed assignment is retained in your verified FieldLance work history.</p>}
                   <div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("assignment",a.id)}>Open assignment link</button>{a.status === "active" && <button className="secondary" type="button" onClick={()=>onAttendance?.(a.id)}>Attendance / timesheet</button>}</div>
                 </article>
@@ -500,8 +500,8 @@ export function WorkforceMarketplace({
               {directSurveyAssignments.map((sa) => {
                 const project = projectMap.get(sa.project_id);
                 return <article className="workforce-assignment-card" key={`direct-${sa.project_id}`}>
-                  <div className="workforce-assignment-top"><div><span>{project ? (orgMap.get(project.organization_id) || project.organization_id) : "Survey project"}</span><h4>{project?.title || sa.project_id}</h4><small>Direct operational assignment</small></div><Badge value="active" /></div>
-                  <p className="notice success">Survey access is active. This direct assignment remains separate from the formal marketplace contract/offer lifecycle.</p>
+                  <div className="workforce-assignment-top"><div><span>{project ? (orgMap.get(project.organization_id) || project.organization_id) : "Survey project"}</span><h4>{project?.title || sa.project_id}</h4><small>Historical survey assignment</small></div><Badge value="inactive" /></div>
+                  <p className="notice">This historical record does not grant collection access. Apply through Available projects, wait for application review and a formal offer, then accept the offer.</p>
                 </article>;
               })}
             </div>

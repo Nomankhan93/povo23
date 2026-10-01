@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { schemaDb } from './schema-test-db.mjs';
@@ -113,8 +114,8 @@ try {
   await call('set_profile_sharing', [org, true]);
 
   await as('ngo');
-  await call('set_survey_assignment', [projectA, ids.volA, true]);
-  await call('set_survey_assignment', [projectB, ids.volB, true]);
+  await acceptCollectionFixture(db,projectA,ids.volA);await call('set_survey_assignment', [projectA, ids.volA, true]);
+  await acceptCollectionFixture(db,projectB,ids.volB);await call('set_survey_assignment', [projectB, ids.volB, true]);
 
   async function save(who, project, name) {
     await as(who);

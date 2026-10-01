@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { schemaDb } from './schema-test-db.mjs';
@@ -601,11 +602,12 @@ try {
     assert.equal((await rows('select count(*)::int c from public.survey_assignments where project_id=$1 and user_id=$2 and active', [project, ids.outside]))[0].c, 1);
   });
 
-  await ok('direct survey assignment remains available but now obeys current verification policy', async () => {
+  await ok('accepted assignment collection scope obeys current verification policy', async () => {
     await as('local');
     await call('set_profile_sharing', [org, true]);
     await as('ngo');
-    await deny(() => call('set_survey_assignment', [project, ids.local, true]), /verification/i);
+    await deny(() => acceptCollectionFixture(db, project, ids.local), /verification/i);
+    await deny(() => call('set_survey_assignment', [project, ids.local, true]), /Worker acceptance required/i);
     await as('local');
     const localCase = await call('request_independent_verification', [
       'volunteer',
@@ -620,7 +622,7 @@ try {
 
     // The marketplace acceptance above already consumes one project workforce
     // slot. Expand this legacy test fixture only when capacity is full so the
-    // optional direct-assignment compatibility path can be tested separately.
+    // accepted-assignment scope path can be tested separately.
     const directAssignmentPlan = await call('project_recruitment_status', [project]);
 
     if (directAssignmentPlan.capacity_reached) {
@@ -638,7 +640,7 @@ try {
       ]);
     }
 
-    await call('set_survey_assignment', [project, ids.local, true]);
+    await acceptCollectionFixture(db,project,ids.local);await call('set_survey_assignment', [project, ids.local, true]);
     assert.equal((await rows('select count(*)::int c from public.survey_assignments where project_id=$1 and user_id=$2 and active', [project, ids.local]))[0].c, 1);
   });
 

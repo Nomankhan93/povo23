@@ -5055,6 +5055,9 @@ p_status?: string | null;
 p_priority?: string | null;
 p_limit?: number | null;
 }; Returns: Json };
+can_collect_project: { Args: {
+p_project: string | null;
+}; Returns: boolean };
 cancel_assistance_distribution_plan: { Args: {
 p_id: string | null;
 p_reason: string | null;

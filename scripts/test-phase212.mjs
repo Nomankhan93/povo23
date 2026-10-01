@@ -33,9 +33,9 @@ await call('reserve_project_funding',[
 ]);
 
 await as('manager');
-await call('set_survey_assignment',[project,ids.a,true]);
+
 async function fixture(type,user='a',status='active') {await db.exec('RESET ROLE');return (await rows("insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,rate,target_surveys,start_date,end_date,status,offered_by,responded_at) values($1,$2,$3,'Volunteer','NGO','Project','shortlist','paid',$4,120.25,100,$5,$6,$7,$8,now()-interval '1 day') returning id",[project,org,ids[user],type,dates.start,dates.end,status,ids.ngo]))[0].id}
-const assignment=await fixture('per_verified_survey');await as('a');const response=await call('save_survey_response',[null,project,null,null,'Person','1990-01-01','Household',{name:'Person'},{agreed:true,method:'verbal',capture_authority:'self',governance_version:0},true,0,crypto.randomUUID()]);
+const assignment=await fixture('per_verified_survey');await as('manager');await call('set_survey_assignment',[project,ids.a,true]);await as('a');const response=await call('save_survey_response',[null,project,null,null,'Person','1990-01-01','Household',{name:'Person'},{agreed:true,method:'verbal',capture_authority:'self',governance_version:0},true,0,crypto.randomUUID()]);
 await ok('submission alone creates no payable',async()=>assert.equal((await rows('select * from public.work_payable_units')).length,0));
 await as('ngo');const v=(await rows('select version from public.survey_responses where id=$1',[response]))[0].version;await call('review_survey_response',[response,'approved','Reviewed independently',v]);let u=(await rows('select * from public.work_payable_units'))[0];assert(u);
 await ok('accepted survey creates one immutable rate candidate',async()=>{assert.equal(Number(u.rate),120.25);assert.equal(u.status,'pending');assert.equal(await call('reconcile_survey_payable',[response]),u.id);assert.equal((await rows('select * from public.work_payable_units')).length,1)});

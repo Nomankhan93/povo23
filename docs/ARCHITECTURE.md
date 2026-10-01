@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.4
+# Current architecture note — FieldLance 2.41.5
+
+Collection eligibility is checked at the database mutation and authorization boundaries. Project details use the self-only can_collect_project RPC. Case delegation retains separate staff authority while requiring accepted worker contracts. See PHASE-2.41.5.md.
+
+# Historical architecture note — FieldLance 2.41.4
 
 Exact task/workday detail RPCs reuse current authorization helpers. Linked records render independently of queue/date filters and are revalidated on refresh. Offline capture still requires a fresh download; online capture uses current server policy.
 

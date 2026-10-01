@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import crypto from 'node:crypto';
@@ -97,7 +98,7 @@ try {
   ]);
 
   await as('ngo');
-  await call('set_survey_assignment', [project, ids.vol, true]);
+  await acceptCollectionFixture(db,project,ids.vol);await call('set_survey_assignment', [project, ids.vol, true]);
 
   await ok('active POEM assignment appears automatically before the first survey', async () => {
     await as('vol');

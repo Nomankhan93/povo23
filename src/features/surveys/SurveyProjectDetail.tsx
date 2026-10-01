@@ -1,6 +1,6 @@
 import { answerText } from "./capture";
 import { AttachmentView } from "./CaptureFields";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { type Json } from "../../lib/supabase/database.types";
 import { geographyPath, type Geo } from "../geography/model";
@@ -47,6 +47,9 @@ export function SurveyProjectDetail({
   openWorkspace?: (project: Project) => void;
   initialResponseId?: string | null;
 }) {
+  const [collectionAllowed, setCollectionAllowed] = useState(false);
+  const [contracts, setContracts] = useState<Tables["work_assignments"]["Row"][]>([]);
+  const [scope, setScope] = useState<Record<string, string>>({});
   const [registryPerson, setRegistryPerson] = useState<string | null>(null);
   const [closeRequested, setCloseRequested] = useState(false);
   const showFieldWork = workspaceMode !== "responses";
@@ -75,10 +78,6 @@ export function SurveyProjectDetail({
       approved: 0,
       correction: 0,
     }),
-    [candidates, setCandidates] = useState<
-      { user_id: string; details: Record<string, string> }[]
-    >([]),
-    [query, setQuery] = useState(""),
     [responseStatus, setResponseStatus] = useState("all"),
     [revisions, setRevisions] = useState<
       Tables["survey_response_revisions"]["Row"][]
@@ -114,6 +113,8 @@ export function SurveyProjectDetail({
     setBusy(true);
     setError("");
     async function load() {
+      setCollectionAllowed(false);
+      setContracts([]);
       let r = db!
         .from("survey_responses")
         .select("*")
@@ -146,6 +147,8 @@ export function SurveyProjectDetail({
           .select("*")
           .eq("project_id", project.id)
           .limit(1000),
+        db!.from("work_assignments").select("*").eq("survey_project_id", project.id).eq("status", "active").not("responded_at", "is", null),
+        db!.rpc("can_collect_project", { p_project: project.id }),
       ]);
       for (const x of result) if (x.error) throw x.error;
       const persons = (result[2].data || []).slice(0, 50);
@@ -177,6 +180,8 @@ export function SurveyProjectDetail({
         setRegistryMore((result[2].data || []).length > 50);
         setHouses(households);
         setAssignments(result[3].data || []);
+        setContracts(result[4].data || []);
+        setCollectionAllowed(result[5].data === true);
         setCounts({
           submitted: c[0].count || 0,
           approved: c[1].count || 0,
@@ -210,20 +215,7 @@ export function SurveyProjectDetail({
       setBusy(false);
     }
   }
-  async function findVolunteers(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    try {
-      const result = await rpc("survey_assignment_candidates", {
-        p_project: project.id,
-        p_query: query,
-      });
-      setCandidates(result as unknown as typeof candidates);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
-  const assigned = assignments.some((a) => a.user_id === userId && a.active);
+  const assigned = collectionAllowed;
   return (
     <section className="panel detail">
       <button className="link" onClick={back}>
@@ -267,45 +259,22 @@ export function SurveyProjectDetail({
       )}
       {showFieldWork && manageAssignments && project.moderation_status === "allowed" && (
         <details className="survey-question">
-          <summary>Direct survey access / operational override</summary>
-          <form onSubmit={findVolunteers}>
-            <label className="field">
-              Find a verified volunteer sharing with this NGO (use Workforce marketplace for formal terms/work history)
-              <input
-                value={query}
-                maxLength={100}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </label>
-            <button className="secondary">Search first 50 matches</button>
-          </form>
-          {candidates.map((p) => (
-            <div className="share-row" key={p.user_id}>
-              <span>{p.details.full_name || p.user_id}</span>
-              <button
-                className="secondary"
-                disabled={busy}
-                onClick={() =>
-                  act(
-                    () =>
-                      rpc("set_survey_assignment", {
-                        p_project: project.id,
-                        p_user: p.user_id,
-                        p_active: true,
-                      }),
-                    "Surveyor assigned.",
-                  )
-                }
-              >
-                Assign
-              </button>
-            </div>
-          ))}
+          <summary>Collection access and history</summary>
+          <p>Application required, then application review, formal offer and worker acceptance. A selected application or invitation does not activate collection.</p>
+          {openRecruitment && <button className="secondary" onClick={openRecruitment}>Open recruitment and offers</button>}
           {assignments.map((a) => (
             <div className="share-row" key={a.user_id}>
               <span>
-                {a.user_id} · {a.active ? "active" : "inactive"}
+                {a.user_id} · {contracts.some(w => w.user_id === a.user_id) ? (a.active ? "Accepted assignment; collection subject to project eligibility" : "Collection revoked") : "Historical access only: formal offer and worker acceptance required"}
               </span>
+              {contracts.some(w => w.user_id === a.user_id) && <div>
+                <label className="field">Collection area
+                  <select value={scope[a.user_id] || a.collection_geography_id} onChange={e => setScope(old => ({...old, [a.user_id]: e.target.value}))}>
+                    {geographies.filter(g => g.id === project.geography_id || geographyPath(g.id, geographies).some(parent => parent.id === project.geography_id)).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                  </select>
+                </label>
+                <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("set_survey_assignment_scope", {p_project: project.id, p_user: a.user_id, p_geography: scope[a.user_id] || a.collection_geography_id, p_active: true}), "Accepted assignment collection scope updated.")}>Save scope / restore collection</button>
+              </div>}
               {a.active && (
                 <button
                   className="secondary"

@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
@@ -30,8 +31,8 @@ try{
  await db.query("update public.volunteer_profiles set status='verified' where user_id in ($1,$2)",[ids.collectorA,ids.collectorB]);
  await as('collectorA');await call('set_profile_sharing',[orgA,true]);
  await as('collectorB');await call('set_profile_sharing',[orgB,true]);
- await as('ngoA');await call('set_survey_assignment',[projectA,ids.collectorA,true]);
- await as('ngoB');await call('set_survey_assignment',[projectB,ids.collectorB,true]);
+ await as('ngoA');await acceptCollectionFixture(db,projectA,ids.collectorA);await call('set_survey_assignment',[projectA,ids.collectorA,true]);
+ await as('ngoB');await acceptCollectionFixture(db,projectB,ids.collectorB);await call('set_survey_assignment',[projectB,ids.collectorB,true]);
  async function save(who,project,name,birth){await as(who);return call('save_survey_response',[null,project,null,null,name,birth,'Household '+name,{need:'Education'},{agreed:true,method:'verbal',representative:'Guardian',relationship:'Guardian'},true,0,crypto.randomUUID()])}
  const responseA=await save('collectorA',projectA,'Ahmed Ali','2012-03-04');
  const responseB=await save('collectorB',projectB,' Ahmed-Ali ','2012-03-04');

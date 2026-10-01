@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { schemaDb } from './schema-test-db.mjs';
@@ -72,7 +73,7 @@ try {
   );
 
   let opportunity;
-  await ok('selected open-recruitment applicant can be assigned without a permanent profile grant', async () => {
+  await ok('selected applicant accepts a formal offer without a permanent profile grant', async () => {
     assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
     await as('ngo');
     opportunity = await call('create_recruitment_opportunity', [
@@ -97,13 +98,13 @@ try {
     await as('ngo');
     const app = (await rows('select * from public.work_applications where id=$1', [application]))[0];
     await call('review_work_application', [application, 'selected', 'Suitable for this project assignment.', app.version]);
-    await call('set_survey_assignment', [project, ids.volunteer, true]);
+    await acceptCollectionFixture(db,project,ids.volunteer);await call('set_survey_assignment', [project, ids.volunteer, true]);
     assert.equal((await rows('select active from public.survey_assignments where project_id=$1 and user_id=$2', [project, ids.volunteer]))[0].active, true);
     await db.exec('RESET ROLE');
     assert.equal((await rows('select count(*)::int c from public.profile_shares'))[0].c, 0);
   });
 
-  await ok('NGO profile access is bounded by the active project assignment', async () => {
+  await ok('NGO profile access ends when collection and formal assignment relationships are revoked', async () => {
     await as('ngo');
     let result = await call('search_volunteers', [org, '', null, '', '', '', '', '', 0]);
     assert.equal(result.total, 1);
@@ -111,6 +112,8 @@ try {
     assert.equal((await rows('select user_id from public.volunteer_profiles where user_id=$1', [ids.volunteer])).length, 1);
 
     await call('set_survey_assignment', [project, ids.volunteer, false]);
+    const contract=(await rows("select id,version from public.work_assignments where survey_project_id=$1 and user_id=$2 and status='active'",[project,ids.volunteer]))[0];
+    await call('cancel_work_assignment',[contract.id,'End fixture recruitment relationship',contract.version]);
     result = await call('search_volunteers', [org, '', null, '', '', '', '', '', 0]);
     assert.equal(result.total, 0);
     assert.equal((await rows('select user_id from public.volunteer_profiles where user_id=$1', [ids.volunteer])).length, 0);

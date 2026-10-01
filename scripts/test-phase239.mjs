@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
@@ -83,7 +84,7 @@ try{
 
   await db.exec('RESET ROLE');
   await db.query("update public.volunteer_profiles set status='verified',geography_id=$1,details=jsonb_build_object('full_name','Assigned Worker') where user_id=$2",[districtA,ids.worker]);
-  await db.query('insert into public.survey_assignments(project_id,user_id,active,collection_geography_id) values($1,$2,true,$3)',[project,ids.worker,districtA]);
+  await acceptCollectionFixture(db,project,ids.worker);await db.query('update public.survey_assignments set collection_geography_id=$3 where project_id=$1 and user_id=$2',[project,ids.worker,districtA]);
   const household=(await rows('insert into public.registry_households(project_id,label,geography_id,created_by) values($1,$2,$3,$4) returning id',[project,'Case Household',districtA,ids.worker]))[0].id;
   const person=(await rows('insert into public.registry_persons(project_id,household_id,full_name,birth_date,created_by) values($1,$2,$3,$4,$5) returning *',[project,household,'Case Beneficiary','1992-02-02',ids.worker]))[0];
   const response=(await rows("insert into public.survey_responses(project_id,person_id,collector_id,answers,consent,status,review_note,reviewed_by,reviewed_at,collection_geography_id) values($1,$2,$3,$4::jsonb,$5::jsonb,'approved',$6,$7,now(),$8) returning *",[project,person.id,ids.worker,JSON.stringify({need:'follow-up'}),JSON.stringify({agreed:true,method:'verbal'}),'Approved case source',ids.ngo,districtA]))[0];
@@ -91,6 +92,17 @@ try{
   await as('pm');
   await call('create_beneficiary_case',[caseId(1),person.id,response.id,null,'Delegated follow-up case','Validate named owner and geography-scoped follow-up responsibility','high',dates.today,'Open case for delegated field operations']);
   await call('create_beneficiary_case',[caseId(2),person.id,response.id,null,'Closure ownership case','Validate ownership release when a case is formally closed','medium',null,'Open second case for closure ownership validation']);
+
+  await ok('legacy survey row cannot authorize case delegation after accepted contract ends',async()=>{
+    await db.exec('RESET ROLE');
+    await db.query("update public.work_assignments set status='cancelled' where survey_project_id=$1 and user_id=$2",[project,ids.worker]);
+    assert.equal((await rows("select app_private.case_owner_eligible($1,$2,'field_worker') allowed",[caseId(1),ids.worker]))[0].allowed,false);
+    await as('pm');
+    assert(!(await call('beneficiary_case_assignment_candidates',[caseId(1)])).some(x=>x.user_id===ids.worker));
+    assert((await call('beneficiary_case_assignment_candidates',[caseId(1)])).some(x=>x.user_id===ids.focal));
+    await db.exec('RESET ROLE');
+    await db.query("update public.work_assignments set status='active' where survey_project_id=$1 and user_id=$2",[project,ids.worker]);
+  });
 
   await ok('manager queue starts unassigned and candidates are limited to eligible worker/focal geography',async()=>{
     await as('pm');

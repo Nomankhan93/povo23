@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';import {schemaDb} from './schema-test-db.mjs';
 const db=await schemaDb();let passed=0;const ids=Object.fromEntries(['super','manager','ngo','otherngo','a','b'].map((n,i)=>[n,`50000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`]));
 const rows=async(q,p=[]) => (await db.query(q,p)).rows;async function as(n){await db.exec('RESET ROLE');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[ids[n]||'']);await db.exec('SET ROLE '+(n?'authenticated':'anon'))}async function call(n,a){if(n==='save_survey_response')a=[...a,crypto.randomUUID()];return (await rows(`select public.${n}(${a.map((_,i)=>'$'+(i+1)).join(',')}) result`,a))[0].result}const deny=(f,re=/required|permission|unavailable|not found/i)=>assert.rejects(f,re);async function ok(n,f){await f();passed++;console.log('PASS '+n)}
@@ -7,7 +8,7 @@ await db.exec('RESET ROLE');await db.query("update public.volunteer_profiles set
 await as('manager');const template=await call('publish_survey_template',['Offline pilot',[{id:'photo',type:'photo',label:'Photo',required:false}]]);
 const dates=(await rows("select (current_date-1)::text start,(current_date+3)::text end"))[0];
 const project=await call('create_survey_project',[org,'Offline field pilot',template,geo,100,dates.start,dates.end,'Assess household needs','offline-v1','Explain offline device storage, later synchronization and guardian consent before capturing.']);
-await call('set_survey_assignment',[project,ids.a,true]);
+await acceptCollectionFixture(db,project,ids.a);await call('set_survey_assignment',[project,ids.a,true]);
 const consent={agreed:true,method:'verbal',representative:'Guardian',relationship:'Mother',capture_authority:'representative',governance_version:0};
 const id=crypto.randomUUID();
 const reserve=(file=id,c=consent)=>call('reserve_offline_capture_file',[file,project,'photo','a.jpg','image/jpeg',10,c]);
@@ -22,7 +23,7 @@ const directSave=()=> (rows('select public.save_survey_response($1,$2,$3,$4,$5,$
 await ok('stale template token requires explicit refresh',async()=>{const stale=[...args];stale[8]={...consent,template_id:crypto.randomUUID()};await deny(()=>rows('select public.save_survey_response($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',stale),/template changed/)});
 const response=await directSave();
 await ok('bundle contains only collector-owned reference data',async()=>{const b=await call('download_field_project',[project]);assert.equal(b.people.length,1);assert.equal(b.households.length,1);assert.equal(b.responses.length,0)});
-await as('manager');await call('set_survey_assignment',[project,ids.b,true]);await as('b');await ok('foreign collector has no reference data or attachment acknowledgement',async()=>{const b=await call('download_field_project',[project]);assert.deepEqual(b.people,[]);assert.deepEqual(b.households,[]);await deny(()=>call('offline_capture_upload_complete',[id]),/unavailable/);await deny(()=>reserve(),/different/)});
+await as('manager');await acceptCollectionFixture(db,project,ids.b);await call('set_survey_assignment',[project,ids.b,true]);await as('b');await ok('foreign collector has no reference data or attachment acknowledgement',async()=>{const b=await call('download_field_project',[project]);assert.deepEqual(b.people,[]);assert.deepEqual(b.households,[]);await deny(()=>call('offline_capture_upload_complete',[id]),/unavailable/);await deny(()=>reserve(),/different/)});
 await as('manager');await call('publish_project_policy',[project,0,365,'none',false,false,false,'New policy for offline test']);await as('a');await ok('old consent reservation cannot continue after policy change',async()=>deny(()=>reserve(),/policy changed/));
 await ok('new ID and renewed consent permit recovery',async()=>{const newId=crypto.randomUUID();assert.equal(await reserve(newId,{...consent,governance_version:1}),newId)});
 await as('manager');await call('publish_project_policy',[project,1,365,'none',false,false,true,'Pause to test acknowledged recovery']);await as('a');await ok('paused project preserves acknowledged exact survey replay',async()=>{assert.equal(await directSave(),response);await deny(()=>call('download_field_project',[project]),/assignment/);await deny(()=>reserve(),/unavailable/)});

@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { schemaDb } from './schema-test-db.mjs';
@@ -70,7 +71,7 @@ try{
     await deny(()=>call('project_recruitment_status',[project]),/Project management permission required/i);
   });
 
-  await ok('capacity counts distinct committed volunteers and blocks a third direct assignment',async()=>{
+  await ok('capacity counts distinct committed volunteers and blocks a third formal offer',async()=>{
     await as('manager');
     const eligibilityOpportunity=await call('create_recruitment_opportunity',[project,'2.16 Assignment Eligibility','Establish application-scoped assignment eligibility for capacity testing',taluka,dates.opp_start,dates.opp_end,dates.reply,'unpaid','Project defaults apply',2,'Survey','Urdu','all','Available for field survey work',true]);
     for(const who of ['collectorA','collectorB','collectorC']){
@@ -80,14 +81,15 @@ try{
       const current=(await rows('select version from public.work_applications where id=$1',[application]))[0];
       await call('review_work_application',[application,'selected','Selected for assignment-capacity validation',current.version]);
     }
-    await call('set_survey_assignment_scope',[project,ids.collectorA,taluka,true]);
-    await call('set_survey_assignment_scope',[project,ids.collectorB,taluka,true]);
+    await acceptCollectionFixture(db,project,ids.collectorA);await call('set_survey_assignment_scope',[project,ids.collectorA,taluka,true]);
+    await acceptCollectionFixture(db,project,ids.collectorB);await call('set_survey_assignment_scope',[project,ids.collectorB,taluka,true]);
     plan=await call('project_recruitment_status',[project]);
     assert.equal(plan.committed_volunteers,2);
     assert.equal(plan.remaining_capacity,0);
     assert.equal(plan.capacity_reached,true);
     assert.equal(plan.effective_open,false);
-    await deny(()=>call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]),/capacity is full/i);
+    await deny(()=>acceptCollectionFixture(db,project,ids.collectorC),/capacity is full/i);
+    await deny(()=>call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]),/Worker acceptance required/i);
   });
 
   async function save(who,name){
@@ -106,7 +108,8 @@ try{
     assert.equal(plan.target_reached,true);
     assert.equal(plan.effective_open,false);
     await deny(()=>call('create_recruitment_opportunity',[project,'Blocked Recruitment','Recruit volunteers after target reached',taluka,dates.opp_start,dates.opp_end,dates.reply,'unpaid','Unpaid volunteer role',1,'Survey','Urdu','all','Must be available during project dates',true]),/Project recruitment is closed/i);
-    await deny(()=>call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]),/target\/status is closed/i);
+    await deny(()=>acceptCollectionFixture(db,project,ids.collectorC),/target\/status is closed/i);
+    await deny(()=>call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]),/Worker acceptance required/i);
   });
 
   await ok('already-assigned field work still synchronizes after target reach and over-target approvals are reported',async()=>{
@@ -133,7 +136,7 @@ try{
     assert.equal(plan.remaining_target,1);
     assert.equal(plan.remaining_capacity,2);
     assert.equal(plan.effective_open,true);
-    await call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]);
+    await acceptCollectionFixture(db,project,ids.collectorC);await call('set_survey_assignment_scope',[project,ids.collectorC,taluka,true]);
   });
 
   let opportunity;

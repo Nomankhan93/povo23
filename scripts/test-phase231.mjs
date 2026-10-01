@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { schemaDb } from './schema-test-db.mjs';
 
@@ -45,8 +46,8 @@ try{
   const template=await call('publish_survey_template',['2.14 area fixture',[{id:'q',label:'Question',type:'text',required:true}]]);
   const dates=(await rows("select ((now() at time zone 'UTC')::date-1)::text start,((now() at time zone 'UTC')::date+20)::text finish,((now() at time zone 'UTC')::date)::text today"))[0];
   const project=await call('create_survey_project',[org,'2.14 Scoped Project',template,district,100,dates.start,dates.finish,'Test project-scoped operational permissions','a14','Consent notice used for project area governance tests.']);
-  await call('set_survey_assignment_scope',[project,ids.collectorA,talukaA,true]);
-  await call('set_survey_assignment_scope',[project,ids.collectorB,talukaB,true]);
+  await acceptCollectionFixture(db,project,ids.collectorA);await call('set_survey_assignment_scope',[project,ids.collectorA,talukaA,true]);
+  await acceptCollectionFixture(db,project,ids.collectorB);await call('set_survey_assignment_scope',[project,ids.collectorB,talukaB,true]);
 
   async function save(who,name){
     await as(who);

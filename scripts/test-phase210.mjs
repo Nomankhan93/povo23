@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';import {schemaDb} from './schema-test-db.mjs';
 const db=await schemaDb();let passed=0;const ids=Object.fromEntries(['super','manager','ngo','otherngo','a','b'].map((n,i)=>[n,`50000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`]));
 const rows=async(q,p=[]) => (await db.query(q,p)).rows;async function as(n){await db.exec('RESET ROLE');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[ids[n]||'']);await db.exec('SET ROLE '+(n?'authenticated':'anon'))}async function call(n,a){if(n==='save_survey_response')a=[...a,crypto.randomUUID()];return (await rows(`select public.${n}(${a.map((_,i)=>'$'+(i+1)).join(',')}) result`,a))[0].result}const deny=(f,re=/required|permission|unavailable|not found/i)=>assert.rejects(f,re);async function ok(n,f){await f();passed++;console.log('PASS '+n)}
@@ -16,7 +17,7 @@ await ok('invalid conditions, cycles, ranges rejected',async()=>{
 const template=(await rows('select id from public.survey_templates'))[0].id;
 const dates=(await rows("select (current_date-1)::text start,(current_date+3)::text end"))[0];
 const project=await call('create_survey_project',[org,'Advanced capture pilot',template,geo,100,dates.start,dates.end,'Assess household needs','capture-v1','Explain POEM and NGO data collection, guardian consent and private evidence storage.']);
-await call('set_survey_assignment',[project,ids.a,true]);await call('set_survey_assignment',[project,ids.b,true]);
+await acceptCollectionFixture(db,project,ids.a);await call('set_survey_assignment',[project,ids.a,true]);await acceptCollectionFixture(db,project,ids.b);await call('set_survey_assignment',[project,ids.b,true]);
 const consent={agreed:true,method:'verbal',representative:'Guardian Test',relationship:'Mother',governance_version:0,capture_authority:'representative'};
 const save=(answers={},submit=true,cons=consent)=>call('save_survey_response',[null,project,null,null,'Adult Respondent','1990-01-01','Test household',answers,cons,submit,0]);
 await as('a');

@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.4
+# Current permissions note — FieldLance 2.41.5
+
+Accepted active worker contracts are required for collection and Field Worker case delegation. Administration and review remain separately authorized. Browser table/default ACL excesses are removed; see UPGRADE-2.41.5.md for administrative migration-role requirements.
+
+# Historical permissions note — FieldLance 2.41.4
 
 The new detail RPCs return null for unavailable targets and reuse existing task/attendance read permissions. Anonymous execution is denied. Task lookups also honor requested organization/project scope; no notification grants access.
 

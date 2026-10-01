@@ -1,4 +1,10 @@
-# Current validation — FieldLance 2.41.4
+# Current validation — FieldLance 2.41.5
+
+The 2.41.5 pre-commit project-date correction is covered by test:collection-dates-2415 and forward migration 00530. Its complete npm test and targeted checks passed; see IMPLEMENTATION-2.41.5.md for evidence and the separate pre-existing F14 limitation.
+
+See [VALIDATION-2.41.5.md](VALIDATION-2.41.5.md) and [IMPLEMENTATION-2.41.5.md](IMPLEMENTATION-2.41.5.md) for the exact local results, remaining release blockers and command record.
+
+# Historical validation — FieldLance 2.41.4
 
 See [VALIDATION-2.41.4.md](VALIDATION-2.41.4.md) for current release validation and local acceptance.
 

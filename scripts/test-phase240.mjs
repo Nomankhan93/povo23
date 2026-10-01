@@ -1,3 +1,4 @@
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
 
@@ -134,9 +135,17 @@ try{
   await call('assign_project_staff',[project,ids.focalA,'area_focal_person',[districtA],dates.start,dates.finish]);
   await call('assign_project_staff',[project,ids.focalB,'area_focal_person',[districtB],dates.start,dates.finish]);
   await db.exec('RESET ROLE');
+  let assignment;
   for(const [worker,geo,label] of [[ids.workerA,districtA,'Map Worker A'],[ids.workerB,districtB,'Map Worker B']]){
     await db.query("update public.volunteer_profiles set status='verified',geography_id=$1,details=jsonb_build_object('full_name',$2::text) where user_id=$3",[geo,label,worker]);
-    await db.query('insert into public.survey_assignments(project_id,user_id,active,collection_geography_id) values($1,$2,true,$3)',[project,worker,geo]);
+    // Establish the existing attendance contract before its survey access, preserving its immutable area.
+    if(worker===ids.workerA){
+      assignment=(await rows(`insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,currency,rate,target_surveys,start_date,end_date,terms_note,status,offered_by,responded_at,collection_geography_id) values($1,$2,$3,'Map Worker A','2.40 Field Map NGO','2.40 Field Map Project','shortlist','volunteer','none','PKR',null,10,$4,$5,'Map attendance fixture','active',$6,now()-interval '3 hours',$7) returning id`,[project,org,ids.workerA,dates.start,dates.finish,ids.ngo,districtA]))[0].id;
+      await db.query('insert into public.survey_assignments(project_id,user_id,active,collection_geography_id) values($1,$2,true,$3)',[project,worker,geo]);
+    }else{
+      await acceptCollectionFixture(db,project,worker);
+      await db.query('update public.survey_assignments set collection_geography_id=$3 where project_id=$1 and user_id=$2',[project,worker,geo]);
+    }
   }
   const hhA=(await rows('insert into public.registry_households(project_id,label,geography_id,created_by) values($1,$2,$3,$4) returning id',[project,'Map A',districtA,ids.workerA]))[0].id;
   const hhB=(await rows('insert into public.registry_households(project_id,label,geography_id,created_by) values($1,$2,$3,$4) returning id',[project,'Map B',districtB,ids.workerB]))[0].id;
@@ -197,7 +206,7 @@ try{
   await evidenceRegression({db,as,call,rows,ok,ids,caseId,followId,now,dates,districtA,squareA});
 
   await db.exec('RESET ROLE');
-  const assignment=(await rows(`insert into public.work_assignments(survey_project_id,organization_id,user_id,volunteer_name,organization_name,project_title,source_kind,work_mode,compensation_type,currency,rate,target_surveys,start_date,end_date,terms_note,status,offered_by,responded_at,collection_geography_id) values($1,$2,$3,'Map Worker A','2.40 Field Map NGO','2.40 Field Map Project','shortlist','volunteer','none','PKR',null,10,$4,$5,'Map attendance fixture','active',$6,now()-interval '3 hours',$7) returning id`,[project,org,ids.workerA,dates.start,dates.finish,ids.ngo,districtA]))[0].id;
+  // The original attendance contract was established before survey access above.
   await as('ngo');await call('set_project_attendance_policy',[project,'UTC','preferred',100]);
   await as('workerA');
   const times=(await rows("select (now()-interval '2 hours')::text a,(now()-interval '1 hour')::text b"))[0];
@@ -227,6 +236,7 @@ try{
   // Restore fixture state before inserting the independent pagination dataset.
   await db.exec('RESET ROLE');
   await db.query("update public.survey_projects set moderation_status='allowed',moderation_reason='' where id=$1",[project]);
+  await db.query("update public.work_assignments set status='active' where id=$1",[assignment]);
   const {mapReviewRegression}=await import('./test-map-review2411.mjs');
   await mapReviewRegression({db,as,call,rows,ok,ids,project,personA,districtA,districtB,dates});
 

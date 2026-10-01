@@ -1,4 +1,8 @@
-# Current release checklist — FieldLance 2.41.4
+# Current release checklist — FieldLance 2.41.5
+
+F01/F10 patch validations passed before the 2.41.5 version update. The pre-commit date-guard correction (00530) subsequently passed targeted validation and the complete npm test chain; 00490-00520 were not rewritten. Overall release remains ON HOLD for unresolved audit P1s, including pre-existing F14. See VALIDATION-2.41.5.md and IMPLEMENTATION-2.41.5.md. Do not push or deploy as part of local validation.
+
+# Historical release checklist — FieldLance 2.41.4
 
 Run preflight, test:browser-241, test:browser-network-2412, test:browser-attendance-2414 and test:browser-map-2411. Apply forward migration 00480 locally before test:local. No deployment or remote migration is performed by the patch installer.
 
