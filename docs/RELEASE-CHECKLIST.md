@@ -1,4 +1,8 @@
-# Current release checklist — FieldLance 2.41.5
+# Current release checklist — FieldLance 2.41.6
+
+F02/F04/F05 targeted, browser, real local integration, type, build and complete npm test validations passed before the version update. See VALIDATION-2.41.6.md and IMPLEMENTATION-2.41.6.md for final checks and the recorded intermittent baseline test failure. Overall release remains HOLD for F03 and F14. No staging, commit, push or deployment is authorized by this checklist.
+
+# Historical release checklist — FieldLance 2.41.5
 
 F01/F10 patch validations passed before the 2.41.5 version update. The pre-commit date-guard correction (00530) subsequently passed targeted validation and the complete npm test chain; 00490-00520 were not rewritten. Overall release remains ON HOLD for unresolved audit P1s, including pre-existing F14. See VALIDATION-2.41.5.md and IMPLEMENTATION-2.41.5.md. Do not push or deploy as part of local validation.
 

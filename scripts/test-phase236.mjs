@@ -40,9 +40,11 @@ ok('routing does not become an authorization boundary',()=>{
 
 ok('browser history is draft-safe and project tabs are URL-driven',()=>{
   const shell=readFileSync('src/app/AppShell.tsx','utf8'),workspace=readFileSync('src/features/projects/ProjectWorkspace.tsx','utf8');
-  assert.match(shell,/window\.addEventListener\("popstate",onPopState\)/);
-  assert.match(shell,/flushActiveDraft\(\)\.then\(\(\)=>\{browserPathRef\.current=nextPath/);
-  assert.match(shell,/history\.pushState\(\{fieldlance:true\},"",previousPath\)/);
+  const guard=readFileSync('src/shared/authoringNavigation.tsx','utf8');
+  assert(shell.includes('installAuthoringHistoryGuard(async()=>{await flushActiveDraft()'));
+  assert(guard.includes("window.addEventListener('popstate',pop)"));
+  assert(guard.includes('hasUnsavedAuthoring()&&delta!==0'));
+  assert(guard.includes('catch(error){\n   if(delta!==0)await new Promise<void>(resolve=>{restore=resolve;history.go(-delta)})'));
   assert.match(workspace,/routeTab\?: ProjectWorkspaceTab \| null/);
   assert.match(workspace,/onRouteChange\?\.\(next,null,null\)/);
 });

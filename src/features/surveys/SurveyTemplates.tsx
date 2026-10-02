@@ -1,3 +1,4 @@
+import {useDirtyAuthoring,requestAuthoringNavigation} from '../../shared/authoringNavigation';
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { type Database, type Json } from "../../lib/supabase/database.types";
@@ -34,7 +35,7 @@ export function SurveyTemplates({
     [draftId, setDraftId] = useState<string>(() => crypto.randomUUID()),
     [version, setVersion] = useState(0),
     [source, setSource] = useState<Json>({}),
-    [dirty, setDirty] = useState(false),
+    [baseline, setBaseline] = useState(JSON.stringify({name:"",qs:[],source:{}})),
     [preview, setPreview] = useState(false),
     [drafts, setDrafts] = useState<Draft[]>([]),
     [reviewEvents, setReviewEvents] = useState<ReviewEvent[]>([]),
@@ -50,16 +51,9 @@ export function SurveyTemplates({
     return grouped;
   }, [reviewEvents]);
 
-  useEffect(() => {
-    const leave = (e: BeforeUnloadEvent) => {
-      if (dirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", leave);
-    return () => window.removeEventListener("beforeunload", leave);
-  }, [dirty]);
+  const snapshot=JSON.stringify({name,qs,source});
+  const dirty=snapshot!==baseline;
+  useDirtyAuthoring(dirty);
 
   useEffect(() => {
     let live = true;
@@ -114,26 +108,26 @@ export function SurveyTemplates({
     setDraftId(crypto.randomUUID());
     setVersion(0);
     setSource({});
-    setDirty(false);
+    setBaseline(JSON.stringify({name:"",qs:[],source:{}}));
     setPreview(false);
     setQs([]);
     setName("");
   }
 
-  function openDraft(
+  async function openDraft(
     title: string,
     questions: Question[],
     origin: Json,
     id: string = crypto.randomUUID(),
     v = 0,
   ) {
-    if (dirty && !window.confirm("Discard unsaved changes and open this draft?")) return;
+    if (!(await requestAuthoringNavigation())) return;
     setName(title);
     setQs(structuredClone(questions));
     setSource(origin);
     setDraftId(id);
     setVersion(v);
-    setDirty(v === 0);
+    setBaseline(v===0?JSON.stringify({name:"",qs:[],source:{}}):JSON.stringify({name:title,qs:questions,source:origin}));
     setPreview(false);
     setTab("mine");
     setError("");
@@ -161,7 +155,7 @@ export function SurveyTemplates({
             p_version: version,
           });
       setVersion(v);
-      setDirty(false);
+      setBaseline(snapshot);
       setMessage(ngoMode ? "Organization template draft saved." : "Draft saved.");
       setRev((n) => n + 1);
     } catch (e) {
@@ -180,7 +174,7 @@ export function SurveyTemplates({
       return;
     }
     setQs(next);
-    setDirty(true);
+
   }
 
   async function publishOrSubmit(e: FormEvent) {
@@ -229,7 +223,7 @@ export function SurveyTemplates({
   }
 
   const update = (i: number, patch: Partial<Question>) => {
-    setDirty(true);
+
     setQs((q) => q.map((v, n) => (n === i ? { ...v, ...patch } : v)));
   };
 
@@ -290,7 +284,7 @@ export function SurveyTemplates({
         <button type="button" disabled={busy} onClick={() => openDraft("", [], {})}>New blank draft</button>
         <p role="status">{dirty ? "Unsaved changes" : version ? "Saved draft" : "New draft"} · Published versions cannot be edited.</p>
 
-        <form onSubmit={publishOrSubmit} onChange={() => setDirty(true)}>
+        <form onSubmit={publishOrSubmit}>
           <fieldset disabled={busy}>
             <label className="field">
               Template name
@@ -320,14 +314,14 @@ export function SurveyTemplates({
                 <label className="field">Show only when<select value={q.when?.question || ""} onChange={(e) => { const parent = qs.find((p) => p.id === e.target.value); update(i, { when: parent ? { question: parent.id, equals: parent.type === "yesno" ? true : parent.options?.[0] || "" } : undefined }); }}><option value="">Always show</option>{qs.slice(0, i).filter((p) => p.type === "choice" || p.type === "yesno").map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}</select></label>
                 {q.when && <label className="field">Equals<select value={String(q.when.equals)} onChange={(e) => update(i, { when: { question: q.when!.question, equals: qs.find((p) => p.id === q.when!.question)?.type === "yesno" ? e.target.value === "true" : e.target.value } })}>{(qs.find((p) => p.id === q.when!.question)?.type === "yesno" ? ["true", "false"] : qs.find((p) => p.id === q.when!.question)?.options || []).map((o) => <option key={o} value={o}>{o === "true" ? "Yes" : o === "false" ? "No" : o}</option>)}</select></label>}
                 <label className="checklabel"><input type="checkbox" checked={q.required} onChange={(e) => update(i, { required: e.target.checked })} />Required on submission</label>
-                <button className="secondary" type="button" onClick={() => { if (qs.some((other) => other.when?.question === q.id || other.after === q.id)) { setError("Remove blocked: another question depends on this question. Clear its condition/date comparison first."); return; } setQs((items) => items.filter((_, n) => n !== i)); setDirty(true); }}>Remove question</button>
-                <button type="button" disabled={qs.length >= 50} onClick={() => { setQs((items) => [...items.slice(0, i + 1), { ...structuredClone(q), id: "q_" + crypto.randomUUID().replaceAll("-", "") }, ...items.slice(i + 1)]); setDirty(true); }}>Duplicate question</button>
+                <button className="secondary" type="button" onClick={() => { if (qs.some((other) => other.when?.question === q.id || other.after === q.id)) { setError("Remove blocked: another question depends on this question. Clear its condition/date comparison first."); return; } setQs((items) => items.filter((_, n) => n !== i)); }}>Remove question</button>
+                <button type="button" disabled={qs.length >= 50} onClick={() => { setQs((items) => [...items.slice(0, i + 1), { ...structuredClone(q), id: "q_" + crypto.randomUUID().replaceAll("-", "") }, ...items.slice(i + 1)]); }}>Duplicate question</button>
                 <button type="button" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
                 <button type="button" disabled={i === qs.length - 1} onClick={() => move(i, 1)}>Move down</button>
               </fieldset>
             ))}
             <div className="actions">
-              <button className="secondary" type="button" disabled={qs.length >= 50 || busy} onClick={() => { setDirty(true); setQs((q) => [...q, { id: "q_" + crypto.randomUUID().replaceAll("-", ""), label: "", type: "text", required: false }]); }}>Add question</button>
+              <button className="secondary" type="button" disabled={qs.length >= 50 || busy} onClick={() => { setQs((q) => [...q, { id: "q_" + crypto.randomUUID().replaceAll("-", ""), label: "", type: "text", required: false }]); }}>Add question</button>
               <button type="button" onClick={() => void saveDraft()}>Save draft</button>
               <button type="button" onClick={() => setPreview((p) => !p)}>Preview form</button>
               <button className="primary" disabled={busy || !qs.length || dirty || !version}>{ngoMode ? "Publish Organization version" : "Publish immutable version"}</button>

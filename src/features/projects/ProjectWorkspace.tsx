@@ -228,7 +228,7 @@ export function ProjectWorkspace({
       <BeneficiaryCasesWorkspace key={`project-cases-${projectId}`} organization={null} projectId={projectId} initialCaseId={routeEntityKind === "case" ? routeEntityId : null} onSelectedCaseChange={(caseId)=>onRouteChange?.("cases",caseId?"case":null,caseId)} />
     </Suspense>}
 
-    {tab === "finance" && canManageFinance && <ProjectFundingWorkspace organization={projectOrg} platform={platformFinance} orgs={orgs as any} projectId={projectId} />}
+    {tab === "finance" && canManageFinance && <ProjectFundingWorkspace userId={userId} organization={projectOrg} platform={platformFinance} orgs={orgs as any} projectId={projectId} />}
     {tab === "governance" && <ProjectGovernance manage={surveyManage} organization={projectOrg} projectId={projectId} />}
     {tab === "documents" && <ProjectDocuments projectId={projectId} canManage={canManageProject} />}
     {tab === "activity" && canManageProject && <ProjectActivity projectId={projectId} />}

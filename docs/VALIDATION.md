@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.5
+# Current validation — FieldLance 2.41.6
+
+See [VALIDATION-2.41.6.md](VALIDATION-2.41.6.md) for commands and test boundaries, and [IMPLEMENTATION-2.41.6.md](IMPLEMENTATION-2.41.6.md) for exact results and commit-readiness review. The complete 96-command npm test sequence passed. The separate pre-existing F14 browser failure remains unresolved; its harness was not changed.
+
+# Historical validation — FieldLance 2.41.5
 
 The 2.41.5 pre-commit project-date correction is covered by test:collection-dates-2415 and forward migration 00530. Its complete npm test and targeted checks passed; see IMPLEMENTATION-2.41.5.md for evidence and the separate pre-existing F14 limitation.
 

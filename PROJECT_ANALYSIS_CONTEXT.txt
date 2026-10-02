@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.41.5
+Release: 2.41.6
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -164,10 +164,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000530_collection_project_date_guard.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 105
-TypeScript/TSX source files: 114
-Markdown docs: 277
-Inventory files (excluding local/build/temp/backup state): 617
+Test scripts (scripts/test-*.mjs): 108
+TypeScript/TSX source files: 117
+Markdown docs: 281
+Inventory files (excluding local/build/temp/backup state): 629
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

@@ -1,3 +1,4 @@
+import {AuthoringNavigationGuard,requestAuthoringNavigation,installAuthoringHistoryGuard} from '../shared/authoringNavigation';
 import type {ReportSelection} from "../features/analytics/model";
 import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind, type RouteTarget} from "./routes";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
@@ -134,7 +135,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     const main=document.getElementById('workspace-main');
     if(media.matches){main?.setAttribute('inert','');drawer?.querySelector<HTMLElement>('button,select')?.focus()}
     const trap=(event:KeyboardEvent)=>{
-      if(event.key!=='Tab'||!media.matches||!drawer)return;
+      if(event.key!=='Tab'||!media.matches||!drawer||document.querySelector('dialog[open]'))return;
       const items=Array.from(drawer.querySelectorAll<HTMLElement>('button:not(:disabled),select,a[href]')).filter(el=>el.getClientRects().length);
       const first=items[0],last=items.at(-1);
       if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus()}
@@ -145,15 +146,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   },[menu]);
   const browserPathRef=useRef(location.pathname);
   useEffect(()=>{
-    const onPopState=()=>{
-      const nextPath=location.pathname,previousPath=browserPathRef.current;
-      void flushActiveDraft().then(()=>{browserPathRef.current=nextPath;setBrowserRoute(parseAppRoute(nextPath));}).catch(e=>{
-        history.pushState({fieldlance:true},"",previousPath);
-        setError("Could not protect device draft: "+(e as Error).message);
-      });
-    };
-    window.addEventListener("popstate",onPopState);
-    return()=>window.removeEventListener("popstate",onPopState);
+    return installAuthoringHistoryGuard(async()=>{await flushActiveDraft();browserPathRef.current=location.pathname;setBrowserRoute(parseAppRoute());},()=>setError("Could not protect device draft. Please retry."));
   },[]);
   function syncRoute(target:{scope:string;page:string;projectId?:string|null;projectTab?:string|null;entityKind?:RouteEntityKind;entityId?:string|null},replace=false){
     const path=routePath(target);
@@ -161,7 +154,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     browserPathRef.current=path;
     setBrowserRoute(parseAppRoute(path));
   }
-  function setPage(next:string,after?:()=>void){void flushActiveDraft().then(()=>{setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
+  function setPage(next:string,after?:()=>void){void requestAuthoringNavigation().then(async leave=>{if(!leave)return;await flushActiveDraft();setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
   const admin =
       account &&
       [
@@ -214,6 +207,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     if (browserRoute.kind === "root") syncRoute({scope:resolved,page:nextPage},true);
   }
   async function openNotificationTarget(target: RouteTarget) {
+    if(!(await requestAuthoringNavigation()))return;
     const request = ++requestId.current;
     await flushActiveDraft();
     const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
@@ -236,7 +230,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
     setMenu(false);
   }
 
-  async function switchWorkspace(next: string) {
+  async function switchWorkspace(next: string, approved=false) {
+    setMenu(false);
+    if(!approved&&!(await requestAuthoringNavigation()))return;
     const request = ++requestId.current;
     try {
       await flushActiveDraft();
@@ -252,12 +248,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
     } catch (e) { setAccess(null); setError((e as Error).message); }
   }
   async function beginOnboarding(kind: 'worker' | 'organization') {
+    if(!(await requestAuthoringNavigation()))return;
     setBusy(true);
     try {
       await flushActiveDraft();
       await rpc('begin_workspace_onboarding', {p_kind:kind});
       await load();
-      await switchWorkspace(kind === 'worker' ? 'personal' : 'onboarding');
+      await switchWorkspace(kind === 'worker' ? 'personal' : 'onboarding',true);
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
   }
@@ -396,6 +393,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     }
   }
   async function logout() {
+    setMenu(false);
+    if(!(await requestAuthoringNavigation()))return;
     try{await flushActiveDraft()}catch(e){setError((e as Error).message);return;}
     try{const copies=await deviceInventory(session.user.id);if((Object.values(copies.unsynced).some(n=>n>0))&&!window.confirm("Unsynchronized field copies remain on this device. Sign out and retain them encrypted for this account? Use Offline field → Erase my device data for explicit shared-device cleanup."))return;}catch{if(!window.confirm("Device inventory unavailable. Sign out without deleting any field copies?"))return;}
     lockFieldDevice();
@@ -565,18 +564,19 @@ export function Workspace({ session, openField }: { session: Session; openField:
     return()=>{live=false};
   },[browserRoute.projectId,browserRoute.page,scope,focusedProject?.id,revision]);
   const change = (p: string) => {
+    setMenu(false);
     if (!nav.some(([name]) => name === p)) return;
-    setFocusedProject(null);
-    setPage(p,()=>syncRoute({scope,page:p}));
+    setPage(p,()=>{setFocusedProject(null);syncRoute({scope,page:p});
     setQuery("");
     setFilter("all");
     setMenu(false);
     setSelected(null);
-    setOrgEdit(null);
+    setOrgEdit(null);});
   };
   const openReport = (selection:ReportSelection) => {setReportSelection(selection);change("Reports & Analytics")};
   const openProjectWorkspace = (project: Row) => {
-    void flushActiveDraft().then(() => {
+    void requestAuthoringNavigation().then(async leave=>{
+      if(!leave)return;await flushActiveDraft();
       setFocusedProject(project);
       setPageState("Project workspace");
       syncRoute({scope,page:"Project workspace",projectId:project.id,projectTab:"overview"});
@@ -671,6 +671,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
   );
   return (
     <div className={`app ${collapsed ? "nav-collapsed" : "nav-expanded"} ${personalWorkspace ? "has-mobile-worker-nav" : ""}`} onKeyDown={e=>{if(e.key==='Escape'&&menu){setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}}>
+      <AuthoringNavigationGuard/>
       <a className="skip-link" href="#workspace-content">Skip to content</a>
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
@@ -738,7 +739,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <button type="button" className="header-icon-button" aria-label={unreadNotifications ? `Notifications, ${unreadNotifications} unread` : "Notifications"} onClick={()=>change("Notifications")}>
               <Bell size={18}/>{unreadNotifications>0&&<span className="header-notification-count">{unreadNotifications}</span>}
             </button>
-            {access.worker && <button type="button" className="secondary header-offline-action" onClick={openField}>Offline field</button>}
+            {access.worker && <button type="button" className="secondary header-offline-action" onClick={()=>void requestAuthoringNavigation().then(leave=>{if(leave)openField()})}>Offline field</button>}
             <SurveySyncStatus userId={session.user.id} />
             <span className="release">v{APP_VERSION}</span>
           </div>
@@ -1094,7 +1095,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "E-Wallets & withdrawals" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading e-wallets and withdrawals…</p>}><EWalletWithdrawalWorkspace key={`wallet-${session.user.id}`} onNavigate={change}/></Suspense>}
           {page === "Withdrawal operations" && financeManage && validScope && <Suspense fallback={<p role="status">Loading withdrawal operations…</p>}><WithdrawalOperationsWorkspace/></Suspense>}
           {page === "E-Wallet sandbox" && import.meta.env.DEV && financeManage && validScope && <Suspense fallback={<p role="status">Loading mock e-wallet sandbox…</p>}><MockEWalletSandbox/></Suspense>}
-          {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
+          {page === "Project funding" && validScope && (financeManage || (!poem && scope !== "personal" && !projectScope)) && <Suspense fallback={<p role="status">Loading project funding…</p>}><ProjectFundingWorkspace userId={session.user.id} key={`funding-${scope}`} organization={financeManage?null:scope} platform={financeManage} orgs={orgs as any}/></Suspense>}
           {(page === "My Schedule" || page === "My Availability") && personalWorkspace && validScope && (
             <Suspense fallback={<p role="status">Loading schedule…</p>}>
               <WorkAvailabilitySchedule userId={session.user.id} view={page === "My Availability" ? "availability" : "schedule"} />

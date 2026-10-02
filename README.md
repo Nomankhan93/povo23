@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.5
+# Current release: FieldLance 2.41.6
+
+Transaction & Workflow Reliability. Funding retries retain one operation identity, unsaved template/project authoring is protected across navigation, and recruitment deep links resolve independently of paginated lists. The 2.41.5 authorization protections remain intact. Overall release remains HOLD for F03 and F14. See docs/PHASE-2.41.6.md, docs/UPGRADE-2.41.6.md, docs/VALIDATION-2.41.6.md and docs/IMPLEMENTATION-2.41.6.md.
+
+# Historical release: FieldLance 2.41.5
 
 Recruitment & Authorization Hardening. Collection requires an accepted active work assignment; legacy activation paths and unnecessary database grants are closed. Overall release remains on hold for the remaining audit P1s. See docs/PHASE-2.41.5.md, docs/UPGRADE-2.41.5.md, docs/VALIDATION-2.41.5.md and docs/IMPLEMENTATION-2.41.5.md.
 

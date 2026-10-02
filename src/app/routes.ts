@@ -194,8 +194,10 @@ export function routePath(target: RouteTarget): string {
 export function writeRoute(target: RouteTarget, replace = false) {
   const path=routePath(target);
   if (location.pathname === path) return;
-  if (replace) history.replaceState({fieldlance:true},"",path);
-  else history.pushState({fieldlance:true},"",path);
+  const index=Number(history.state?.fieldlanceIndex||0);
+  if (replace) history.replaceState({fieldlance:true,fieldlanceIndex:index},"",path);
+  else history.pushState({fieldlance:true,fieldlanceIndex:index+1},"",path);
+  window.dispatchEvent(new Event("fieldlance-route-written"));
 }
 
 export function isExplicitRoute(route: AppRoute) {

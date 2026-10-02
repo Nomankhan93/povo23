@@ -1,3 +1,4 @@
+import {useDirtyAuthoring,requestAuthoringNavigation} from '../../shared/authoringNavigation';
 import { useEffect, useMemo, useState } from "react";
 import { db, rpc } from "../../lib/supabase/client";
 import { type Database } from "../../lib/supabase/database.types";
@@ -27,6 +28,8 @@ function blankState() {
   };
 }
 
+const draftSnapshot=({id:_id,version:_version,...values}:ReturnType<typeof blankState>)=>JSON.stringify(values);
+
 export function SurveyProjectDrafts({
   organization,
   geographies,
@@ -40,7 +43,7 @@ export function SurveyProjectDrafts({
     [events, setEvents] = useState<ReviewEvent[]>([]),
     [templates, setTemplates] = useState<Template[]>([]),
     [editor, setEditor] = useState(blankState),
-    [dirty, setDirty] = useState(false),
+    [baseline,setBaseline] = useState(()=>draftSnapshot(blankState())),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
@@ -99,26 +102,18 @@ export function SurveyProjectDrafts({
     };
   }, [organization, rev]);
 
-  useEffect(() => {
-    const leave = (event: BeforeUnloadEvent) => {
-      if (dirty) {
-        event.preventDefault();
-        event.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", leave);
-    return () => window.removeEventListener("beforeunload", leave);
-  }, [dirty]);
+  const snapshot=draftSnapshot(editor),dirty=snapshot!==baseline;
+  useDirtyAuthoring(dirty);
 
   function resetEditor() {
     setEditor(blankState());
-    setDirty(false);
+    setBaseline(draftSnapshot(blankState()));
     setError("");
   }
 
-  function openDraft(draft: Draft) {
-    if (dirty && !window.confirm("Discard unsaved changes and open this project draft?")) return;
-    setEditor({
+  async function openDraft(draft: Draft) {
+    if (!(await requestAuthoringNavigation())) return;
+    const next={
       id: draft.id,
       version: draft.version,
       title: draft.title,
@@ -130,15 +125,14 @@ export function SurveyProjectDrafts({
       purpose: draft.purpose,
       consentVersion: draft.consent_version,
       consentNotice: draft.consent_notice,
-    });
-    setDirty(false);
+    };
+    setEditor(next);setBaseline(draftSnapshot(next));
     setError("");
     setMessage("");
   }
 
   function update<K extends keyof ReturnType<typeof blankState>>(key: K, value: ReturnType<typeof blankState>[K]) {
     setEditor((current) => ({ ...current, [key]: value }));
-    setDirty(true);
   }
 
   async function saveDraft() {
@@ -165,7 +159,7 @@ export function SurveyProjectDrafts({
         p_version: editor.version,
       });
       setEditor((current) => ({ ...current, version }));
-      setDirty(false);
+      setBaseline(snapshot);
       setMessage("Project draft saved. Publish it when the project is ready to become operational.");
       setRev((n) => n + 1);
     } catch (e) {
@@ -208,7 +202,7 @@ export function SurveyProjectDrafts({
             Create and publish your Organization&apos;s project using an allowed FieldLance library template or an Organization-owned published template. Publication creates the operational project immediately; FieldLance does not pre-approve it.
           </p>
         </div>
-        <button type="button" disabled={busy} onClick={resetEditor}>New project draft</button>
+        <button type="button" disabled={busy} onClick={()=>void requestAuthoringNavigation().then(leave=>{if(leave)resetEditor()})}>New project draft</button>
       </div>
 
       {error && <p className="notice error" role="alert">{error}</p>}

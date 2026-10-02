@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.5
+# Current permissions note — FieldLance 2.41.6
+
+No grants or authorization rules changed. Exact recruitment and funding journal lookups use the signed-in client and existing RLS. Unavailable and unauthorized recruitment IDs share one non-disclosing state. Accepted-contract, project/contract-date and collection protections from 2.41.5 remain required.
+
+# Historical permissions note — FieldLance 2.41.5
 
 Accepted active worker contracts are required for collection and Field Worker case delegation. Administration and review remain separately authorized. Browser table/default ACL excesses are removed; see UPGRADE-2.41.5.md for administrative migration-role requirements.
 

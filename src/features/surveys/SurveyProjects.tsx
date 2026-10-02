@@ -1,3 +1,4 @@
+import {requestAuthoringNavigation} from '../../shared/authoringNavigation';
 import {AreaSelector} from "../geography/AreaSelector";
 import {selectableArea} from "../geography/areaSelection";
 import { useEffect, useState, type FormEvent } from "react";
@@ -293,7 +294,7 @@ export function SurveyProjects({
               .join(" / ")}
           </p>
           <div className="actions">
-            <button className="secondary" onClick={() => setChosen(p)}>Open project</button>
+            <button className="secondary" onClick={()=>void requestAuthoringNavigation().then(leave=>{if(leave)setChosen(p)})}>Open project</button>
           </div>
           {manage && (
             <div className="review">

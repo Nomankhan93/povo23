@@ -1,3 +1,4 @@
+import {useRecruitmentCollection,recruitmentQuery} from './recruitmentQueries';
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, FileCheck2, Filter, MapPin, Search, Send, UsersRound } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
@@ -106,11 +107,9 @@ export function WorkforceMarketplace({
   onFocusChange?: (kind: "application" | "assignment", id: string) => void;
   onAttendance?: (assignmentId: string) => void;
 }) {
-  const [projects, setProjects] = useState<Project[]>([]),
-    [opportunities, setOpportunities] = useState<Opportunity[]>([]),
+  const [projectRows, setProjects] = useState<Project[]>([]),
     [available, setAvailable] = useState<AvailableRow[]>([]),
-    [applications, setApplications] = useState<Application[]>([]),
-    [assignments, setAssignments] = useState<Assignment[]>([]),
+    [currentContractProjects,setCurrentContractProjects]=useState<string[]>([]),
     [surveyAssignments, setSurveyAssignments] = useState<SurveyAssignment[]>([]),
     [candidates, setCandidates] = useState<Candidate[]>([]),
     [projectId, setProjectId] = useState(""),
@@ -135,61 +134,65 @@ export function WorkforceMarketplace({
     [organizationView, setOrganizationView] = useState<OrganizationView>("opportunities"),
     [applicationFilter, setApplicationFilter] = useState<ApplicationFilter>("all");
 
-  async function load() {
-    setBusy(true);
-    setError("");
-    try {
-      if (mode === "personal") {
-        const [a, w, sa, p, open] = await Promise.all([
-          db!.from("work_applications").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200),
-          db!.from("work_assignments").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200),
-          db!.from("survey_assignments").select("*").eq("user_id", userId).eq("active", true).limit(500),
-          db!.from("survey_projects").select("*").order("created_at", { ascending: false }).limit(500),
-          rpc("available_work_opportunities", { p_page: availablePage, p_organization: orgFilter || null, p_area: areaFilter || null, p_payment: paymentFilter || null, p_skill: skillFilter, p_work_date: workDateFilter || null, p_deadline: deadlineFilter || null }),
-        ]);
-        if (a.error) throw a.error;
-        if (w.error) throw w.error;
-        if (sa.error) throw sa.error;
-        if (p.error) throw p.error;
-        setApplications(a.data || []);
-        setAssignments(w.data || []);
-        setSurveyAssignments(sa.data || []);
-        setProjects(p.data || []);
-        const result = open as unknown as { rows: AvailableRow[]; total: number };
-        setAvailable(result.rows || []);
-        setAvailableTotal(Number(result.total || 0));
-        setOpportunities([]);
-      } else {
-        let p = db!.from("survey_projects").select("*").order("created_at", { ascending: false }).limit(500);
-        let o = db!.from("work_opportunities").select("*").not("survey_project_id", "is", null).order("created_at", { ascending: false }).limit(500);
-        let a = db!.from("work_applications").select("*").order("created_at", { ascending: false }).limit(500);
-        let w = db!.from("work_assignments").select("*").order("created_at", { ascending: false }).limit(500);
-        if (mode === "ngo" && organization) {
-          p = p.eq("organization_id", organization);
-          o = o.eq("organization_id", organization);
-          a = a.eq("organization_id", organization);
-          w = w.eq("organization_id", organization);
-        } else if (mode === "project" && projectScopeId) {
-          p = p.eq("id", projectScopeId);
-          o = o.eq("survey_project_id", projectScopeId);
-          a = a.eq("survey_project_id", projectScopeId);
-          w = w.eq("survey_project_id", projectScopeId);
+  const scope=mode==='personal'?{userId}:mode==='project'?{project:projectScopeId}:mode==='ngo'?{organization}:{};
+  const applicationList=useRecruitmentCollection('work_applications',{...scope,status:mode==='personal'?null:applicationFilter},revision);
+  const assignmentList=useRecruitmentCollection('work_assignments',scope,revision);
+  const opportunityList=useRecruitmentCollection('work_opportunities',scope,revision,mode!=='personal');
+  const [focused,setFocused]=useState<{application?:Application;assignment?:Assignment;project?:Project;opportunity?:Opportunity}>({});
+  const [focusState,setFocusState]=useState<'idle'|'loading'|'ready'|'unavailable'|'error'>('idle');
+  const [focusRevision,setFocusRevision]=useState(0);
+  const focusScope=JSON.stringify(scope);
+  useEffect(()=>{
+    let live=true;setFocused({});
+    if(!focusId||!focusKind){setFocusState('idle');return}
+    if(!/^[0-9a-f-]{36}$/i.test(focusId)){setFocusState('unavailable');return}
+    setFocusState('loading');
+    void (async()=>{
+      try{
+        const result=await recruitmentQuery(focusKind==='application'?'work_applications':'work_assignments',scope).eq('id',focusId).maybeSingle();
+        if(result.error)throw result.error;
+        if(!live)return;
+        if(!result.data){setFocusState('unavailable');return}
+        const row=result.data as Application|Assignment;
+        const p=await db!.from("survey_projects").select('*').eq('id',row.survey_project_id).maybeSingle();
+        if(p.error)throw p.error;
+        let opportunity:Opportunity|undefined;
+        if(row.opportunity_id){
+          const o=await db!.from("work_opportunities").select('*').eq('id',row.opportunity_id).maybeSingle();
+          if(o.error)throw o.error;opportunity=o.data||undefined;
         }
-        const result = await Promise.all([p, o, a, w]);
-        for (const r of result) if (r.error) throw r.error;
-        setProjects(result[0].data || []);
-        setOpportunities(result[1].data || []);
-        setApplications(result[2].data || []);
-        setAssignments(result[3].data || []);
-        setSurveyAssignments([]);
-        setAvailable([]);
-        setAvailableTotal(0);
-      }
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
+        if(!live)return;
+        setFocused({...(focusKind==='application'?{application:row as Application}:{assignment:row as Assignment}),project:p.data||undefined,opportunity});
+        setFocusState('ready');
+      }catch{if(live)setFocusState('error')}
+    })();
+    return()=>{live=false};
+  },[focusKind,focusId,focusScope,revision,focusRevision]);
+  const includeFocused=<T extends {id:string}>(rows:T[],row?:T)=>row?[row,...rows.filter(item=>item.id!==row.id)]:rows;
+  const applications=includeFocused(applicationList.rows,focused.application);
+  const assignments=includeFocused(assignmentList.rows,focused.assignment);
+  const opportunities=includeFocused(opportunityList.rows,focused.opportunity);
+  const projects=includeFocused(projectRows,focused.project);
+  async function load() {
+    setBusy(true);setError('');
+    try{
+      let p=db!.from("survey_projects").select('*').order('created_at',{ascending:false}).limit(500);
+      if(mode==='ngo'&&organization)p=p.eq('organization_id',organization);
+      if(mode==='project'&&projectScopeId)p=p.eq('id',projectScopeId);
+      const projectResult=await p;if(projectResult.error)throw projectResult.error;
+      setProjects(projectResult.data||[]);
+      if(mode==='personal'){
+        const [sa,open]=await Promise.all([
+          db!.from("survey_assignments").select('*').eq('user_id',userId).eq('active',true).limit(500),
+          rpc('available_work_opportunities',{p_page:availablePage,p_organization:orgFilter||null,p_area:areaFilter||null,p_payment:paymentFilter||null,p_skill:skillFilter,p_work_date:workDateFilter||null,p_deadline:deadlineFilter||null}),
+        ]);
+        if(sa.error)throw sa.error;setSurveyAssignments(sa.data||[]);
+        const projectIds=(sa.data||[]).map(row=>row.project_id);
+        if(projectIds.length){const contracts=await db!.from("work_assignments").select('survey_project_id').eq('user_id',userId).in('survey_project_id',projectIds).in('status',['active','completed']).limit(500);if(contracts.error)throw contracts.error;setCurrentContractProjects((contracts.data||[]).map(row=>row.survey_project_id));}else setCurrentContractProjects([]);
+        const result=open as unknown as {rows:AvailableRow[];total:number};setAvailable(result.rows||[]);setAvailableTotal(Number(result.total||0));
+      }else{setSurveyAssignments([]);setAvailable([]);setAvailableTotal(0)}
+    }catch{setError('Recruitment context could not be loaded. Refresh this view to try again.')}
+    finally{setBusy(false)}
   }
   useEffect(() => {
     void load();
@@ -204,9 +207,9 @@ export function WorkforceMarketplace({
   useEffect(()=>{
     if(!focusId||!focusKind)return;
     if(mode!=="personal")setOrganizationView(focusKind==="application"?"applications":"assignments");
-    const timer=window.setTimeout(()=>document.getElementById(`workforce-${focusKind}-${focusId}`)?.scrollIntoView({block:"center"}),60);
+    const timer=window.setTimeout(()=>{const element=document.getElementById("workforce-"+focusKind+"-"+focusId);element?.focus({preventScroll:true});element?.scrollIntoView({block:"center"});},60);
     return()=>window.clearTimeout(timer);
-  },[focusKind,focusId,mode,applications.length,assignments.length]);
+  },[focusKind,focusId,mode,focusState,focused]);
 
   async function act(fn: () => Promise<unknown>, success: string): Promise<boolean> {
     setBusy(true);
@@ -219,7 +222,7 @@ export function WorkforceMarketplace({
       setRevision((n) => n + 1);
       return true;
     } catch (e) {
-      setError((e as Error).message);
+      setError("This recruitment action could not be completed. Refresh the record, check its current status and try again.");
       setBusy(false);
       return false;
     }
@@ -238,7 +241,7 @@ export function WorkforceMarketplace({
       })) as unknown as { rows: Candidate[] };
       setCandidates(data.rows || []);
     } catch (e) {
-      setError((e as Error).message);
+      setError("This recruitment action could not be completed. Refresh the record, check its current status and try again.");
     } finally {
       setBusy(false);
     }
@@ -340,18 +343,18 @@ export function WorkforceMarketplace({
       ? opportunityCompensation(offerOpportunity)
       : projectCompensation(chosenProject);
   const directSurveyAssignments = surveyAssignments.filter((sa) =>
-    sa.active && !assignments.some((a) => a.survey_project_id === sa.project_id && ["active", "completed"].includes(a.status)),
+    sa.active && !currentContractProjects.includes(sa.project_id),
   );
   const availablePageSize = 50;
   const availablePages = Math.max(1, Math.ceil(availableTotal / availablePageSize));
   const showOpportunities = mode !== "personal" || personalView === "all" || personalView === "opportunities";
-  const showApplications = mode !== "personal" || personalView === "all" || personalView === "applications";
-  const showAssigned = mode !== "personal" || personalView === "all" || personalView === "assigned";
+  const showApplications = mode !== "personal" || personalView === "all" || personalView === "applications" || focusKind==="application";
+  const showAssigned = mode !== "personal" || personalView === "all" || personalView === "assigned" || focusKind==="assignment";
   const openOpportunityCount = opportunities.filter((o) => o.publication_state === "published" && o.status === "open" && o.applications_open).length;
   const pendingApplicationCount = applications.filter((a) => a.status === "pending").length;
   const offeredAssignmentCount = assignments.filter((a) => a.status === "offered").length;
   const activeAssignmentCount = assignments.filter((a) => a.status === "active").length;
-  const filteredApplications = applicationFilter === "all" ? applications : applications.filter((a) => a.status === applicationFilter);
+  const filteredApplications = applications;
 
   function selectOrganizationView(next: OrganizationView) {
     setOrganizationView(next);
@@ -374,6 +377,9 @@ export function WorkforceMarketplace({
     <section className="panel detail workforce-marketplace workforce-marketplace-v2">
       {error && <p className="notice error" role="alert">{error}</p>}
       {message && <p className="notice success" role="status">{message}</p>}
+      {focusState==="loading"&&<p role="status">Loading linked recruitment record...</p>}
+      {focusState==="unavailable"&&<p className="notice" role="status">This recruitment record is unavailable. It may no longer exist or your access may have changed. Use the available lists below or contact the organization.</p>}
+      {focusState==="error"&&<div className="notice error" role="alert">The linked record could not be loaded.<button className="secondary" onClick={()=>setFocusRevision(n=>n+1)}>Retry linked record</button></div>}
       {busy && <p className="workforce-loading" role="status">Loading workforce records…</p>}
 
       {mode === "personal" ? (
@@ -381,9 +387,9 @@ export function WorkforceMarketplace({
           <WorkerJourney active={personalView} />
           <div className="workforce-metric-grid" aria-label="Field Worker marketplace summary">
             <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open projects" value={availableTotal} detail="Published projects you can explore" />
-            <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} still in recruitment`} />
-            <WorkforceMetric icon={<Send size={18} />} label="Offers" value={offeredAssignmentCount} detail="Awaiting your decision" />
-            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Accepted contracts; collection eligibility is checked separately" />
+            <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} loaded applications still in recruitment`} />
+            <WorkforceMetric icon={<Send size={18} />} label="Offers" value={offeredAssignmentCount} detail="Loaded offers awaiting your decision" />
+            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Loaded accepted contracts; collection eligibility is checked separately" />
           </div>
 
           {showOpportunities && <>
@@ -456,12 +462,12 @@ export function WorkforceMarketplace({
           {showApplications && <>
             <div className="workforce-section-heading">
               <div><span className="eyebrow">RECRUITMENT PROGRESS</span><h3>My applications</h3><p>Track every application from submission through selection. Formal survey access starts only after you accept an assignment offer.</p></div>
-              <span className="workforce-count">{applications.length} total</span>
+              <span className="workforce-count">{applications.length} loaded</span>
             </div>
             <div className="workforce-list">
               {applications.map((a) => {
                 const org = orgById.get(a.organization_id);
-                return <article id={`workforce-application-${a.id}`} className={`workforce-application-card ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
+                return <article tabIndex={-1} id={`workforce-application-${a.id}`} className={`workforce-application-card ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-card-header">
                     <OrganizationLogoImage name={a.organization_name} path={org?.logo_path} updatedAt={org?.logo_updated_at} size="card" />
                     <div className="workforce-card-title"><span>{a.organization_name}</span><h4>{a.opportunity_title}</h4><small>{a.project_title}</small></div>
@@ -473,7 +479,8 @@ export function WorkforceMarketplace({
                 </article>;
               })}
             </div>
-            {!applications.length && !busy && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications yet" copy="When you apply to a published opportunity, its recruitment status will appear here." />}
+            <RecruitmentPages list={applicationList}/>
+            {!applications.length && !busy && !applicationList.busy && !applicationList.error && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications yet" copy="When you apply to a published opportunity, its recruitment status will appear here." />}
           </>}
 
           {showAssigned && <>
@@ -483,7 +490,7 @@ export function WorkforceMarketplace({
             </div>
             <div className="workforce-list">
               {assignments.map((a) => (
-                <article id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card ${focusKind==="assignment"&&focusId===a.id?"route-focus":""}`} key={a.id}>
+                <article tabIndex={-1} id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card ${focusKind==="assignment"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-assignment-top"><div><span>{a.organization_name}</span><h4>{a.project_title}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
                   <div className="workforce-meta-grid three">
                     <WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} />
@@ -505,7 +512,8 @@ export function WorkforceMarketplace({
                 </article>;
               })}
             </div>
-            {!assignments.length && !directSurveyAssignments.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No assignments or offers yet" copy="After an organization selects you and sends a formal offer, it will appear here for acceptance." />}
+            <RecruitmentPages list={assignmentList}/>
+            {!assignments.length && !directSurveyAssignments.length && !busy && !assignmentList.busy && !assignmentList.error && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No assignments or offers yet" copy="After an organization selects you and sends a formal offer, it will appear here for acceptance." />}
           </>}
         </>
       ) : (
@@ -515,11 +523,11 @@ export function WorkforceMarketplace({
             <button className="secondary" onClick={() => { selectOrganizationView("opportunities"); setCreate((v) => !v); setCreateProjectId(mode === "project" ? projectScopeId || "" : ""); setCreateArea(mode === "project" ? projectMap.get(projectScopeId || "")?.geography_id || null : null); }}>{create ? "Close optional campaign" : "+ Optional targeted campaign"}</button>
           </div>
 
-          <div className="workforce-metric-grid" aria-label="Organization recruitment summary">
-            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Active opportunities" value={openOpportunityCount} detail={`${opportunities.length} total recruitment records`} />
-            <WorkforceMetric icon={<FileCheck2 size={18} />} label="New applications" value={pendingApplicationCount} detail={`${applications.length} applications received`} />
-            <WorkforceMetric icon={<Send size={18} />} label="Pending offers" value={offeredAssignmentCount} detail="Awaiting Field Worker response" />
-            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Field Workers currently activated" />
+          <div className="workforce-metric-grid" aria-label="Loaded recruitment summary">
+            <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Active opportunities" value={openOpportunityCount} detail={`${opportunities.length} loaded recruitment records`} />
+            <WorkforceMetric icon={<FileCheck2 size={18} />} label="New applications" value={pendingApplicationCount} detail={`${applications.length} applications loaded`} />
+            <WorkforceMetric icon={<Send size={18} />} label="Pending offers" value={offeredAssignmentCount} detail="Loaded offers awaiting Field Worker response" />
+            <WorkforceMetric icon={<CheckCircle2 size={18} />} label="Active assignments" value={activeAssignmentCount} detail="Loaded active assignments" />
           </div>
 
           <div className="workforce-tabs" role="tablist" aria-label="Recruitment workspace sections">
@@ -555,7 +563,7 @@ export function WorkforceMarketplace({
                 <div className="actions"><button className="secondary" type="button" onClick={() => { setCreate(false); setCreateProjectId(""); setCreateArea(null); }}>Cancel</button><button className="primary" disabled={busy || !createProjectId || !createArea}>Save recruitment</button></div>
               </form>
             )}
-            <div className="workforce-section-heading"><div><span className="eyebrow">PROJECT MARKETPLACE</span><h3>Recruitment listings</h3><p>Published projects are listed automatically for all Field Workers. Automatic listings follow the project recruitment plan; additional manual campaigns are optional.</p></div><span className="workforce-count">{opportunities.length} total</span></div>
+            <div className="workforce-section-heading"><div><span className="eyebrow">PROJECT MARKETPLACE</span><h3>Recruitment listings</h3><p>Published projects are listed automatically for all Field Workers. Automatic listings follow the project recruitment plan; additional manual campaigns are optional.</p></div><span className="workforce-count">{opportunities.length} loaded</span></div>
             <div className="workforce-card-grid">
               {opportunities.map((o) => {
                 const project = projectMap.get(o.survey_project_id || "");
@@ -564,7 +572,7 @@ export function WorkforceMarketplace({
                 return <article className="workforce-opportunity-card organization" key={o.id}>
                   <div className="workforce-card-header"><div className="workforce-card-icon"><BriefcaseBusiness size={19} /></div><div className="workforce-card-title"><span>{project?.title || "Survey project"}</span><h4>{o.title}</h4><small>{location || "Area not listed"}</small></div><Badge value={opportunityState(o)} /></div>
                   <p className="workforce-card-description">{o.description}</p>
-                  <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Project capacity" value={project?.required_volunteers == null ? "Open / not configured" : `${project.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} received`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Marketplace through" value={new Date(o.reply_by).toLocaleString()} /></div>
+                  <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Project capacity" value={project?.required_volunteers == null ? "Open / not configured" : `${project.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} loaded`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Marketplace through" value={new Date(o.reply_by).toLocaleString()} /></div>
                   <div className="workforce-chip-row"><span>{opportunityCompensation(o)}</span>{o.required_skill && <span>{o.required_skill}</span>}{o.required_language && <span>{o.required_language}</span>}</div>
                   <div className="workforce-card-actions"><span>{o.marketplace_origin === "project_auto" ? "Automatic all-Field-Workers listing" : `${human(o.visibility)} recruitment`}</span><div className="actions">
                     {applicationCount > 0 && <button className="secondary" onClick={() => { setApplicationFilter("all"); selectOrganizationView("applications"); }}>View applicants</button>}
@@ -577,20 +585,21 @@ export function WorkforceMarketplace({
                 </article>;
               })}
             </div>
-            {!opportunities.length && !busy && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No published project listings yet" copy="Publish an active project and FieldLance will create its workforce marketplace listing automatically. No separate opportunity is required." />}
+            <RecruitmentPages list={opportunityList}/>
+            {!opportunities.length && !busy && !opportunityList.busy && !opportunityList.error && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No published project listings yet" copy="Publish an active project and FieldLance will create its workforce marketplace listing automatically. No separate opportunity is required." />}
           </>}
 
           {organizationView === "applications" && <>
-            <div className="workforce-section-heading"><div><span className="eyebrow">REVIEW PIPELINE</span><h3>{mode === "poem" ? "Applications across organizations" : "Field Worker applications"}</h3><p>Review application-scoped profile snapshots, shortlist candidates, select them and send formal assignment offers.</p></div><span className="workforce-count">{applications.length} total</span></div>
+            <div className="workforce-section-heading"><div><span className="eyebrow">REVIEW PIPELINE</span><h3>{mode === "poem" ? "Applications across organizations" : "Field Worker applications"}</h3><p>Review application-scoped profile snapshots, shortlist candidates, select them and send formal assignment offers.</p></div><span className="workforce-count">{applications.length} loaded</span></div>
             <div className="workforce-filter-pills" aria-label="Application status filters">
-              {(["all","pending","shortlisted","selected","rejected"] as ApplicationFilter[]).map((status) => <button key={status} className={applicationFilter === status ? "active" : ""} onClick={() => setApplicationFilter(status)}>{status === "all" ? "All" : human(status)} <span>{status === "all" ? applications.length : applications.filter((a)=>a.status===status).length}</span></button>)}
+              {(["all","pending","shortlisted","selected","rejected"] as ApplicationFilter[]).map((status) => <button key={status} className={applicationFilter === status ? "active" : ""} onClick={() => setApplicationFilter(status)}>{status === "all" ? "All" : human(status)}</button>)}
             </div>
             <div className="workforce-list">
               {filteredApplications.map((a) => {
                 const snapshot = (a.profile_snapshot || {}) as Record<string, unknown>;
                 const skills = readableSnapshot(snapshot.skills);
                 const languages = readableSnapshot(snapshot.languages);
-                return <article id={`workforce-application-${a.id}`} className={`workforce-application-card organization ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
+                return <article tabIndex={-1} id={`workforce-application-${a.id}`} className={`workforce-application-card organization ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-card-header"><div className="workforce-avatar">{initials(a.volunteer_name)}</div><div className="workforce-card-title"><span>{a.opportunity_title}</span><h4>{a.volunteer_name}</h4><small>{a.project_title}{mode === "poem" ? ` · ${orgMap.get(a.organization_id) || a.organization_name}` : ""}</small></div><Badge value={a.status} /></div>
                   <RecruitmentProgress status={a.status} organization />
                   <div className="workforce-candidate-facts"><span><strong>Skills</strong>{skills || "Not listed"}</span><span><strong>Languages</strong>{languages || "Not listed"}</span><span><strong>Availability</strong>{a.availability || "Not recorded"}</span></div>
@@ -603,6 +612,7 @@ export function WorkforceMarketplace({
                     {a.status !== "selected" && <button className="primary" disabled={busy} onClick={() => reviewApplication(a, "selected")}>Select</button>}
                     <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "rejected")}>Reject</button>
                     {a.status === "selected" && <button className="primary" disabled={busy} onClick={() => {
+                      onFocusChange?.("application",a.id);
                       setProjectId(a.survey_project_id);
                       const details=(a.profile_snapshot || {}) as Record<string,string>;
                       setOffer({user_id:a.user_id,details,geography_id:typeof details.geography_id === "string" ? details.geography_id : null,shortlist_status:null,approved_surveys:0,reviewed_surveys:0,approval_rate:null,completed_assignments:0,verified_experiences:0,source_kind:"application",source_id:a.id,match_label:"selected_application"});
@@ -611,7 +621,8 @@ export function WorkforceMarketplace({
                 </article>;
               })}
             </div>
-            {!filteredApplications.length && !busy && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications in this view" copy={applications.length ? "Choose another pipeline filter to see other applicants." : "Applications will appear here when Field Workers apply to published opportunities."} />}
+            <RecruitmentPages list={applicationList}/>
+            {!filteredApplications.length && !busy && !applicationList.busy && !applicationList.error && <WorkforceEmpty icon={<FileCheck2 size={22} />} title="No applications in this view" copy={applications.length ? "Choose another pipeline filter to see other applicants." : "Applications will appear here when Field Workers apply to published opportunities."} />}
             {offer && chosenProject && offer.source_kind === "application" && <AssignmentOfferForm offer={offer} project={chosenProject} compensation={offerCompensation} busy={busy} onCancel={() => setOffer(null)} onSubmit={offerAssignment} />}
           </>}
 
@@ -640,11 +651,12 @@ export function WorkforceMarketplace({
           </>}
 
           {organizationView === "assignments" && <>
-            <div className="workforce-section-heading"><div><span className="eyebrow">DELIVERY TEAM</span><h3>{mode === "poem" ? "Assignment oversight" : "Project assignments"}</h3><p>Offers become active only after Field Worker acceptance. Completion creates verified FieldLance work history.</p></div><span className="workforce-count">{assignments.length} total</span></div>
+            <div className="workforce-section-heading"><div><span className="eyebrow">DELIVERY TEAM</span><h3>{mode === "poem" ? "Assignment oversight" : "Project assignments"}</h3><p>Offers become active only after Field Worker acceptance. Completion creates verified FieldLance work history.</p></div><span className="workforce-count">{assignments.length} loaded</span></div>
             <div className="workforce-list">
               {assignments.map((a) => <AssignmentCard key={a.id} assignment={a} project={projectMap.get(a.survey_project_id)} orgName={orgMap.get(a.organization_id)} mode={mode} busy={busy} act={act} focused={focusKind==="assignment"&&focusId===a.id} onFocus={()=>onFocusChange?.("assignment",a.id)} />)}
             </div>
-            {!assignments.length && !busy && <WorkforceEmpty icon={<CheckCircle2 size={22} />} title="No assignments yet" copy="Select an applicant or eligible recruited Field Worker, send an offer, and the assignment will appear here." />}
+            <RecruitmentPages list={assignmentList}/>
+            {!assignments.length && !busy && !assignmentList.busy && !assignmentList.error && <WorkforceEmpty icon={<CheckCircle2 size={22} />} title="No assignments yet" copy="Select an applicant or eligible recruited Field Worker, send an offer, and the assignment will appear here." />}
           </>}
 
           {opportunities.length > 0 && <p className="workforce-footnote">{opportunities.length} linked project opportunit{opportunities.length === 1 ? "y" : "ies"}. Closing recruitment blocks only new applications; existing applications remain reviewable.</p>}
@@ -729,7 +741,7 @@ function AssignmentCard({ assignment: a, project, orgName, mode, busy, act, focu
   onFocus?: () => void;
 }) {
   const [complete, setComplete] = useState(false);
-  return <article id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card organization ${focused?"route-focus":""}`}>
+  return <article tabIndex={-1} id={`workforce-assignment-${a.id}`} className={`workforce-assignment-card organization ${focused?"route-focus":""}`}>
     <div className="workforce-assignment-top"><div><span>{a.organization_name || orgName || a.organization_id}</span><h4>{a.project_title || project?.title || a.survey_project_id}</h4>{a.opportunity_title && <small>{a.opportunity_title}</small>}</div><Badge value={a.status} /></div>
     <div className="workforce-meta-grid three"><WorkforceMeta icon={<CalendarDays size={15} />} label="Assignment dates" value={`${shortDate(a.start_date)} – ${shortDate(a.end_date)}`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Survey target" value={`${a.target_surveys} surveys`} /><WorkforceMeta icon={<CircleDollarSign size={15} />} label="Compensation" value={money(a)} /></div>
     <p className="workforce-helper"><strong>Field Worker:</strong> {a.volunteer_name}</p>
@@ -793,3 +805,5 @@ function assignmentNextStep(status: string) {
   if (status === "cancelled" || status === "canceled") return "Assignment cancelled";
   return human(status);
 }
+
+function RecruitmentPages({list}:{list:{busy:boolean;more:boolean;error:string;loadMore:()=>Promise<void>;retry:()=>Promise<void>}}){return <div className="actions" aria-label="Recruitment pagination">{list.busy&&<span role="status">Loading recruitment page...</span>}{list.error&&<span role="alert">{list.error}</span>}{list.error?<button className="secondary" disabled={list.busy} onClick={()=>void list.retry()}>Retry recruitment page</button>:list.more&&<button className="secondary" disabled={list.busy} onClick={()=>void list.loadMore()}>Load 50 more</button>}</div>}

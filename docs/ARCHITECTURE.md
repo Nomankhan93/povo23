@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.5
+# Current architecture note — FieldLance 2.41.6
+
+Frontend reliability only: retained funding identities reconcile through existing RLS-authorized journals; a shared dirty-authoring guard protects editor navigation; exact recruitment reads are independent of keyset collection pages. No RPC/schema/type changes. See PHASE-2.41.6.md.
+
+# Historical architecture note — FieldLance 2.41.5
 
 Collection eligibility is checked at the database mutation and authorization boundaries. Project details use the self-only can_collect_project RPC. Case delegation retains separate staff authority while requiring accepted worker contracts. See PHASE-2.41.5.md.
 
