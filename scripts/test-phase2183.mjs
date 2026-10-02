@@ -3,6 +3,8 @@ import {readFileSync,readdirSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
 
 const db=await schemaDb();
+// Explicit sandbox opt-in in this isolated wallet regression database only.
+await db.exec("update app_private.wallet_capabilities set sandbox_enabled=true where singleton");
 let passed=0;
 const worker='a1830000-0000-4000-8000-000000000001';
 const rows=async(q,p=[])=>(await db.query(q,p)).rows;

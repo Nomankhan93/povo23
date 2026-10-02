@@ -1,3 +1,4 @@
+import {useWalletCapabilities} from './walletCapabilities';
 import {useCallback,useEffect,useMemo,useState,type ReactNode} from "react";
 import {ArrowRight,CircleDollarSign,Clock3,CreditCard,ReceiptText,RefreshCw,WalletCards} from "lucide-react";
 import {EmptyState} from "../../components/ui/WorkflowOverview";
@@ -20,6 +21,7 @@ export function EarningsWorkspace({userId,onNavigate}:{userId:string;onNavigate:
   const [assignments,setAssignments]=useState<Assignment[]>([]);
   const [withdrawals,setWithdrawals]=useState<Withdrawal[]>([]);
   const [loading,setLoading]=useState(true),[error,setError]=useState(""),[revision,setRevision]=useState(0);
+  const capability=useWalletCapabilities(revision);
   const refresh=useCallback(()=>setRevision(v=>v+1),[]);
 
   useEffect(()=>{let live=true;setLoading(true);setError("");void Promise.all([
@@ -32,17 +34,19 @@ export function EarningsWorkspace({userId,onNavigate}:{userId:string;onNavigate:
     setSummary(summaryResult as Summary);
     setAssignments(assignmentResult.data||[]);
     setWithdrawals((withdrawalResult as WithdrawalList).rows||[]);
-  }).catch(e=>{if(live)setError((e as Error).message)}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[revision,userId]);
+  }).catch(e=>{if(live)setError("Earnings could not be loaded. Refresh to try again.")}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[revision,userId]);
 
   const activeContracts=useMemo(()=>assignments.filter(a=>a.status==="active").length,[assignments]);
   const completedContracts=useMemo(()=>assignments.filter(a=>a.status==="completed").length,[assignments]);
   const stage=Number(summary?.pending_withdrawals||0)>0?"withdrawal":Number(summary?.available||0)>0?"available":Number(summary?.approved||0)>0?"approved":Number(summary?.paid||0)>0?"settled":"earned";
   const nextAction=Number(summary?.pending_withdrawals||0)>0
     ? {title:"Withdrawal is being processed",copy:`PKR ${money(summary?.pending_withdrawals)} is reserved while FieldLance Finance completes provider processing.`,button:"View withdrawal",page:"E-Wallets & withdrawals"}
+    : (summary?.verified_wallets||0)===0&&!capability.enrollmentAvailable
+      ? {title:"Wallet enrollment unavailable",copy:"Production wallet enrollment and verification are not available. Your earnings and payout history remain recorded. Contact FieldLance Finance for guidance.",button:"View payout status",page:"E-Wallets & withdrawals"}
     : Number(summary?.available||0)>=100
       ? {title:"Approved earnings are ready to withdraw",copy:`PKR ${money(summary?.available)} is currently available. Withdraw only to an eligible verified JazzCash or Easypaisa wallet.`,button:"Request withdrawal",page:"E-Wallets & withdrawals"}
       : (summary?.verified_wallets||0)===0
-        ? {title:"Set up a payout wallet",copy:"Link and verify a JazzCash or Easypaisa wallet now so approved earnings can be withdrawn when they become available.",button:"Set up wallet",page:"E-Wallets & withdrawals"}
+        ? {title:"Set up a payout wallet",copy:"Link a sandbox JazzCash or Easypaisa wallet for simulated verification. This does not prove live wallet ownership.",button:"Set up wallet",page:"E-Wallets & withdrawals"}
         : {title:"Keep completing verified paid work",copy:"Approved payable units will appear here automatically. Claims, disputes and approvals remain governed by the existing payable workflow.",button:"Browse opportunities",page:"Available Opportunities"};
 
   return <section className="earnings-workspace">

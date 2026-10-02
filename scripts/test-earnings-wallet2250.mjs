@@ -43,7 +43,10 @@ await ok('earnings lifecycle keeps payables and provider settlement separate',as
 
 await ok('Wallet & withdrawals preserves secure provider and PIN controls',async()=>{
   for(const marker of ['my_e_wallets','my_withdrawal_summary','my_withdrawal_security','request_e_wallet_withdrawal','configure_withdrawal_pin_secure']) assert(wallet.includes(marker),marker);
-  assert(wallet.includes('wallet ownership verification is still simulated'));
+  assert(wallet.includes('useWalletCapabilities'));
+  assert(wallet.includes('if(!capability.enrollmentAvailable)return'));
+  assert(wallet.includes('Wallet enrollment and verification are not currently available in production'));
+  assert(!wallet.includes('wallet ownership verification is still simulated'));
   assert(wallet.includes('manual + mock'));
   assert(wallet.includes('FinanceJourney'));
 });

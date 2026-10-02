@@ -6368,6 +6368,8 @@ p_id: string | null;
 p_reason: string | null;
 p_version: number | null;
 }; Returns: undefined };
+wallet_capabilities: { Args: {
+}; Returns: Json };
 withdraw_field_worker_review: { Args: {
 p_id: string | null;
 p_note: string | null;

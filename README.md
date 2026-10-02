@@ -1,6 +1,10 @@
-# Current release: FieldLance 2.41.6
+# Current release: FieldLance 2.41.7
 
-Transaction & Workflow Reliability. Funding retries retain one operation identity, unsaved template/project authoring is protected across navigation, and recruitment deep links resolve independently of paginated lists. The 2.41.5 authorization protections remain intact. Overall release remains HOLD for F03 and F14. See docs/PHASE-2.41.6.md, docs/UPGRADE-2.41.6.md, docs/VALIDATION-2.41.6.md and docs/IMPLEMENTATION-2.41.6.md.
+Production Capability & Offline Harness Stabilization. Production wallet enrollment and simulated provider operations are server-gated and disabled by default; historical wallet records and manual settlement remain available. Chromium offline tests now distinguish native connectivity from the application offline override and verify transport recovery. See docs/PHASE-2.41.7.md, docs/UPGRADE-2.41.7.md, docs/VALIDATION-2.41.7.md and docs/IMPLEMENTATION-2.41.7.md.
+
+# Historical release: FieldLance 2.41.6
+
+Transaction & Workflow Reliability. Funding retries retain one operation identity, unsaved authoring is protected during navigation, and recruitment deep links resolve independently of paginated lists. See docs/PHASE-2.41.6.md, docs/UPGRADE-2.41.6.md, docs/VALIDATION-2.41.6.md and docs/IMPLEMENTATION-2.41.6.md.
 
 # Historical release: FieldLance 2.41.5
 

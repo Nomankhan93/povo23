@@ -1,3 +1,4 @@
+import {useWalletCapabilities} from './walletCapabilities';
 import {useCallback,useEffect,useState} from 'react';
 import {Badge} from '../../shared/ui/FormFields';
 import {EmptyState} from '../../components/ui/WorkflowOverview';
@@ -12,9 +13,12 @@ const label=(v:string)=>v==='jazzcash'?'JazzCash':'Easypaisa';
 
 export function MockEWalletSandbox(){
  const [data,setData]=useState<Queue>({wallets:[],withdrawals:[],provider_mode:'mock',activation_hold_hours:24}),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[revision,setRevision]=useState(0);
+ const capability=useWalletCapabilities(revision);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
- useEffect(()=>{let live=true;setLoading(true);setError('');void call('admin_mock_e_wallet_queue',{}).then(r=>{if(live)setData(r as Queue)}).catch(e=>{if(live)setError((e as Error).message)}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[revision]);
- async function run(task:()=>Promise<unknown>,message:string){setBusy(true);setError('');setNotice('');try{await task();setNotice(message);refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+ useEffect(()=>{if(!capability.enrollmentAvailable){setLoading(false);return}let live=true;setLoading(true);setError('');void call('admin_mock_e_wallet_queue',{}).then(r=>{if(live)setData(r as Queue)}).catch(e=>{if(live)setError("Sandbox records could not be loaded. Refresh to retry.")}).finally(()=>{if(live)setLoading(false)});return()=>{live=false}},[revision,capability.enrollmentAvailable]);
+ async function run(task:()=>Promise<unknown>,message:string){setBusy(true);setError('');setNotice('');try{await task();setNotice(message);refresh()}catch(e){setError("Sandbox action could not be completed. Refresh its current status and retry.")}finally{setBusy(false)}}
+ if(capability.loading)return <p role="status">Checking sandbox capability...</p>;
+ if(!capability.enrollmentAvailable)return <section className="panel detail"><h2>Wallet sandbox unavailable</h2><p>Mock operations require an explicitly enabled development database and development build.</p><button className="secondary" onClick={refresh}>Retry capability check</button></section>;
  if(loading&&!data.wallets.length&&!data.withdrawals.length)return <p role="status">Loading mock e-wallet sandbox…</p>;
  return <section className="ewallet-workspace">
   <div className="panel-title"><div><span className="eyebrow">FieldLance ADMIN · DEVELOPMENT ONLY</span><h2>Mock E-Wallet Sandbox</h2></div><Badge value="mock only"/></div>

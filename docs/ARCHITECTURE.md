@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.6
+# Current architecture note — FieldLance 2.41.7
+
+Wallet sandbox availability is read from a server-owned capability with a production-disabled default. Client-facing RPC wrappers guard the retained private routines; authenticated access does not bypass the capability, and the historical JSONB provider result remains compatible. The offline test adapter tracks native browser connectivity separately from the app override and simulated CDP transport; production offline storage/sync architecture is unchanged.
+
+# Historical architecture note — FieldLance 2.41.6
 
 Frontend reliability only: retained funding identities reconcile through existing RLS-authorized journals; a shared dirty-authoring guard protects editor navigation; exact recruitment reads are independent of keyset collection pages. No RPC/schema/type changes. See PHASE-2.41.6.md.
 

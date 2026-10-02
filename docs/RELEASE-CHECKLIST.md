@@ -1,6 +1,10 @@
-# Current release checklist — FieldLance 2.41.6
+# Current release checklist — FieldLance 2.41.7
 
-F02/F04/F05 targeted, browser, real local integration, type, build and complete npm test validations passed before the version update. See VALIDATION-2.41.6.md and IMPLEMENTATION-2.41.6.md for final checks and the recorded intermittent baseline test failure. Overall release remains HOLD for F03 and F14. No staging, commit, push or deployment is authorized by this checklist.
+F03 wallet capability, F14 offline browser harness, full test suite, full map regression, generated types, TypeScript, build, browser tests, release consistency and secret scan passed. The local migration was backed up and applied only to poem-phase11. See VALIDATION-2.41.7.md and IMPLEMENTATION-2.41.7.md. These checks do not authorize staging, commit, push or deployment.
+
+# Historical release checklist — FieldLance 2.41.6
+
+F02/F04/F05 targeted, browser, real local integration, type, build and complete npm test validations passed before versioning. Overall FieldLance release remained on hold for F03/F14 at that point. See VALIDATION-2.41.6.md and IMPLEMENTATION-2.41.6.md.
 
 # Historical release checklist — FieldLance 2.41.5
 

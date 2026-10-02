@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.6
+# Current permissions note — FieldLance 2.41.7
+
+Wallet enrollment and mock provider calls require the server-owned sandbox capability, disabled by default. Public wrappers cannot bypass the gate; private implementations and capability storage are unavailable to browser roles. The existing provider RPC remains JSONB, and valid historical wallets/manual settlement retain their existing permissions.
+
+# Historical permissions note — FieldLance 2.41.6
 
 No grants or authorization rules changed. Exact recruitment and funding journal lookups use the signed-in client and existing RLS. Unavailable and unauthorized recruitment IDs share one non-disclosing state. Accepted-contract, project/contract-date and collection protections from 2.41.5 remain required.
 

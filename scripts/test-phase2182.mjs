@@ -3,6 +3,8 @@ import {readFileSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
 
 const db=await schemaDb();
+// Explicit sandbox opt-in in this isolated wallet regression database only.
+await db.exec("update app_private.wallet_capabilities set sandbox_enabled=true where singleton");
 let passed=0;
 const ids=Object.fromEntries(['super','admin2','ngo','worker'].map((name,i)=>[name,`a1820000-0000-4000-8000-${String(i+1).padStart(12,'0')}`]));
 const rows=async(q,p=[])=>(await db.query(q,p)).rows;
@@ -143,6 +145,9 @@ try{
   await as('super');
   await call('simulate_mock_e_wallet_verification',[wallet,'verified',crypto.randomUUID()]);
   await call('simulate_mock_e_wallet_activation',[wallet,crypto.randomUUID()]);
+  // Existing valid wallets must retain manual settlement in production mode.
+  await db.exec('RESET ROLE');
+  await db.exec('update app_private.wallet_capabilities set sandbox_enabled=false');
   await as('worker');
   assert.equal((await call('configure_withdrawal_pin_secure',[null,'654321'])).ok,true);
 
@@ -194,7 +199,11 @@ try{
     const processing=await call('start_manual_e_wallet_withdrawal',[first,row.version,request]);
     assert.equal(processing.status,'processing');
     assert.equal((await call('start_manual_e_wallet_withdrawal',[first,row.version,request])).idempotent,true);
+    await deny(()=>call('simulate_mock_e_wallet_provider',[first,'succeeded',crypto.randomUUID()]),/sandbox is disabled/i);
+    // Also retain the original sandbox/manual separation assertion.
+    await db.exec('RESET ROLE');await db.exec('update app_private.wallet_capabilities set sandbox_enabled=true');await as('super');
     await deny(()=>call('simulate_mock_e_wallet_provider',[first,'succeeded',crypto.randomUUID()]),/Mock withdrawal required/i);
+    await db.exec('RESET ROLE');await db.exec('update app_private.wallet_capabilities set sandbox_enabled=false');await as('super');
   });
 
   await ok('dual-control threshold prevents the approver from settling a large manual withdrawal',async()=>{
