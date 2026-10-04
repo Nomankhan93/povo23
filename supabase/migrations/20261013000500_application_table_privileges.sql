@@ -17,7 +17,13 @@ begin
     where n.nspname='public' and c.relkind in ('r','p')
   loop execute format('revoke maintain on public.%I from anon,authenticated',table_name);end loop;
  end if;
- for owner_name in select rolname from pg_roles where rolname in ('postgres','supabase_admin')
+ -- Hosted postgres cannot manage the internal supabase_admin role's defaults.
+ -- Only alter defaults whose owner privileges are available to this executor.
+ -- Local administrative replay can still harden both creators; hosted replay
+ -- hardens postgres and leaves inaccessible platform-managed defaults unchanged.
+ for owner_name in select rolname from pg_roles
+  where rolname in ('postgres','supabase_admin')
+    and pg_has_role(current_user,oid,'USAGE')
  loop
   execute format('alter default privileges for role %I in schema public revoke truncate,references,trigger on tables from anon,authenticated',owner_name);
   if current_setting('server_version_num')::integer >= 170000 then

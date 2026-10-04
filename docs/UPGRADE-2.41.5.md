@@ -7,7 +7,7 @@ Forward migrations, in order:
 4. 20261013000520_case_worker_recruitment_consent.sql
 5. 20261013000530_collection_project_date_guard.sql
 
-Do not rewrite applied migrations or reset the development database. Back up first and validate on a disposable restored database. The privilege migration requires a database administration role allowed to alter defaults for both postgres and supabase_admin. Ordinary postgres membership alone may not suffice in Supabase. Ownership is not changed to work around this.
+Do not normally rewrite applied migrations or reset the development database. The explicitly authorized pre-production exception for 00500 is documented in UPGRADE-2.41.7.md: it had never applied successfully on hosted production. The corrected migration alters only creator defaults available to its executor. Hosted postgres cannot manage supabase_admin defaults. Ownership and role memberships are not changed to work around this.
 
 Existing postgres-owned RPCs need the explicit private-helper EXECUTE grant in migration 00510 when migration 00490 is created by another administration role. Browser roles must not receive that two-argument helper grant.
 
@@ -22,6 +22,6 @@ Archive directory verified with pg_restore --list. Application schemas and data 
 
 Retain the recovery archive. Restore only after an explicit recovery decision; restoring over the live database is destructive.
 
-00530 restores the inclusive UTC project window in the shared collection helper. It is a function-body-only correction with no row, signature, ownership or grant changes. The previously verified pre-hardening archive remains sufficient: recovery can restore that baseline and replay the forward migrations, and this correction performs no data transformation. No additional backup is warranted for this change. The original four migration files must remain unchanged.
+00530 restores the inclusive UTC project window in the shared collection helper. It is a function-body-only correction with no row, signature, ownership or grant changes. The previously verified pre-hardening archive remains sufficient: recovery can restore that baseline and replay the forward migrations, and this correction performs no data transformation. No additional backup is warranted for this change. The original four migration files were preserved for that release; the subsequent explicitly authorized 00500 portability exception is documented below and in UPGRADE-2.41.7.md.
 
 00530 was validated from all 82 migrations in isolated PostgreSQL before local application, then registered transactionally in supabase_migrations.schema_migrations. The temporary database was removed. SHA-256 checks confirm 00490-00520 were not rewritten.
