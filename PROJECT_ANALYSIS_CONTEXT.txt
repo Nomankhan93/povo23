@@ -76,8 +76,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 84
-Migration head: 20261013000550_funding_commitment_release_reason.sql
+Ordered migration files: 85
+Migration head: 20261013000560_private_helper_and_anonymous_grants.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -164,12 +164,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000530_collection_project_date_guard.sql
 - 20261013000540_wallet_production_capability.sql
 - 20261013000550_funding_commitment_release_reason.sql
+- 20261013000560_private_helper_and_anonymous_grants.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 109
+Test scripts (scripts/test-*.mjs): 110
 TypeScript/TSX source files: 118
-Markdown docs: 285
-Inventory files (excluding local/build/temp/backup state): 637
+Markdown docs: 286
+Inventory files (excluding local/build/temp/backup state): 640
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

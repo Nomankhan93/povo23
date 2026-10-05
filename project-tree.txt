@@ -105,6 +105,7 @@
 ./docs/PHASE-2.9.md
 ./docs/RELEASE-CHECKLIST.md
 ./docs/SETUP-WSL.md
+./docs/SQL-AUDIT-2.41.7.md
 ./docs/STABILIZATION-2.19.0.md
 ./docs/STABILIZATION-2.3.1.md
 ./docs/STABILIZATION-SCOPE-CHECK.sql
@@ -425,6 +426,7 @@
 ./scripts/test-recruitment-hardening2415.mjs
 ./scripts/test-release-consistency.mjs
 ./scripts/test-sidebar-profile-grouping.mjs
+./scripts/test-sql-authorization.mjs
 ./scripts/test-stabilization.mjs
 ./scripts/test-staff-operations2220.mjs
 ./scripts/test-survey-save276.mjs
@@ -682,6 +684,7 @@
 ./supabase/migrations/20261013000530_collection_project_date_guard.sql
 ./supabase/migrations/20261013000540_wallet_production_capability.sql
 ./supabase/migrations/20261013000550_funding_commitment_release_reason.sql
+./supabase/migrations/20261013000560_private_helper_and_anonymous_grants.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts
