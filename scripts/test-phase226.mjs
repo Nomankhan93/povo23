@@ -61,6 +61,31 @@ try{
   await ok('atomic funding gate rejects a second underfunded paid opportunity',async()=>{
     await deny(()=>call('create_recruitment_opportunity',[project,'Unfunded paid opportunity','Should fail without coverage',taluka,d.opp_start,d.opp_end,d.reply,'paid','Ignored',1,'Survey','Urdu','all','No remaining coverage',true]),/Insufficient funded coverage/);
   });
+  await ok('manual commitment release uses the submitted reason, preserves reservation reason and is idempotent',async()=>{
+    await db.exec('begin');
+    try {
+      await db.exec('RESET ROLE');
+      await db.query("update public.project_funding_commitments set reason='Original reservation reason' where opportunity_id=$1",[opportunity]);
+      await as('other');
+      await deny(()=>call('release_project_funding_commitment',[opportunity,'Unauthorized release',crypto.randomUUID()]),/permission/);
+    } finally { await db.exec('rollback'); }
+    await db.exec('begin');
+    try {
+      await db.exec('RESET ROLE');
+      await db.query("update public.project_funding_commitments set reason='Original reservation reason' where opportunity_id=$1",[opportunity]);
+      await as('ngo');
+      const request=crypto.randomUUID();
+      const released=await call('release_project_funding_commitment',[opportunity,'  Manual release for regression  ',request]);
+      const c=(await rows('select id,status,reason,release_reason,version from public.project_funding_commitments where opportunity_id=$1',[opportunity]))[0];
+      assert.equal(released,c.id);assert.equal(c.status,'released');
+      assert.equal(c.reason,'Original reservation reason');assert.equal(c.release_reason,'Manual release for regression');
+      assert.equal(await call('release_project_funding_commitment',[opportunity,'Repeated release',request]),c.id);
+      assert.equal((await rows('select version from public.project_funding_commitments where id=$1',[c.id]))[0].version,c.version);
+      await db.exec('RESET ROLE');
+      const events=await rows("select detail from public.audit_events where action='paid_opportunity_funding_released' and detail->>'commitment'=$1",[c.id]);
+      assert.equal(events.length,1);assert.equal(events[0].detail.reason,'Manual release for regression');
+    } finally { await db.exec('rollback'); }
+  });
   await db.exec('RESET ROLE');
   await db.query('update public.work_opportunities set reply_by=now()-interval \'1 second\' where id=$1',[opportunity]);
   await as('ngo');

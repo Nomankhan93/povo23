@@ -4,9 +4,9 @@ import ts from 'typescript';
 import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
 import assert from 'node:assert/strict';
-const stores=new Map(), lanes=new Map();let generated=0,release;
+const stores=new Map(), lanes=new Map();let generated=0,release,encryptionGate;
 const barrier=new Promise(r=>release=r);
-const subtle=new Proxy(webcrypto.subtle,{get(t,n){if(n==='generateKey')return async(...args)=>{const k=await t.generateKey(...args);if(++generated===2)release();if(generated<=2)await barrier;return k};const v=Reflect.get(t,n);return typeof v==='function'?v.bind(t):v;}});
+const subtle=new Proxy(webcrypto.subtle,{get(t,n){if(n==='encrypt')return async(...args)=>{await encryptionGate?.(args[2]);return t.encrypt(...args)};if(n==='generateKey')return async(...args)=>{const k=await t.generateKey(...args);if(++generated===2)release();if(generated<=2)await barrier;return k};const v=Reflect.get(t,n);return typeof v==='function'?v.bind(t):v;}});
 const cryptoMock={subtle,getRandomValues:webcrypto.getRandomValues.bind(webcrypto)};
 const database={objectStoreNames:{contains:n=>stores.has(n)},createObjectStore:n=>stores.set(n,new Map()),transaction(n){
  const lane=lanes.get("all")||[];lanes.set("all",lane);const tx={oncomplete:null,onerror:null,onabort:null};let active=false,pending=0,ended=false;const tasks=[];
@@ -27,7 +27,10 @@ const a=module(),b=module();
 await Promise.all([a.saveSurveyDeviceDraft('owner','one',null,{name:'One'}),b.saveSurveyDeviceDraft('owner','two',null,{name:'Two'})]);
 assert.equal(generated,2);assert.equal((await a.loadSurveyDeviceDraft('owner','one',null)).name,'One');assert.equal((await b.loadSurveyDeviceDraft('owner','two',null)).name,'Two');console.log('PASS concurrent tab first-writes retain one usable nonextractable encryption key');
 const args={p_request_id:'request-1',p_project:'project',p_id:null,p_person:null,p_household:null,p_name:'Synthetic child',p_birth:'2012-03-04',p_household_label:'Household',p_answers:{need:'School'},p_consent:{agreed:true,method:'verbal',representative:'Guardian',relationship:'Guardian'},p_submit:true,p_version:0};
-await Promise.all([a.enqueueSurveySave('owner',args),b.enqueueSurveySave('owner',{...args,p_name:'Must not replace original'})]);
+// Establish the original durably before racing duplicate retries. Invocation
+// order alone does not order asynchronous encryption across tabs.
+await a.enqueueSurveySave('owner',args);
+await Promise.all([a.enqueueSurveySave('owner',{...args,p_name:'Duplicate A'}),b.enqueueSurveySave('owner',{...args,p_name:'Must not replace original'})]);
 assert.equal((await a.surveyQueueSummary('owner')).total,1);
 await a.markQueuedSurveyAttention('owner','request-1','Rejected: correction required');
 assert.equal((await a.inspectAttentionSurvey('owner','owner:request-1')).p_name,args.p_name);console.log('PASS duplicate enqueue preserves original payload and request');
@@ -35,6 +38,21 @@ owner='other';await assert.rejects(()=>a.inspectAttentionSurvey('owner','owner:r
 await a.recoverAttentionSurvey('owner','owner:request-1');assert.equal((await a.loadSurveyDeviceDraft('owner','project',null)).name,args.p_name);assert.equal((await a.surveyQueueSummary('owner')).attention,1);await assert.rejects(()=>a.recoverAttentionSurvey('owner','owner:request-1'),/already been recovered/);console.log('PASS rejected answers recover durably without deleting source or overwriting drafts');
 await assert.rejects(()=>a.retryAttentionSurvey('owner','owner:request-1'),/recovered/);
 await a.discardAttentionSurvey('owner','owner:request-1');
+// Force the second invocation to persist first. The delayed first invocation
+// must preserve the payload that already won the IndexedDB transaction.
+let unblock,started;
+const held=new Promise(r=>unblock=r),encryptStarted=new Promise(r=>started=r);
+encryptionGate=async bytes=>{const value=JSON.parse(new TextDecoder().decode(bytes));if(value.p_request_id==='race'&&value.p_name==='Delayed first'){started();await held;}};
+const delayed=a.enqueueSurveySave('owner',{...args,p_request_id:'race',p_name:'Delayed first'});
+await encryptStarted;
+try { await b.enqueueSurveySave('owner',{...args,p_request_id:'race',p_name:'First persisted'}); }
+finally { unblock(); }
+await delayed;encryptionGate=null;
+assert.equal((await a.surveyQueueSummary('owner')).total,1);
+await a.markQueuedSurveyAttention('owner','race','Rejected: inspect concurrent winner');
+assert.equal((await a.inspectAttentionSurvey('owner','owner:race')).p_name,'First persisted');
+await a.discardAttentionSurvey('owner','owner:race');
+console.log('PASS forced reverse encryption completion preserves the first persisted payload across tabs');
 await a.enqueueSurveySave('owner',{...args,p_request_id:'request-2'});
 await a.markQueuedSurveyAttention('owner','request-2','Rejected');
 await a.retryAttentionSurvey('owner','owner:request-2');assert.equal((await a.surveyQueueSummary('owner')).pending,1);await assert.rejects(()=>a.recoverAttentionSurvey('owner','owner:request-1'),/confirmed server rejection/);
@@ -42,4 +60,4 @@ await a.syncSurveyQueue('owner');assert.equal(rpcCalls.at(-1).p_request_id,'requ
 await a.enqueueSurveySave('owner',{...args,p_request_id:'bad'});const bad=stores.get('queue').get('owner:bad');bad.cipher.data='AAAA';await a.syncSurveyQueue('owner');assert.equal((await a.attentionSurveyCopies('owner'))[0].failureKind,'unreadable');assert.equal((await a.surveyQueueSummary('owner')).attention,1);console.log('PASS corrupt ciphertext is retained for attention instead of retrying forever');
 await a.enqueueSurveySave('owner',{...args,p_request_id:'pending'});await a.discardAttentionSurvey('owner','owner:pending');assert.equal((await a.surveyQueueSummary('owner')).pending,1);await a.discardAttentionSurvey('owner','owner:bad');assert.equal((await a.surveyQueueSummary('owner')).attention,0);console.log('PASS per-item discard cannot remove pending saves');
 rpcError={code:'P0001',message:'Definitive validation failure'};await a.syncSurveyQueue('owner');assert.equal((await a.attentionSurveyCopies('owner'))[0].failureKind,'rejected');console.log('PASS definitive server rejection is recoverable');
-console.log('8 offline recovery runtime tests passed');
+console.log('9 offline recovery runtime tests passed');

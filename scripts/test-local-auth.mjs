@@ -27,6 +27,7 @@ try{
  const denied=await b.client.storage.from('poem-private-documents').download(doc.object_path);assert(denied.error);
  const begin=await a.client.rpc('begin_document_delete',{p_id:doc.id});assert.ifError(begin.error);
  const removed=await a.client.storage.from('poem-private-documents').remove([begin.data]);assert.ifError(removed.error);
+ const afterDelete=await a.client.storage.from('poem-private-documents').download(doc.object_path);assert(afterDelete.error,'Deleted object must no longer be readable');assert.match(afterDelete.error.message,/not found/i);
  const end=await a.client.rpc('finish_document_delete',{p_id:doc.id});assert.ifError(end.error);
  console.log('PASS: local Auth, draft save, cross-user RLS, blocked escalation and private Storage byte upload/download/removal.');
 }finally{

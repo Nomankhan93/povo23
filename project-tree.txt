@@ -681,6 +681,7 @@
 ./supabase/migrations/20261013000520_case_worker_recruitment_consent.sql
 ./supabase/migrations/20261013000530_collection_project_date_guard.sql
 ./supabase/migrations/20261013000540_wallet_production_capability.sql
+./supabase/migrations/20261013000550_funding_commitment_release_reason.sql
 ./supabase/snippets
 ./tsconfig.json
 ./vite.config.ts

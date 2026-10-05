@@ -1,10 +1,22 @@
 # FieldLance 2.41.7 upgrade
 
-Apply the forward migration after 2.41.6:
+## Current production baseline and freeze
 
-    npx supabase migration up
+Production baseline is ebf12d1: GitHub main and Vercel Production are at that
+commit (deployment identity supplied by the operator). Read-only linked migration
+history verification confirms 00500–00540 applied, with no migration after 00540.
+This work is post-deployment certification, not a pending 2.41.7 rollout.
+Hosted production is frozen: no push, repair, rollback, reset, managed/default
+grant change or hosted SQL change without separate approval.
 
-The migration is 20261013000540_wallet_production_capability.sql. Do not reset the database. It defaults wallet sandbox enrollment and simulated provider operations to disabled, preserves wallet/withdrawal records and manual settlement, and keeps the existing provider RPC's JSONB result contract.
+00540_wallet_production_capability.sql is already deployed. It defaults wallet
+sandbox enrollment and simulated provider operations to disabled, preserves
+wallet/withdrawal records and manual settlement, and retains the provider RPC's
+JSONB result contract. Do not reset or restore the local database.
+
+The following portability/replay notes describe the historical pre-deployment
+work. Their earlier blockers and pending migration list are not current hosted
+deployment status.
 
 The change was validated against the local poem-phase11 Supabase project. Its pre-migration custom-format backup is outside the repository at /home/noman/fieldlance-backups/2.41.7/pre-capability.dump; SHA-256: 8a41f5a3cabb9c5aa5f26e8b1a0b5e8edd15dff1ca50efd8a71a23dbb9474b94. pg_restore --list read all 2,789 TOC entries. No hosted Supabase project was changed.
 
@@ -115,27 +127,14 @@ the repository in default-grants-audit.json beside the backup. A separate explic
 grant policy audit must decide which administrative/service capabilities are
 required before disabling defaults. Do not blanket-grant every catalog difference.
 
-### Hosted release gate
+### Hosted state supersedes the former release gate
 
-Keep deployment blocked until required regression/lint findings and the platform
-default-policy decision are resolved. Corrected 00500 can execute as postgres,
-but cannot harden inaccessible Supabase-managed creator defaults. After separate
-release approval and verified hosted backup/recovery readiness, use:
+The former 00500–00540 pending/push procedure is retired: those migrations are
+already applied remotely. Read-only migration listing confirmed the hosted head
+is 20261013000540. No repair or repeat push is needed. Proposed 00550 is applied
+only locally for certification and must not be deployed until review and approval.
 
-    npx supabase migration list --linked
-    npx supabase db push --linked --dry-run
-
-Require exactly 20261013000500, 20261013000510, 20261013000520,
-20261013000530 and 20261013000540 pending. Only after separate write approval:
-
-    npx supabase db push --linked
-    npx supabase migration list --linked
-
-Then verify hosted effective/current-table grants, postgres future defaults,
-managed defaults separately, and recruitment/workflow/wallet/offline smoke tests.
-No migration repair is expected or authorized.
-
-### Continuation validation and blocking Storage mismatch
+### Historical continuation validation and Storage mismatch
 
 A second fresh isolated PostgreSQL replay passed all 83 migrations through 00540.
 All 1,872 application column/function/RLS-policy catalog entries matched the
@@ -163,7 +162,7 @@ DB lint returned 3 errors and 31 warnings across 21 functions. Two errors name
 missing public crypto functions in guarded fallback branches; extensions.pgcrypto
 exists and an actual hash_withdrawal_pin call succeeded. The third is an ambiguous
 reason reference in release_project_funding_commitment, from unchanged historical
-SQL. It remains unresolved.
+SQL. It was unresolved at that stage; the forward correction is recorded below.
 
 Full preflight passed generated-type consistency and TypeScript, then failed the
 existing test-offline-recovery276.mjs:33 assertion: actual "Must not replace
@@ -171,6 +170,94 @@ original", expected "Synthetic child". This is the previously recorded offline
 recovery failure signature; no offline source or assertion was changed here.
 It is not evidence that the ACL correction caused an offline regression.
 Remaining full-suite tests and the chained production build were not completed.
-Certification is blocked by functional Storage health; do not claim full regression
-or hosted push readiness. Preserve the reset database and backup for a separately
-reviewed managed-service compatibility recovery.
+At that stage certification was blocked by functional Storage health. The
+post-deployment alignment below resolves that mismatch without reset or restore;
+the reset database and original backup remain preserved.
+
+## Post-deployment local corrections
+
+The certification branch starts at ebf12d1. No historical migration was edited.
+
+### Storage service alignment
+
+Installed Supabase CLI 2.100.0 reports Storage v1.77.5 as the expected local
+service version. The cached image bundles migrations through 0072 and pg.js:846
+selects ON CONFLICT (bucket_id, name COLLATE "C") WHERE archived_at IS NULL when
+objects-current-version-index is present. This matches the existing schema.
+
+Only supabase_storage_poem-phase11 was replaced: v1.54.1 to v1.77.5, digest
+sha256:4ae1890ba0c6fd24d975c34f3aa201a01d410171c8ba6eddeb675ef92341a62d.
+The named data volume, connection settings and network address were preserved.
+Image-provided runtime environment defaults were aligned with the new image;
+migration freeze is drop-bucketid-objname-index. No managed SQL/index/history
+was edited. Storage history remains 73 rows (IDs 0–72).
+
+The old container is retained stopped as
+supabase_storage_poem-phase11_preserved_v1541. Its private inspection/recovery
+record is outside the repository under
+/home/noman/fieldlance-backups/2.41.7-postdeploy (mode 0600; contains local settings).
+Do not start the old incompatible image against the current schema.
+
+Actual local Auth/Storage E2E passes: User A upload, byte-identical download,
+User B denial, User A delete and failed read after delete. Test users and metadata
+were cleaned; no unexpected 5xx/server errors appeared in the aligned service
+logs. Expected denied/missing-object requests return Storage 400 errors.
+
+### Offline regression diagnosis
+
+test-offline-recovery276.mjs:33 assumed Promise.all invocation order determined
+the persisted payload. Encryption completes asynchronously across tabs; holding
+the first encryption reproduced the failure deterministically. Production code's
+readwrite transaction preserves the first persisted row, not the first invocation.
+The corrected harness establishes an original before racing retries and separately
+forces reverse encryption completion across modules, asserting the first persisted
+payload survives and the queue contains exactly one record. Existing owner,
+recovery, discard, retry and corrupt-cipher assertions remain. Nine cases pass;
+no offline production code changed.
+
+### Funding correction and crypto lint diagnosis
+
+A new manual-release regression proved SQLSTATE 42702: local variable reason
+collides with project_funding_commitments.reason in release_reason=reason.
+New forward migration 20261013000550_funding_commitment_release_reason.sql only
+renames the local variable to release_reason_value. Signature, authorization,
+ownership, grants and state rules are unchanged. Seven funding-assurance cases
+pass, including permission denial, trimmed submitted reason, preserved original
+reservation reason, idempotent repeat call, and one correctly contextualized audit
+event. The regression transaction rolls back before the existing expiry/closure
+checks. 00550 was applied locally with migration up --local; hosted remains 00540.
+
+The crypto lint errors inspect dynamic public.crypt/public.gen_salt fallback SQL.
+Both functions first choose extensions.pgcrypto when available; that extension
+exists locally, readiness is true, and actual PIN hashing succeeds. These guarded
+fallback diagnostics do not justify changing historical migrations or widening
+grants. No crypto SQL correction is proposed.
+
+### Final post-deployment certification results
+
+- Full npm run preflight: PASS (generated types, TypeScript, complete npm test,
+  production Vite build and offline-shell checks; process exit 0).
+- F10/test-grants2415: PASS for enforceable current-table/postgres defaults;
+  managed supabase_admin future defaults remain separately NEEDS FOLLOW-UP.
+- Actual Storage E2E: PASS, including explicit not-found after deletion.
+- Live recruitment and workflow integration: PASS with cleanup.
+- Funding assurance: 7 scenarios PASS; actual PostgreSQL release/idempotency and
+  crypto hash/verify also passed in a rolled-back transaction.
+- Offline recovery: 9 scenarios PASS, plus 10 consecutive deterministic runs
+  (90 case executions); full preflight also passes the corrected harness.
+- All six browser commands: PASS (offline/device, network mismatch, map,
+  attendance, recruitment and workflow). Browser transports are simulated;
+  actual Auth/PostgREST/Storage verification is reported separately.
+- Metadata, release consistency and secrets checks: PASS.
+- DB lint completes but is not clean: 2 diagnosed guarded crypto-fallback errors
+  and 31 existing warnings; the funding ambiguity is gone.
+- Production build: PASS, existing 511.42 kB main-chunk warning remains.
+- git diff --check: PASS. All 83 historical migration files match ebf12d1 bytes.
+  Generated database types and package versions are unchanged.
+
+Validation logs are outside the repository in
+/home/noman/fieldlance-backups/2.41.7-postdeploy. The original pre-portability
+backup remains preserved. No commit, merge, push, deploy, hosted SQL change,
+migration repair, reset, restore or Dashboard grant change was performed.
+The local corrective candidate is validated for review; deployed production still
+ends at 00540 and does not include the proven funding correction in local 00550.
