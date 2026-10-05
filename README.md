@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.7
+# Current release: FieldLance 2.41.8
+
+Recruitment & Role Dashboard Workflow Stabilization. This frontend patch covers audit F01–F10 and Attendance mobile layout. See docs/PHASE-2.41.8.md, docs/UPGRADE-2.41.8.md and docs/VALIDATION-2.41.8.md.
+
+# Historical release: FieldLance 2.41.7
 
 Production Capability & Offline Harness Stabilization. Production wallet enrollment and simulated provider operations are server-gated and disabled by default; historical wallet records and manual settlement remain available. Chromium offline tests now distinguish native connectivity from the application offline override and verify transport recovery. See docs/PHASE-2.41.7.md, docs/UPGRADE-2.41.7.md, docs/VALIDATION-2.41.7.md and docs/IMPLEMENTATION-2.41.7.md.
 

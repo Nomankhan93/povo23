@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.7
+# Current permissions note — FieldLance 2.41.8
+
+No RLS, RPC, grants or collection rules changed. Active assignments navigate to the existing project workspace; can_collect_project remains authoritative. Staff review reads use the signed-in client and current RLS. Formal offers and acceptance remain required.
+
+# Historical permissions note — FieldLance 2.41.7
 
 Wallet enrollment and mock provider calls require the server-owned sandbox capability, disabled by default. Public wrappers cannot bypass the gate; private implementations and capability storage are unavailable to browser roles. The existing provider RPC remains JSONB, and valid historical wallets/manual settlement retain their existing permissions.
 

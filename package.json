@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.41.7",
+  "version": "2.41.8",
   "private": true,
   "type": "module",
   "engines": {
@@ -74,7 +74,8 @@
     "test:browser-workflow-2416": "node scripts/test-browser-workflow2416.mjs",
     "test:local-workflow-2416": "node scripts/test-local-workflow2416.mjs",
     "test:wallet-capability-2417": "node scripts/test-wallet-capability2417.mjs",
-    "test:sql-authorization": "node scripts/test-sql-authorization.mjs"
+    "test:sql-authorization": "node scripts/test-sql-authorization.mjs",
+    "test:browser-recruitment-2418": "node scripts/test-browser-recruitment2418.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

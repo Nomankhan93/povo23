@@ -1,3 +1,4 @@
+import {countReadyForOffer} from './recruitmentState';
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowRight,
@@ -119,6 +120,7 @@ function Metric({ icon, label, value, detail }: { icon: ReactNode; label: string
 }
 
 export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onField }: DashboardProps) {
+  const [counts,setCounts]=useState<{applications:number;review:number;offered:number;active:number;completed:number}|null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [openOpportunities, setOpenOpportunities] = useState(0);
@@ -133,6 +135,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
     let live = true;
     setLoading(true);
     setError("");
+    setCounts(null);
 
     const fetchApplications = async () => {
       const result = await db!
@@ -146,14 +149,21 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
     };
 
     const fetchAssignments = async () => {
-      const result = await db!
-        .from("work_assignments")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (result.error) throw result.error;
-      return result.data || [];
+      const results=await Promise.all(["offered","active","completed"].map(status=>
+        db!.from("work_assignments").select("*").eq("user_id",userId).eq("status",status).order("created_at",{ascending:false}).limit(1)));
+      for(const result of results)if(result.error)throw result.error;
+      return results.flatMap(result=>result.data||[]);
+    };
+    const fetchCounts=async()=>{
+      const requests=[
+        db!.from("work_applications").select("id",{count:"exact",head:true}).eq("user_id",userId),
+        db!.from("work_applications").select("id",{count:"exact",head:true}).eq("user_id",userId).in("status",["pending","shortlisted"]),
+        ...["offered","active","completed"].map(status=>db!.from("work_assignments").select("id",{count:"exact",head:true}).eq("user_id",userId).eq("status",status)),
+      ];
+      const results=await Promise.all(requests);
+      for(const result of results)if(result.error)throw result.error;
+      const ready=await countReadyForOffer({userId});
+      return {applications:results[0].count||0,review:(results[1].count||0)+ready,offered:results[2].count||0,active:results[3].count||0,completed:results[4].count||0};
     };
 
     const fetchOpportunities = async () =>
@@ -176,11 +186,12 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
       fetchOpportunities(),
       fetchSummary(),
       fetchHistory(),
+      fetchCounts(),
     ]).then((results) => {
       if (!live) return;
       const issues: string[] = [];
 
-      const [applicationResult, assignmentResult, opportunityResult, summaryResult, historyResult] = results;
+      const [applicationResult, assignmentResult, opportunityResult, summaryResult, historyResult,countResult] = results;
       if (applicationResult.status === "fulfilled") setApplications(applicationResult.value as Application[]);
       else issues.push("applications");
 
@@ -201,6 +212,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         setHistoryTotal(Number(data?.total || 0));
       } else issues.push("verified work history");
 
+      if(countResult.status==="fulfilled"&&assignmentResult.status==="fulfilled")setCounts(countResult.value);else issues.push("work totals");
       if (issues.length) setError(`Some dashboard data could not be refreshed: ${issues.join(", ")}. Open the related workspace for full details.`);
       setLoading(false);
     });
@@ -210,10 +222,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
     };
   }, [userId, revision]);
 
-  const inReview = useMemo(
-    () => applications.filter((item) => ["pending", "shortlisted", "selected"].includes(item.status)).length,
-    [applications],
-  );
+  const inReview = counts?.review || 0;
   const offers = useMemo(() => assignments.filter((item) => item.status === "offered"), [assignments]);
   const active = useMemo(() => assignments.filter((item) => item.status === "active"), [assignments]);
   const completed = useMemo(() => assignments.filter((item) => item.status === "completed"), [assignments]);
@@ -222,7 +231,9 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
   const firstName = details.full_name?.trim().split(/\s+/)[0] || "Field Worker";
 
   const currentAssignment = offers[0] || active[0] || null;
-  const nextAction = profile?.status === "draft"
+  const nextAction = !counts
+    ? {eyebrow:"WORK STATUS",title:loading?"Loading your work status":"Work status is unavailable",copy:"Refresh to check pending offers and active assignments.",button:"Refresh work status",action:()=>setRevision(v=>v+1),secondary:null}
+    : profile?.status === "draft"
     ? {
         eyebrow: "COMPLETE YOUR SETUP",
         title: "Publish your Field Worker profile",
@@ -234,7 +245,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
     : offers.length
       ? {
           eyebrow: "ACTION REQUIRED",
-          title: `${offers.length} assignment offer${offers.length === 1 ? "" : "s"} waiting for you`,
+          title: `${counts.offered} assignment offer${counts.offered === 1 ? "" : "s"} waiting for you`,
           copy: "Review the project, dates and compensation terms. Survey access activates only after you accept the formal offer.",
           button: "Review offers",
           action: () => onNavigate("My Assigned Surveys"),
@@ -314,10 +325,10 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
 
       <div className="field-worker-metric-grid" aria-label="Field Worker workspace metrics">
         <Metric icon={<BriefcaseBusiness size={18} />} label="Open opportunities" value={openOpportunities} detail="Published work you can explore" />
-        <Metric icon={<FileCheck2 size={18} />} label="Applications in review" value={inReview} detail={`${applications.length} total applications`} />
-        <Metric icon={<Send size={18} />} label="Offers waiting" value={offers.length} detail="Accept before survey access activates" />
-        <Metric icon={<Clock3 size={18} />} label="Active assignments" value={active.length} detail="Current accepted field work" />
-        <Metric icon={<CheckCircle2 size={18} />} label="Completed work" value={completed.length} detail={`${historyTotal} FieldLance work-history records`} />
+        <Metric icon={<FileCheck2 size={18} />} label="Applications in review" value={counts?.review??"—"} detail={counts?`${counts.applications} total applications`:"Work totals unavailable"} />
+        <Metric icon={<Send size={18} />} label="Offers waiting" value={counts?.offered??"—"} detail="Accept before survey access activates" />
+        <Metric icon={<Clock3 size={18} />} label="Active assignments" value={counts?.active??"—"} detail="Current accepted field work" />
+        <Metric icon={<CheckCircle2 size={18} />} label="Completed work" value={counts?.completed??"—"} detail={`${historyTotal} FieldLance work-history records`} />
         <Metric icon={<CircleDollarSign size={18} />} label="Available earnings" value={`PKR ${money(summary?.available)}`} detail={`${summary?.verified_wallets || 0} verified payout wallet${summary?.verified_wallets === 1 ? "" : "s"}`} />
       </div>
 

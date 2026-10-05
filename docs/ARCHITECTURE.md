@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.7
+# Current architecture note — FieldLance 2.41.8
+
+Recruitment display state resolves existing application/assignment relationships independently of visible queue pages. Exact dashboard counts, cancellable marketplace reads, contextual applicant routes and guarded field-work routes reuse existing Supabase APIs. A staff survey queue opens the existing response-review workspace. No schema changes.
+
+# Historical architecture note — FieldLance 2.41.7
 
 Wallet sandbox availability is read from a server-owned capability with a production-disabled default. Client-facing RPC wrappers guard the retained private routines; authenticated access does not bypass the capability, and the historical JSONB provider result remains compatible. The offline test adapter tracks native browser connectivity separately from the app override and simulated CDP transport; production offline storage/sync architecture is unchanged.
 

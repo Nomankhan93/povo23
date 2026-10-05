@@ -1,3 +1,4 @@
+import {SurveyReviewQueue} from "../features/surveys/SurveyReviewQueue";
 import {AuthoringNavigationGuard,requestAuthoringNavigation,installAuthoringHistoryGuard} from '../shared/authoringNavigation';
 import type {ReportSelection} from "../features/analytics/model";
 import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind, type RouteTarget} from "./routes";
@@ -453,6 +454,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Survey projects", ShieldCheck],
     ...(!poem && scope !== "personal" ? [["Project team", Users]] : []),
     ["Verification", ShieldCheck],
+    ...(surveyManage ? [["Survey review", ClipboardList]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
     ...(surveyManage || (!poem && scope !== "personal") ? [["Survey templates", ShieldCheck]] : []),
     ...(surveyManage ? [["Canonical registry", ShieldCheck]] : []),
@@ -502,6 +504,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ["Partner NGOs", Building2],
     ["Survey projects", ShieldCheck],
     ["Verification", ShieldCheck],
+    ...(surveyManage ? [["Survey review", ClipboardList]] : []),
     ...(surveyManage ? [["Project governance", ShieldCheck], ["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake], ["Data sharing", Share2], ["Workforce marketplace", Users]] : []),
     ...(financeManage ? [["Project funding", Activity], ["Withdrawal operations", CreditCard], ["E-Wallet sandbox", CreditCard]] : []),
     ...(poem && ["admin", "super_admin"].includes(account.platform_role) ? [["Memberships", Users]] : []),
@@ -777,7 +780,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           )}
           {access.enrollment === 'legacy' && <div className="notice" role="status">Your existing Field Worker access has been preserved. Confirm if you want to use this workspace. <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Confirm Field Worker enrollment</button></div>}
           {accessWorkspace && <section className="panel"><h2>No operational workspace is currently available</h2><p>Your membership may be inactive or your onboarding may be incomplete. Organization members need an authorized admin or project assignment for operational access.</p><button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button><button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button><button onClick={load}>Refresh access</button></section>}
-          {validScope && nav.some(([name]) => name === page) && <>
+          {validScope && (nav.some(([name]) => name === page) || (page==="Project workspace" && Boolean(workspaceProjectId))) && <>
           {page === "Reports & Analytics" && validScope && (poem||organizationWorkspace||projectScope) && <ReportsWorkspace key={`${scope}-${reportSelection?.kind}-${reportSelection?.status}`} organization={organizationWorkspace?scope:null} projectId={projectScopeId} geographies={geographies} initial={reportSelection}/>}
           {page === "Overview" && (
             <>
@@ -1134,6 +1137,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
               focusKind={browserRoute.entityKind === "application" || browserRoute.entityKind === "assignment" ? browserRoute.entityKind : null}
               focusId={browserRoute.entityId}
               onFocusChange={(kind,id)=>{const targetPage=personalWorkspace?(kind==="application"?"My Applications":"My Assigned Surveys"):page;setPageState(targetPage);syncRoute({scope,page:targetPage,entityKind:kind,entityId:id});}}
+              initialOpportunityId={browserRoute.entityKind==="opportunity"?browserRoute.entityId:null}
+              onOpportunityChange={id=>syncRoute({scope,page,entityKind:id?"opportunity":null,entityId:id})}
+              onOpenField={personalWorkspace?(projectId)=>setPage("Survey projects",()=>syncRoute({scope:"personal",page:"Survey projects",projectId,projectTab:"field-work"})):undefined}
               onAttendance={personalWorkspace?(id)=>{setPageState("My Attendance");syncRoute({scope,page:"My Attendance",entityKind:"assignment",entityId:id});}:undefined}
             />
           )}
@@ -1216,6 +1222,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                 userId={session.user.id}
                 organization={scope === "personal" || poem || projectScope ? null : scope}
                 projectId={projectScopeId || (scope === "personal" && browserRoute.page === "Survey projects" ? browserRoute.projectId : null)}
+                workspaceMode={personalWorkspace&&browserRoute.projectTab==="field-work"?"field-work":"full"}
                 initialResponseId={browserRoute.page === "Survey projects" && browserRoute.entityKind === "response" ? browserRoute.entityId : null}
                 manage={surveyManage}
                 review={surveyManage || projectScope || (!poem && scope !== "personal")}
@@ -1228,6 +1235,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               />
             </Suspense>
           )}
+          {page==="Survey review"&&validScope&&surveyManage&&<SurveyReviewQueue onOpen={(projectId,responseId)=>setPage("Project workspace",()=>{setFocusedProject(null);syncRoute({scope,page:"Project workspace",projectId,projectTab:"responses",entityKind:"response",entityId:responseId})})}/>}
           {page === "Verification" && validScope && <Suspense fallback={<p>Loading verification…</p>}><VerificationWorkspace key={session.user.id+scope} userId={session.user.id} managers={{organization:Boolean(ngos),volunteer:Boolean(volunteers),beneficiary:surveyManage}}/></Suspense>}
           {page === "Project governance" && validScope && (surveyManage || (!poem && scope !== "personal")) && <Suspense fallback={<p>Loading governance…</p>}><ProjectGovernance key={scope} manage={surveyManage} organization={poem?null:scope}/></Suspense>}
           {page === "Canonical registry" && validScope && surveyManage && (

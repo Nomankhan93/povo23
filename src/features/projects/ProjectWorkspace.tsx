@@ -181,7 +181,7 @@ export function ProjectWorkspace({
         <strong>Recruitment pipeline</strong>
         <span>Opportunities · Applications · Shortlisted · Offers · Direct Invitations · Assignments</span>
       </div>
-      <WorkforceMarketplace userId={userId} organization={projectOrg} mode="project" projectScopeId={projectId} personalView="all" geographies={geographies} orgs={orgs} focusKind={routeEntityKind === "application" || routeEntityKind === "assignment" ? routeEntityKind : null} focusId={routeEntityId} onFocusChange={(kind,id)=>onRouteChange?.("recruitment",kind,id)} />
+      <WorkforceMarketplace userId={userId} organization={projectOrg} mode="project" projectScopeId={projectId} personalView="all" geographies={geographies} orgs={orgs} focusKind={routeEntityKind === "application" || routeEntityKind === "assignment" ? routeEntityKind : null} focusId={routeEntityKind==="opportunity"?null:routeEntityId} initialOpportunityId={routeEntityKind==="opportunity"?routeEntityId:null} onOpportunityChange={id=>onRouteChange?.("recruitment",id?"opportunity":null,id)} onFocusChange={(kind,id)=>onRouteChange?.("recruitment",kind,id)} />
     </section>}
 
     {tab === "field-work" && <section className="project-workspace-section">

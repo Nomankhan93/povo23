@@ -1,3 +1,4 @@
+import {countReadyForOffer} from '../workforce/recruitmentState';
 import {useOperationalSummary} from "../analytics/useOperationalSummary";
 import type {ReportSelection} from "../analytics/model";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -68,6 +69,7 @@ function CompactState({ value }: { value: string }) {
 }
 
 export function OrganizationDashboard({ organization, unread, onNavigate, onReport }: OrganizationDashboardProps) {
+  const [readyForOffer,setReadyForOffer]=useState<number|null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -88,6 +90,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
     let live = true;
     setLoading(true);
     setError("");
+    setReadyForOffer(null);
 
     const loadBase = async () => {
       const results = await Promise.allSettled([
@@ -98,6 +101,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
         db!.from("beneficiary_cases").select("*").eq("organization_id", organization.id).order("updated_at", { ascending: false }).limit(8),
         db!.from("organization_programs").select("name").eq("organization_id", organization.id),
         db!.from("organization_areas").select("geography_id").eq("organization_id", organization.id),
+        countReadyForOffer({organization:organization.id}),
       ]);
       if (!live) return;
 
@@ -118,6 +122,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
       const programs = readRows<{ name: string }>(results[5] as never, "programs");
       const areas = readRows<{ geography_id: string }>(results[6] as never, "operating areas");
 
+      const ready=results[7];if(ready.status==="fulfilled")setReadyForOffer(ready.value as number);else issues.push("offer readiness");
       setProjects(nextProjects);
       setOpportunities(nextOpportunities);
       setApplications(nextApplications);
@@ -186,10 +191,10 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
         button: "Review applications",
         page: "Workforce marketplace",
       }
-    : n("applications","selected")
+    : readyForOffer
       ? {
           eyebrow: "SELECTION READY",
-          title: `${n("applications","selected")} selected candidate${n("applications","selected") === 1 ? " is" : "s are"} ready for a formal offer`,
+          title: `${readyForOffer} selected candidate${readyForOffer === 1 ? " is" : "s are"} ready for a formal offer`,
           copy: "Send assignment offers through the existing recruitment workflow. Survey access remains inactive until the Field Worker accepts.",
           button: "Send offers",
           page: "Workforce marketplace",
@@ -206,9 +211,9 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
           ? {
               eyebrow: "BUILD YOUR FIELD TEAM",
               title: "Your active projects have no open recruitment opportunities",
-              copy: "Publish an opportunity so eligible Field Workers can discover the work and apply without permanent profile sharing.",
-              button: "Open recruitment",
-              page: "Workforce marketplace",
+              copy: "Published projects appear automatically. Check the project recruitment plan, dates and publication status to understand why recruitment is closed.",
+              button: "Review project recruitment",
+              page: "Survey projects",
             }
           : !n("projects","active")
             ? {
@@ -256,7 +261,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
       <div className="organization-metric-grid" aria-label="Organization workspace metrics">
         <Metric onClick={()=>onReport({kind:"projects",status:"active"})} icon={<BriefcaseBusiness size={18} />} label="Active projects" value={n("projects","active")} detail={`${n("projects")} projects visible`} />
         <Metric onClick={()=>onReport({kind:"opportunities",status:"open"})} icon={<Send size={18} />} label="Open opportunities" value={n("opportunities","open")} detail={`${n("applications")} total applications`} />
-        <Metric onClick={()=>onReport({kind:"applications",status:"pending"})} icon={<FileCheck2 size={18} />} label="New applications" value={n("applications","pending")} detail={`${n("applications","selected")} selected for offer`} />
+        <Metric onClick={()=>onReport({kind:"applications",status:"pending"})} icon={<FileCheck2 size={18} />} label="New applications" value={n("applications","pending")} detail={`${readyForOffer??"—"} ready for offer`} />
         <Metric onClick={()=>onReport({kind:"assignments",status:"active"})} icon={<Users size={18} />} label="Active assignments" value={n("assignments","active")} detail={`${analytics.data?.active_workers||0} distinct Field Workers`} />
         <Metric onClick={()=>onReport({kind:"responses",status:"submitted"})} icon={<ClipboardCheck size={18} />} label="Submitted surveys" value={n("responses","submitted")} detail={`${n("responses","approved")} approved responses`} />
         <Metric onClick={()=>onReport({kind:"cases",status:"__active"})} icon={<HeartHandshake size={18} />} label="Active cases" value={(n("cases")-n("cases","closed")-n("cases","cancelled"))} detail={`${(analytics.data?.due_cases||0)} follow-ups due`} />

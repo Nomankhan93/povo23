@@ -1,4 +1,4 @@
-export type RouteEntityKind = "application" | "assignment" | "case" | "response" | "attendance_session" | "task" | null;
+export type RouteEntityKind = "opportunity" | "application" | "assignment" | "case" | "response" | "attendance_session" | "task" | null;
 
 export type AppRoute = {
   kind: "root" | "personal" | "organization" | "staff" | "project" | "onboarding" | "access" | "reset" | "unknown";
@@ -42,6 +42,7 @@ const pageToSlug: Readonly<Record<string, string>> = {
   Recruitment: "recruitment",
   "Survey templates": "survey-templates",
   Verification: "verification",
+  "Survey review": "survey-review",
   "Project governance": "governance",
   "Canonical registry": "beneficiary-registry",
   "Beneficiary cases": "cases",
@@ -78,6 +79,7 @@ function projectRoute(kind: AppRoute["kind"], scopeHint: string, organizationId:
   const tab = rest[0] || "overview";
   let entityKind: RouteEntityKind = null;
   let entityId: string | null = null;
+  if (tab === "recruitment" && rest[1] === "opportunities" && rest[2]) { entityKind = "opportunity"; entityId = rest[2]; }
   if (tab === "cases" && rest[1]) { entityKind = "case"; entityId = rest[1]; }
   if (tab === "responses" && rest[1]) { entityKind = "response"; entityId = rest[1]; }
   if (tab === "field-work" && rest[1] === "assignments" && rest[2]) { entityKind = "assignment"; entityId = rest[2]; }
@@ -100,6 +102,7 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
     if (parts[1] === "work" && parts[2] === "assignments") return {kind:"personal",scopeHint:"personal",page:"My Assigned Surveys",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"assignment":null,entityId:parts[3]||null};
     if (parts[1] === "work" && parts[2] === "schedule") return {kind:"personal",scopeHint:"personal",page:"My Schedule",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
     if (parts[1] === "work" && parts[2] === "availability") return {kind:"personal",scopeHint:"personal",page:"My Availability",organizationId:null,projectId:null,projectTab:null,entityKind:null,entityId:null};
+    if (parts[1] === "field" && parts[2] === "projects" && parts[3] && parts[4] === "work") return {kind:"personal",scopeHint:"personal",page:"Survey projects",organizationId:null,projectId:parts[3],projectTab:"field-work",entityKind:null,entityId:null};
     if (parts[1] === "field" && parts[2] === "projects" && parts[3] && parts[4] === "responses") return {kind:"personal",scopeHint:"personal",page:"Survey projects",organizationId:null,projectId:parts[3],projectTab:null,entityKind:parts[5]?"response":null,entityId:parts[5]||null};
     if (parts[1] === "field" && parts[2] === "attendance") return {kind:"personal",scopeHint:"personal",page:"My Attendance",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"attendance_session":null,entityId:parts[3]||null};
     if (parts[1] === "field" && parts[2] === "cases") return {kind:"personal",scopeHint:"personal",page:"My Cases",organizationId:null,projectId:null,projectTab:null,entityKind:parts[3]?"case":null,entityId:parts[3]||null};
@@ -112,11 +115,13 @@ export function parseAppRoute(pathname = location.pathname): AppRoute {
   if (parts[0] === "org" && parts[1]) {
     const organizationId = parts[1];
     if (parts[2] === "projects" && parts[3]) return projectRoute("organization",organizationId,organizationId,parts[3],parts.slice(4));
+    if (parts[2] === "recruitment" && parts[3] === "opportunities" && parts[4]) return {kind:"organization",scopeHint:organizationId,page:"Workforce marketplace",organizationId,projectId:null,projectTab:null,entityKind:"opportunity",entityId:parts[4]};
     if (parts[2] === "recruitment" && ["applications","assignments"].includes(parts[3]||"") && parts[4]) return {kind:"organization",scopeHint:organizationId,page:"Workforce marketplace",organizationId,projectId:null,projectTab:null,entityKind:parts[3]==="applications"?"application":"assignment",entityId:parts[4]};
     return genericRoute("organization",organizationId,organizationId,parts[2],parts[3]);
   }
   if (parts[0] === "staff") {
     if (parts[1] === "projects" && parts[2]) return projectRoute("staff","poem",null,parts[2],parts.slice(3));
+    if (parts[1] === "recruitment" && parts[2] === "opportunities" && parts[3]) return {kind:"staff",scopeHint:"poem",page:"Workforce marketplace",organizationId:null,projectId:null,projectTab:null,entityKind:"opportunity",entityId:parts[3]};
     if (parts[1] === "recruitment" && ["applications","assignments"].includes(parts[2]||"") && parts[3]) return {kind:"staff",scopeHint:"poem",page:"Workforce marketplace",organizationId:null,projectId:null,projectTab:null,entityKind:parts[2]==="applications"?"application":"assignment",entityId:parts[3]};
     return genericRoute("staff","poem",null,parts[1],parts[2]);
   }
@@ -140,6 +145,7 @@ export type RouteTarget = {
 function pageSlug(page: string) { return pageToSlug[page] || page.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
 
 function projectSuffix(tab = "overview", entityKind: RouteEntityKind = null, entityId: string | null = null) {
+  if (tab === "recruitment" && entityKind === "opportunity" && entityId) return "/recruitment/opportunities/"+encodeURIComponent(entityId)+"/applications";
   if (tab === "cases" && entityKind === "case" && entityId) return `/cases/${encodeURIComponent(entityId)}`;
   if (tab === "responses" && entityKind === "response" && entityId) return `/responses/${encodeURIComponent(entityId)}`;
   if (tab === "field-work" && entityKind === "assignment" && entityId) return `/field-work/assignments/${encodeURIComponent(entityId)}`;
@@ -161,6 +167,7 @@ export function routePath(target: RouteTarget): string {
   if (scope.startsWith("project:")) {
     const scopedProjectId=scope.slice("project:".length);
     if(page === "Project workspace") return `/projects/${encodeURIComponent(scopedProjectId)}/overview`;
+    if(page === "Recruitment" && entityKind==="opportunity" && entityId) return "/projects/"+encodeURIComponent(scopedProjectId)+"/recruitment/opportunities/"+encodeURIComponent(entityId)+"/applications";
     if(page === "Recruitment" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/project/${encodeURIComponent(scopedProjectId)}/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
     if(page === "Task Center" && entityKind === "task" && entityId) return `/project/${encodeURIComponent(scopedProjectId)}/tasks/${encodeURIComponent(entityId)}`;
     return `/project/${encodeURIComponent(scopedProjectId)}/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");
@@ -173,6 +180,7 @@ export function routePath(target: RouteTarget): string {
     if (page === "My Attendance") return entityKind === "assignment" && entityId ? `/app/work/assignments/${encodeURIComponent(entityId)}/attendance` : "/app/field/attendance";
     if (page === "My Timesheets") return "/app/field/timesheets";
     if (page === "My Field Map") return "/app/field/map";
+    if (page === "Survey projects" && projectId && projectTab === "field-work") return "/app/field/projects/"+encodeURIComponent(projectId)+"/work";
     if (page === "Survey projects" && projectId) return entityKind === "response" && entityId ? `/app/field/projects/${encodeURIComponent(projectId)}/responses/${encodeURIComponent(entityId)}` : `/app/field/projects/${encodeURIComponent(projectId)}/responses`;
     if (page === "My Schedule") return "/app/work/schedule";
     if (page === "My Availability") return "/app/work/availability";
@@ -182,10 +190,12 @@ export function routePath(target: RouteTarget): string {
     return `/app/${pageSlug(page)}`;
   }
   if (scope === "poem") {
+    if(page === "Workforce marketplace" && entityKind==="opportunity" && entityId) return "/staff/recruitment/opportunities/"+encodeURIComponent(entityId)+"/applications";
     if(page === "Workforce marketplace" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/staff/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
     if(page === "Task Center" && entityKind === "task" && entityId) return `/staff/tasks/${encodeURIComponent(entityId)}`;
     return `/staff/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");
   }
+  if(page === "Workforce marketplace" && entityKind==="opportunity" && entityId) return "/org/"+encodeURIComponent(scope)+"/recruitment/opportunities/"+encodeURIComponent(entityId)+"/applications";
   if(page === "Workforce marketplace" && entityId && (entityKind === "application" || entityKind === "assignment")) return `/org/${encodeURIComponent(scope)}/recruitment/${entityKind === "application"?"applications":"assignments"}/${encodeURIComponent(entityId)}`;
   if(page === "Task Center" && entityKind === "task" && entityId) return `/org/${encodeURIComponent(scope)}/tasks/${encodeURIComponent(entityId)}`;
   return `/org/${encodeURIComponent(scope)}/${pageSlug(page)}` + (page === "Beneficiary cases" && entityKind === "case" && entityId ? `/${encodeURIComponent(entityId)}` : "");

@@ -3,12 +3,13 @@ import {db} from '../../lib/supabase/client';
 import type {Database} from '../../lib/supabase/database.types';
 type Tables=Database['public']['Tables'];
 export type RecruitmentTable='work_applications'|'work_assignments'|'work_opportunities';
-export type RecruitmentScope={userId?:string;organization?:string|null;project?:string|null;status?:string|null};
+export type RecruitmentScope={userId?:string;organization?:string|null;project?:string|null;status?:string|null;opportunity?:string|null};
 export function recruitmentQuery(table:RecruitmentTable,scope:RecruitmentScope){
  let q=db!.from(table).select('*');
  if(table==='work_opportunities')q=q.not('survey_project_id','is',null);
  if(scope.userId)q=q.filter('user_id','eq',scope.userId);
  if(scope.organization)q=q.eq('organization_id',scope.organization);
+ if(scope.opportunity)q=q.filter('opportunity_id','eq',scope.opportunity);
  if(scope.project)q=q.eq('survey_project_id',scope.project);
  if(scope.status&&scope.status!=='all')q=q.eq('status',scope.status);
  return q;

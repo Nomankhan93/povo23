@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.7
+# Current validation — FieldLance 2.41.8
+
+See [VALIDATION-2.41.8.md](VALIDATION-2.41.8.md) for the current execution record and behavioral test boundaries.
+
+# Historical validation — FieldLance 2.41.7
 
 See [VALIDATION-2.41.7.md](VALIDATION-2.41.7.md) for commands, exact results and test boundaries. Final uninterrupted npm test, generated types, TypeScript, production build, offline Chromium, full map regression, map Chromium, release consistency and secret scan passed. The previously recorded F14 browser harness failure is separated from the 2.41.5 recruitment/grant work; current offline tests pass after the harness correction.
 

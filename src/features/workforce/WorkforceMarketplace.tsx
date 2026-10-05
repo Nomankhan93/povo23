@@ -1,5 +1,6 @@
+import {linkedAssignment,applicationDisplayStatus,loadApplicationAssignments,type ApplicationAssignment} from './recruitmentState';
 import {useRecruitmentCollection,recruitmentQuery} from './recruitmentQueries';
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, FileCheck2, Filter, MapPin, Search, Send, UsersRound } from "lucide-react";
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database, Json } from "../../lib/supabase/database.types";
@@ -94,6 +95,9 @@ export function WorkforceMarketplace({
   focusId = null,
   onFocusChange,
   onAttendance,
+  onOpenField,
+  initialOpportunityId = null,
+  onOpportunityChange,
 }: {
   userId: string;
   organization: string | null;
@@ -106,6 +110,9 @@ export function WorkforceMarketplace({
   focusId?: string | null;
   onFocusChange?: (kind: "application" | "assignment", id: string) => void;
   onAttendance?: (assignmentId: string) => void;
+  onOpenField?: (projectId: string) => void;
+  initialOpportunityId?: string | null;
+  onOpportunityChange?: (opportunityId: string | null) => void;
 }) {
   const [projectRows, setProjects] = useState<Project[]>([]),
     [available, setAvailable] = useState<AvailableRow[]>([]),
@@ -134,8 +141,26 @@ export function WorkforceMarketplace({
     [organizationView, setOrganizationView] = useState<OrganizationView>("opportunities"),
     [applicationFilter, setApplicationFilter] = useState<ApplicationFilter>("all");
 
+  const [opportunityFilter,setOpportunityFilter]=useState(initialOpportunityId);
+  const [applicationAssignments,setApplicationAssignments]=useState<ApplicationAssignment[]>([]);
+  const [linksBusy,setLinksBusy]=useState(true),[linksError,setLinksError]=useState("");
+  const [availableBusy,setAvailableBusy]=useState(false),[availableError,setAvailableError]=useState("");
+  const applicationDialog=useRef<HTMLDialogElement>(null);
+  const applicationOpener=useRef<HTMLElement|null>(null);
+  const actionFlight=useRef(false);
+  useEffect(()=>{
+    setOpportunityFilter(initialOpportunityId);
+    if(initialOpportunityId)setOrganizationView("applications");
+  },[initialOpportunityId]);
+  useEffect(()=>{
+    if(!applying)return;
+    const dialog=applicationDialog.current;
+    dialog?.showModal();
+    dialog?.querySelector<HTMLTextAreaElement>("textarea")?.focus();
+    return()=>{dialog?.close();applicationOpener.current?.focus()};
+  },[applying]);
   const scope=mode==='personal'?{userId}:mode==='project'?{project:projectScopeId}:mode==='ngo'?{organization}:{};
-  const applicationList=useRecruitmentCollection('work_applications',{...scope,status:mode==='personal'?null:applicationFilter},revision);
+  const applicationList=useRecruitmentCollection('work_applications',{...scope,status:mode==='personal'?null:applicationFilter,opportunity:opportunityFilter},revision);
   const assignmentList=useRecruitmentCollection('work_assignments',scope,revision);
   const opportunityList=useRecruitmentCollection('work_opportunities',scope,revision,mode!=='personal');
   const [focused,setFocused]=useState<{application?:Application;assignment?:Assignment;project?:Project;opportunity?:Opportunity}>({});
@@ -173,30 +198,49 @@ export function WorkforceMarketplace({
   const assignments=includeFocused(assignmentList.rows,focused.assignment);
   const opportunities=includeFocused(opportunityList.rows,focused.opportunity);
   const projects=includeFocused(projectRows,focused.project);
-  async function load() {
+  const applicationIds=applications.map(row=>row.id).sort().join(",");
+  useEffect(()=>{
+    let live=true;setLinksBusy(true);setLinksError("");setApplicationAssignments([]);
+    void loadApplicationAssignments(applicationIds?applicationIds.split(","):[]).then(rows=>{
+      if(live)setApplicationAssignments(rows);
+    }).catch(()=>{if(live)setLinksError("Offer status could not be loaded. Refresh before sending an offer.")})
+      .finally(()=>{if(live)setLinksBusy(false)});
+    return()=>{live=false};
+  },[applicationIds,revision]);
+
+  async function load(current:()=>boolean) {
     setBusy(true);setError('');
     try{
       let p=db!.from("survey_projects").select('*').order('created_at',{ascending:false}).limit(500);
       if(mode==='ngo'&&organization)p=p.eq('organization_id',organization);
       if(mode==='project'&&projectScopeId)p=p.eq('id',projectScopeId);
       const projectResult=await p;if(projectResult.error)throw projectResult.error;
-      setProjects(projectResult.data||[]);
+      if(!current())return;setProjects(projectResult.data||[]);
       if(mode==='personal'){
-        const [sa,open]=await Promise.all([
-          db!.from("survey_assignments").select('*').eq('user_id',userId).eq('active',true).limit(500),
-          rpc('available_work_opportunities',{p_page:availablePage,p_organization:orgFilter||null,p_area:areaFilter||null,p_payment:paymentFilter||null,p_skill:skillFilter,p_work_date:workDateFilter||null,p_deadline:deadlineFilter||null}),
-        ]);
-        if(sa.error)throw sa.error;setSurveyAssignments(sa.data||[]);
+        const sa=await db!.from("survey_assignments").select('*').eq('user_id',userId).eq('active',true).limit(500);
+        if(sa.error)throw sa.error;if(!current())return;setSurveyAssignments(sa.data||[]);
         const projectIds=(sa.data||[]).map(row=>row.project_id);
-        if(projectIds.length){const contracts=await db!.from("work_assignments").select('survey_project_id').eq('user_id',userId).in('survey_project_id',projectIds).in('status',['active','completed']).limit(500);if(contracts.error)throw contracts.error;setCurrentContractProjects((contracts.data||[]).map(row=>row.survey_project_id));}else setCurrentContractProjects([]);
-        const result=open as unknown as {rows:AvailableRow[];total:number};setAvailable(result.rows||[]);setAvailableTotal(Number(result.total||0));
+        if(projectIds.length){const contracts=await db!.from("work_assignments").select('survey_project_id').eq('user_id',userId).in('survey_project_id',projectIds).in('status',['active','completed']).limit(500);if(contracts.error)throw contracts.error;if(current())setCurrentContractProjects((contracts.data||[]).map(row=>row.survey_project_id));}else setCurrentContractProjects([]);
       }else{setSurveyAssignments([]);setAvailable([]);setAvailableTotal(0)}
-    }catch{setError('Recruitment context could not be loaded. Refresh this view to try again.')}
-    finally{setBusy(false)}
+    }catch{if(current())setError('Recruitment context could not be loaded. Refresh this view to try again.')}
+    finally{if(current())setBusy(false)}
   }
   useEffect(() => {
-    void load();
-  }, [mode, organization, projectScopeId, userId, revision, orgFilter, areaFilter, paymentFilter, skillFilter, workDateFilter, deadlineFilter, availablePage]);
+    let live=true;void load(()=>live);return()=>{live=false};
+  }, [mode, organization, projectScopeId, userId, revision]);
+  useEffect(()=>{
+    let live=true;
+    if(mode!=="personal")return;
+    setAvailableBusy(true);setAvailableError("");
+    // Debounce typing; stale responses must never replace the current filter's result.
+    const timer=window.setTimeout(()=>{
+      void rpc('available_work_opportunities',{p_page:availablePage,p_organization:orgFilter||null,p_area:areaFilter||null,p_payment:paymentFilter||null,p_skill:skillFilter,p_work_date:workDateFilter||null,p_deadline:deadlineFilter||null})
+        .then(value=>{if(live){const result=value as unknown as {rows:AvailableRow[];total:number};setAvailable(result.rows||[]);setAvailableTotal(Number(result.total||0))}})
+        .catch(()=>{if(live){setAvailable([]);setAvailableError("Opportunities could not be loaded. Retry to continue.")}})
+        .finally(()=>{if(live)setAvailableBusy(false)});
+    },200);
+    return()=>{live=false;window.clearTimeout(timer)};
+  },[mode,userId,revision,orgFilter,areaFilter,paymentFilter,skillFilter,workDateFilter,deadlineFilter,availablePage]);
 
   useEffect(() => {
     if (mode !== "project" || !projectScopeId) return;
@@ -212,6 +256,8 @@ export function WorkforceMarketplace({
   },[focusKind,focusId,mode,focusState,focused]);
 
   async function act(fn: () => Promise<unknown>, success: string): Promise<boolean> {
+    if(actionFlight.current)return false;
+    actionFlight.current=true;
     setBusy(true);
     setError("");
     setMessage("");
@@ -225,7 +271,7 @@ export function WorkforceMarketplace({
       setError("This recruitment action could not be completed. Refresh the record, check its current status and try again.");
       setBusy(false);
       return false;
-    }
+    } finally {actionFlight.current=false;}
   }
 
   async function findCandidates(e: FormEvent) {
@@ -245,6 +291,24 @@ export function WorkforceMarketplace({
     } finally {
       setBusy(false);
     }
+  }
+
+  async function openCandidateOffer(candidate:Candidate){
+    if(candidate.source_kind==="application"&&candidate.source_id){
+      setBusy(true);setError("");
+      try{
+        const result=await recruitmentQuery("work_applications",scope).eq("id",candidate.source_id).maybeSingle();
+        if(result.error||!result.data)throw result.error||new Error("Application unavailable");
+        const application=result.data as Application;
+        const linked=await loadApplicationAssignments([application.id]);
+        if(linked.length){onFocusChange?.("assignment",linked[0].id);setOrganizationView("assignments");return;}
+        const opportunity=application.opportunity_id?await db!.from("work_opportunities").select("*").eq("id",application.opportunity_id).maybeSingle():{data:null,error:null};
+        if(opportunity.error)throw opportunity.error;
+        setFocused({application,project:projectMap.get(application.survey_project_id),opportunity:opportunity.data||undefined});
+        setOffer(candidate);
+      }catch{setError("The selected application could not be loaded. Refresh recruitment and try again.")}
+      finally{setBusy(false)}
+    }else setOffer(candidate);
   }
 
   async function createOpportunity(e: FormEvent<HTMLFormElement>) {
@@ -375,7 +439,8 @@ export function WorkforceMarketplace({
 
   return (
     <section className="panel detail workforce-marketplace workforce-marketplace-v2">
-      {error && <p className="notice error" role="alert">{error}</p>}
+      {error && <p className="notice error" role="alert">{error}<button onClick={()=>setRevision(n=>n+1)}>Refresh recruitment</button></p>}
+      {linksError&&<p className="notice error" role="alert">{linksError}<button onClick={()=>setRevision(n=>n+1)}>Retry offer status</button></p>}
       {message && <p className="notice success" role="status">{message}</p>}
       {focusState==="loading"&&<p role="status">Loading linked recruitment record...</p>}
       {focusState==="unavailable"&&<p className="notice" role="status">This recruitment record is unavailable. It may no longer exist or your access may have changed. Use the available lists below or contact the organization.</p>}
@@ -393,6 +458,8 @@ export function WorkforceMarketplace({
           </div>
 
           {showOpportunities && <>
+            {availableError&&<p role="alert">{availableError}<button onClick={()=>setRevision(n=>n+1)}>Retry opportunities</button></p>}
+            {availableBusy&&<p role="status">Refreshing opportunities…</p>}
             <div className="workforce-section-heading">
               <div><span className="eyebrow">DISCOVER WORK</span><h3>Available projects</h3><p>Every published project with open recruitment appears automatically. No permanent Organization profile access is required; applying shares only an application-scoped recruitment snapshot.</p></div>
               <span className="workforce-count">{availableTotal} available</span>
@@ -437,27 +504,29 @@ export function WorkforceMarketplace({
                   <div className="workforce-card-actions">
                     <span className="workforce-deadline">{o.marketplace_origin === "project_auto" ? "Auto-published project" : o.visibility === "invite_only" ? "Invite only" : "Open recruitment"}</span>
                     {o.application_status ? <Badge value={o.application_status} /> : o.invitation_status ? <span className="badge pending">Invitation {human(o.invitation_status)} · respond from Invitations</span> : (
-                      <button className="primary" disabled={busy || !o.can_apply} onClick={() => setApplying(o)}>Apply <ArrowRight size={15} /></button>
+                      <button className="primary" disabled={busy || availableBusy || !o.can_apply} onClick={(event) => {applicationOpener.current=event.currentTarget;setApplying(o)}}>Apply <ArrowRight size={15} /></button>
                     )}
                   </div>
                 </article>;
               })}
             </div>
-            {!available.length && !busy && <WorkforceEmpty icon={<Search size={22} />} title="No matching projects" copy="No published projects with open recruitment match these filters. Closed, moderated and completed recruitment is not shown." />}
+            {!available.length && !busy && !availableBusy && !availableError && <WorkforceEmpty icon={<Search size={22} />} title="No matching projects" copy="No published projects with open recruitment match these filters. Closed, moderated and completed recruitment is not shown." />}
             {availableTotal > 0 && <div className="workforce-pagination">
-              <button className="secondary" disabled={busy || availablePage === 0} onClick={() => setAvailablePage((p) => Math.max(0, p - 1))}>Previous</button>
+              <button className="secondary" disabled={busy || availableBusy || availablePage === 0} onClick={() => setAvailablePage((p) => Math.max(0, p - 1))}>Previous</button>
               <span>Page {availablePage + 1} of {availablePages} · {availableTotal} opportunit{availableTotal === 1 ? "y" : "ies"}</span>
-              <button className="secondary" disabled={busy || availablePage + 1 >= availablePages} onClick={() => setAvailablePage((p) => p + 1)}>Next</button>
+              <button className="secondary" disabled={busy || availableBusy || availablePage + 1 >= availablePages} onClick={() => setAvailablePage((p) => p + 1)}>Next</button>
             </div>}
           </>}
 
-          {applying && <form className="workforce-inline-form" onSubmit={submitApplication}>
-            <div className="workforce-section-heading compact"><div><span className="eyebrow">APPLICATION</span><h3>Apply — {applying.title}</h3><p>{applying.organization_name} will receive an application-scoped recruitment snapshot only. Private documents and beneficiary/survey data are not shared.</p></div></div>
+          {applying && <dialog ref={applicationDialog} className="recruitment-application-dialog" aria-labelledby="application-title" onCancel={event=>{event.preventDefault();if(!busy)setApplying(null)}}>
+          <form className="workforce-inline-form" onSubmit={submitApplication}>
+            {error&&<p className="notice error" role="alert">{error}</p>}
+            <div className="workforce-section-heading compact"><div><span className="eyebrow">APPLICATION</span><h3 id="application-title">Apply — {applying.title}</h3><p>{applying.organization_name} will receive an application-scoped recruitment snapshot only. Private documents and beneficiary/survey data are not shared.</p></div></div>
             <label className="field">Availability for this assignment<textarea name="availability" required minLength={3} maxLength={1000} defaultValue="Available during the listed project dates." /></label>
             <label className="field">Short message<textarea name="message" maxLength={2000} placeholder="Why are you interested or suitable for this field assignment?" /></label>
             <label className="workforce-consent"><input name="consent" type="checkbox" required /><span>I consent to share my recruitment profile snapshot with <strong>{applying.organization_name}</strong> for this application. This does not grant permanent full-profile access.</span></label>
-            <div className="actions"><button type="button" className="secondary" onClick={()=>setApplying(null)}>Cancel</button><button className="primary" disabled={busy}>Submit application</button></div>
-          </form>}
+            <div className="actions"><button type="button" className="secondary" disabled={busy} onClick={()=>setApplying(null)}>Cancel</button><button className="primary" disabled={busy}>Submit application</button></div>
+          </form></dialog>}
 
           {showApplications && <>
             <div className="workforce-section-heading">
@@ -467,15 +536,16 @@ export function WorkforceMarketplace({
             <div className="workforce-list">
               {applications.map((a) => {
                 const org = orgById.get(a.organization_id);
+                const linked=linkedAssignment(a.id,applicationAssignments);
                 return <article tabIndex={-1} id={`workforce-application-${a.id}`} className={`workforce-application-card ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
                   <div className="workforce-card-header">
                     <OrganizationLogoImage name={a.organization_name} path={org?.logo_path} updatedAt={org?.logo_updated_at} size="card" />
                     <div className="workforce-card-title"><span>{a.organization_name}</span><h4>{a.opportunity_title}</h4><small>{a.project_title}</small></div>
-                    <Badge value={a.status} />
+                    <span className={"badge "+(linked?.status||a.status)}>{applicationDisplayStatus(a.status,linked)}</span>
                   </div>
-                  <RecruitmentProgress status={a.status} />
+                  <RecruitmentProgress status={linked?.status||a.status} />
                   <div className="workforce-application-copy"><p><strong>Availability:</strong> {a.availability || "Not recorded"}</p>{a.note && <p><strong>Your message:</strong> {a.note}</p>}{a.review_note && <p><strong>Organization review:</strong> {a.review_note}</p>}</div>
-                  <div className="workforce-card-actions"><span>{applicationNextStep(a.status)}</span><div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open link</button>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div></div>
+                  <div className="workforce-card-actions"><span>{linked ? assignmentNextStep(linked.status) : applicationNextStep(a.status)}</span>{linked&&<button className="primary" onClick={()=>linked.status==="active"&&onOpenField?onOpenField(linked.survey_project_id):onFocusChange?.("assignment",linked.id)}>{linked.status==="active"?"Open field work":linked.status==="offered"?"Review offer":"View completed assignment"}</button>}<div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open link</button>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div></div>
                 </article>;
               })}
             </div>
@@ -499,9 +569,9 @@ export function WorkforceMarketplace({
                   </div>
                   <p className="workforce-helper"><strong>Terms:</strong> {a.terms_note}</p>
                   {a.status === "offered" && <div className="workforce-offer-callout"><div><strong>Formal assignment offer</strong><p>Accept to activate this assignment and its survey access. Compensation and terms are frozen for this offer.</p></div><div className="actions"><button className="secondary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "declined", p_version: a.version }), "Offer declined.")}>Decline</button><button className="primary" disabled={busy} onClick={() => void act(() => rpc("respond_work_assignment", { p_id: a.id, p_status: "accepted", p_version: a.version }), "Offer accepted. Survey access is active only while the assignment and project are eligible.")}>Accept offer</button></div></div>}
-                  {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Offer accepted. Open Survey projects to check current collection eligibility; project restrictions, dates and revocation still apply.</p>}
+                  {a.status === "active" && <p className="notice success"><CheckCircle2 size={16} /> Offer accepted. Open field work to check current collection eligibility; project restrictions, dates and revocation still apply.</p>}
                   {a.status === "completed" && <p className="notice success">Completed assignment is retained in your verified FieldLance work history.</p>}
-                  <div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("assignment",a.id)}>Open assignment link</button>{a.status === "active" && <button className="secondary" type="button" onClick={()=>onAttendance?.(a.id)}>Attendance / timesheet</button>}</div>
+                  <div className="actions"><button className="link" type="button" onClick={()=>a.status==="active"&&onOpenField?onOpenField(a.survey_project_id):onFocusChange?.("assignment",a.id)}>{a.status==="active"?"Open field work":a.status==="offered"?"Review offer":"View assignment details"}</button>{a.status === "active" && <button className="secondary" type="button" onClick={()=>onAttendance?.(a.id)}>Attendance / timesheet</button>}</div>
                 </article>
               ))}
               {directSurveyAssignments.map((sa) => {
@@ -575,7 +645,7 @@ export function WorkforceMarketplace({
                   <div className="workforce-meta-grid three"><WorkforceMeta icon={<UsersRound size={15} />} label="Project capacity" value={project?.required_volunteers == null ? "Open / not configured" : `${project.required_volunteers} required`} /><WorkforceMeta icon={<FileCheck2 size={15} />} label="Applications" value={`${applicationCount} loaded`} /><WorkforceMeta icon={<Clock3 size={15} />} label="Marketplace through" value={new Date(o.reply_by).toLocaleString()} /></div>
                   <div className="workforce-chip-row"><span>{opportunityCompensation(o)}</span>{o.required_skill && <span>{o.required_skill}</span>}{o.required_language && <span>{o.required_language}</span>}</div>
                   <div className="workforce-card-actions"><span>{o.marketplace_origin === "project_auto" ? "Automatic all-Field-Workers listing" : `${human(o.visibility)} recruitment`}</span><div className="actions">
-                    {applicationCount > 0 && <button className="secondary" onClick={() => { setApplicationFilter("all"); selectOrganizationView("applications"); }}>View applicants</button>}
+                    {<button className="secondary" onClick={() => { setApplicationFilter("all"); setOpportunityFilter(o.id);selectOrganizationView("applications");onOpportunityChange?.(o.id); }}>View applicants</button>}
                     {o.marketplace_origin === "project_auto" ? <span className="workforce-helper">Use the project recruitment plan to pause or reopen this listing.</span> : <>
                       {o.publication_state === "draft" && <button className="primary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"published",p_version:o.version}),"Recruitment published and applications opened.")}>Publish</button>}
                       {o.publication_state === "published" && o.status === "open" && o.applications_open && <button className="secondary" disabled={busy} onClick={()=>void act(()=>rpc("set_work_opportunity_state",{p_id:o.id,p_state:"closed",p_version:o.version}),"New applications closed. Existing applications remain reviewable.")}>Close applications</button>}
@@ -590,24 +660,27 @@ export function WorkforceMarketplace({
           </>}
 
           {organizationView === "applications" && <>
+            {opportunityFilter&&<p className="notice">Applicants for {opportunities.find(o=>o.id===opportunityFilter)?.title||"selected opportunity"} <button className="secondary" onClick={()=>{setOpportunityFilter(null);onOpportunityChange?.(null)}}>Show all applicants</button></p>}
             <div className="workforce-section-heading"><div><span className="eyebrow">REVIEW PIPELINE</span><h3>{mode === "poem" ? "Applications across organizations" : "Field Worker applications"}</h3><p>Review application-scoped profile snapshots, shortlist candidates, select them and send formal assignment offers.</p></div><span className="workforce-count">{applications.length} loaded</span></div>
             <div className="workforce-filter-pills" aria-label="Application status filters">
               {(["all","pending","shortlisted","selected","rejected"] as ApplicationFilter[]).map((status) => <button key={status} className={applicationFilter === status ? "active" : ""} onClick={() => setApplicationFilter(status)}>{status === "all" ? "All" : human(status)}</button>)}
             </div>
             <div className="workforce-list">
               {filteredApplications.map((a) => {
+                const linked=linkedAssignment(a.id,applicationAssignments);
                 const snapshot = (a.profile_snapshot || {}) as Record<string, unknown>;
                 const skills = readableSnapshot(snapshot.skills);
                 const languages = readableSnapshot(snapshot.languages);
                 return <article tabIndex={-1} id={`workforce-application-${a.id}`} className={`workforce-application-card organization ${focusKind==="application"&&focusId===a.id?"route-focus":""}`} key={a.id}>
-                  <div className="workforce-card-header"><div className="workforce-avatar">{initials(a.volunteer_name)}</div><div className="workforce-card-title"><span>{a.opportunity_title}</span><h4>{a.volunteer_name}</h4><small>{a.project_title}{mode === "poem" ? ` · ${orgMap.get(a.organization_id) || a.organization_name}` : ""}</small></div><Badge value={a.status} /></div>
-                  <RecruitmentProgress status={a.status} organization />
+                  <div className="workforce-card-header"><div className="workforce-avatar">{initials(a.volunteer_name)}</div><div className="workforce-card-title"><span>{a.opportunity_title}</span><h4>{a.volunteer_name}</h4><small>{a.project_title}{mode === "poem" ? ` · ${orgMap.get(a.organization_id) || a.organization_name}` : ""}</small></div><span className={"badge "+(linked?.status||a.status)}>{applicationDisplayStatus(a.status,linked)}</span></div>
+                  <RecruitmentProgress status={linked?.status||a.status} organization />
                   <div className="workforce-candidate-facts"><span><strong>Skills</strong>{skills || "Not listed"}</span><span><strong>Languages</strong>{languages || "Not listed"}</span><span><strong>Availability</strong>{a.availability || "Not recorded"}</span></div>
                   {a.note && <p className="workforce-helper"><strong>Applicant message:</strong> {a.note}</p>}
                   {a.review_note && <p className="workforce-helper"><strong>Review note:</strong> {a.review_note}</p>}
                   {a.profile_share_consent && <details className="workforce-profile-snapshot"><summary>View application profile snapshot</summary><pre className="survey-json">{JSON.stringify(a.profile_snapshot, null, 2)}</pre></details>}
                   <button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open application link</button>
-                  {["pending", "shortlisted", "selected"].includes(a.status) && <div className="workforce-card-actions"><span>{applicationNextStep(a.status, true)}</span><div className="actions">
+                  {linked&&<p className="notice">{applicationDisplayStatus(a.status,linked)} <button className="secondary" onClick={()=>onFocusChange?.("assignment",linked.id)}>Open {linked.status==="offered"?"offer":"assignment"}</button></p>}
+                  {!linked && !linksBusy && !linksError && ["pending", "shortlisted", "selected"].includes(a.status) && <div className="workforce-card-actions"><span>{applicationNextStep(a.status, true)}</span><div className="actions">
                     {a.status !== "shortlisted" && a.status !== "selected" && <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "shortlisted")}>Shortlist</button>}
                     {a.status !== "selected" && <button className="primary" disabled={busy} onClick={() => reviewApplication(a, "selected")}>Select</button>}
                     <button className="secondary" disabled={busy} onClick={() => reviewApplication(a, "rejected")}>Reject</button>
@@ -642,12 +715,12 @@ export function WorkforceMarketplace({
                   <div className="workforce-card-header"><div className="workforce-avatar">{initials(details.full_name || c.user_id)}</div><div className="workforce-card-title"><span>{human(c.match_label === "local_verified" ? "active_profile" : c.match_label)}</span><h4>{details.full_name || c.user_id}</h4><small>{details.skills || "Skills not listed"}</small></div>{c.source_kind ? <Badge value="selected" /> : <span className="badge pending">Discovery only</span>}</div>
                   <div className="workforce-candidate-facts"><span><strong>Languages</strong>{details.languages || "Not listed"}</span><span><strong>Approved surveys</strong>{c.approved_surveys}</span><span><strong>Approval rate</strong>{c.approval_rate === null ? "Insufficient data" : `${c.approval_rate}%`}</span><span><strong>Completed assignments</strong>{c.completed_assignments}</span><span><strong>Verified experience</strong>{c.verified_experiences}</span></div>
                   <p className="workforce-helper"><strong>Selection source:</strong> {c.source_kind ? human(c.source_kind) : "No accepted application/invitation or selected shortlist yet"}</p>
-                  <div className="workforce-card-actions"><span>{c.source_kind ? "Eligible for formal offer" : "Use the recruitment lifecycle before assignment"}</span><button className="primary" disabled={busy || !c.source_kind} onClick={() => setOffer(c)}>Offer assignment</button></div>
+                  <div className="workforce-card-actions"><span>{c.source_kind ? "Eligible for formal offer" : "Use the recruitment lifecycle before assignment"}</span><button className="primary" disabled={busy || !c.source_kind} onClick={() => void openCandidateOffer(c)}>Offer assignment</button></div>
                 </article>;
               })}
             </div>
             {!candidates.length && !busy && <WorkforceEmpty icon={<UsersRound size={22} />} title="Search the Field Worker network" copy="Choose an active project and search by name, skill or language. Discovery does not grant permanent access to a worker's full private profile." />}
-            {offer && chosenProject && offer.source_kind !== "application" && <AssignmentOfferForm offer={offer} project={chosenProject} compensation={offerCompensation} busy={busy} onCancel={() => setOffer(null)} onSubmit={offerAssignment} />}
+            {offer && chosenProject && <AssignmentOfferForm offer={offer} project={chosenProject} compensation={offerCompensation} busy={busy} onCancel={() => setOffer(null)} onSubmit={offerAssignment} />}
           </>}
 
           {organizationView === "assignments" && <>
@@ -690,7 +763,7 @@ function WorkerJourney({ active }: { active: PersonalView }) {
 }
 
 function RecruitmentProgress({ status, organization = false }: { status: string; organization?: boolean }) {
-  const activeThrough = status === "shortlisted" ? 1 : status === "selected" ? 2 : 0;
+  const activeThrough = ["offered","active","completed"].includes(status) ? 3 : status === "shortlisted" ? 1 : status === "selected" ? 2 : 0;
   const labels = organization ? ["Applied", "Shortlisted", "Selected", "Offer"] : ["Applied", "Shortlisted", "Selected", "Offer / assignment"];
   return <div className={`recruitment-progress ${status === "rejected" || status === "withdrawn" ? "stopped" : ""}`}>{labels.map((label, index) => <span key={label} className={index <= activeThrough ? "active" : ""}><i>{index < activeThrough ? "✓" : index + 1}</i>{label}</span>)}</div>;
 }

@@ -304,3 +304,25 @@ body{background:var(--fieldlance-canvas);color:var(--fieldlance-ink)}
 @media(max-width:560px){.field-map-completeness{grid-template-columns:1fr}.field-map-completeness p{grid-column:auto}.field-map-runtime-warning{align-items:flex-start;flex-direction:column}}
 
 .field-map-review-row[data-selected="true"] { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+/* 2.41.8: task dialogs and local attendance layout, independent of app header CSS. */
+.recruitment-application-dialog{width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid var(--fieldlance-line);border-radius:14px;overflow:auto;color:var(--fieldlance-ink)}
+.recruitment-application-dialog::backdrop{background:#071a3270}
+.recruitment-application-dialog .workforce-inline-form{margin:0;border:0;min-width:0}
+.attendance-workspace,.attendance-workspace>*{min-width:0;max-width:100%}
+.attendance-hero{height:auto;min-height:0;position:static;top:auto;z-index:auto}
+.attendance-hero>div{flex:1;min-width:0}
+.attendance-hero>button{flex-shrink:0}
+.attendance-workspace .attendance-download-notice{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:start}
+.attendance-download-notice>button{justify-self:start;white-space:normal;max-width:100%}
+.attendance-workspace .notice.warning{flex-wrap:wrap}
+.attendance-workspace .attendance-section-heading>div,.attendance-assignment-card>div,.attendance-row-main>div{min-width:0}
+@media(max-width:650px){
+ .attendance-workspace{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+ .attendance-hero{width:100%;align-items:stretch}
+ .attendance-hero>div{width:100%;flex:auto}
+ .attendance-workspace .actions{flex-wrap:wrap}
+ .attendance-workspace p{word-break:normal;overflow-wrap:break-word}
+ .attendance-workspace .attendance-download-notice>button{width:100%;justify-self:stretch}
+ .attendance-workspace .attendance-assignment-card,.attendance-workspace .attendance-row-main{flex-wrap:wrap}
+}

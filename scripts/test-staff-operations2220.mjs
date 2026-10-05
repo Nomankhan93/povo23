@@ -78,7 +78,7 @@ await ok('priority queue routes decisions back to existing guarded workspaces', 
     'CASE FOLLOW-UP',
     'NETWORK STATUS',
   ]) assert.match(dashboard, new RegExp(marker));
-  for (const page of ['NGO applications','Volunteers','Verification','Workforce marketplace','Withdrawal operations','Beneficiary cases','Activity']) {
+  for (const page of ['NGO applications','Volunteers','Survey review','Workforce marketplace','Withdrawal operations','Beneficiary cases','Activity']) {
     assert.match(dashboard, new RegExp(page));
   }
 });

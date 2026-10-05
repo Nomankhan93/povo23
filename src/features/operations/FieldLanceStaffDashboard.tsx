@@ -192,7 +192,7 @@ export function FieldLanceStaffDashboard({
     : canReviewFieldWorkers && n("profiles","pending")
       ? { eyebrow: "FIELD WORKER REVIEW", title: `${n("profiles","pending")} Field Worker profile${n("profiles","pending") === 1 ? "" : "s"} awaiting review`, copy: "Use the existing verification workflow; Staff Operations does not bypass evidence or document requirements.", page: "Volunteers", button: "Open Field Workers" }
       : canManageSurveys && (n("responses","submitted")+n("responses","correction_required"))
-        ? { eyebrow: "SURVEY REVIEW QUEUE", title: `${(n("responses","submitted")+n("responses","correction_required"))} survey response${(n("responses","submitted")+n("responses","correction_required")) === 1 ? "" : "s"} need operational attention`, copy: "Open Verification to review submitted work and correction requests under existing project authorization.", page: "Verification", button: "Open verification" }
+        ? { eyebrow: "SURVEY REVIEW QUEUE", title: `${(n("responses","submitted")+n("responses","correction_required"))} survey response${(n("responses","submitted")+n("responses","correction_required")) === 1 ? "" : "s"} need operational attention`, copy: "Open the survey response queue to review submitted work and correction requests.", page: "Survey review", button: "Review survey responses" }
         : canManageSurveys && (n("applications","pending")+n("applications","shortlisted")+n("applications","selected"))
           ? { eyebrow: "RECRUITMENT OVERSIGHT", title: `${(n("applications","pending")+n("applications","shortlisted")+n("applications","selected"))} recruitment application${(n("applications","pending")+n("applications","shortlisted")+n("applications","selected")) === 1 ? "" : "s"} are still in progress`, copy: "Monitor organization recruitment without replacing the organization selection and offer workflow.", page: "Workforce marketplace", button: "Open recruitment" }
           : canManageFinance && (analytics.data?.withdrawal_attention||0)
@@ -210,7 +210,7 @@ export function FieldLanceStaffDashboard({
   quickActions.push(["Survey projects", "Project network", "Projects across active organizations", BriefcaseBusiness]);
   if (canManageSurveys) {
     quickActions.push(["Workforce marketplace", "Recruitment oversight", "Applications, offers and assignments", Users]);
-    quickActions.push(["Verification", "Verification queue", "Survey work requiring review", ClipboardCheck]);
+    quickActions.push(["Survey review", "Survey review queue", "Survey work requiring review", ClipboardCheck]);
     quickActions.push(["Beneficiary cases", "Cases", "Follow-up and unresolved needs", HeartHandshake]);
   }
   if (canManageFinance) {
@@ -265,7 +265,7 @@ export function FieldLanceStaffDashboard({
           {canManageFinance && withdrawalAttention.slice(0, 2).map((row) => <article key={row.id}><div><strong>{row.currency} {Number(row.amount || 0).toLocaleString("en-PK")} · {human(row.provider)}</strong><p>{row.user_name || "Field Worker"} · {dateLabel(row.requested_at)}</p></div><State value={row.status} /></article>)}
           {!(canManageSurveys && ((n("responses","submitted")+n("responses","correction_required")) || (analytics.data?.due_cases||0))) && !(canManageFinance && (analytics.data?.withdrawal_attention||0)) && <Empty>No visible operational queue needs immediate attention.</Empty>}
         </div>
-        <div className="staff-ops-card-actions">{canManageSurveys && <button className="secondary" onClick={() => onNavigate("Verification")}>Verification</button>}{canManageFinance && <button className="secondary" onClick={() => onNavigate("Withdrawal operations")}>Finance operations</button>}</div>
+        <div className="staff-ops-card-actions">{canManageSurveys && <button className="secondary" onClick={() => onNavigate("Survey review")}>Survey review</button>}{canManageFinance && <button className="secondary" onClick={() => onNavigate("Withdrawal operations")}>Finance operations</button>}</div>
       </section>
 
       <section className="staff-ops-card staff-ops-quick-access"><div className="staff-ops-card-heading"><div><span className="eyebrow">QUICK ACCESS</span><h3>FieldLance operations</h3></div><CheckCircle2 size={18} /></div><div className="staff-ops-action-grid">{quickActions.map(([page, title, description, Icon]) => <button key={page} onClick={() => onNavigate(page)}><Icon size={17} /><span><strong>{title}</strong><small>{description}</small></span><ArrowRight size={13} /></button>)}</div></section>

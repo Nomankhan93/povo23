@@ -1,4 +1,8 @@
-# Current release checklist — FieldLance 2.41.7
+# Current release checklist — FieldLance 2.41.8
+
+Full preflight (including production build), the six existing browser suites, test:browser-recruitment-2418, release metadata/secrets checks and git diff --check passed. See VALIDATION-2.41.8.md for actual results. No migration, hosted change or deployment is part of this patch.
+
+# Historical release checklist — FieldLance 2.41.7
 
 F03 wallet capability, F14 offline browser harness, full test suite, full map regression, generated types, TypeScript, build, browser tests, release consistency and secret scan passed. The local migration was backed up and applied only to poem-phase11. See VALIDATION-2.41.7.md and IMPLEMENTATION-2.41.7.md. These checks do not authorize staging, commit, push or deployment.
 
