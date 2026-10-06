@@ -747,7 +747,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             <span className="release">v{APP_VERSION}</span>
           </div>
         </header>
-        <div className="content" id="workspace-content" tabIndex={-1} key={`${session.user.id}:${scope}`}>
+        <div className="content" data-worker={personalWorkspace} id="workspace-content" tabIndex={-1} key={`${session.user.id}:${scope}`}>
           <div className="heading">
             <div>
               <span className="eyebrow">{pageEyebrow}</span>
@@ -791,6 +791,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   unread={unreadNotifications}
                   onNavigate={change}
                   onField={openField}
+                  onOpenField={projectId=>setPage("Survey projects",()=>syncRoute({scope:"personal",page:"Survey projects",projectId,projectTab:"field-work"}))}
                 />
               ) : organizationWorkspace ? (
                 <OrganizationDashboard

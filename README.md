@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.8
+# Current release: FieldLance 2.41.9
+
+Mobile Field UX Stabilization. Recruitment lifecycle, task-first mobile pages, compact filters/sync and sectioned survey collection preserve current branding and authorization. See docs/PHASE-2.41.9.md, docs/UPGRADE-2.41.9.md and docs/VALIDATION-2.41.9.md.
+
+# Historical release: FieldLance 2.41.8
 
 Recruitment & Role Dashboard Workflow Stabilization. This frontend patch covers audit F01–F10 and Attendance mobile layout. See docs/PHASE-2.41.8.md, docs/UPGRADE-2.41.8.md and docs/VALIDATION-2.41.8.md.
 

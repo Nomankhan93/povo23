@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.8
+# Current validation — FieldLance 2.41.9
+
+See [VALIDATION-2.41.9.md](VALIDATION-2.41.9.md) for responsive browser behavior, workflow validation and test boundaries.
+
+# Historical validation — FieldLance 2.41.8
 
 See [VALIDATION-2.41.8.md](VALIDATION-2.41.8.md) for the current execution record and behavioral test boundaries.
 

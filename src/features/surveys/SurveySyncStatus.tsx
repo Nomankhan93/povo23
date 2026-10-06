@@ -79,7 +79,7 @@ export function SurveySyncStatus({ userId }: { userId: string }) {
 
   return (
     <details className={`survey-sync ${online ? "" : "offline"}`}>
-      <summary>{syncing ? "Syncing surveys…" : label}</summary>
+      <summary aria-label={syncing ? "Syncing surveys…" : label}><span className="sync-full">{syncing ? "Syncing surveys…" : label}</span><span className="sync-compact" aria-hidden="true">{!online?"Offline"+(summary.total?" · "+summary.total:""):summary.attention?"Attention · "+summary.attention:syncing?"Syncing…":summary.pending?"Pending · "+summary.pending:"Synced"}</span></summary>
       <div className="survey-sync-card">
         <strong>{online ? "Field sync" : "Working offline"}</strong>
         <p>

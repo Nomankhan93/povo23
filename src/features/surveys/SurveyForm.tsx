@@ -1,3 +1,5 @@
+import {useNarrowScreen} from '../../shared/useNarrowScreen';
+import {surveyQuestionSections,representativeNeeded} from './surveyPresentation';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { type Json } from "../../lib/supabase/database.types";
 import {
@@ -44,6 +46,9 @@ export function SurveyForm({
   onSaved: () => void;
   onQueued: () => void;
 }) {
+  const narrow=useNarrowScreen();
+  const formRef=useRef<HTMLFormElement>(null);
+  const [step,setStep]=useState('consent');
   const draftWrites=useRef<Promise<void>>(Promise.resolve());
   const finalizing=useRef(false);
   const [savedAt,setSavedAt]=useState<number|null>(null);
@@ -67,6 +72,39 @@ export function SurveyForm({
     [draftError, setDraftError] = useState(""),
     [dirty, setDirty] = useState(false),
     [online, setOnline] = useState(navigator.onLine);
+
+  const visible=visibleAnswers(qs,answers);
+  const groups=surveyQuestionSections(qs).filter(group=>group.questions.some(q=>isVisible(q,visible)));
+  const sections=[{id:'consent',title:'Consent'},...(!response?[{id:'person',title:'Person & household'}]:[]),...groups,{id:'review',title:'Review & submit'}];
+  const currentStep=sections.some(section=>section.id===step)?step:sections[0].id;
+  const stepIndex=sections.findIndex(section=>section.id===currentStep);
+  const knownBirth=response?people.find(p=>p.id===response.person_id)?.birth_date:person?people.find(p=>p.id===person)?.birth_date:birth;
+  const showRepresentative=representativeNeeded(knownBirth,qs,visible);
+  function reveal(element:HTMLElement,native=false){
+    const section=element.closest<HTMLElement>('[data-survey-section]');
+    if(section)setStep(section.dataset.surveySection!);
+    requestAnimationFrame(()=>{
+      element.focus();element.scrollIntoView({block:'center'});
+      if(native&&(element instanceof HTMLInputElement||element instanceof HTMLSelectElement||element instanceof HTMLTextAreaElement))element.reportValidity();
+    });
+  }
+  function firstInvalid(root:ParentNode|null){
+    return Array.from(root?.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('input,select,textarea')||[])
+      .find(element=>element.willValidate&&!element.validity.valid);
+  }
+  function moveSection(id:string){
+    setStep(id);
+    requestAnimationFrame(()=>{
+      const heading=formRef.current?.querySelector<HTMLElement>('[data-survey-section="'+id+'"] h4');
+      heading?.focus();heading?.scrollIntoView({block:'start'});
+    });
+  }
+  function nextSection(){
+    const section=formRef.current?.querySelector('[data-survey-section="'+currentStep+'"]');
+    const invalid=firstInvalid(section||null);
+    if(invalid){reveal(invalid,true);return}
+    moveSection(sections[stepIndex+1].id);
+  }
 
   useEffect(()=>setReviewed(false),[answers,person,household,name,birth,householdLabel,consent]);
 
@@ -163,7 +201,15 @@ export function SurveyForm({
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const button = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const errors=captureErrors(qs,answers,button?.value === "submit");
+    const invalid=firstInvalid(formRef.current);
+    if(invalid){reveal(invalid,true);return}
+    const invalidQuestions:string[]=[];
+    const errors=captureErrors(qs,answers,button?.value === "submit",id=>invalidQuestions.push(id));
+    if(invalidQuestions.length){
+      const wrapper=Array.from(formRef.current?.querySelectorAll<HTMLElement>('[data-survey-question]')||[]).find(node=>node.dataset.surveyQuestion===invalidQuestions[0]);
+      const target=wrapper?.querySelector<HTMLElement>('input:not([type=hidden]),select,textarea,button')||wrapper;
+      if(target)reveal(target);
+    }
     setValidation(errors);
     if(errors.length || captureBusy>0 || (button?.value === "submit" && !reviewed))return;
     finalizing.current=true;
@@ -205,8 +251,25 @@ export function SurveyForm({
     finalizing.current=false;
   }
 
+  const representativeFields=(<>          <label className="field">
+            Guardian / representative name (required for minors or unknown age)
+            <input
+              value={consent.representative}
+              onChange={(e) => setConsent({ ...consent, representative: e.target.value })}
+              maxLength={200}
+            />
+          </label>
+          <label className="field">
+            Relationship to person
+            <input
+              value={consent.relationship}
+              onChange={(e) => setConsent({ ...consent, relationship: e.target.value })}
+              maxLength={100}
+            />
+          </label>
+</>);
   return (
-    <form className="survey-question" onSubmit={submit} onChange={() => setDirty(true)}>
+    <form ref={formRef} noValidate className="survey-question" onSubmit={submit} onChange={() => setDirty(true)}>
       <div className="field-mode">
         <strong>{online ? "Online field mode" : "Offline field mode"}</strong>
         <span>
@@ -232,9 +295,11 @@ export function SurveyForm({
           Device draft protection: {draftError}
         </p>
       )}
-      <fieldset disabled={busy || request.saving || request.uncertain || !hydrated}>
+      {narrow&&<div className="survey-section-progress" role="status">Section {stepIndex+1} of {sections.length} · {sections[stepIndex].title}<progress aria-label="Survey section progress" max={sections.length} value={stepIndex+1}/></div>}
+      <fieldset className="survey-form-fields" disabled={busy || request.saving || request.uncertain || !hydrated}>
+        <div className="survey-section" data-survey-section="consent" hidden={narrow&&currentStep!=="consent"}>
         <section className="consent-notice">
-          <h4>Consent before collection</h4>
+          <h4 tabIndex={-1}>Consent before collection</h4>
           <p className="preserve-lines">{project.consent_notice}</p>
           <p>
             Purpose: {project.purpose} · Version: {project.consent_version}
@@ -258,25 +323,11 @@ export function SurveyForm({
               <option value="written">Written consent</option>
             </select>
           </label>
-          <label className="field">
-            Guardian / representative name (required for minors or unknown age)
-            <input
-              value={consent.representative}
-              onChange={(e) => setConsent({ ...consent, representative: e.target.value })}
-              maxLength={200}
-            />
-          </label>
-          <label className="field">
-            Relationship to person
-            <input
-              value={consent.relationship}
-              onChange={(e) => setConsent({ ...consent, relationship: e.target.value })}
-              maxLength={100}
-            />
-          </label>
+          {showRepresentative?<div className="representative-fields">{representativeFields}</div>:<details className="representative-fields"><summary>Add a guardian / representative if applicable</summary>{representativeFields}</details>}
         </section>
+        </div>
         {!response && (
-          <>
+          <div className="survey-section" data-survey-section="person" hidden={narrow&&currentStep!=="person"}><h4 tabIndex={-1}>Person & household</h4>
             <label className="field">
               Person
               <select value={person} onChange={(e) => setPerson(e.target.value)}>
@@ -323,9 +374,10 @@ export function SurveyForm({
                 )}
               </>
             )}
-          </>
+          </div>
         )}
-        {qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).map(q=><CaptureField key={q.id} q={q} ownerId={userId} value={answers[q.id]} projectId={project.id} consent={{...consent,governance_version:project.governance_version}} onBusy={v=>setCaptureBusy(n=>n+(v?1:-1))} onChange={v=>{setAnswers(previous=>visibleAnswers(qs,{...previous,[q.id]:v}));setDirty(true);setReviewed(false)}}/>)}
+        {groups.map(group=><div key={group.id} className="survey-section" data-survey-section={group.id} hidden={narrow&&currentStep!==group.id}><h4 className="survey-group-heading" tabIndex={-1}>{group.title}</h4>{group.questions.filter(q=>isVisible(q,visible)).map(q=><div data-survey-question={q.id} key={q.id} tabIndex={-1}><CaptureField key={q.id} q={q} ownerId={userId} value={answers[q.id]} projectId={project.id} consent={{...consent,governance_version:project.governance_version}} onBusy={v=>setCaptureBusy(n=>n+(v?1:-1))} onChange={v=>{setAnswers(previous=>visibleAnswers(qs,{...previous,[q.id]:v}));setDirty(true);setReviewed(false)}}/></div>)}</div>)}
+        <div className="survey-section" data-survey-section="review" hidden={narrow&&currentStep!=="review"}><h4 tabIndex={-1}>Review & submit</h4>
         <button type="button" disabled={!consent.agreed || captureBusy>0} onClick={()=>{
           if(!window.confirm("Use current consent for retained device attachments? New evidence references will be created; the rejected original request remains unchanged."))return;
           setCaptureBusy(n=>n+1);void reconsentAttachments(userId,answers,{...consent,governance_version:project.governance_version}).then(v=>{setAnswers(v);setDirty(true);setReviewed(false)}).catch(e=>setDraftError(e.message)).finally(()=>setCaptureBusy(n=>n-1));
@@ -335,11 +387,16 @@ export function SurveyForm({
         <p>
           * Required on submission. Drafts also require consent. Use the registry search above to locate existing people before creating another record.
         </p>
+        </div>
+        {narrow&&<div className="actions survey-section-navigation">
+          <button type="button" className="secondary" disabled={stepIndex===0||captureBusy>0} onClick={()=>moveSection(sections[stepIndex-1].id)}>Previous section</button>
+          {stepIndex<sections.length-1&&<button type="button" className="primary" disabled={captureBusy>0} onClick={nextSection}>Next section</button>}
+        </div>}
         <div className="actions survey-actions">
           <button className="secondary" value="draft" disabled={busy || captureBusy>0}>
             Save draft
           </button>
-          <button className="primary" value="submit" disabled={busy || captureBusy>0 || !reviewed}>
+          <button hidden={narrow&&currentStep!=="review"} className="primary" value="submit" disabled={busy || captureBusy>0 || !reviewed}>
             Submit for review
           </button>
         </div>

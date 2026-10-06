@@ -1,3 +1,4 @@
+import {useNarrowScreen} from '../../shared/useNarrowScreen';
 import {countReadyForOffer} from './recruitmentState';
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -67,6 +68,7 @@ type DashboardProps = {
   unread: number;
   onNavigate: (page: string) => void;
   onField: () => void;
+  onOpenField?: (projectId:string) => void;
 };
 
 const money = (value: string | number | undefined) =>
@@ -119,7 +121,8 @@ function Metric({ icon, label, value, detail }: { icon: ReactNode; label: string
   );
 }
 
-export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onField }: DashboardProps) {
+export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onField, onOpenField }: DashboardProps) {
+  const narrow=useNarrowScreen();
   const [counts,setCounts]=useState<{applications:number;review:number;offered:number;active:number;completed:number}|null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -233,15 +236,6 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
   const currentAssignment = offers[0] || active[0] || null;
   const nextAction = !counts
     ? {eyebrow:"WORK STATUS",title:loading?"Loading your work status":"Work status is unavailable",copy:"Refresh to check pending offers and active assignments.",button:"Refresh work status",action:()=>setRevision(v=>v+1),secondary:null}
-    : profile?.status === "draft"
-    ? {
-        eyebrow: "COMPLETE YOUR SETUP",
-        title: "Publish your Field Worker profile",
-        copy: "Organizations can evaluate applications more confidently when your profile, skills and availability are complete.",
-        button: "Complete profile",
-        action: () => onNavigate("My profile"),
-        secondary: null as null | { label: string; action: () => void },
-      }
     : offers.length
       ? {
           eyebrow: "ACTION REQUIRED",
@@ -256,10 +250,19 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
             eyebrow: "ACTIVE FIELD WORK",
             title: `Continue ${active[0].project_title}`,
             copy: "Your accepted assignment is active. Open assigned surveys or continue protected field work on this device.",
-            button: "Open assigned surveys",
-            action: () => onNavigate("My Assigned Surveys"),
+            button: "Open field work",
+            action: () => onOpenField?onOpenField(active[0].survey_project_id):onNavigate("My Assigned Surveys"),
             secondary: { label: "Open offline field", action: onField },
           }
+        : profile?.status === "draft"
+    ? {
+        eyebrow: "COMPLETE YOUR SETUP",
+        title: "Publish your Field Worker profile",
+        copy: "Organizations can evaluate applications more confidently when your profile, skills and availability are complete.",
+        button: "Complete profile",
+        action: () => onNavigate("My profile"),
+        secondary: null as null | { label: string; action: () => void },
+      }
         : inReview
           ? {
               eyebrow: "APPLICATIONS IN PROGRESS",
@@ -287,8 +290,20 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
     { label: "Earn", active: Number(summary?.approved || 0) > 0 || Number(summary?.paid || 0) > 0 },
   ];
 
+  const priority=(<section className="field-worker-next-action">
+        <div>
+          <span className="eyebrow">{nextAction.eyebrow}</span>
+          <h3>{nextAction.title}</h3>
+          <p>{nextAction.copy}</p>
+        </div>
+        <div className="actions">
+          {nextAction.secondary && <button className="secondary" onClick={nextAction.secondary.action}>{nextAction.secondary.label}</button>}
+          <button className="primary" onClick={nextAction.action}>{nextAction.button} <ArrowRight size={14} /></button>
+        </div>
+      </section>);
   return (
     <section className="field-worker-dashboard" aria-label="Field Worker daily workspace">
+      {narrow&&priority}
       <section className="field-worker-hero">
         <div className="field-worker-hero-copy">
           <span className="eyebrow">FIELD WORKER HOME</span>
@@ -332,17 +347,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         <Metric icon={<CircleDollarSign size={18} />} label="Available earnings" value={`PKR ${money(summary?.available)}`} detail={`${summary?.verified_wallets || 0} verified payout wallet${summary?.verified_wallets === 1 ? "" : "s"}`} />
       </div>
 
-      <section className="field-worker-next-action">
-        <div>
-          <span className="eyebrow">{nextAction.eyebrow}</span>
-          <h3>{nextAction.title}</h3>
-          <p>{nextAction.copy}</p>
-        </div>
-        <div className="actions">
-          {nextAction.secondary && <button className="secondary" onClick={nextAction.secondary.action}>{nextAction.secondary.label}</button>}
-          <button className="primary" onClick={nextAction.action}>{nextAction.button} <ArrowRight size={14} /></button>
-        </div>
-      </section>
+      {!narrow&&priority}
 
       <section className="field-worker-journey" aria-label="FieldLance work lifecycle">
         {journeySteps.map((step, index) => (

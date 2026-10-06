@@ -16,14 +16,14 @@ export function answerText(value: Json | undefined): string {
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   return typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
 }
-export function captureErrors(questions: Question[], raw: Record<string, Json>, submitting: boolean): string[] {
+export function captureErrors(questions: Question[], raw: Record<string, Json>, submitting: boolean, onError?: (questionId:string)=>void): string[] {
   const answers=visibleAnswers(questions,raw), errors:string[]=[];
   const validDate=(s:string)=>/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s))&&new Date(s).toISOString().slice(0,10)===s;
   for(const q of questions){
     if(!isVisible(q,answers))continue;
     const v=answers[q.id], empty=v===undefined||v===null||v===''||(Array.isArray(v)&&!v.length);
-    if(empty){if(submitting&&q.required)errors.push(q.label+': answer required');continue}
-    const bad=(message:string)=>errors.push(q.label+': '+message);
+    const bad=(message:string)=>{errors.push(q.label+': '+message);onError?.(q.id)};
+    if(empty){if(submitting&&q.required)bad('answer required');continue}
     if(q.type==='number'&&(typeof v!=='number'||!Number.isFinite(v)||(q.min!==undefined&&v<q.min)||(q.max!==undefined&&v>q.max)))bad('number outside allowed range');
     if(q.type==='phone'&&!/^\+?[0-9]{7,15}$/.test(String(v)))bad('use 7–15 digits, optional leading +');
     if(q.type==='identity'&&!/^[0-9]{13}$/.test(String(v)))bad('use 13 digits');

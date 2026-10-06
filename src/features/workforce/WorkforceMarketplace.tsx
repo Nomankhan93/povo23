@@ -1,4 +1,5 @@
-import {linkedAssignment,applicationDisplayStatus,loadApplicationAssignments,type ApplicationAssignment} from './recruitmentState';
+import {useNarrowScreen} from '../../shared/useNarrowScreen';
+import {recruitmentStage,linkedAssignment,applicationDisplayStatus,loadApplicationAssignments,type ApplicationAssignment} from './recruitmentState';
 import {useRecruitmentCollection,recruitmentQuery} from './recruitmentQueries';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowRight, BriefcaseBusiness, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, FileCheck2, Filter, MapPin, Search, Send, UsersRound } from "lucide-react";
@@ -141,6 +142,16 @@ export function WorkforceMarketplace({
     [organizationView, setOrganizationView] = useState<OrganizationView>("opportunities"),
     [applicationFilter, setApplicationFilter] = useState<ApplicationFilter>("all");
 
+  const narrow=useNarrowScreen();
+  const [filtersOpen,setFiltersOpen]=useState(false);
+  const filterDialog=useRef<HTMLDialogElement>(null),filterTrigger=useRef<HTMLButtonElement>(null);
+  useEffect(()=>{
+    if(!filtersOpen||!narrow)return;
+    filterDialog.current?.showModal();
+    return()=>{filterDialog.current?.close();filterTrigger.current?.focus()};
+  },[filtersOpen,narrow]);
+  const activeFilterCount=[orgFilter,areaFilter,paymentFilter,skillFilter,workDateFilter,deadlineFilter].filter(Boolean).length;
+  function clearFilters(){setOrgFilter("");setAreaFilter("");setPaymentFilter("");setSkillFilter("");setWorkDateFilter("");setDeadlineFilter("");setAvailablePage(0)}
   const [opportunityFilter,setOpportunityFilter]=useState(initialOpportunityId);
   const [applicationAssignments,setApplicationAssignments]=useState<ApplicationAssignment[]>([]);
   const [linksBusy,setLinksBusy]=useState(true),[linksError,setLinksError]=useState("");
@@ -437,6 +448,17 @@ export function WorkforceMarketplace({
       ? "This published project is automatically discoverable to Field Workers while recruitment is open; review applicants and manage formal assignments here."
       : "Oversee automatic project marketplace listings, applications and assignments across authorized organizations.";
 
+  const opportunityFilters=(<div className="workforce-filter-card">
+              <div className="workforce-filter-title"><Filter size={17} /><strong>Filter opportunities</strong></div>
+              <div className="workforce-filter-grid">
+                <label className="field">Organization<select value={orgFilter} onChange={(e) => { setOrgFilter(e.target.value); setAvailablePage(0); }}><option value="">All organizations</option>{orgs.filter((o)=>o.status==="active").map((o)=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
+                <label className="field">Payment<select value={paymentFilter} onChange={(e)=>{ setPaymentFilter(e.target.value); setAvailablePage(0); }}><option value="">Paid or volunteer</option><option value="paid">Paid</option><option value="unpaid">Volunteer / unpaid</option></select></label>
+                <label className="field">Skill<input value={skillFilter} maxLength={100} onChange={(e)=>{ setSkillFilter(e.target.value); setAvailablePage(0); }} placeholder="e.g. Data collection" /></label>
+                <label className="field">Work date<input type="date" value={workDateFilter} onChange={(e)=>{ setWorkDateFilter(e.target.value); setAvailablePage(0); }} /></label>
+                <label className="field">Apply by<input type="date" value={deadlineFilter} onChange={(e)=>{ setDeadlineFilter(e.target.value); setAvailablePage(0); }} /></label>
+              </div>
+              <AreaSelector rows={geographies} value={areaFilter || null} onChange={(id) => { setAreaFilter(id || ""); setAvailablePage(0); }} title="Work area" />
+            <div className="actions"><button type="button" className="secondary" onClick={clearFilters}>Clear filters</button>{narrow&&<button type="button" className="primary" onClick={()=>setFiltersOpen(false)}>Apply filters</button>}</div></div>);
   return (
     <section className="panel detail workforce-marketplace workforce-marketplace-v2">
       {error && <p className="notice error" role="alert">{error}<button onClick={()=>setRevision(n=>n+1)}>Refresh recruitment</button></p>}
@@ -448,8 +470,8 @@ export function WorkforceMarketplace({
       {busy && <p className="workforce-loading" role="status">Loading workforce records…</p>}
 
       {mode === "personal" ? (
-        <>
-          <WorkerJourney active={personalView} />
+        <div className={"workforce-personal workforce-view-"+personalView}>
+          <WorkerJourney stage={recruitmentStage(applications,[...assignments,...applicationAssignments])} />
           <div className="workforce-metric-grid" aria-label="Field Worker marketplace summary">
             <WorkforceMetric icon={<BriefcaseBusiness size={18} />} label="Open projects" value={availableTotal} detail="Published projects you can explore" />
             <WorkforceMetric icon={<FileCheck2 size={18} />} label="My applications" value={applications.length} detail={`${applications.filter((a) => ["pending", "shortlisted", "selected"].includes(a.status)).length} loaded applications still in recruitment`} />
@@ -464,17 +486,7 @@ export function WorkforceMarketplace({
               <div><span className="eyebrow">DISCOVER WORK</span><h3>Available projects</h3><p>Every published project with open recruitment appears automatically. No permanent Organization profile access is required; applying shares only an application-scoped recruitment snapshot.</p></div>
               <span className="workforce-count">{availableTotal} available</span>
             </div>
-            <div className="workforce-filter-card">
-              <div className="workforce-filter-title"><Filter size={17} /><strong>Filter opportunities</strong></div>
-              <div className="workforce-filter-grid">
-                <label className="field">Organization<select value={orgFilter} onChange={(e) => { setOrgFilter(e.target.value); setAvailablePage(0); }}><option value="">All organizations</option>{orgs.filter((o)=>o.status==="active").map((o)=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
-                <label className="field">Payment<select value={paymentFilter} onChange={(e)=>{ setPaymentFilter(e.target.value); setAvailablePage(0); }}><option value="">Paid or volunteer</option><option value="paid">Paid</option><option value="unpaid">Volunteer / unpaid</option></select></label>
-                <label className="field">Skill<input value={skillFilter} maxLength={100} onChange={(e)=>{ setSkillFilter(e.target.value); setAvailablePage(0); }} placeholder="e.g. Data collection" /></label>
-                <label className="field">Work date<input type="date" value={workDateFilter} onChange={(e)=>{ setWorkDateFilter(e.target.value); setAvailablePage(0); }} /></label>
-                <label className="field">Apply by<input type="date" value={deadlineFilter} onChange={(e)=>{ setDeadlineFilter(e.target.value); setAvailablePage(0); }} /></label>
-              </div>
-              <AreaSelector rows={geographies} value={areaFilter || null} onChange={(id) => { setAreaFilter(id || ""); setAvailablePage(0); }} title="Work area" />
-            </div>
+            {narrow?<><div className="mobile-filter-toolbar"><button ref={filterTrigger} type="button" className="secondary" onClick={()=>setFiltersOpen(true)}>Filters{activeFilterCount?" ("+activeFilterCount+")":""}</button>{activeFilterCount>0&&<button className="link" onClick={clearFilters}>Clear filters</button>}</div>{filtersOpen&&<dialog ref={filterDialog} className="mobile-filter-dialog" aria-label="Filter opportunities" onCancel={e=>{e.preventDefault();setFiltersOpen(false)}}><button type="button" className="secondary" onClick={()=>setFiltersOpen(false)}>Close filters</button>{opportunityFilters}</dialog>}</>:opportunityFilters}
             <div className="workforce-card-grid">
               {available.map((o) => {
                 const org = orgById.get(o.organization_id);
@@ -545,7 +557,7 @@ export function WorkforceMarketplace({
                   </div>
                   <RecruitmentProgress status={linked?.status||a.status} />
                   <div className="workforce-application-copy"><p><strong>Availability:</strong> {a.availability || "Not recorded"}</p>{a.note && <p><strong>Your message:</strong> {a.note}</p>}{a.review_note && <p><strong>Organization review:</strong> {a.review_note}</p>}</div>
-                  <div className="workforce-card-actions"><span>{linked ? assignmentNextStep(linked.status) : applicationNextStep(a.status)}</span>{linked&&<button className="primary" onClick={()=>linked.status==="active"&&onOpenField?onOpenField(linked.survey_project_id):onFocusChange?.("assignment",linked.id)}>{linked.status==="active"?"Open field work":linked.status==="offered"?"Review offer":"View completed assignment"}</button>}<div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>Open link</button>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div></div>
+                  <div className="workforce-card-actions"><span>{linked ? assignmentNextStep(linked.status) : applicationNextStep(a.status)}</span>{linked&&<button className="primary" onClick={()=>linked.status==="active"&&onOpenField?onOpenField(linked.survey_project_id):onFocusChange?.("assignment",linked.id)}>{linked.status==="active"?"Open field work":linked.status==="offered"?"Review offer":"View completed assignment"}</button>}<div className="actions"><button className="link" type="button" onClick={()=>onFocusChange?.("application",a.id)}>View application details</button>{(a.status === "pending" || a.status === "shortlisted") && <button className="secondary" disabled={busy} onClick={() => void act(() => rpc("withdraw_work_application", { p_id: a.id, p_version: a.version }), "Application withdrawn.")}>Withdraw application</button>}</div></div>
                 </article>;
               })}
             </div>
@@ -585,7 +597,7 @@ export function WorkforceMarketplace({
             <RecruitmentPages list={assignmentList}/>
             {!assignments.length && !directSurveyAssignments.length && !busy && !assignmentList.busy && !assignmentList.error && <WorkforceEmpty icon={<BriefcaseBusiness size={22} />} title="No assignments or offers yet" copy="After an organization selects you and sends a formal offer, it will appear here for acceptance." />}
           </>}
-        </>
+        </div>
       ) : (
         <>
           <div className="workforce-org-hero">
@@ -756,10 +768,9 @@ function WorkforceEmpty({ icon, title, copy, action }: { icon: ReactNode; title:
   return <div className="workforce-empty"><div>{icon}</div><h4>{title}</h4><p>{copy}</p>{action}</div>;
 }
 
-function WorkerJourney({ active }: { active: PersonalView }) {
-  const activeIndex = active === "opportunities" ? 0 : active === "applications" ? 1 : active === "assigned" ? 3 : 0;
-  const steps = [["Discover", "Browse open work"], ["Apply", "Send your snapshot"], ["Selection", "Organization reviews"], ["Assigned", "Accept & work"]] as const;
-  return <div className="workforce-journey" aria-label="Field Worker recruitment lifecycle">{steps.map(([label, copy], index) => <div key={label} className={index <= activeIndex ? "active" : ""}><span>{index + 1}</span><div><strong>{label}</strong><small>{copy}</small></div>{index < steps.length - 1 && <ArrowRight size={15} />}</div>)}</div>;
+function WorkerJourney({stage}:{stage:ReturnType<typeof recruitmentStage>}) {
+  const steps=["Discover","Apply","Selection",stage.index===3?stage.label:"Assigned"];
+  return <div className="workforce-journey" aria-label="Field Worker recruitment lifecycle">{steps.map((label,index)=><div key={index} className={index<=stage.index?'active':''} aria-current={index===stage.index?'step':undefined}><span>{index<stage.index?'✓':index+1}</span><div><strong>{label}</strong><small>{index===stage.index?stage.detail:''}</small></div>{index<3&&<ArrowRight size={15}/>}</div>)}</div>;
 }
 
 function RecruitmentProgress({ status, organization = false }: { status: string; organization?: boolean }) {

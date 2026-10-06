@@ -37,3 +37,14 @@ export async function countReadyForOffer(scope:{userId?:string;organization?:str
     if(rows.length<200)return count;
   }
 }
+
+
+// Assignment state supersedes the application's unchanged recruitment enum.
+export function recruitmentStage(applications:{status:string}[],assignments:{status:string}[]){
+  if(assignments.some(a=>a.status==='active'))return {index:3,label:'Assigned',detail:'Active assignment'};
+  if(assignments.some(a=>a.status==='offered'))return {index:3,label:'Offer pending',detail:'Review and accept your offer'};
+  if(assignments.some(a=>a.status==='completed'))return {index:3,label:'Completed',detail:'Assignment completed'};
+  if(applications.some(a=>['selected','shortlisted'].includes(a.status)))return {index:2,label:'Selection',detail:'Organization review'};
+  if(applications.length)return {index:1,label:'Apply',detail:'Application sent'};
+  return {index:0,label:'Discover',detail:'Browse open work'};
+}

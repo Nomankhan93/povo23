@@ -167,9 +167,9 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
     ? [["mine", "My Tasks"], ["due_today", "Due Today"], ["overdue", "Overdue"], ["escalated", "Escalated"], ["completed", "Completed"]]
     : [["team", "Team Tasks"], ["mine", "My Tasks"], ["due_today", "Due Today"], ["overdue", "Overdue"], ["escalated", "Escalated"], ["completed", "Completed"]];
 
-  return <section className="task-center" aria-label="Tasks, SLA and Escalation Center">
+  return <section className="task-center" data-personal={mode==="personal"} aria-label="Tasks, SLA and Escalation Center">
     <section className="task-center-hero">
-      <div><span className="eyebrow">TASKS · SLA · ESCALATIONS</span><h2>Turn operational queues into accountable action.</h2><p>Tasks point back to the authoritative workflow. Completing a task never approves a survey, organization, application, case or withdrawal by itself.</p></div>
+      <div>{mode==="personal"?<><h2>Your tasks</h2><p>Open a task to see what needs your attention.</p></>:<><span className="eyebrow">TASKS · SLA · ESCALATIONS</span><h2>Turn operational queues into accountable action.</h2><p>Tasks point back to the authoritative workflow. Completing a task never approves a survey, organization, application, case or withdrawal by itself.</p></>}</div>
       <div className="task-center-hero-actions">
         {canCreate && <button className="primary" onClick={() => setCreateOpen((value) => !value)}><Plus size={15} /> {createOpen ? "Close" : "Create task"}</button>}
         <button className="secondary" disabled={loading} onClick={() => setRevision((value) => value + 1)}><RefreshCw size={15} className={loading ? "task-center-spin" : ""} /> Refresh</button>
@@ -226,7 +226,7 @@ export function TaskCenter({ mode, organizationId = null, projectId = null, onNa
           {task.status === "completed" && mode !== "personal" && <button className="secondary" disabled={Boolean(busy)} onClick={() => void act(task, "reopen")}>Reopen</button>}
         </div>
       </article>)}
-      {!loading && !displayRows.length && <div className="task-center-empty"><CheckCircle2 size={24} /><h3>No tasks in this view</h3><p>When an authorized workflow needs action, FieldLance will surface it here with its SLA and source link.</p></div>}
+      {!loading && !error && !displayRows.length && <div className="task-center-empty"><CheckCircle2 size={24} /><h3>{mode==="personal"&&view==="mine"?"No active tasks":"No tasks in this view"}</h3><p>{mode==="personal"?(view==="mine"?"You’re all caught up. New tasks will appear here when you need to act.":"No tasks match this view."):"When an authorized workflow needs action, FieldLance will surface it here with its SLA and source link."}</p></div>}
     </section>
   </section>;
 }

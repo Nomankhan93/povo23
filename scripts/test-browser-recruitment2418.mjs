@@ -90,9 +90,10 @@ try{
  assert.equal(sent.p_source_kind,'application');assert.equal(sent.p_source_id,id(10));
  console.log('PASS F06: selected application candidate opens and submits formal offer with exact source');
  stage='out of order filters';await go('/app/work/opportunities','worker','race');
+ await page.getByRole('button',{name:'Filters',exact:true}).click();
  const skill=page.getByPlaceholder('e.g. Data collection');await skill.fill('old');
  await page.waitForFunction(()=>window.rpcCalls.some(c=>c.name==='available_work_opportunities'&&c.args.p_skill==='old'));
- await skill.fill('new');await page.getByRole('heading',{name:'new opportunity 0'}).waitFor();await page.waitForTimeout(1100);
+ await skill.fill('new');await page.getByRole('button',{name:'Apply filters',exact:true}).click();await page.getByRole('heading',{name:'new opportunity 0'}).waitFor();await page.waitForTimeout(1100);
  assert.equal(await page.locator('.workforce-opportunity-card h4').innerText(),'new opportunity 0');
  console.log('PASS F04: reversed async responses preserve latest filter/results');
  stage='opportunity filter';await go('/org/'+org+'/recruitment','org','no-offer');

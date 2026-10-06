@@ -1,4 +1,8 @@
-# Current release checklist — FieldLance 2.41.8
+# Current release checklist — FieldLance 2.41.9
+
+Run full preflight/build, the 2.41.9 mobile suite, 2.41.8 routing regression and existing recruitment/workflow/offline/network/attendance/map browser suites. Verify metadata, secrets and diff hygiene. See VALIDATION-2.41.9.md for actual results. Physical mobile-browser verification follows a separately authorized deployment.
+
+# Historical release checklist — FieldLance 2.41.8
 
 Full preflight (including production build), the six existing browser suites, test:browser-recruitment-2418, release metadata/secrets checks and git diff --check passed. See VALIDATION-2.41.8.md for actual results. No migration, hosted change or deployment is part of this patch.
 

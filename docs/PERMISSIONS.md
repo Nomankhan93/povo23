@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.8
+# Current permissions note — FieldLance 2.41.9
+
+No RLS, grants, RPCs or collection permissions changed. Home field-work continuation uses the existing guarded project route. Consent representative disclosure mirrors the existing SQL minor/unknown-age rule (including household members) for presentation only; server consent and submission validation remain unchanged.
+
+# Historical permissions note — FieldLance 2.41.8
 
 No RLS, RPC, grants or collection rules changed. Active assignments navigate to the existing project workspace; can_collect_project remains authoritative. Staff review reads use the signed-in client and current RLS. Formal offers and acceptance remain required.
 

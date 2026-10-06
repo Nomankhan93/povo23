@@ -234,7 +234,8 @@ export function Notifications({
   }
 
   return (
-    <section className="notification-center">
+    <section className="notification-center" data-personal={mode==="personal"}>
+      <div className="mobile-updates-heading"><h2>Updates</h2><span>{unread} unread</span></div>
       <div className="notification-center-hero">
         <div>
           <span className="eyebrow">COMMUNICATION CENTER</span>

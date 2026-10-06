@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.8
+# Current architecture note — FieldLance 2.41.9
+
+Mobile-only presentation reuses existing recruitment relationships and survey state. Survey templates have ordered questions without section/group metadata; the frontend presents Consent, Person & household, ordered groups of up to four questions, and Review & submit. Sections remain mounted so capture state survives navigation. Existing visibleAnswers, captureErrors, useSurveySave and encrypted draft storage remain authoritative. No schema change.
+
+# Historical architecture note — FieldLance 2.41.8
 
 Recruitment display state resolves existing application/assignment relationships independently of visible queue pages. Exact dashboard counts, cancellable marketplace reads, contextual applicant routes and guarded field-work routes reuse existing Supabase APIs. A staff survey queue opens the existing response-review workspace. No schema changes.
 

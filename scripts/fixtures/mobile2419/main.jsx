@@ -1,0 +1,10 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {Workspace} from '../../../src/app/AppShell';
+import {rememberFieldOwner,loadSurveyDeviceDraft} from '../../../src/features/surveys/offlineSurveyStore';
+import {user,project} from './client';
+import '../../../src/style.css';
+import '../../../src/styles/design-system.css';
+rememberFieldOwner(user);
+window.mobileDraft=()=>loadSurveyDeviceDraft(user,project,null);
+createRoot(document.getElementById('root')).render(<Workspace session={{user:{id:user,email:'fixture@example.test'}}} openField={()=>{}}/>);
