@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.9
+# Current permissions note — FieldLance 2.41.10
+
+No role receives broader authority. Signed-in clients retain `can_collect_project` and the two retired review compatibility endpoints, but those functions no longer execute with owner privileges. `survey_assignment_candidates` is removed from `anon`/`authenticated` execution because permanent profile-share candidate discovery is not a current workflow. Anonymous execution remains allowed only for the explicitly shared public certificate verifier. Existing finance/funding/admin authorization checks remain authoritative and unchanged.
+
+# Historical permissions note — FieldLance 2.41.9
 
 No RLS, grants, RPCs or collection permissions changed. Home field-work continuation uses the existing guarded project route. Consent representative disclosure mirrors the existing SQL minor/unknown-age rule (including household members) for presentation only; server consent and submission validation remain unchanged.
 

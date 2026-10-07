@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.9
+# Current release: FieldLance 2.41.10
+
+Security Advisor RPC Surface Hardening. Unnecessary owner-context execution is removed from retired draft-review compatibility RPCs and the self-only collection eligibility wrapper; the stale profile-share candidate RPC is removed from browser execution; the intentional public certificate verifier is explicitly allowlisted. High-impact finance/funding/admin RPCs retain their guarded `SECURITY DEFINER` boundary. See docs/PHASE-2.41.10.md, docs/UPGRADE-2.41.10.md, docs/VALIDATION-2.41.10.md and docs/SECURITY-ADVISOR-2.41.10.md.
+
+# Historical release: FieldLance 2.41.9
 
 Mobile Field UX Stabilization. Recruitment lifecycle, task-first mobile pages, compact filters/sync and sectioned survey collection preserve current branding and authorization. See docs/PHASE-2.41.9.md, docs/UPGRADE-2.41.9.md and docs/VALIDATION-2.41.9.md.
 

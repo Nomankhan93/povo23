@@ -84,6 +84,7 @@ docs/PHASE-2.40.0.md
 docs/PHASE-2.40.1.md
 docs/PHASE-2.41.0.md
 docs/PHASE-2.41.1.md
+docs/PHASE-2.41.10.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -104,6 +105,7 @@ docs/PHASE-2.7.md
 docs/PHASE-2.8.md
 docs/PHASE-2.9.md
 docs/RELEASE-CHECKLIST.md
+docs/SECURITY-ADVISOR-2.41.10.md
 docs/SETUP-WSL.md
 docs/SQL-AUDIT-2.41.7.md
 docs/STABILIZATION-2.19.0.md
@@ -185,6 +187,7 @@ docs/UPGRADE-2.40.0.md
 docs/UPGRADE-2.40.1.md
 docs/UPGRADE-2.41.0.md
 docs/UPGRADE-2.41.1.md
+docs/UPGRADE-2.41.10.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -274,6 +277,7 @@ docs/VALIDATION-2.40.1.md
 docs/VALIDATION-2.41.0.md
 docs/VALIDATION-2.41.1-CORRECTIVE.md
 docs/VALIDATION-2.41.1.md
+docs/VALIDATION-2.41.10.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -428,6 +432,7 @@ scripts/test-profile-independence-photo.mjs
 scripts/test-profile-structured-ui.mjs
 scripts/test-recruitment-hardening2415.mjs
 scripts/test-release-consistency.mjs
+scripts/test-security-advisor24110.mjs
 scripts/test-sidebar-profile-grouping.mjs
 scripts/test-sql-authorization.mjs
 scripts/test-stabilization.mjs
@@ -652,5 +657,6 @@ supabase/migrations/20261013000530_collection_project_date_guard.sql
 supabase/migrations/20261013000540_wallet_production_capability.sql
 supabase/migrations/20261013000550_funding_commitment_release_reason.sql
 supabase/migrations/20261013000560_private_helper_and_anonymous_grants.sql
+supabase/migrations/20261013000570_security_advisor_rpc_surface_hardening.sql
 tsconfig.json
 vite.config.ts

@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.9
+# Current architecture note — FieldLance 2.41.10
+
+Security Advisor hardening preserves the guarded-RPC architecture while minimizing exposed owner-context execution. Retired pre-publication review compatibility failures and `can_collect_project` now run as `SECURITY INVOKER`; historical `survey_assignment_candidates` is no longer browser-executable. The bounded anonymous certificate verifier remains the single intentional anonymous public `SECURITY DEFINER` exception. Finance, funding, payable, wallet, attendance and other privileged workflows keep their existing server-side authorization and owner-context semantics.
+
+# Historical architecture note — FieldLance 2.41.9
 
 Mobile-only presentation reuses existing recruitment relationships and survey state. Survey templates have ordered questions without section/group metadata; the frontend presents Consent, Person & household, ordered groups of up to four questions, and Review & submit. Sections remain mounted so capture state survives navigation. Existing visibleAnswers, captureErrors, useSurveySave and encrypted draft storage remain authoritative. No schema change.
 

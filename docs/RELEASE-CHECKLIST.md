@@ -1,4 +1,21 @@
-# Current release checklist — FieldLance 2.41.9
+# Current release checklist — FieldLance 2.41.10
+
+Security Advisor RPC Surface Hardening. One forward migration is included.
+
+- [ ] `npx supabase migration up --local` applies `20261013000570_security_advisor_rpc_surface_hardening.sql` without reset.
+- [ ] `npm run test:security-advisor-24110` passes.
+- [ ] `npm run test:sql-authorization` and `npm run test:recruitment-hardening-2415` pass.
+- [ ] `npm run test:collection-dates-2415` passes, proving the invoker eligibility wrapper preserves collection rules.
+- [ ] `npm run types:check`, `npm run release:consistency`, `npm run check` and full `npm run preflight` pass.
+- [ ] Supabase Security Advisor no longer reports the two retired review functions, `can_collect_project`, or `survey_assignment_candidates` as signed-in `SECURITY DEFINER` surfaces.
+- [ ] `verify_field_worker_certificate(text)` remains the only intentional anonymous public `SECURITY DEFINER` RPC and public verification still returns only consented certificate fields.
+- [ ] High-impact finance/funding/payable/admin RPCs retain their existing guarded `SECURITY DEFINER` contracts.
+- [ ] Enable hosted Supabase Auth leaked-password protection separately where the project plan supports it; this is an Auth setting, not a database migration.
+- [ ] `npx supabase db push --dry-run` shows only the intended pending forward migration before any separately authorized remote push.
+
+See PHASE-2.41.10.md, SECURITY-ADVISOR-2.41.10.md and VALIDATION-2.41.10.md.
+
+# Historical release checklist — FieldLance 2.41.9
 
 Run full preflight/build, the 2.41.9 mobile suite, 2.41.8 routing regression and existing recruitment/workflow/offline/network/attendance/map browser suites. Verify metadata, secrets and diff hygiene. See VALIDATION-2.41.9.md for actual results. Physical mobile-browser verification follows a separately authorized deployment.
 

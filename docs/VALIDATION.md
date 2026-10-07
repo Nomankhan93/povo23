@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.9
+# Current validation — FieldLance 2.41.10
+
+See [VALIDATION-2.41.10.md](VALIDATION-2.41.10.md) for the Security Advisor RPC-surface migration, regression guard and required local/hosted verification.
+
+# Historical validation — FieldLance 2.41.9
 
 See [VALIDATION-2.41.9.md](VALIDATION-2.41.9.md) for responsive browser behavior, workflow validation and test boundaries.
 

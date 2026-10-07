@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.41.9
+Release: 2.41.10
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -76,8 +76,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - Mock and manual settlement both use exact server-generated allocation request IDs and existing work_payable_events, so the 2.17.2 finance bridge remains the only Committed → Spent path. Manual operations add server-side payout limits, dual control, unique provider references and reconciliation across allocation/payment/reversal/finance-link state.
 
 ===== DATABASE BASELINE =====
-Ordered migration files: 85
-Migration head: 20261013000560_private_helper_and_anonymous_grants.sql
+Ordered migration files: 86
+Migration head: 20261013000570_security_advisor_rpc_surface_hardening.sql
 Existing migration filenames are immutable historical ordering identifiers. New forward migrations must sort after the current head.
 
 - 20260911000100_poem_foundation.sql
@@ -165,12 +165,13 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000540_wallet_production_capability.sql
 - 20261013000550_funding_commitment_release_reason.sql
 - 20261013000560_private_helper_and_anonymous_grants.sql
+- 20261013000570_security_advisor_rpc_surface_hardening.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 112
+Test scripts (scripts/test-*.mjs): 113
 TypeScript/TSX source files: 122
-Markdown docs: 292
-Inventory files (excluding local/build/temp/backup state): 656
+Markdown docs: 296
+Inventory files (excluding local/build/temp/backup state): 662
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
