@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.10
+# Current release: FieldLance 2.41.11
+
+Canonical Routing & Production Domain Readiness. Auth email callbacks now resolve safely into the signed-in workspace, invalid nested URLs fail closed to the existing 404 surface, public certificate verification uses `/verify/:code` with legacy query-link compatibility, and Vercel serves filesystem assets before SPA deep-link fallback. Existing `/project/:id/*` project-tool URLs remain compatible; this release does not force a risky bookmark migration. See docs/PHASE-2.41.11.md, docs/UPGRADE-2.41.11.md, docs/VALIDATION-2.41.11.md and docs/DOMAIN-ROUTING-2.41.11.md.
+
+# Historical release: FieldLance 2.41.10
 
 Security Advisor RPC Surface Hardening. Unnecessary owner-context execution is removed from retired draft-review compatibility RPCs and the self-only collection eligibility wrapper; the stale profile-share candidate RPC is removed from browser execution; the intentional public certificate verifier is explicitly allowlisted. High-impact finance/funding/admin RPCs retain their guarded `SECURITY DEFINER` boundary. See docs/PHASE-2.41.10.md, docs/UPGRADE-2.41.10.md, docs/VALIDATION-2.41.10.md and docs/SECURITY-ADVISOR-2.41.10.md.
 

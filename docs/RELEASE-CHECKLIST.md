@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.41.10
+# Current release checklist — FieldLance 2.41.11
+
+Canonical Routing & Production Domain Readiness. No database migration is included.
+
+- [ ] `npm run test:routing-domain-24111` passes.
+- [ ] `npm run test:routing-236` and `npm run test:notification-routing-2413` remain green.
+- [ ] `/auth/callback` is recognized and successful sessions replace it with `/` before workspace routing.
+- [ ] `/verify/:code` opens public certificate verification; legacy `?certificate=` links canonicalize without changing certificate visibility rules.
+- [ ] Unknown `/app`, `/org`, `/staff` and `/projects` descendants return the existing Page not found surface instead of silently showing Overview.
+- [ ] Vercel `filesystem` handling precedes the SPA `index.html` fallback.
+- [ ] Existing `/project/:id/*` project-tool URLs remain compatible.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run preflight` and `git diff --check` pass.
+- [ ] After custom-domain setup, hosted Supabase Auth allows the production callback/reset origins documented in DOMAIN-ROUTING-2.41.11.md.
+
+See PHASE-2.41.11.md, UPGRADE-2.41.11.md, DOMAIN-ROUTING-2.41.11.md and VALIDATION-2.41.11.md.
+
+# Historical release checklist — FieldLance 2.41.10
 
 Security Advisor RPC Surface Hardening. One forward migration is included.
 

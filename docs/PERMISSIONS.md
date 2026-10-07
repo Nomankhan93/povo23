@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.10
+# Current permissions note — FieldLance 2.41.11
+
+No role, RLS policy, RPC grant or database permission changes. Routing remains presentation/navigation state only: malformed paths now fail closed instead of silently falling back to a workspace page, while valid paths still require current `my_workspace_access`, project visibility and existing source-specific authorization. Public certificate verification retains the same bounded anonymous RPC and only changes its browser URL from the legacy query form to canonical `/verify/:code`.
+
+# Historical permissions note — FieldLance 2.41.10
 
 No role receives broader authority. Signed-in clients retain `can_collect_project` and the two retired review compatibility endpoints, but those functions no longer execute with owner privileges. `survey_assignment_candidates` is removed from `anon`/`authenticated` execution because permanent profile-share candidate discovery is not a current workflow. Anonymous execution remains allowed only for the explicitly shared public certificate verifier. Existing finance/funding/admin authorization checks remain authoritative and unchanged.
 

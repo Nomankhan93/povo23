@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.41.10
+Release: 2.41.11
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -168,10 +168,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000570_security_advisor_rpc_surface_hardening.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 113
+Test scripts (scripts/test-*.mjs): 114
 TypeScript/TSX source files: 122
-Markdown docs: 296
-Inventory files (excluding local/build/temp/backup state): 662
+Markdown docs: 300
+Inventory files (excluding local/build/temp/backup state): 669
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

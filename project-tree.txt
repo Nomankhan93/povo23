@@ -7,6 +7,7 @@
 ./docs/ARCHITECTURE.md
 ./docs/COMMANDS-2.41.5.md
 ./docs/CORRECTIVE-2.41.1.md
+./docs/DOMAIN-ROUTING-2.41.11.md
 ./docs/IMPLEMENTATION-2.41.5.md
 ./docs/IMPLEMENTATION-2.41.6.md
 ./docs/IMPLEMENTATION-2.41.7.md
@@ -87,6 +88,7 @@
 ./docs/PHASE-2.41.0.md
 ./docs/PHASE-2.41.1.md
 ./docs/PHASE-2.41.10.md
+./docs/PHASE-2.41.11.md
 ./docs/PHASE-2.41.2.md
 ./docs/PHASE-2.41.3.md
 ./docs/PHASE-2.41.4.md
@@ -190,6 +192,7 @@
 ./docs/UPGRADE-2.41.0.md
 ./docs/UPGRADE-2.41.1.md
 ./docs/UPGRADE-2.41.10.md
+./docs/UPGRADE-2.41.11.md
 ./docs/UPGRADE-2.41.2.md
 ./docs/UPGRADE-2.41.3.md
 ./docs/UPGRADE-2.41.4.md
@@ -280,6 +283,7 @@
 ./docs/VALIDATION-2.41.1-CORRECTIVE.md
 ./docs/VALIDATION-2.41.1.md
 ./docs/VALIDATION-2.41.10.md
+./docs/VALIDATION-2.41.11.md
 ./docs/VALIDATION-2.41.2.md
 ./docs/VALIDATION-2.41.3.md
 ./docs/VALIDATION-2.41.4.md
@@ -443,6 +447,7 @@
 ./scripts/test-profile-structured-ui.mjs
 ./scripts/test-recruitment-hardening2415.mjs
 ./scripts/test-release-consistency.mjs
+./scripts/test-routing-domain24111.mjs
 ./scripts/test-security-advisor24110.mjs
 ./scripts/test-sidebar-profile-grouping.mjs
 ./scripts/test-sql-authorization.mjs
@@ -710,5 +715,7 @@
 ./supabase/migrations/20261013000560_private_helper_and_anonymous_grants.sql
 ./supabase/migrations/20261013000570_security_advisor_rpc_surface_hardening.sql
 ./supabase/snippets
+./supabase/snippets/.gitkeep
 ./tsconfig.json
+./vercel.json
 ./vite.config.ts

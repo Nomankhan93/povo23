@@ -28,6 +28,7 @@ export function App() {
       .getSession()
       .then(({ data, error }) => {
         if (alive) {
+          if(data.session&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
           setSession(data.session);
           if(data.session&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(data.session.user.id);setCachedOwner(data.session.user.id)}
           setReady(true);
@@ -41,6 +42,7 @@ export function App() {
         }
       });
     const { data } = db.auth.onAuthStateChange((event, s) => {
+      if(s&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
       setSession(s);
       if(event==="SIGNED_OUT"){lockFieldDevice();setCachedOwner(null);setField(false)}
       else if(s&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(s.user.id);setCachedOwner(s.user.id)}
@@ -67,7 +69,8 @@ export function App() {
         </p>
       </div>
     );
-  if(new URLSearchParams(location.search).has('certificate'))return <CertificateVerification/>;
+  const publicRoute=parseAppRoute(),legacyCertificate=new URLSearchParams(location.search).get('certificate');
+  if(publicRoute.kind==='verify'||legacyCertificate)return <CertificateVerification initialCode={publicRoute.kind==='verify'?publicRoute.entityId||'':legacyCertificate||''}/>;
   if(!connection&&!cachedOwner&&!recovery)return <main className="panel"><h1>Field device locked</h1><p>Connect and sign in as the owner to reopen downloaded data. Device copies have not been deleted.</p></main>;
   if(field&&cachedOwner&&!recovery&&parseAppRoute().kind==="unknown")return <main className="panel"><h1>Page not found</h1><p>This address is invalid. Your downloaded data is unchanged.</p><a href="/app/field">Open downloaded field workspace</a></main>;
   if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} initialSessionId={parseAppRoute().entityKind==="attendance_session"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;

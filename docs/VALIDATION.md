@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.10
+# Current validation — FieldLance 2.41.11
+
+See [VALIDATION-2.41.11.md](VALIDATION-2.41.11.md) for strict route parsing, auth callback, certificate URL, Vercel SPA fallback and compatibility checks.
+
+# Historical validation — FieldLance 2.41.10
 
 See [VALIDATION-2.41.10.md](VALIDATION-2.41.10.md) for the Security Advisor RPC-surface migration, regression guard and required local/hosted verification.
 

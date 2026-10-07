@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.10
+# Current architecture note — FieldLance 2.41.11
+
+Browser routing is now strict and production-host aware. `parseAppRoute` recognizes transient `/auth/callback` and public `/verify/:code` routes, rejects unknown slugs and malformed extra segments, and validates project-tab/entity shapes before workspace restoration. Vercel uses filesystem-first SPA fallback so static assets are not rewritten while bookmarked application routes still resolve through `index.html`. Authorization remains independent of routing and continues to be resolved from server-backed workspace access.
+
+# Historical architecture note — FieldLance 2.41.10
 
 Security Advisor hardening preserves the guarded-RPC architecture while minimizing exposed owner-context execution. Retired pre-publication review compatibility failures and `can_collect_project` now run as `SECURITY INVOKER`; historical `survey_assignment_candidates` is no longer browser-executable. The bounded anonymous certificate verifier remains the single intentional anonymous public `SECURITY DEFINER` exception. Finance, funding, payable, wallet, attendance and other privileged workflows keep their existing server-side authorization and owner-context semantics.
 
