@@ -1,6 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import { HeartHandshake } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Auth } from "../features/auth/Auth";
 import { configured, db } from "../lib/supabase/client";
 import {flushActiveDraft} from "../features/surveys/activeDraft";
@@ -9,31 +9,50 @@ import {offlineOwner,rememberFieldOwner,lockFieldDevice} from "../features/surve
 import {CertificateVerification} from "../features/workforce/ReputationCertificates";
 import { Workspace } from "./AppShell";
 import {parseAppRoute} from "./routes";
+import {canUseRecoveryForm,clearRecoveryUser,recoveryRedirectError,recoveryUserId,rememberRecoveryUser} from "../features/auth/recoverySession";
 export function App() {
   const [connection,setConnection]=useState(navigator.onLine);
   const [field,setField]=useState(!navigator.onLine),[cachedOwner,setCachedOwner]=useState(offlineOwner());
   useEffect(()=>{const online=()=>setConnection(true),offline=()=>{setConnection(false);setCachedOwner(offlineOwner())},locked=()=>{setCachedOwner(offlineOwner());if(!offlineOwner())setField(false)};window.addEventListener("online",online);window.addEventListener("offline",offline);window.addEventListener("poem:field-unlocked",locked);window.addEventListener("storage",locked);window.addEventListener("poem:field-locked",locked);return()=>{window.removeEventListener("online",online);window.removeEventListener("offline",offline);window.removeEventListener("poem:field-unlocked",locked);window.removeEventListener("storage",locked);window.removeEventListener("poem:field-locked",locked)}},[]);
+  const initialRoute=parseAppRoute(), recoveryRequested=initialRoute.kind==="reset";
+  const initialRedirectError=recoveryRequested||initialRoute.kind==="auth_callback"?recoveryRedirectError():"";
   const [session, setSession] = useState<Session | null>(null),
     [ready, setReady] = useState(false),
-    [recovery, setRecovery] = useState(location.pathname === "/reset"),
-    [error, setError] = useState("");
+    [recoveryUser, setRecoveryUser] = useState<string | null>(()=>recoveryRequested?recoveryUserId():null),
+    [error, setError] = useState(initialRedirectError);
+  const authEventSeen=useRef(false);
+  const recovery=canUseRecoveryForm(recoveryRequested,session?.user.id||null,recoveryUser);
   useEffect(() => {
+    if (!recoveryRequested) { clearRecoveryUser(); setRecoveryUser(null); }
+    else if(initialRedirectError) history.replaceState({},"","/reset");
     if (!db) {
       setReady(true);
       return;
     }
     if(!connection&&offlineOwner()){setReady(true);return;}
     let alive = true;
+    authEventSeen.current=false;
+    const { data } = db.auth.onAuthStateChange((event, s) => {
+      if(!alive)return;
+      authEventSeen.current=true;
+      const route=parseAppRoute();
+      if(event==="PASSWORD_RECOVERY"&&s&&route.kind==="reset"){rememberRecoveryUser(s.user.id);setRecoveryUser(s.user.id);setError("");history.replaceState({},"","/reset")}
+      if(route.kind==="auth_callback"&&(s||event==="INITIAL_SESSION")){history.replaceState({},"","/")}
+      setSession(s);
+      if(event==="SIGNED_OUT"){clearRecoveryUser();setRecoveryUser(null);lockFieldDevice();setCachedOwner(null);setField(false)}
+      else if(s&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(s.user.id);setCachedOwner(s.user.id)}
+      setReady(true);
+    });
     db.auth
       .getSession()
-      .then(({ data, error }) => {
-        if (alive) {
-          if(data.session&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
-          setSession(data.session);
-          if(data.session&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(data.session.user.id);setCachedOwner(data.session.user.id)}
-          setReady(true);
-          if (error) setError(error.message);
-        }
+      .then(({ data: current, error: sessionError }) => {
+        if (!alive) return;
+        if(!authEventSeen.current)setSession(current.session);
+        if(current.session&&recoveryRequested&&recoveryUserId()===current.session.user.id)setRecoveryUser(current.session.user.id);
+        if(current.session&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
+        if(current.session&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(current.session.user.id);setCachedOwner(current.session.user.id)}
+        setReady(true);
+        if (sessionError) setError(sessionError.message);
       })
       .catch((e) => {
         if (alive) {
@@ -41,19 +60,11 @@ export function App() {
           setReady(true);
         }
       });
-    const { data } = db.auth.onAuthStateChange((event, s) => {
-      if(s&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
-      setSession(s);
-      if(event==="SIGNED_OUT"){lockFieldDevice();setCachedOwner(null);setField(false)}
-      else if(s&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(s.user.id);setCachedOwner(s.user.id)}
-      setReady(true);
-      if (event === "PASSWORD_RECOVERY") setRecovery(true);
-    });
     return () => {
       alive = false;
       data.subscription.unsubscribe();
     };
-  }, [connection]);
+  }, [connection,recoveryRequested,initialRedirectError]);
   if (!configured)
     return (
       <div className="setup">
@@ -71,24 +82,26 @@ export function App() {
     );
   const publicRoute=parseAppRoute(),legacyCertificate=new URLSearchParams(location.search).get('certificate');
   if(publicRoute.kind==='verify'||legacyCertificate)return <CertificateVerification initialCode={publicRoute.kind==='verify'?publicRoute.entityId||'':legacyCertificate||''}/>;
-  if(!connection&&!cachedOwner&&!recovery)return <main className="panel"><h1>Field device locked</h1><p>Connect and sign in as the owner to reopen downloaded data. Device copies have not been deleted.</p></main>;
-  if(field&&cachedOwner&&!recovery&&parseAppRoute().kind==="unknown")return <main className="panel"><h1>Page not found</h1><p>This address is invalid. Your downloaded data is unchanged.</p><a href="/app/field">Open downloaded field workspace</a></main>;
-  if(field&&cachedOwner&&!recovery)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} initialSessionId={parseAppRoute().entityKind==="attendance_session"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;
+  if(!connection&&!cachedOwner&&!recoveryRequested)return <main className="panel"><h1>Field device locked</h1><p>Connect and sign in as the owner to reopen downloaded data. Device copies have not been deleted.</p></main>;
+  if(field&&cachedOwner&&!recoveryRequested&&parseAppRoute().kind==="unknown")return <main className="panel"><h1>Page not found</h1><p>This address is invalid. Your downloaded data is unchanged.</p><a href="/app/field">Open downloaded field workspace</a></main>;
+  if(field&&cachedOwner&&!recoveryRequested)return <Suspense fallback={<p>Opening downloaded field workspace…</p>}><OfflineFieldWorkspace key={cachedOwner} ownerId={cachedOwner} initialView={parseAppRoute().page==="My Attendance"||parseAppRoute().page==="My Timesheets"?"attendance":"surveys"} initialAssignmentId={parseAppRoute().entityKind==="assignment"?parseAppRoute().entityId:null} initialSessionId={parseAppRoute().entityKind==="attendance_session"?parseAppRoute().entityId:null} back={()=>setField(false)}/></Suspense>;
   if (!ready)
     return (
       <div className="setup" role="status">
         Opening FieldLance…
       </div>
     );
-  return session && !recovery && localStorage.getItem("poem-field-locked")!=="yes" ? (
+  return session && !recoveryRequested && localStorage.getItem("poem-field-locked")!=="yes" ? (
     <Workspace key={session.user.id} session={session} openField={()=>{void flushActiveDraft().then(()=>setField(true)).catch(e=>window.alert("Could not protect device draft: "+e.message))}} />
   ) : (
     <Auth
       session={session}
       recovery={recovery}
-      error={error}
+      recoveryRequested={recoveryRequested}
+      error={error || (recoveryRequested&&!recovery&&ready ? "This password reset link is invalid or has expired. Request a new reset link." : "")}
       done={() => {
-        setRecovery(false);
+        clearRecoveryUser();
+        setRecoveryUser(null);
         history.replaceState({}, "", "/");
       }}
     />

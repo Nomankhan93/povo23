@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.11
+# Current release: FieldLance 2.41.12
+
+Auth Recovery & Session Boundary Hardening. The `/reset` pathname no longer authorizes password mutation by itself: the new-password form requires a Supabase `PASSWORD_RECOVERY` event for the same user, recovery identity is tab-scoped and cleared after use, redirect failures become actionable reset-request states, auth initialization is race-safe, and local Auth secure-password reauthentication is enabled. No database migration is added. See docs/PHASE-2.41.12.md, docs/UPGRADE-2.41.12.md, docs/VALIDATION-2.41.12.md and docs/AUTH-SESSION-2.41.12.md.
+
+# Historical release: FieldLance 2.41.11
 
 Canonical Routing & Production Domain Readiness. Auth email callbacks now resolve safely into the signed-in workspace, invalid nested URLs fail closed to the existing 404 surface, public certificate verification uses `/verify/:code` with legacy query-link compatibility, and Vercel serves filesystem assets before SPA deep-link fallback. Existing `/project/:id/*` project-tool URLs remain compatible; this release does not force a risky bookmark migration. See docs/PHASE-2.41.11.md, docs/UPGRADE-2.41.11.md, docs/VALIDATION-2.41.11.md and docs/DOMAIN-ROUTING-2.41.11.md.
 

@@ -88,15 +88,17 @@ function PasswordInput({
 export function Auth({
   session,
   recovery,
+  recoveryRequested,
   error: initialError,
   done,
 }: {
   session: Session | null;
   recovery: boolean;
+  recoveryRequested: boolean;
   error: string;
   done: () => void;
 }) {
-  const [mode, setMode] = useState(recovery ? "reset" : "login"),
+  const [mode, setMode] = useState(recovery ? "reset" : recoveryRequested ? "forgot" : "login"),
     [entry, setEntry] = useState<WorkspaceEntryIntent>("volunteer"),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
@@ -106,7 +108,12 @@ export function Auth({
 
   useEffect(() => {
     if (recovery) setMode("reset");
-  }, [recovery]);
+    else if (recoveryRequested && mode === "reset") setMode("forgot");
+  }, [recovery,recoveryRequested,mode]);
+
+  useEffect(() => {
+    setError(initialError);
+  }, [initialError]);
 
   function clearFeedback() {
     setError("");
@@ -165,7 +172,7 @@ export function Auth({
         setMessage("If this email is registered, a reset link will arrive shortly.");
       }
       if (mode === "reset") {
-        if (!session) throw Error("Open the latest reset link from your email.");
+        if (!recovery || !session) throw Error("Open the latest reset link from your email.");
         if (password !== f.get("confirm")) throw Error("Passwords do not match.");
         const r = await db!.auth.updateUser({ password });
         if (r.error) throw r.error;
@@ -329,7 +336,7 @@ export function Auth({
               className="link auth-back-link"
               onClick={() => {
                 switchMode("login");
-                if (recovery) done();
+                if (recoveryRequested) done();
               }}
             >
               Back to sign in

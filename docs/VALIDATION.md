@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.11
+# Current validation — FieldLance 2.41.12
+
+See [VALIDATION-2.41.12.md](VALIDATION-2.41.12.md) for recovery-event gating, invalid/expired reset handling, auth initialization ordering, local secure-password configuration and targeted compatibility checks.
+
+# Historical validation — FieldLance 2.41.11
 
 See [VALIDATION-2.41.11.md](VALIDATION-2.41.11.md) for strict route parsing, auth callback, certificate URL, Vercel SPA fallback and compatibility checks.
 

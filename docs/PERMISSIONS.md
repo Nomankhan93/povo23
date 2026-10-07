@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.11
+# Current permissions note — FieldLance 2.41.12
+
+No role, RLS policy, RPC grant or database permission changes. Password recovery UI now requires a recovery-auth event for the same authenticated user instead of trusting `/reset`. Local Auth secure-password reauthentication is enabled; hosted current-password enforcement remains a separate deployment setting. Existing workspace, project, RLS and RPC authorization remains unchanged.
+
+# Historical permissions note — FieldLance 2.41.11
 
 No role, RLS policy, RPC grant or database permission changes. Routing remains presentation/navigation state only: malformed paths now fail closed instead of silently falling back to a workspace page, while valid paths still require current `my_workspace_access`, project visibility and existing source-specific authorization. Public certificate verification retains the same bounded anonymous RPC and only changes its browser URL from the legacy query form to canonical `/verify/:code`.
 

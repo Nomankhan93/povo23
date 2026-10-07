@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.11
+# Current architecture note — FieldLance 2.41.12
+
+Auth recovery is event-gated rather than pathname-gated. `/reset` is only a public recovery-request destination until Supabase emits `PASSWORD_RECOVERY`; the recovery user is bridged across same-tab reloads with sessionStorage and cleared after completion/sign-out. Auth events are subscribed before the initial session read so newer auth state cannot be overwritten by a stale initialization promise. Local Auth enables secure-password reauthentication. No database/RLS architecture changes.
+
+# Historical architecture note — FieldLance 2.41.11
 
 Browser routing is now strict and production-host aware. `parseAppRoute` recognizes transient `/auth/callback` and public `/verify/:code` routes, rejects unknown slugs and malformed extra segments, and validates project-tab/entity shapes before workspace restoration. Vercel uses filesystem-first SPA fallback so static assets are not rewritten while bookmarked application routes still resolve through `index.html`. Authorization remains independent of routing and continues to be resolved from server-backed workspace access.
 

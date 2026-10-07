@@ -11,8 +11,8 @@ ok('auth callback is a recognized transient public route',()=>{
   assert.equal(isExplicitRoute(callback),false);
   assert.equal(parseAppRoute('/auth/callback/extra').kind,'unknown');
   const app=readFileSync('src/app/App.tsx','utf8');
-  assert.match(app,/data\.session&&parseAppRoute\(\)\.kind==="auth_callback"/);
-  assert.match(app,/s&&parseAppRoute\(\)\.kind==="auth_callback"/);
+  assert.match(app,/route\.kind==="auth_callback"&&\(s\|\|event==="INITIAL_SESSION"\)/);
+  assert.match(app,/current\.session&&parseAppRoute\(\)\.kind==="auth_callback"/);
   assert.match(app,/history\.replaceState\(\{\},"","\/"\)/);
   const auth=readFileSync('src/features/auth/Auth.tsx','utf8');
   assert.match(auth,/emailRedirectTo:\s*location\.origin \+ "\/auth\/callback"/);

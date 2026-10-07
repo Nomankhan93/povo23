@@ -1,4 +1,19 @@
-# Current release checklist — FieldLance 2.41.11
+# Current release checklist — FieldLance 2.41.12
+
+Auth Recovery & Session Boundary Hardening. No database migration is included.
+
+- [ ] `npm run test:auth-session-24112` passes.
+- [ ] `npm run test:identity-workspaces` and `npm run test:routing-domain-24111` remain green.
+- [ ] Manually opening `/reset` with a normal session never exposes the new-password form.
+- [ ] A real recovery email produces `PASSWORD_RECOVERY`, enables the reset form and clears recovery state after password update.
+- [ ] Invalid/expired recovery redirects show a useful error and fresh reset request without retaining transient auth fragments.
+- [ ] `secure_password_change = true` remains in local Supabase config.
+- [ ] Hosted production Auth enables secure password change, current-password enforcement for normal password changes, leaked-password protection and production callback/reset URLs.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+
+See PHASE-2.41.12.md, UPGRADE-2.41.12.md, AUTH-SESSION-2.41.12.md and VALIDATION-2.41.12.md.
+
+# Historical release checklist — FieldLance 2.41.11
 
 Canonical Routing & Production Domain Readiness. No database migration is included.
 

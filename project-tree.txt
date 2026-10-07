@@ -5,6 +5,7 @@
 ./docs
 ./docs/ACCEPTANCE-2.12.md
 ./docs/ARCHITECTURE.md
+./docs/AUTH-SESSION-2.41.12.md
 ./docs/COMMANDS-2.41.5.md
 ./docs/CORRECTIVE-2.41.1.md
 ./docs/DOMAIN-ROUTING-2.41.11.md
@@ -89,6 +90,7 @@
 ./docs/PHASE-2.41.1.md
 ./docs/PHASE-2.41.10.md
 ./docs/PHASE-2.41.11.md
+./docs/PHASE-2.41.12.md
 ./docs/PHASE-2.41.2.md
 ./docs/PHASE-2.41.3.md
 ./docs/PHASE-2.41.4.md
@@ -193,6 +195,7 @@
 ./docs/UPGRADE-2.41.1.md
 ./docs/UPGRADE-2.41.10.md
 ./docs/UPGRADE-2.41.11.md
+./docs/UPGRADE-2.41.12.md
 ./docs/UPGRADE-2.41.2.md
 ./docs/UPGRADE-2.41.3.md
 ./docs/UPGRADE-2.41.4.md
@@ -284,6 +287,7 @@
 ./docs/VALIDATION-2.41.1.md
 ./docs/VALIDATION-2.41.10.md
 ./docs/VALIDATION-2.41.11.md
+./docs/VALIDATION-2.41.12.md
 ./docs/VALIDATION-2.41.2.md
 ./docs/VALIDATION-2.41.3.md
 ./docs/VALIDATION-2.41.4.md
@@ -350,6 +354,7 @@
 ./scripts/test-area-operations.mjs
 ./scripts/test-area-picker.mjs
 ./scripts/test-attendance-client2401.mjs
+./scripts/test-auth-session24112.mjs
 ./scripts/test-branding2195.mjs
 ./scripts/test-browser-attendance2414.mjs
 ./scripts/test-browser-map2411.mjs
@@ -494,6 +499,7 @@
 ./src/features/auth/AccountAccess.tsx
 ./src/features/auth/Auth.tsx
 ./src/features/auth/entryIntent.ts
+./src/features/auth/recoverySession.ts
 ./src/features/cases
 ./src/features/cases/BeneficiaryCasesWorkspace.tsx
 ./src/features/cases/DelegatedCasesWorkspace.tsx
