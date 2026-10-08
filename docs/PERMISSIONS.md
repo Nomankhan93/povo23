@@ -1,4 +1,4 @@
-# Current permissions note — FieldLance 2.41.16
+# Current permissions note — FieldLance 2.41.17
 
 2.41.16 changes browser/deployment security, not application authorization. CSP, frame denial, permissions policy and canonical-domain handling do not grant or remove workspace capabilities. Geolocation remains allowed only to the FieldLance origin for explicit attendance/map evidence; camera/microphone/payment/USB are denied by policy. RLS and guarded RPCs remain authoritative. No database migration is added.
 
@@ -562,3 +562,7 @@ Direct application/document table writes are not granted to authenticated client
 - Project/organization managers: existing project-management authority applies; no new organization-wide location grant is introduced.
 - Source navigation is exposed only when the actor can read that source class, and the target query/RPC re-checks permission.
 - Geography filters do not independently authorize boundary geometry.
+
+## 2.41.17 mobile acceptance boundary
+
+Mobile layout and PWA acceptance do not change authorization. Field Worker GPS remains explicit and action-bound; browser geolocation permission does not grant broader project, attendance, survey, case or finance access. Existing RLS/guarded RPCs remain authoritative.

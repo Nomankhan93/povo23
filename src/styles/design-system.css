@@ -417,3 +417,11 @@ body{background:var(--fieldlance-canvas);color:var(--fieldlance-ink)}
  html:has(.has-mobile-worker-nav){scroll-padding-bottom:calc(92px + env(safe-area-inset-bottom))}
  .survey-question button{scroll-margin-bottom:calc(92px + env(safe-area-inset-bottom))}
 }
+/* FieldLance 2.41.17 — mobile production acceptance and safe-area hardening. */
+@media(max-width:800px){
+ .has-mobile-worker-nav .content{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+ .app>main>header{padding-top:calc(12px + env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+ .app>.sidebar.open{padding-top:calc(14px + env(safe-area-inset-top));padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+ .survey-sync-card{top:calc(64px + env(safe-area-inset-top))}
+ .mobile-filter-dialog,.recruitment-application-dialog{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+}

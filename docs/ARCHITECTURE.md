@@ -1,4 +1,4 @@
-# Current architecture note — FieldLance 2.41.16
+# Current architecture note — FieldLance 2.41.17
 
 The production web boundary is now explicit. `vercel.json` uses higher-level SPA rewrites with filesystem precedence and security/cache response headers. `src/app/publicOrigin.ts` centralizes an optional canonical production origin for email confirmation, password recovery and public certificate links while preserving `window.location.origin` fallback for local/preview use. Browser hardening does not replace PostgreSQL RLS/RPC authorization. No database schema change is introduced.
 
@@ -511,3 +511,7 @@ FieldLance reuses the existing beneficiary-case, follow-up and Task Center stack
 `field_operations_map_page(...)` is the current map read contract. It derives authorized survey, attendance and case-visit evidence, applies server-side operational filters, computes full matched counters, and returns a bounded keyset page. The older `field_operations_map(...)` remains compatibility-only. MapLibre remains presentation; PostgreSQL remains the location-quality and authorization authority.
 
 The review list and markers use the same returned page, while summary counters describe the full filtered authorized set. Boundary geometry is returned only for authorized page/project scope. Source actions are capability hints only; destination surfaces still enforce existing RLS/RPC authorization.
+
+## FieldLance 2.41.17 mobile production boundary
+
+The Field Worker client remains the same responsive web/PWA application. `viewport-fit=cover` activates CSS safe-area insets for notched/home-indicator devices; no native Android/iOS client or background tracking service is introduced. Production acceptance composes existing browser suites and a deployed-shell check, while physical permission/offline/keyboard behavior remains a post-deployment browser gate.

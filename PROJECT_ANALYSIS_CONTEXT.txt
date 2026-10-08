@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.41.16
+Release: 2.41.17
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -26,6 +26,7 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - 2.41.11 makes browser routes strict and custom-domain ready, including transient Auth callback and canonical public certificate verification paths.
 - 2.41.12 requires an observed recovery session before password mutation; 2.41.13 narrows workspace foreground refresh; 2.41.14 centralizes frontend navigation capabilities; 2.41.15 aligns Project Manager assignment finalization with the project-management contract.
 - 2.41.16 adds production web response hardening, modern Vercel SPA rewrites and one optional canonical app origin for Auth/certificate links. Hosted Supabase Auth settings remain a separate deployment responsibility.
+- 2.41.17 activates mobile safe-area handling on notched/home-indicator devices and formalizes targeted, deployed-shell and physical Field Worker mobile-browser production acceptance without adding native-app or background-location behavior.
 - 2.41.0 adds safe app-route offline shell fallback, combined survey/attendance device inventory, explicit owner erase, attendance sync receipts and expiring downloaded attendance access.
 - 2.40.1 stabilizes versioned case evidence, attendance policy refresh, encrypted attendance writes and boundary validation; see current upgrade and validation notes.
 - 2.40.0 adds Field Operations Map and Geographic Quality on top of existing survey GPS, attendance check-in/out and delegated case-visit evidence. MapLibre is presentation only; PostgreSQL remains the quality/authorization authority.
@@ -172,10 +173,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000580_project_lifecycle_e2e_integrity.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 120
+Test scripts (scripts/test-*.mjs): 121
 TypeScript/TSX source files: 126
-Markdown docs: 320
-Inventory files (excluding local/build/temp/backup state): 701
+Markdown docs: 324
+Inventory files (excluding local/build/temp/backup state): 707
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -207,6 +208,9 @@ npm run test:field-map-240
 npm run test:map-review-2411
 npm run test:browser-map-2411
 npm run test:notification-routing-2413
+npm run test:mobile-production-24117
+npm run test:browser-mobile-production-24117
+npm run check:mobile-production-24117
 
 ===== KNOWN SCALE / OPERATIONS LIMITS =====
 - Supporting UI lists still use bounded fetches in several places (for example account/organization/membership/event selectors).
@@ -215,8 +219,8 @@ npm run test:notification-routing-2413
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.41.16 completes the current production web/domain hardening boundary without changing database authorization. Custom-domain launch still requires hosted Vercel DNS/environment and Supabase Auth configuration plus deployed acceptance.
-Future releases must use versions greater than 2.41.16. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+FieldLance 2.41.17 completes the current mobile Field Worker production-acceptance boundary without changing database authorization. Production launch still requires the 2.41.16 hosted domain/Auth controls plus deployed physical-browser acceptance.
+Future releases must use versions greater than 2.41.17. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
 The next planned major release is 2.42.0 Concurrent Assignment & Worker Capacity Safety: prove and serialize cross-project capacity decisions under simultaneous requests before production pilot.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.

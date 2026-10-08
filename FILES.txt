@@ -10,6 +10,7 @@ docs/DOMAIN-ROUTING-2.41.11.md
 docs/IMPLEMENTATION-2.41.5.md
 docs/IMPLEMENTATION-2.41.6.md
 docs/IMPLEMENTATION-2.41.7.md
+docs/MOBILE-PRODUCTION-ACCEPTANCE-2.41.17.md
 docs/NAVIGATION-CAPABILITY-2.41.14.md
 docs/PAYMENTS-AUDIT-2.18.1.md
 docs/PERMISSIONS.md
@@ -94,6 +95,7 @@ docs/PHASE-2.41.13.md
 docs/PHASE-2.41.14.md
 docs/PHASE-2.41.15.md
 docs/PHASE-2.41.16.md
+docs/PHASE-2.41.17.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -205,6 +207,7 @@ docs/UPGRADE-2.41.13.md
 docs/UPGRADE-2.41.14.md
 docs/UPGRADE-2.41.15.md
 docs/UPGRADE-2.41.16.md
+docs/UPGRADE-2.41.17.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -301,6 +304,7 @@ docs/VALIDATION-2.41.13.md
 docs/VALIDATION-2.41.14.md
 docs/VALIDATION-2.41.15.md
 docs/VALIDATION-2.41.16.md
+docs/VALIDATION-2.41.17.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -338,6 +342,7 @@ scripts/bootstrap-admin.mjs
 scripts/browser-network2412.mjs
 scripts/build-field-worker.mjs
 scripts/check-env.mjs
+scripts/check-mobile-production24117.mjs
 scripts/check-production-domain24116.mjs
 scripts/check-release-secrets.mjs
 scripts/fixtures/device241/client.js
@@ -395,6 +400,7 @@ scripts/test-local-recruitment2415.mjs
 scripts/test-local-workflow2416.mjs
 scripts/test-map-client2411.mjs
 scripts/test-map-review2411.mjs
+scripts/test-mobile-production24117.mjs
 scripts/test-navigation-capability24114.mjs
 scripts/test-navigation2252.mjs
 scripts/test-notification-center2240.mjs

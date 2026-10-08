@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.16
+# Current release: FieldLance 2.41.17
+
+Mobile Field Worker Production Acceptance. The mobile web shell now activates iOS safe-area insets with `viewport-fit=cover`, protects header/drawer/content/sync overlays on notched devices, and adds targeted source, composed real-browser and deployed-shell acceptance gates. Physical post-deployment browser acceptance remains required for GPS permission, offline recovery, virtual keyboard and installed-PWA behavior. No database migration is added. See docs/PHASE-2.41.17.md, docs/UPGRADE-2.41.17.md, docs/VALIDATION-2.41.17.md and docs/MOBILE-PRODUCTION-ACCEPTANCE-2.41.17.md.
+
+# Historical release: FieldLance 2.41.16
 
 Production Web Security & Domain Launch. Vercel now uses modern filesystem-first SPA rewrites plus CSP/HSTS/frame/MIME/referrer/permissions/no-index headers and explicit shell/asset cache policy. Auth confirmation, reset and certificate links can use one canonical HTTPS `VITE_PUBLIC_APP_ORIGIN` while local/preview origins remain compatible when it is unset. Hosted Supabase Site URL/redirect/password/SMTP settings remain separate deployment controls. No database migration is added. See docs/PHASE-2.41.16.md, docs/UPGRADE-2.41.16.md, docs/VALIDATION-2.41.16.md and docs/PRODUCTION-WEB-2.41.16.md.
 

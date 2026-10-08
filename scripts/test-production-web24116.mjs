@@ -67,7 +67,8 @@ ok('2.41.16 adds no database migration',()=>{
 
 ok('2.41.16 release and production launch commands are registered',()=>{
   const pkg=JSON.parse(read('package.json'));
-  assert.equal(pkg.version,'2.41.16');
+  const [major,minor,patch]=pkg.version.split('.').map(Number);
+  assert.ok(major>2||(major===2&&(minor>41||(minor===41&&patch>=16))),`expected release >= 2.41.16, found ${pkg.version}`);
   assert.equal(pkg.scripts['test:production-web-24116'],'node scripts/test-production-web24116.mjs');
   assert.equal(pkg.scripts['check:production-domain-24116'],'node scripts/check-production-domain24116.mjs');
   assert.match(read('docs/PRODUCTION-WEB-2.41.16.md'),/Production Web Security & Domain Launch/);

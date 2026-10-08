@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.16
+# Current validation — FieldLance 2.41.17
+
+See [VALIDATION-2.41.17.md](VALIDATION-2.41.17.md) for mobile safe-area hardening, Field Worker mobile/offline/browser acceptance, deployed HTTPS/PWA shell verification and the physical production acceptance boundary.
+
+# Historical validation — FieldLance 2.41.16
 
 See [VALIDATION-2.41.16.md](VALIDATION-2.41.16.md) for CSP/Vercel/canonical-origin regression, production environment launch gating, auth/routing compatibility, build/security-secret checks and hosted custom-domain acceptance.
 

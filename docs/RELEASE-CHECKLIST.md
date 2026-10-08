@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.41.16
+# Current release checklist — FieldLance 2.41.17
+
+Mobile Field Worker Production Acceptance. No database migration is included.
+
+- [ ] `npm run test:mobile-production-24117` passes.
+- [ ] `npm run test:browser-mobile-production-24117` passes on the project-pinned Node/Playwright environment.
+- [ ] `npm run test:production-web-24116`, `npm run release:consistency`, `npm run check:release-secrets`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] After deployment, `FIELDLANCE_PRODUCTION_URL=https://<canonical-app-origin> npm run check:mobile-production-24117` passes.
+- [ ] Physical Android Chrome acceptance covers Work → assignment → attendance → field survey → offline/sync and bottom-nav/keyboard clearance.
+- [ ] iPhone Safari/WebKit is checked when available for notch/top-bar and home-indicator safe-area clearance.
+- [ ] Installed/standalone PWA is launched when installation is supported and uses the same canonical session/routes.
+- [ ] No continuous/background geolocation is introduced; location remains explicit check-in/check-out or existing explicit field evidence only.
+- [ ] `npx supabase migration list` remains aligned through `20261013000580`; there is no 2.41.17 database push.
+
+See PHASE-2.41.17.md, UPGRADE-2.41.17.md, MOBILE-PRODUCTION-ACCEPTANCE-2.41.17.md and VALIDATION-2.41.17.md.
+
+# Historical release checklist — FieldLance 2.41.16
 
 Production Web Security & Domain Launch. No database migration is included.
 
