@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.13
+# Current architecture note — FieldLance 2.41.14
+
+Frontend workspace capability derivation is centralized in `src/app/capabilityContract.ts`. It produces role/workspace capability flags and authorized page identifiers; `AppShell.tsx` maps those authorized page IDs to presentation icons and existing workspace components. This contract is not an authorization boundary: PostgreSQL RLS, guarded RPCs and current server-backed memberships/project assignments remain authoritative. No database architecture changes.
+
+# Historical architecture note — FieldLance 2.41.13
 
 Workspace shell data loading is split by freshness responsibility. Full bootstrap still loads broad navigation context, while foreground focus/visibility refreshes only account status, `my_workspace_access()`, notifications, active project assignments and recent activity. Geography and account-directory collections are demand-loaded and cached in memory. RLS and guarded RPCs remain authoritative; this is a frontend query-efficiency change only.
 

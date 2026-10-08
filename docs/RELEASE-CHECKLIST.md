@@ -1,4 +1,19 @@
-# Current release checklist — FieldLance 2.41.13
+# Current release checklist — FieldLance 2.41.14
+
+Navigation & Capability Contract. No database migration is included.
+
+- [ ] `npm run test:navigation-capability-24114` passes.
+- [ ] `npm run test:staff-operations` and `npm run test:organization-workspace` remain green with the centralized contract.
+- [ ] Super Admin/Admin/Volunteer Manager/NGO Manager/Survey Manager/Auditor sidebars expose only their existing tools.
+- [ ] Field Worker, Organization, Project Manager and Area Focal Person navigation remains behaviorally unchanged.
+- [ ] `E-Wallet sandbox` remains development-only.
+- [ ] Direct backend authorization remains enforced independently of navigation visibility.
+- [ ] `npm run test:routing-domain-24111`, `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Full historical `npm run preflight` remains deferred to security/database changes or final certification.
+
+See PHASE-2.41.14.md, UPGRADE-2.41.14.md, NAVIGATION-CAPABILITY-2.41.14.md and VALIDATION-2.41.14.md.
+
+# Historical release checklist — FieldLance 2.41.13
 
 Workspace Bootstrap & Refresh Efficiency. No database migration is included.
 

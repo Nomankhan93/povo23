@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.13
+# Current validation — FieldLance 2.41.14
+
+See [VALIDATION-2.41.14.md](VALIDATION-2.41.14.md) for centralized role/navigation capability regression, historical Staff/Organization navigation compatibility, type/build checks and the no-migration boundary.
+
+# Historical validation — FieldLance 2.41.13
 
 See [VALIDATION-2.41.13.md](VALIDATION-2.41.13.md) for narrow foreground access refresh, demand-loaded geography/account data, recent-activity sizing, duplicate-query removal and targeted compatibility checks.
 

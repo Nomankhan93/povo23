@@ -6,6 +6,7 @@ const pkg = JSON.parse(read('package.json'));
 const dashboard = read('src/features/organizations/OrganizationDashboard.tsx');
 const shell = read('src/app/AppShell.tsx');
 const navigation = read('src/app/navigation.ts');
+const capabilityContract = read('src/app/capabilityContract.ts');
 const styles = read('src/styles/design-system.css');
 
 let passed = 0;
@@ -79,9 +80,10 @@ await ok('Organization next-action hierarchy keeps decisions in existing workspa
 });
 
 await ok('Organization navigation is curated and public labels do not rename internal page identifiers', async () => {
-  assert.match(shell, /const organizationNav = \(\[/);
+  assert.match(shell, /getAuthorizedNavigationPages/);
+  assert.match(capabilityContract, /const organizationPages = \[/);
   for (const page of ['Overview','Survey projects','Project team','Workforce marketplace','Volunteers','Beneficiary cases','Assistance ledger','Workforce payables','Project funding']) {
-    assert.match(shell, new RegExp(`"${page}"`));
+    assert.match(capabilityContract, new RegExp(`'${page}'`));
   }
   for (const pair of [
     ['Volunteers', 'Field Workers'],
@@ -97,9 +99,9 @@ await ok('Organization navigation is curated and public labels do not rename int
 });
 
 await ok('Organization navigation keeps personal-only pages out of the curated organization list', async () => {
-  const start = shell.indexOf('const organizationNav = ([');
-  const end = shell.indexOf('const onboardingWorkspace', start);
-  const organizationBlock = shell.slice(start, end);
+  const start = capabilityContract.indexOf('const organizationPages = [');
+  const end = capabilityContract.indexOf('export function getAuthorizedNavigationPages', start);
+  const organizationBlock = capabilityContract.slice(start, end);
   for (const personalPage of ['My profile', 'Work experience', 'Private documents', 'E-Wallets & withdrawals', 'Available Opportunities', 'My Applications', 'My Assigned Surveys']) {
     assert.doesNotMatch(organizationBlock, new RegExp(personalPage));
   }

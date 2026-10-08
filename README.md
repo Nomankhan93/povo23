@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.13
+# Current release: FieldLance 2.41.14
+
+Navigation & Capability Contract. FieldLance Staff, Organization, Field Worker and project-scoped navigation now derive from one typed frontend capability contract instead of repeated role arrays and inline navigation lists. Existing role boundaries are preserved; PostgreSQL RLS and guarded RPCs remain authoritative. No database migration is added. See docs/PHASE-2.41.14.md, docs/UPGRADE-2.41.14.md, docs/VALIDATION-2.41.14.md and docs/NAVIGATION-CAPABILITY-2.41.14.md.
+
+# Historical release: FieldLance 2.41.13
 
 Workspace Bootstrap & Refresh Efficiency. Browser focus/tab-return now revalidates account/workspace/project access and notification/activity freshness without replaying the full workspace data load. Geography reference and account-directory data are demand-loaded, audit bootstrap uses a four-row preview, duplicate own-profile fetch is removed, and narrow notification/profile refresh callbacks avoid unnecessary global reloads. No database migration is added. See docs/PHASE-2.41.13.md, docs/UPGRADE-2.41.13.md, docs/VALIDATION-2.41.13.md and docs/WORKSPACE-REFRESH-2.41.13.md.
 

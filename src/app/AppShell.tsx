@@ -52,7 +52,7 @@ import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace"
 const ReportsWorkspace = lazy(() => import("../features/analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const ProjectWorkspace = lazy(() => import("../features/projects/ProjectWorkspace").then(m => ({default: m.ProjectWorkspace})));
 import type {ProjectWorkspaceTab} from "../features/projects/ProjectWorkspace";
-import { workspaceTeamPermission } from "../features/projects/workspacePermissions";
+import {getAuthorizedNavigationPages, getCapabilityContract, hasStaffWorkspaceAccess, type NavigationWorkspaceKind} from "./capabilityContract";
 import {OrganizationSettings, OrganizationInvitationInbox} from "../features/organizations/OrganizationSettings";
 import {ReputationCertificates} from "../features/workforce/ReputationCertificates";
 import { APP_VERSION } from "./version";
@@ -100,6 +100,29 @@ import { db, rpc } from "../lib/supabase/client";
 import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
+function navigationIcon(page: string) {
+  if (["Task Center", "Survey review"].includes(page)) return ClipboardList;
+  if (["My profile"].includes(page)) return UserRound;
+  if (["Partner NGO application", "Access status", "NGO applications", "Organization Settings", "Partner NGOs"].includes(page)) return Building2;
+  if (["My Attendance", "My Timesheets", "My Schedule", "My Availability"].includes(page)) return CalendarDays;
+  if (["E-Wallets & withdrawals", "Withdrawal operations", "E-Wallet sandbox"].includes(page)) return CreditCard;
+  if (["Beneficiary cases", "Assistance ledger", "My Cases", "My Follow-ups"].includes(page)) return HeartHandshake;
+  if (page === "Accounts") return KeyRound;
+  if (["Geography", "My Field Map"].includes(page)) return MapPin;
+  if (page === "Data sharing") return Share2;
+  if (page === "Notifications" || page === "Invitations") return Bell;
+  if (["Reports & Analytics", "Project funding", "Activity"].includes(page)) return Activity;
+  if ([
+    "Work experience", "Volunteers", "Project team", "Workforce marketplace", "Available Opportunities",
+    "My Applications", "My Assigned Surveys", "Workforce payables", "Memberships", "Recruitment",
+  ].includes(page)) return Users;
+  if ([
+    "Reputation & Certificates", "Private documents", "Survey projects", "Verification", "Project governance",
+    "Survey templates", "Canonical registry",
+  ].includes(page)) return ShieldCheck;
+  return LayoutDashboard;
+}
+
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
   const fieldMapViews = useMemo<FieldMapViewStore>(() => new Map(), [session.user.id]);
   const [browserRoute,setBrowserRoute]=useState(()=>parseAppRoute());
@@ -161,33 +184,6 @@ export function Workspace({ session, openField }: { session: Session; openField:
     if(workspacePageNeedsAccounts(next))await ensureAccounts();
     if(workspacePageNeedsFullActivity(next))await ensureEvents(100);
     setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
-  const admin =
-      account &&
-      [
-        "admin",
-        "super_admin",
-        "volunteer_manager",
-        "ngo_manager",
-        "auditor",
-        "survey_manager",
-      ].includes(account.platform_role),
-    poem = admin && scope === "poem",
-    superAdmin = poem && account?.platform_role === "super_admin";
-  const volunteers =
-      poem &&
-      ["admin", "super_admin", "volunteer_manager"].includes(
-        account?.platform_role,
-      ),
-    ngos =
-      poem &&
-      ["admin", "super_admin", "ngo_manager"].includes(account?.platform_role);
-  const surveyManage = Boolean(
-    poem &&
-      ["super_admin", "admin", "survey_manager"].includes(
-        account?.platform_role,
-      ),
-  );
-  const financeManage = Boolean(poem && ["admin", "super_admin"].includes(account?.platform_role));
   const [revision, setRevision] = useState(0);
   const [access, setAccess] = useState<WorkspaceAccess | null>(null);
   const scopeRef = useRef(scope);
@@ -543,120 +539,56 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const workspaceProject = projectScopeProject || (page === "Project workspace" ? focusedProject : null);
   const workspaceProjectId = projectScopeId || (page === "Project workspace" ? focusedProject?.id || null : null);
   const workspaceProjectOrganization = workspaceProject?.organization_id || null;
+  const poem = scope === "poem" && hasStaffWorkspaceAccess(account?.platform_role);
   const validScope =
     Boolean(access && (scope === "access" || access.workspaces.some(w => w.id === scope)));
   const organizationWorkspace = !poem && !projectScope && myOrgs.some((item) => item.id === scope);
   const ownsWorkspaceProject = Boolean(workspaceProjectOrganization && myOrgs.some((item) => item.id === workspaceProjectOrganization));
-  const canManageWorkspaceProject = Boolean(
-    surveyManage || ownsWorkspaceProject || (projectScope && projectScopeAssignment?.role === "project_manager"),
-  );
-  const canManageWorkspaceTeam = workspaceTeamPermission(surveyManage, ownsWorkspaceProject);
-  const canManageWorkspaceFinance = Boolean(financeManage || ownsWorkspaceProject);
-  const canManageProjectAssignments = Boolean(
-    surveyManage ||
-    (!poem && scope !== "personal" && !projectScope) ||
-    (projectScope && projectScopeAssignment?.role === "project_manager"),
-  );
-  const standardNav = [
-    ["Overview", LayoutDashboard],
-    ["Task Center", ClipboardList],
-    ["My profile", UserRound],
-    ...(!poem
-      ? [
-          ["Work experience", Users],
-          ["Reputation & Certificates", ShieldCheck],
-          ["Private documents", ShieldCheck],
-        ]
-      : []),
-    ...(volunteers || (!poem && scope !== "personal")
-      ? [["Volunteers", Users]]
-      : []),
-    ...(ngos ? [["NGO applications", Building2], ["Organization Settings", Building2]] : []),
-    ["Partner NGOs", Building2],
-    ["Survey projects", ShieldCheck],
-    ...(!poem && scope !== "personal" ? [["Project team", Users]] : []),
-    ["Verification", ShieldCheck],
-    ...(surveyManage ? [["Survey review", ClipboardList]] : []),
-    ...(surveyManage || (!poem && scope !== "personal") ? [["Project governance", ShieldCheck]] : []),
-    ...(surveyManage || (!poem && scope !== "personal") ? [["Survey templates", ShieldCheck]] : []),
-    ...(surveyManage ? [["Canonical registry", ShieldCheck]] : []),
-    ...(surveyManage || (!poem && scope !== "personal" && !projectScope) ? [["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
-    ...(surveyManage || (!poem && scope !== "personal") ? [["Data sharing", Share2]] : []),
-    ...(surveyManage || (!poem && scope !== "personal") ? [["Workforce marketplace", Users]] : []),
-    ...(!poem && scope === "personal" ? [["Available Opportunities", Users], ["My Applications", Users], ["My Assigned Surveys", Users], ["My Attendance", CalendarDays], ["My Timesheets", CalendarDays], ["My Field Map", MapPin], ["My Schedule", CalendarDays], ["My Availability", CalendarDays], ["My Cases", HeartHandshake], ["My Follow-ups", HeartHandshake]] : []),
-    ...(!poem ? [["Invitations", Bell], ["Workforce payables", Users]] : []),
-    ...(!poem && scope === "personal" ? [["E-Wallets & withdrawals", CreditCard]] : []),
-    ...(financeManage || (!poem && scope !== "personal" && !projectScope) ? [["Project funding", Activity]] : []),
-    ...(financeManage ? [["Withdrawal operations", CreditCard], ["E-Wallet sandbox", CreditCard]] : []),
-    ...(poem && ["admin", "super_admin"].includes(account.platform_role)
-      ? [["Memberships", Users]]
-      : []),
-    ...(superAdmin ? [["Accounts", KeyRound]] : []),
-    ...(ngos ? [["Geography", MapPin]] : []),
-    ["Notifications", Bell],
-    ["Activity", Activity],
-  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[];
-  const organizationNav = ([
-    ["Reports & Analytics", Activity],
-    ["Reputation & Certificates", ShieldCheck],
-    ["Organization Settings", Building2],
-    ["Overview", LayoutDashboard],
-    ["Task Center", ClipboardList],
-    ["Survey projects", ShieldCheck],
-    ["Project team", Users],
-    ["Workforce marketplace", Users],
-    ["Volunteers", Users],
-    ["Invitations", Bell],
-    ["Survey templates", ShieldCheck],
-    ["Project governance", ShieldCheck],
-    ["Beneficiary cases", HeartHandshake],
-    ["Assistance ledger", HeartHandshake],
-    ["Data sharing", Share2],
-    ["Workforce payables", Users],
-    ["Project funding", Activity],
-    ["Notifications", Bell],
-    ["Activity", Activity],
-  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
-  const staffNav = ([
-    ["Reports & Analytics", Activity],
-    ["Overview", LayoutDashboard],
-    ["Task Center", ClipboardList],
-    ...(volunteers ? [["Volunteers", Users], ["Reputation & Certificates", ShieldCheck]] : []),
-    ...(ngos ? [["NGO applications", Building2], ["Organization Settings", Building2]] : []),
-    ["Partner NGOs", Building2],
-    ["Survey projects", ShieldCheck],
-    ["Verification", ShieldCheck],
-    ...(surveyManage ? [["Survey review", ClipboardList]] : []),
-    ...(surveyManage ? [["Project governance", ShieldCheck], ["Survey templates", ShieldCheck], ["Canonical registry", ShieldCheck], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake], ["Data sharing", Share2], ["Workforce marketplace", Users]] : []),
-    ...(financeManage ? [["Project funding", Activity], ["Withdrawal operations", CreditCard], ["E-Wallet sandbox", CreditCard]] : []),
-    ...(poem && ["admin", "super_admin"].includes(account.platform_role) ? [["Memberships", Users]] : []),
-    ...(superAdmin ? [["Accounts", KeyRound]] : []),
-    ...(ngos ? [["Geography", MapPin]] : []),
-    ["Notifications", Bell],
-    ["Activity", Activity],
-  ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[]);
+  const capabilities = getCapabilityContract({
+    platformRole: account?.platform_role,
+    staffWorkspace: poem,
+    organizationWorkspace,
+    projectWorkspace: projectScope,
+    projectRole: projectScopeAssignment?.role,
+    ownsWorkspaceProject,
+  });
+  const {
+    superAdmin,
+    reviewFieldWorkers: volunteers,
+    reviewOrganizations: ngos,
+    manageSurveys: surveyManage,
+    manageFinance: financeManage,
+    manageMemberships,
+    managePlatformOperations,
+    areaFocalPerson,
+    manageCases,
+    manageAssistance,
+    manageWorkspaceProject: canManageWorkspaceProject,
+    manageWorkspaceTeam: canManageWorkspaceTeam,
+    manageWorkspaceFinance: canManageWorkspaceFinance,
+    manageProjectAssignments: canManageProjectAssignments,
+  } = capabilities;
   const onboardingWorkspace = scope === 'onboarding';
   const accessWorkspace = scope === 'access';
-  const scopedNav = onboardingWorkspace || accessWorkspace
-    ? ([[onboardingWorkspace ? "Partner NGO application" : "Access status", Building2], ["Notifications", Bell]] as const)
-    : projectScope
-    ? ([
-        ["Project workspace", LayoutDashboard],
-        ["Reports & Analytics", Activity],
-        ["Task Center", ClipboardList],
-        ["Survey projects", ShieldCheck],
-        ...(projectScopeAssignment?.role === "project_manager" ? [["Recruitment", Users], ["Beneficiary cases", HeartHandshake], ["Assistance ledger", HeartHandshake]] : []),
-        ...(projectScopeAssignment?.role === "area_focal_person" ? [["Beneficiary cases", HeartHandshake]] : []),
-        ["Notifications", Bell],
-        ["Activity", Activity],
-      ] as unknown as readonly (readonly [string, typeof LayoutDashboard])[])
-    : organizationWorkspace
-      ? organizationNav
-      : poem
-        ? staffNav
-        : standardNav;
-  const nav = scopedNav.filter(([name]) => name !== "E-Wallet sandbox" || import.meta.env.DEV);
-  const navNames = nav.map(([name])=>name).join("|");
+  const navigationKind: NavigationWorkspaceKind = onboardingWorkspace
+    ? 'onboarding'
+    : accessWorkspace
+      ? 'access'
+      : projectScope
+        ? 'project'
+        : organizationWorkspace
+          ? 'organization'
+          : poem
+            ? 'staff'
+            : 'personal';
+  const authorizedPages = getAuthorizedNavigationPages({
+    kind: navigationKind,
+    capabilities,
+    projectRole: projectScopeAssignment?.role,
+    dev: import.meta.env.DEV,
+  });
+  const nav = authorizedPages.map((name) => [name, navigationIcon(name)] as const);
+  const navNames = authorizedPages.join("|");
   useEffect(()=>{
     if(!access || !isExplicitRoute(browserRoute) || !browserRoute.scopeHint) return;
     const resolved=resolveWorkspace(access,browserRoute.scopeHint);
@@ -1127,8 +1059,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </>
           )}
           {page === "Memberships" &&
-            poem &&
-            ["admin", "super_admin"].includes(account.platform_role) && (
+            poem && manageMemberships && (
               <section className="panel detail">
                 <h2>Organization memberships</h2>
                 <p>
@@ -1364,15 +1295,15 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Canonical registry" && validScope && surveyManage && (
             <Suspense fallback={<p>Loading canonical registry…</p>}><CanonicalWorkbench /></Suspense>
           )}
-          {page === "Beneficiary cases" && validScope && projectScope && projectScopeAssignment?.role === "area_focal_person" && (
+          {page === "Beneficiary cases" && validScope && areaFocalPerson && (
             <Suspense fallback={<p role="status">Loading delegated project cases…</p>}>
               <DelegatedCasesWorkspace key={`delegated-cases-${projectScopeId}`} view="cases" projectId={projectScopeId} initialCaseId={browserRoute.entityKind==="case"?browserRoute.entityId:null} onSelectedCaseChange={(caseId)=>syncRoute({scope,page:"Beneficiary cases",entityKind:caseId?"case":null,entityId:caseId})}/>
             </Suspense>
           )}
-          {page === "Beneficiary cases" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
+          {page === "Beneficiary cases" && validScope && manageCases && (
             <Suspense fallback={<p role="status">Loading beneficiary cases…</p>}><BeneficiaryCasesWorkspace key={`cases-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId} initialCaseId={browserRoute.entityKind==="case"?browserRoute.entityId:null} onSelectedCaseChange={(caseId)=>syncRoute({scope,page:"Beneficiary cases",entityKind:caseId?"case":null,entityId:caseId})}/></Suspense>
           )}
-          {page === "Assistance ledger" && validScope && (surveyManage || (!poem && scope !== "personal" && (!projectScope || projectScopeAssignment?.role === "project_manager"))) && (
+          {page === "Assistance ledger" && validScope && manageAssistance && (
             <Suspense fallback={<p role="status">Loading assistance ledger…</p>}><AssistanceLedgerWorkspace key={`assistance-ledger-${scope}-${projectScopeId||"all"}`} organization={poem||projectScope?null:scope} projectId={projectScopeId}/></Suspense>
           )}
           {page === "Data sharing" && validScope && (surveyManage || (!poem && scope !== "personal")) && (
@@ -1389,7 +1320,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
               organizationId={organizationWorkspace ? scope : null}
               projectId={projectScopeId}
-              canCreate={Boolean(organizationWorkspace || (projectScope && canManageProjectAssignments) || (poem && ["admin", "super_admin"].includes(account.platform_role)))}
+              canCreate={Boolean(organizationWorkspace || (projectScope && canManageProjectAssignments) || managePlatformOperations)}
               onNavigate={change}
               initialTaskId={browserRoute.entityKind === "task" ? browserRoute.entityId : null}
             />
@@ -1403,7 +1334,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
               mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
               organizationId={organizationWorkspace ? scope : null}
               projectId={projectScopeId}
-              canBroadcast={Boolean((poem && ["admin", "super_admin"].includes(account.platform_role)) || organizationWorkspace || (projectScope && canManageProjectAssignments))}
+              canBroadcast={Boolean(managePlatformOperations || organizationWorkspace || (projectScope && canManageProjectAssignments))}
             />
           )}
           {page === "Activity" && (

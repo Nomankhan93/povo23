@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.13
+# Current permissions note — FieldLance 2.41.14
+
+Navigation visibility and frontend action affordances now share one typed capability contract. This is a consistency hardening change only: it grants no new access and cannot override RLS/RPC authorization. Existing Staff role boundaries, Organization Admin authority, Project Manager scope and Area Focal Person scope are preserved. Direct URL/API access still depends on current backend authorization.
+
+# Historical permissions note — FieldLance 2.41.13
 
 No role, RLS policy, RPC grant or database permission changes. Foreground refresh still re-reads the account, calls `my_workspace_access()` and refreshes active project assignments before applying workspace access. Cached geography/account-directory UI data never grants authority; existing workspace, project, RLS and RPC authorization remains unchanged.
 

@@ -10,6 +10,7 @@ docs/DOMAIN-ROUTING-2.41.11.md
 docs/IMPLEMENTATION-2.41.5.md
 docs/IMPLEMENTATION-2.41.6.md
 docs/IMPLEMENTATION-2.41.7.md
+docs/NAVIGATION-CAPABILITY-2.41.14.md
 docs/PAYMENTS-AUDIT-2.18.1.md
 docs/PERMISSIONS.md
 docs/PHASE-1.3.md
@@ -90,6 +91,7 @@ docs/PHASE-2.41.10.md
 docs/PHASE-2.41.11.md
 docs/PHASE-2.41.12.md
 docs/PHASE-2.41.13.md
+docs/PHASE-2.41.14.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -196,6 +198,7 @@ docs/UPGRADE-2.41.10.md
 docs/UPGRADE-2.41.11.md
 docs/UPGRADE-2.41.12.md
 docs/UPGRADE-2.41.13.md
+docs/UPGRADE-2.41.14.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -289,6 +292,7 @@ docs/VALIDATION-2.41.10.md
 docs/VALIDATION-2.41.11.md
 docs/VALIDATION-2.41.12.md
 docs/VALIDATION-2.41.13.md
+docs/VALIDATION-2.41.14.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -382,6 +386,7 @@ scripts/test-local-recruitment2415.mjs
 scripts/test-local-workflow2416.mjs
 scripts/test-map-client2411.mjs
 scripts/test-map-review2411.mjs
+scripts/test-navigation-capability24114.mjs
 scripts/test-navigation2252.mjs
 scripts/test-notification-center2240.mjs
 scripts/test-notification-client2414.mjs
@@ -462,6 +467,7 @@ scripts/test-workspace-refresh24113.mjs
 src/app/App.tsx
 src/app/AppShell.tsx
 src/app/brand.ts
+src/app/capabilityContract.ts
 src/app/navigation.ts
 src/app/routes.ts
 src/app/version.ts

@@ -6,6 +6,7 @@ const pkg = JSON.parse(read('package.json'));
 const dashboard = read('src/features/operations/FieldLanceStaffDashboard.tsx');
 const shell = read('src/app/AppShell.tsx');
 const navigation = read('src/app/navigation.ts');
+const capabilityContract = read('src/app/capabilityContract.ts');
 const styles = read('src/styles/design-system.css');
 
 let passed = 0;
@@ -83,14 +84,15 @@ await ok('priority queue routes decisions back to existing guarded workspaces', 
   }
 });
 
-await ok('Staff navigation is curated by existing platform-role capabilities', async () => {
-  assert.match(shell, /const staffNav = \(\[/);
-  assert.match(shell, /volunteers \? \[\["Volunteers"/);
-  assert.match(shell, /ngos \? \[\["NGO applications"/);
-  assert.match(shell, /surveyManage \? \[\["Project governance"/);
-  assert.match(shell, /financeManage \? \[\["Project funding"/);
-  assert.match(shell, /superAdmin \? \[\["Accounts"/);
-  assert.match(shell, /: poem\s*\? staffNav/s);
+await ok('Staff navigation is curated by the centralized platform-role capability contract', async () => {
+  assert.match(shell, /getCapabilityContract/);
+  assert.match(shell, /getAuthorizedNavigationPages/);
+  assert.match(capabilityContract, /fieldWorkerReviewRoles/);
+  assert.match(capabilityContract, /organizationReviewRoles/);
+  assert.match(capabilityContract, /surveyManagementRoles/);
+  assert.match(capabilityContract, /financeManagementRoles/);
+  assert.match(capabilityContract, /manageAccounts/);
+  assert.doesNotMatch(shell, /const staffNav =/);
 });
 
 await ok('Staff public labels improve terminology without renaming stable internal page identifiers', async () => {
@@ -109,9 +111,8 @@ await ok('Staff public labels improve terminology without renaming stable intern
 });
 
 await ok('Staff sidebar does not mix personal-only Field Worker pages into the Staff workspace', async () => {
-  const start = shell.indexOf('const staffNav = ([');
-  const end = shell.indexOf('const onboardingWorkspace', start);
-  const staffBlock = shell.slice(start, end);
+  const start = capabilityContract.indexOf("if (input.kind === 'project')");
+  const staffBlock = capabilityContract.slice(start);
   for (const personalPage of ['My profile','Work experience','Private documents','Available Opportunities','My Applications','My Assigned Surveys','E-Wallets & withdrawals']) {
     assert.doesNotMatch(staffBlock, new RegExp(personalPage));
   }
