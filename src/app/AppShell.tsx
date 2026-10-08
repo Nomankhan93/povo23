@@ -2,7 +2,14 @@ import {SurveyReviewQueue} from "../features/surveys/SurveyReviewQueue";
 import {AuthoringNavigationGuard,requestAuthoringNavigation,installAuthoringHistoryGuard} from '../shared/authoringNavigation';
 import type {ReportSelection} from "../features/analytics/model";
 import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind, type RouteTarget} from "./routes";
-import {shouldRunForegroundRefresh, workspacePageNeedsAccounts, workspacePageNeedsFullActivity, workspacePageNeedsGeographies} from "./workspaceRefresh";
+import {
+  shouldRunForegroundRefresh,
+  workspacePageNeedsAccounts,
+  workspacePageNeedsFullActivity,
+  workspacePageNeedsGeographies,
+  workspacePageNeedsOrganizationDirectory,
+  workspacePageNeedsMembershipDirectory,
+} from "./workspaceRefresh";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
@@ -36,8 +43,8 @@ import { AccountAccess } from "../features/auth/AccountAccess";
 import {resolveWorkspace, workspaceHome, readPreferredWorkspace, rememberPreferredWorkspace, type WorkspaceAccess} from "../features/workspaces/access";
 import { GeographyManager } from "../features/geography/GeographyManager";
 import { type Geo } from "../features/geography/model";
-import { Notifications } from "../features/notifications/Notifications";
-import { DataSharingWorkspace } from "../features/sharing/DataSharingWorkspace";
+const Notifications = lazy(() => import("../features/notifications/Notifications").then(m => ({default:m.Notifications})));
+const DataSharingWorkspace = lazy(() => import("../features/sharing/DataSharingWorkspace").then(m => ({default:m.DataSharingWorkspace})));
 import { MembershipActions } from "../features/organizations/MembershipActions";
 import { MembershipForm } from "../features/organizations/MembershipForm";
 import { NgoOperations } from "../features/organizations/NgoOperations";
@@ -45,10 +52,10 @@ import { OrgForm } from "../features/organizations/OrgForm";
 const PartnerNgoApplication = lazy(() => import("../features/organizations/PartnerNgoApplication").then(m => ({default:m.PartnerNgoApplication})));
 const PartnerNgoApplicationsReview = lazy(() => import("../features/organizations/PartnerNgoApplicationsReview").then(m => ({default:m.PartnerNgoApplicationsReview})));
 import { OrganizationLogoImage } from "../features/organizations/OrganizationLogo";
-import { OrganizationDashboard } from "../features/organizations/OrganizationDashboard";
-import { FieldLanceStaffDashboard } from "../features/operations/FieldLanceStaffDashboard";
+const OrganizationDashboard = lazy(() => import("../features/organizations/OrganizationDashboard").then(m => ({default:m.OrganizationDashboard})));
+const FieldLanceStaffDashboard = lazy(() => import("../features/operations/FieldLanceStaffDashboard").then(m => ({default:m.FieldLanceStaffDashboard})));
 import { TaskCenter } from "../features/operations/TaskCenter";
-import { ProjectTeamWorkspace } from "../features/projects/ProjectTeamWorkspace";
+const ProjectTeamWorkspace = lazy(() => import("../features/projects/ProjectTeamWorkspace").then(m => ({default:m.ProjectTeamWorkspace})));
 const ReportsWorkspace = lazy(() => import("../features/analytics/ReportsWorkspace").then(m=>({default:m.ReportsWorkspace})));
 const ProjectWorkspace = lazy(() => import("../features/projects/ProjectWorkspace").then(m => ({default: m.ProjectWorkspace})));
 import type {ProjectWorkspaceTab} from "../features/projects/ProjectWorkspace";
@@ -95,7 +102,7 @@ const WorkAvailabilitySchedule = lazy(() => import("../features/workforce/WorkAv
 const AttendanceWorkspace = lazy(() => import("../features/workforce/AttendanceWorkspace").then(m => ({default:m.AttendanceWorkspace})));
 import type { FieldMapViewStore } from "../features/maps/fieldMapViewState";
 const FieldOperationsMap = lazy(() => import("../features/maps/FieldOperationsMap").then(m => ({default:m.FieldOperationsMap})));
-import { FieldWorkerDashboard } from "../features/workforce/FieldWorkerDashboard";
+const FieldWorkerDashboard = lazy(() => import("../features/workforce/FieldWorkerDashboard").then(m => ({default:m.FieldWorkerDashboard})));
 import { db, rpc } from "../lib/supabase/client";
 import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
@@ -181,6 +188,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
   }
   function setPage(next:string,after?:()=>void){void requestAuthoringNavigation().then(async leave=>{if(!leave)return;await flushActiveDraft();
     if(workspacePageNeedsGeographies(next))await ensureGeographies();
+    if(workspacePageNeedsOrganizationDirectory(next))await ensureOrganizationDirectory();
+    if(workspacePageNeedsMembershipDirectory(next))await ensureMembershipDirectory();
     if(workspacePageNeedsAccounts(next))await ensureAccounts();
     if(workspacePageNeedsFullActivity(next))await ensureEvents(100);
     setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
@@ -198,6 +207,10 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const geographiesLoading = useRef(false);
   const accountsLoaded = useRef(false);
   const accountsLoading = useRef(false);
+  const organizationDirectoryLoaded = useRef(false);
+  const organizationDirectoryLoading = useRef(false);
+  const membershipDirectoryLoaded = useRef(false);
+  const membershipDirectoryLoading = useRef(false);
   const eventLimitLoaded = useRef(0);
   const eventsLoading = useRef(false);
   function applyAccess(next: WorkspaceAccess, preferred = scopeRef.current || readPreferredWorkspace(session.user.id), followApproval = false, respectRoute = true) {
@@ -307,17 +320,60 @@ export function Workspace({ session, openField }: { session: Session; openField:
     if (projects.error) throw projects.error;
     setStaffProjects((projects.data || []) as Row[]);
   }
-  async function mergeOwnOrganizationContext(fresh: WorkspaceAccess) {
-    const ownOrgIds = fresh.workspaces.map(w => w.id).filter(id => /^[0-9a-f-]{36}$/i.test(id));
-    if (!ownOrgIds.length) return;
+  function organizationWorkspaceIds(value: WorkspaceAccess | null) {
+    return (value?.workspaces || []).map(w => w.id).filter(id => /^[0-9a-f-]{36}$/i.test(id)).sort();
+  }
+  async function refreshOwnOrganizationContext(fresh: WorkspaceAccess) {
+    const ownOrgIds = organizationWorkspaceIds(fresh);
+    if (!ownOrgIds.length) {
+      if (!organizationDirectoryLoaded.current) setOrgs([]);
+      if (!membershipDirectoryLoaded.current) setMembers([]);
+      return;
+    }
     const [ownOrgs, ownMembers] = await Promise.all([
       db!.from('organizations').select('*').in('id', ownOrgIds),
       db!.from('organization_memberships').select('*').eq('user_id', session.user.id),
     ]);
     if (ownOrgs.error) throw ownOrgs.error;
     if (ownMembers.error) throw ownMembers.error;
-    setOrgs(current => [...new Map([...current, ...(ownOrgs.data || [])].map(o => [o.id,o])).values()]);
-    setMembers(current => [...new Map([...current.filter(m => m.user_id !== session.user.id), ...(ownMembers.data || [])].map(m => [`${m.organization_id}:${m.user_id}`,m])).values()]);
+    if (organizationDirectoryLoaded.current) {
+      setOrgs(current => [...new Map([...current, ...(ownOrgs.data || [])].map(o => [o.id,o])).values()]);
+    } else {
+      setOrgs((ownOrgs.data || []) as Row[]);
+    }
+    if (membershipDirectoryLoaded.current) {
+      setMembers(current => [...new Map([...current.filter(m => m.user_id !== session.user.id), ...(ownMembers.data || [])].map(m => [`${m.organization_id}:${m.user_id}`,m])).values()]);
+    } else {
+      setMembers((ownMembers.data || []) as Row[]);
+    }
+  }
+  async function ensureOrganizationDirectory(force = false) {
+    if ((!force && organizationDirectoryLoaded.current) || organizationDirectoryLoading.current) return;
+    organizationDirectoryLoading.current = true;
+    try {
+      const result = await db!.from('organizations').select('*').order('name').limit(500);
+      if (result.error) throw result.error;
+      setOrgs((result.data || []) as Row[]);
+      organizationDirectoryLoaded.current = true;
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      organizationDirectoryLoading.current = false;
+    }
+  }
+  async function ensureMembershipDirectory(force = false) {
+    if ((!force && membershipDirectoryLoaded.current) || membershipDirectoryLoading.current) return;
+    membershipDirectoryLoading.current = true;
+    try {
+      const result = await db!.from('organization_memberships').select('*').limit(1000);
+      if (result.error) throw result.error;
+      setMembers((result.data || []) as Row[]);
+      membershipDirectoryLoaded.current = true;
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      membershipDirectoryLoading.current = false;
+    }
   }
   async function openNotificationTarget(target: RouteTarget) {
     if(!(await requestAuthoringNavigation()))return;
@@ -398,32 +454,32 @@ export function Workspace({ session, openField }: { session: Session; openField:
         setLoading(false);
         return;
       }
-      const [profileResult, orgResult, memberResult, eventResult, notificationResult, staffAssignments] = await Promise.all([
+      const [profileResult, eventResult, notificationResult, staffAssignments] = await Promise.all([
         db!.from("volunteer_profiles").select("*").eq("user_id", session.user.id).maybeSingle(),
-        db!.from("organizations").select("*").order("name").limit(500),
-        db!.from("organization_memberships").select("*").limit(1000),
         db!.from("audit_events").select("*").order("created_at", { ascending: false }).limit(4),
         db!.from("notifications").select("*").order("created_at", { ascending: false }).limit(100),
         db!.from("project_staff_assignments").select("*").eq("user_id", session.user.id).eq("status", "active"),
       ]);
       if (request !== requestId.current) return;
-      for (const result of [profileResult, orgResult, memberResult, eventResult, notificationResult, staffAssignments]) {
+      for (const result of [profileResult, eventResult, notificationResult, staffAssignments]) {
         if (result.error) throw result.error;
       }
       setProfiles(profileResult.data ? [profileResult.data as Row] : []);
-      setOrgs(orgResult.data || []);
-      setMembers(memberResult.data || []);
+      organizationDirectoryLoaded.current = false;
+      membershipDirectoryLoaded.current = false;
       setEvents(eventResult.data || []);
       eventLimitLoaded.current = 4;
       setNotifications(notificationResult.data || []);
       await refreshProjectContext((staffAssignments.data || []) as Row[]);
       if (request !== requestId.current) return;
-      await mergeOwnOrganizationContext(fresh);
+      await refreshOwnOrganizationContext(fresh);
       if (request !== requestId.current) return;
       applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
       setRevision((n) => n + 1);
       if (options.forceGeographies) geographiesLoaded.current = false;
       if (workspacePageNeedsGeographies(pageRef.current) || options.forceGeographies) await ensureGeographies(Boolean(options.forceGeographies));
+      if (workspacePageNeedsOrganizationDirectory(pageRef.current)) await ensureOrganizationDirectory();
+      if (workspacePageNeedsMembershipDirectory(pageRef.current)) await ensureMembershipDirectory();
       if (workspacePageNeedsAccounts(pageRef.current)) await ensureAccounts();
       if (workspacePageNeedsFullActivity(pageRef.current)) await ensureEvents(100);
     } catch (e) {
@@ -473,8 +529,12 @@ export function Workspace({ session, openField }: { session: Session; openField:
       eventLimitLoaded.current = eventLimit;
       await refreshProjectContext((staffAssignments.data || []) as Row[]);
       if (request !== requestId.current) return;
-      await mergeOwnOrganizationContext(fresh);
-      if (request !== requestId.current) return;
+      const previousOrganizationIds = organizationWorkspaceIds(access);
+      const nextOrganizationIds = organizationWorkspaceIds(fresh);
+      if (previousOrganizationIds.join(':') !== nextOrganizationIds.join(':')) {
+        await refreshOwnOrganizationContext(fresh);
+        if (request !== requestId.current) return;
+      }
       applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
     } catch (e) {
       if (request !== requestId.current) return;
@@ -490,6 +550,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
   }, [session.user.id]);
   useEffect(() => {
     if (workspacePageNeedsGeographies(page)) void ensureGeographies();
+    if (workspacePageNeedsOrganizationDirectory(page)) void ensureOrganizationDirectory();
+    if (workspacePageNeedsMembershipDirectory(page)) void ensureMembershipDirectory();
     if (workspacePageNeedsAccounts(page)) void ensureAccounts();
     if (workspacePageNeedsFullActivity(page)) void ensureEvents(100);
   }, [page]);
@@ -500,6 +562,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     try {
       await fn();
       await load();
+      if (workspacePageNeedsOrganizationDirectory(pageRef.current)) await ensureOrganizationDirectory(true);
+      if (workspacePageNeedsMembershipDirectory(pageRef.current)) await ensureMembershipDirectory(true);
       if (workspacePageNeedsAccounts(pageRef.current)) await ensureAccounts(true);
       if (workspacePageNeedsFullActivity(pageRef.current)) await ensureEvents(100, true);
       setNotice(message);

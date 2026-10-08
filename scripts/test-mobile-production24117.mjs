@@ -18,7 +18,7 @@ const manifest=JSON.parse(read('public/manifest.webmanifest'));
 const pass=(name,fn)=>{fn();console.log(`PASS ${name}`)};
 
 pass('2.41.17 release and mobile acceptance commands are registered',()=>{
-  assert.equal(pkg.version,'2.41.17');
+  assert.ok(pkg.version==='2.41.17'||pkg.version==='2.41.18');
   assert.match(pkg.scripts['test:mobile-production-24117']||'',/test-mobile-production24117\.mjs/);
   assert.match(pkg.scripts['test:browser-mobile-production-24117']||'',/browser-mobile-2419/);
   assert.match(pkg.scripts['check:mobile-production-24117']||'',/check-mobile-production24117\.mjs/);

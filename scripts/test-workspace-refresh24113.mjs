@@ -7,7 +7,7 @@ const shell = readFileSync('src/app/AppShell.tsx', 'utf8');
 const refreshPolicy = readFileSync('src/app/workspaceRefresh.ts', 'utf8');
 
 ok('foreground refresh is visibility-aware and deduplicates focus plus visibility bursts', () => {
-  assert.match(refreshPolicy, /FOREGROUND_REFRESH_DEDUP_MS\s*=\s*1_500/);
+  assert.match(refreshPolicy, /FOREGROUND_REFRESH_DEDUP_MS\s*=\s*30_000/);
   assert.match(refreshPolicy, /visibilityState === "visible"/);
   assert.match(refreshPolicy, /now - lastRunAt >= FOREGROUND_REFRESH_DEDUP_MS/);
   assert.match(shell, /shouldRunForegroundRefresh\(foregroundRefreshAt\.current, now, document\.visibilityState\)/);
