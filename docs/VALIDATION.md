@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.14
+# Current validation — FieldLance 2.41.15
+
+See [VALIDATION-2.41.15.md](VALIDATION-2.41.15.md) for project-lifecycle cross-layer regression, migrated-schema Project Manager finalization checks, type/build checks and the forward migration gate.
+
+# Historical validation — FieldLance 2.41.14
 
 See [VALIDATION-2.41.14.md](VALIDATION-2.41.14.md) for centralized role/navigation capability regression, historical Staff/Organization navigation compatibility, type/build checks and the no-migration boundary.
 

@@ -1,4 +1,16 @@
-# Current release checklist — FieldLance 2.41.14
+# Current release checklist — FieldLance 2.41.15
+Project Lifecycle E2E Integrity. One forward database migration is included.
+
+- [ ] `npm run test:project-lifecycle-24115` passes.
+- [ ] `npm run test:project-lifecycle-db-24115` passes against the full migrated in-memory schema.
+- [ ] `npm run test:recruitment-hardening-2415` and `npm run test:workflow-ui-2111` remain green.
+- [ ] `npm run check`, `npm run build`, `npm run release:consistency` and `git diff --check` pass.
+- [ ] `npx supabase db push --dry-run` shows only `20261013000580_project_lifecycle_e2e_integrity.sql` before remote push.
+- [ ] After deployment, verify a Project Manager can complete/cancel an authorized assignment while an ordinary Organization member cannot.
+
+See PHASE-2.41.15.md, UPGRADE-2.41.15.md, PROJECT-LIFECYCLE-2.41.15.md and VALIDATION-2.41.15.md.
+
+# Historical release checklist — FieldLance 2.41.14
 
 Navigation & Capability Contract. No database migration is included.
 

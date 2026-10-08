@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.41.14",
+  "version": "2.41.15",
   "private": true,
   "type": "module",
   "engines": {
@@ -81,7 +81,9 @@
     "test:routing-domain-24111": "node scripts/test-routing-domain24111.mjs",
     "test:auth-session-24112": "node scripts/test-auth-session24112.mjs",
     "test:workspace-refresh-24113": "node scripts/test-workspace-refresh24113.mjs",
-    "test:navigation-capability-24114": "node --experimental-strip-types scripts/test-navigation-capability24114.mjs"
+    "test:navigation-capability-24114": "node --experimental-strip-types scripts/test-navigation-capability24114.mjs",
+    "test:project-lifecycle-24115": "node scripts/test-project-lifecycle24115.mjs",
+    "test:project-lifecycle-db-24115": "node scripts/test-project-lifecycle-db24115.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

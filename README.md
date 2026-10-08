@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.14
+# Current release: FieldLance 2.41.15
+
+Project Lifecycle E2E Integrity. Project Manager assignment-finalization authority now matches the existing project recruitment/management contract: project managers can complete or cancel formal assignments they are already authorized to recruit and manage. Completion/cancellation still revoke forward survey collection, preserve immutable history and emit entity-routable worker notifications. A cross-layer lifecycle regression covers publish → marketplace → apply → review → offer → accept → collection → attendance/response review → payable generation → assignment finalization. One forward migration is included. See docs/PHASE-2.41.15.md, docs/UPGRADE-2.41.15.md, docs/VALIDATION-2.41.15.md and docs/PROJECT-LIFECYCLE-2.41.15.md.
+
+# Historical release: FieldLance 2.41.14
 
 Navigation & Capability Contract. FieldLance Staff, Organization, Field Worker and project-scoped navigation now derive from one typed frontend capability contract instead of repeated role arrays and inline navigation lists. Existing role boundaries are preserved; PostgreSQL RLS and guarded RPCs remain authoritative. No database migration is added. See docs/PHASE-2.41.14.md, docs/UPGRADE-2.41.14.md, docs/VALIDATION-2.41.14.md and docs/NAVIGATION-CAPABILITY-2.41.14.md.
 

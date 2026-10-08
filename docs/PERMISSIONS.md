@@ -1,4 +1,6 @@
-# Current permissions note — FieldLance 2.41.14
+# Current permissions note — FieldLance 2.41.15
+Project Managers already had server-side project recruitment authority through `app_private.can_manage_project()` / `app_private.can_review_survey()`. 2.41.15 aligns `complete_work_assignment` and `cancel_work_assignment` with that same boundary. Area Focal Persons and ordinary Organization members do not gain assignment-finalization authority. Finance/payable approval permissions are unchanged.
+
 
 Navigation visibility and frontend action affordances now share one typed capability contract. This is a consistency hardening change only: it grants no new access and cannot override RLS/RPC authorization. Existing Staff role boundaries, Organization Admin authority, Project Manager scope and Area Focal Person scope are preserved. Direct URL/API access still depends on current backend authorization.
 

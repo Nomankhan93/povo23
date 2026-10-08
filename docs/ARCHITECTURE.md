@@ -1,4 +1,6 @@
-# Current architecture note — FieldLance 2.41.14
+# Current architecture note — FieldLance 2.41.15
+Project lifecycle authority now uses one server contract for recruitment and assignment finalization. `app_private.can_manage_project(project_id)` remains the authoritative Project Manager / NGO Admin / FieldLance survey-management boundary; completion and cancellation no longer retain the older NGO-Admin-only check. Existing collection, attendance, response review and payable engines are unchanged.
+
 
 Frontend workspace capability derivation is centralized in `src/app/capabilityContract.ts`. It produces role/workspace capability flags and authorized page identifiers; `AppShell.tsx` maps those authorized page IDs to presentation icons and existing workspace components. This contract is not an authorization boundary: PostgreSQL RLS, guarded RPCs and current server-backed memberships/project assignments remain authoritative. No database architecture changes.
 

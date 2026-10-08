@@ -30,7 +30,7 @@ function capabilities(platformRole, overrides = {}) {
 }
 
 await ok('2.41.14 release and targeted test are registered', async () => {
-  assert.equal(pkg.version, '2.41.14');
+  assert.match(pkg.version, /^2\.41\.(?:1[4-9]|[2-9]\d)$/);
   assert.equal(pkg.scripts['test:navigation-capability-24114'], 'node --experimental-strip-types scripts/test-navigation-capability24114.mjs');
 });
 
@@ -159,9 +159,10 @@ await ok('AppShell consumes the centralized contract instead of rebuilding role 
   assert.match(contractSource, /RLS|authoritative|navigation/i);
 });
 
-await ok('2.41.14 adds no database migration', async () => {
+await ok('2.41.14 adds no navigation/capability database migration', async () => {
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1), '20261013000570_security_advisor_rpc_surface_hardening.sql');
+  assert(migrations.includes('20261013000570_security_advisor_rpc_surface_hardening.sql'));
+  assert.equal(migrations.some(name => /navigation.*capability|capability.*navigation/i.test(name)), false);
 });
 
 console.log(`\n${passed} FieldLance 2.41.14 navigation/capability scenarios passed.`);

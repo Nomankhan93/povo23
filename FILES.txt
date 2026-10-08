@@ -92,6 +92,7 @@ docs/PHASE-2.41.11.md
 docs/PHASE-2.41.12.md
 docs/PHASE-2.41.13.md
 docs/PHASE-2.41.14.md
+docs/PHASE-2.41.15.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -111,6 +112,7 @@ docs/PHASE-2.7.6.md
 docs/PHASE-2.7.md
 docs/PHASE-2.8.md
 docs/PHASE-2.9.md
+docs/PROJECT-LIFECYCLE-2.41.15.md
 docs/RELEASE-CHECKLIST.md
 docs/SECURITY-ADVISOR-2.41.10.md
 docs/SETUP-WSL.md
@@ -199,6 +201,7 @@ docs/UPGRADE-2.41.11.md
 docs/UPGRADE-2.41.12.md
 docs/UPGRADE-2.41.13.md
 docs/UPGRADE-2.41.14.md
+docs/UPGRADE-2.41.15.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -293,6 +296,7 @@ docs/VALIDATION-2.41.11.md
 docs/VALIDATION-2.41.12.md
 docs/VALIDATION-2.41.13.md
 docs/VALIDATION-2.41.14.md
+docs/VALIDATION-2.41.15.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -448,6 +452,8 @@ scripts/test-phase28.mjs
 scripts/test-phase29.mjs
 scripts/test-profile-independence-photo.mjs
 scripts/test-profile-structured-ui.mjs
+scripts/test-project-lifecycle-db24115.mjs
+scripts/test-project-lifecycle24115.mjs
 scripts/test-recruitment-hardening2415.mjs
 scripts/test-release-consistency.mjs
 scripts/test-routing-domain24111.mjs
@@ -681,6 +687,7 @@ supabase/migrations/20261013000540_wallet_production_capability.sql
 supabase/migrations/20261013000550_funding_commitment_release_reason.sql
 supabase/migrations/20261013000560_private_helper_and_anonymous_grants.sql
 supabase/migrations/20261013000570_security_advisor_rpc_surface_hardening.sql
+supabase/migrations/20261013000580_project_lifecycle_e2e_integrity.sql
 supabase/snippets/.gitkeep
 tsconfig.json
 vercel.json
