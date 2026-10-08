@@ -1,4 +1,21 @@
-# Current release checklist — FieldLance 2.41.20
+# Current release checklist — FieldLance 2.42.0
+
+Design System & Workspace Shell Foundation. No database migration is included.
+
+- [ ] `npm run test:ui-foundation-2420` passes.
+- [ ] `npm run test:navigation-capability-24114`, `npm run test:routing-236` and `npm run test:mobile-production-24117` remain green.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Field Worker Attendance/Timesheets appear under Field Operations; Organization Direct invitations appears under Workforce.
+- [ ] Field Worker mobile Home/Work/Field/Earnings/Profile destinations remain unchanged.
+- [ ] Organization and Staff mobile primary navigation only uses already-authorized page IDs.
+- [ ] Project Workspace tab IDs remain reports/overview/team/recruitment/field-work/map/responses/cases/finance/governance/documents/activity.
+- [ ] Project Workspace desktop uses grouped sections and mobile uses a Project Section selector rather than a 12-tab horizontal scroller.
+- [ ] No new migration exists after `20261013000580_project_lifecycle_e2e_integrity.sql`.
+- [ ] No route, capability, RPC, RLS, finance, survey, attendance, recruitment or offline behavior changes are introduced.
+
+See PHASE-2.42.0.md, UPGRADE-2.42.0.md and VALIDATION-2.42.0.md.
+
+# Historical release checklist — FieldLance 2.41.20
 
 Accessibility & UX Consistency. No database migration is included.
 

@@ -8,6 +8,7 @@ const pkg=JSON.parse(read('package.json'));
 const html=read('index.html');
 const css=read('src/styles/design-system.css');
 const shell=read('src/app/AppShell.tsx');
+const navigation=read('src/app/navigation.ts');
 const attendance=read('src/features/workforce/AttendanceWorkspace.tsx');
 const offline=read('src/features/surveys/OfflineFieldWorkspace.tsx');
 const main=read('src/main.tsx');
@@ -18,7 +19,7 @@ const manifest=JSON.parse(read('public/manifest.webmanifest'));
 const pass=(name,fn)=>{fn();console.log(`PASS ${name}`)};
 
 pass('2.41.17 release and mobile acceptance commands are registered',()=>{
-  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20'].includes(pkg.version));
+  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20','2.42.0'].includes(pkg.version));
   assert.match(pkg.scripts['test:mobile-production-24117']||'',/test-mobile-production24117\.mjs/);
   assert.match(pkg.scripts['test:browser-mobile-production-24117']||'',/browser-mobile-2419/);
   assert.match(pkg.scripts['check:mobile-production-24117']||'',/check-mobile-production24117\.mjs/);
@@ -41,10 +42,11 @@ pass('mobile worker chrome protects notch and home-indicator safe areas',()=>{
 
 pass('field worker bottom navigation remains touch-sized and accessible',()=>{
   assert.match(css,/\.field-worker-bottom-nav button\{[^}]*min-height:54px/);
-  assert.match(shell,/aria-label="Field Worker primary navigation"/);
-  assert.match(shell,/aria-current=\{active\?"page":undefined\}/);
-  assert.match(shell,/\["Overview","Home"/);
-  assert.match(shell,/\["My Assigned Surveys","Field"/);
+  assert.match(shell,/workspace-mobile-nav/);
+  assert.match(shell,/field-worker-bottom-nav/);
+  assert.match(shell,/aria-current=\{active \? "page" : undefined\}/);
+  assert.match(navigation,/target:'Overview',label:'Home'/);
+  assert.match(navigation,/target:'My Assigned Surveys',label:'Field'/);
 });
 
 pass('attendance location capture remains explicit, bounded and offline-safe',()=>{

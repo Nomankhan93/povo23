@@ -5,6 +5,7 @@ import path from 'node:path';
 const read=p=>readFileSync(p,'utf8');
 const pkg=JSON.parse(read('package.json'));
 const action=read('src/components/ui/ActionDialog.tsx');
+const foundationUi=read('src/components/ui/FieldLanceUI.tsx');
 const focus=read('src/components/system/focusManagement.ts');
 const authoring=read('src/shared/authoringNavigation.tsx');
 const shell=read('src/app/AppShell.tsx');
@@ -19,7 +20,7 @@ let passed=0;
 const ok=(name,fn)=>{fn();passed++;console.log('PASS '+name)};
 
 ok('2.41.20 release and targeted accessibility command are registered',()=>{
-  assert.equal(pkg.version,'2.41.20');
+  assert.ok(['2.41.20','2.42.0'].includes(pkg.version));
   assert.equal(pkg.scripts['test:accessibility-24120'],'node scripts/test-accessibility24120.mjs');
 });
 
@@ -45,7 +46,8 @@ ok('SPA navigation and crash containment move focus to meaningful recovery/conte
   assert.match(shell,/workspaceFocusKey/);
   assert.match(shell,/getElementById\("workspace-content"\)\?\.focus/);
   assert.match(shell,/aria-labelledby="workspace-page-title"/);
-  assert.match(shell,/id="workspace-page-title"/);
+  assert.match(shell,/<PageHeader/);
+  assert.match(foundationUi,/id = "workspace-page-title"/);
   assert.match(boundary,/headingRef/);
   assert.match(boundary,/tabIndex=\{-1\}/);
   assert.match(boundary,/headingRef\.current\?\.focus/);

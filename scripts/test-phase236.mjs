@@ -57,8 +57,8 @@ ok('case deep links and recruitment record focus survive refresh',()=>{
 });
 
 ok('mobile Field Worker information architecture exposes five primary destinations',()=>{
-  const shell=readFileSync('src/app/AppShell.tsx','utf8'),css=readFileSync('src/styles/design-system.css','utf8');
-  for(const label of ['Home','Work','Field','Earnings','Profile']) assert.ok(shell.includes(`"${label}"`));
+  const shell=readFileSync('src/app/AppShell.tsx','utf8'),css=readFileSync('src/styles/design-system.css','utf8'),navigation=readFileSync('src/app/navigation.ts','utf8');
+  for(const label of ['Home','Work','Field','Earnings','Profile']) assert.ok(navigation.includes(`label:'${label}'`));
   assert.match(shell,/field-worker-bottom-nav/);assert.match(css,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);assert.match(css,/safe-area-inset-bottom/);
 });
 

@@ -5,6 +5,7 @@ import { AppErrorBoundary } from "./components/system/AppErrorBoundary";
 import { installGlobalDiagnostics, reportDiagnostic } from "./lib/observability";
 import "./style.css";
 import "./styles/design-system.css";
+import "./styles/fieldlance-2420.css";
 
 installGlobalDiagnostics();
 

@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.41.20",
+  "version": "2.42.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -47,7 +47,7 @@
     "test:project-workspace-230": "node scripts/test-phase230.mjs",
     "test:project-workspace-2301": "node scripts/test-phase2301.mjs",
     "test:analytics": "node scripts/test-phase231.mjs && node scripts/test-analytics-client231.mjs",
-    "test:routing-236": "node scripts/test-phase236.mjs",
+    "test:routing-236": "node --experimental-strip-types scripts/test-phase236.mjs",
     "test:self-publish-2361": "node scripts/test-phase2361.mjs",
     "test:workforce-scheduling-237": "node scripts/test-phase237.mjs",
     "test:attendance-238": "node scripts/test-phase238.mjs",
@@ -91,7 +91,8 @@
     "check:mobile-production-24117": "node scripts/check-mobile-production24117.mjs",
     "test:performance-24118": "node scripts/test-performance24118.mjs",
     "test:observability-24119": "node scripts/test-observability24119.mjs",
-    "test:accessibility-24120": "node scripts/test-accessibility24120.mjs"
+    "test:accessibility-24120": "node scripts/test-accessibility24120.mjs",
+    "test:ui-foundation-2420": "node --experimental-strip-types scripts/test-ui-foundation2420.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

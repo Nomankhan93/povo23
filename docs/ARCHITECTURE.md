@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.20
+# Current architecture note — FieldLance 2.42.0
+
+The 2.42.0 design-system layer is a presentation architecture only. `src/components/ui/FieldLanceUI.tsx` provides reusable UI primitives, `src/styles/fieldlance-2420.css` owns the new token/shell layer, and existing feature styles remain in place until later screen migrations. `AppShell` still consumes the same authorized page IDs and callbacks; `ProjectWorkspace` still consumes the same project tab IDs and feature components. RLS, RPCs and backend state remain authoritative.
+
+# Historical architecture note — FieldLance 2.41.20
 
 Accessibility remains a frontend interaction contract rather than an authorization boundary. Shared modal focus containment, page-change focus recovery, assistive-technology labelling, coarse-pointer sizing and motion/contrast/RTL fallbacks are applied without changing backend data access or workflow state.
 

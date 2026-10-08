@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.20
+# Current validation — FieldLance 2.42.0
+
+See [VALIDATION-2.42.0.md](VALIDATION-2.42.0.md) for the design-system primitives, immutable route/capability boundary, workspace/mobile navigation grouping, Project Workspace grouped navigation, no-migration boundary and FAST validation record.
+
+# Historical validation — FieldLance 2.41.20
 
 See [VALIDATION-2.41.20.md](VALIDATION-2.41.20.md) for dialog/focus containment, SPA/crash focus recovery, alert semantics, coarse-pointer touch targets, reduced-motion, contrast/forced-colors and RTL regressions.
 

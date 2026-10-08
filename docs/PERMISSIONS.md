@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.20
+# Current permissions note — FieldLance 2.42.0
+
+2.42.0 changes presentation only. Navigation grouping and mobile primary navigation are derived from the same already-authorized page list; no page is added to `getAuthorizedNavigationPages`, no capability is changed, and Project Workspace still filters tabs using the same existing booleans. No role, grant, policy, RPC, RLS or database migration changes.
+
+# Historical permissions note — FieldLance 2.41.20
 
 2.41.20 changes accessibility and interaction behavior only. Focus movement, dialog semantics, touch sizing, contrast and RTL presentation do not grant access or replace RLS/guarded RPC authorization. No role, grant, policy, RPC or database migration changes.
 

@@ -151,7 +151,7 @@ const workspaceGroups: Record<WorkspaceKind, readonly NavigationGroup[]> = {
   personal: [
     {label:'Overview',pages:overview},
     {label:'Find work',pages:['Available Opportunities','My Applications','Invitations','My Assigned Surveys','My Schedule','My Availability','Survey projects']},
-    {label:'Field operations',pages:['My Field Map','My Cases','My Follow-ups']},
+    {label:'Field operations',pages:['My Attendance','My Timesheets','My Field Map','My Cases','My Follow-ups']},
     {label:'Career',pages:['Work experience','Reputation & Certificates','Workforce payables','E-Wallets & withdrawals']},
     {label:'Profile',pages:['My profile','Verification','Private documents']},
     {label:'More',pages:['Partner NGOs','Activity']},
@@ -159,7 +159,7 @@ const workspaceGroups: Record<WorkspaceKind, readonly NavigationGroup[]> = {
   organization: [
     {label:'Overview',pages:overview},
     {label:'Organization',pages:['Organization Settings','Reputation & Certificates']},
-    {label:'Work',pages:['Survey projects','Workforce marketplace','Recruitment','Volunteers','Project team','Survey templates']},
+    {label:'Workforce',pages:['Survey projects','Workforce marketplace','Recruitment','Volunteers','Invitations','Project team','Survey templates']},
     {label:'Finance',pages:['Workforce payables','Project funding']},
     {label:'Governance',pages:['Project governance','Verification','Activity']},
     {label:'Impact operations',pages:impact},
@@ -193,6 +193,38 @@ export function getNavigationGroups(kind: WorkspaceKind, allowed: readonly strin
   }
   if (remaining.size) result.push({label:'Other tools',pages:[...remaining]});
   return result;
+}
+
+export type MobileNavigationItem = { target: string; label: string; activePages: readonly string[] };
+
+const mobileNavigationByWorkspace: Partial<Record<WorkspaceKind, readonly MobileNavigationItem[]>> = {
+  personal: [
+    {target:'Overview',label:'Home',activePages:['Overview']},
+    {target:'Available Opportunities',label:'Work',activePages:['Available Opportunities','My Applications','Invitations','My Schedule','My Availability']},
+    {target:'My Assigned Surveys',label:'Field',activePages:['My Assigned Surveys','My Attendance','My Timesheets','My Field Map','My Cases','My Follow-ups']},
+    {target:'Workforce payables',label:'Earnings',activePages:['Workforce payables','E-Wallets & withdrawals']},
+    {target:'My profile',label:'Profile',activePages:['My profile','Work experience','Reputation & Certificates','Verification','Private documents']},
+  ],
+  organization: [
+    {target:'Overview',label:'Home',activePages:['Overview','Reports & Analytics']},
+    {target:'Survey projects',label:'Projects',activePages:['Survey projects','Project team']},
+    {target:'Workforce marketplace',label:'People',activePages:['Workforce marketplace','Volunteers','Invitations','Survey templates']},
+    {target:'Task Center',label:'Tasks',activePages:['Task Center']},
+    {target:'Notifications',label:'Updates',activePages:['Notifications','Activity']},
+  ],
+  staff: [
+    {target:'Overview',label:'Home',activePages:['Overview','Reports & Analytics']},
+    {target:'Survey projects',label:'Projects',activePages:['Survey projects','Survey review','Project governance']},
+    {target:'Partner NGOs',label:'Network',activePages:['Partner NGOs','NGO applications','Volunteers','Organization Settings']},
+    {target:'Task Center',label:'Tasks',activePages:['Task Center']},
+    {target:'Notifications',label:'Updates',activePages:['Notifications','Activity']},
+  ],
+};
+
+/** Presentation only: returns a subset of already-authorized destinations. */
+export function getMobileNavigation(kind: WorkspaceKind, allowed: readonly string[]): MobileNavigationItem[] {
+  const authorized = new Set(allowed);
+  return (mobileNavigationByWorkspace[kind] || []).filter(item => authorized.has(item.target));
 }
 
 export function readSidebarCollapsed(): boolean {

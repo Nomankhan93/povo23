@@ -1,8 +1,12 @@
-# Current release: FieldLance 2.41.20
+# Current release: FieldLance 2.42.0
+
+Design System & Workspace Shell Foundation. FieldLance now has a reusable Operational SaaS token/component layer, a consistent desktop/mobile workspace shell, cleaned navigation grouping, and grouped Project Workspace navigation with a mobile Project Section selector. Routes, capabilities, backend authorization, database behavior and feature workflows remain unchanged. See docs/PHASE-2.42.0.md, docs/UPGRADE-2.42.0.md and docs/VALIDATION-2.42.0.md.
+
+## Previous release: FieldLance 2.41.20
 
 Accessibility & UX Consistency. Shared modal focus/keyboard handling, SPA content focus, crash-recovery focus, assertive blocking errors, coarse-pointer touch targets, reduced-motion, high-contrast/forced-colors and RTL fallbacks are hardened without changing permissions, workflows or database behavior. See docs/PHASE-2.41.20.md, docs/UPGRADE-2.41.20.md and docs/VALIDATION-2.41.20.md.
 
-## Previous release: FieldLance 2.41.19
+## Historical release: FieldLance 2.41.19
 
 Error Handling & Production Observability. FieldLance contains uncaught React/window failures, bounded in-memory diagnostics with sensitive-data redaction, safe RPC/Supabase transport diagnostics and production context for auth/session, workspace refresh, offline sync, map renderer, notification target and service-worker failures. No database migration or remote telemetry dependency is added. See docs/PHASE-2.41.19.md.
 

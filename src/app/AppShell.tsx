@@ -13,7 +13,8 @@ import {
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
-import {getNavigationGroups, readSidebarCollapsed, saveSidebarCollapsed, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
+import {Button, PageHeader} from "../components/ui/FieldLanceUI";
+import {getMobileNavigation, getNavigationGroups, readSidebarCollapsed, saveSidebarCollapsed, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -129,6 +130,17 @@ function navigationIcon(page: string) {
     "Survey templates", "Canonical registry",
   ].includes(page)) return ShieldCheck;
   return LayoutDashboard;
+}
+
+function mobileNavigationIcon(target: string) {
+  if (target === "Overview") return LayoutDashboard;
+  if (["Available Opportunities", "Workforce marketplace"].includes(target)) return Users;
+  if (["My Assigned Surveys", "Survey projects", "Task Center"].includes(target)) return ClipboardList;
+  if (target === "Workforce payables") return CreditCard;
+  if (target === "My profile") return UserRound;
+  if (target === "Partner NGOs") return Building2;
+  if (target === "Notifications") return Bell;
+  return navigationIcon(target);
 }
 
 export function Workspace({ session, openField }: { session: Session; openField:()=>void }) {
@@ -732,6 +744,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const personalWorkspace = !poem && scope === "personal";
   const displayPage = poem ? staffPageLabel(page) : organizationWorkspace ? organizationPageLabel(page) : workspacePageLabel(page, personalWorkspace);
   const unreadNotifications = notifications.filter((n) => !n.read_at).length;
+  const mobileWorkspaceKind = personalWorkspace ? "personal" : organizationWorkspace ? "organization" : poem ? "staff" : null;
+  const mobileNavigation = mobileWorkspaceKind ? getMobileNavigation(mobileWorkspaceKind, nav.map(([name]) => name)) : [];
   const pageEyebrow = page === "Project workspace" && workspaceProject
     ? "PROJECT OPERATIONS"
     : page === "Partner NGO application"
@@ -855,7 +869,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       </aside>
       <main id="workspace-main">
         <Suspense fallback={<p role="status">Loading workspace…</p>}>
-        <header>
+        <header className="workspace-topbar">
           <button
             className="mobile-toggle"
             id="navigation-toggle"
@@ -880,22 +894,18 @@ export function Workspace({ session, openField }: { session: Session; openField:
           </div>
         </header>
         <div className="content" data-worker={personalWorkspace} id="workspace-content" tabIndex={-1} aria-labelledby="workspace-page-title" key={`${session.user.id}:${scope}`}>
-          <div className="heading">
-            <div>
-              <span className="eyebrow">{pageEyebrow}</span>
-              <h1 id="workspace-page-title">{pageTitle}</h1>
-              <p>{pageDescription}</p>
-            </div>
-            {page === "Partner NGOs" && ngos && (
-              <button
-                className="primary"
-                onClick={() => setOrgEdit({ name: "", status: "pending" })}
-              >
+          <PageHeader
+            className="workspace-page-header"
+            eyebrow={pageEyebrow}
+            title={pageTitle}
+            description={pageDescription}
+            actions={page === "Partner NGOs" && ngos ? (
+              <Button variant="primary" onClick={() => setOrgEdit({ name: "", status: "pending" })}>
                 <Plus size={17} />
                 Add organization
-              </button>
-            )}
-          </div>
+              </Button>
+            ) : undefined}
+          />
           {error && (
             <div className="notice error" role="alert">
               {error}
@@ -1431,17 +1441,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
           </footer>
         </div>
         </Suspense>
-        {personalWorkspace && <nav className="field-worker-bottom-nav" aria-label="Field Worker primary navigation">
-          {[
-            ["Overview","Home",LayoutDashboard],
-            ["Available Opportunities","Work",Users],
-            ["My Assigned Surveys","Field",ClipboardList],
-            ["Workforce payables","Earnings",CreditCard],
-            ["My profile","Profile",UserRound],
-          ].map(([target,label,Icon])=>{
-            const active=target==="Overview"?page==="Overview":target==="Available Opportunities"?["Available Opportunities","My Applications","Invitations","My Schedule","My Availability"].includes(page):target==="My Assigned Surveys"?["My Assigned Surveys","My Attendance","My Timesheets","My Field Map","My Cases","My Follow-ups"].includes(page):target==="Workforce payables"?["Workforce payables","E-Wallets & withdrawals"].includes(page):page==="My profile";
-            const C=Icon as typeof LayoutDashboard;
-            return <button key={String(target)} type="button" className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>change(String(target))}><C size={20}/><span>{String(label)}</span></button>;
+        {mobileNavigation.length > 0 && <nav className={`workspace-mobile-nav${personalWorkspace ? " field-worker-bottom-nav" : ""}`} aria-label={`${currentWorkspaceLabel} primary navigation`}>
+          {mobileNavigation.map((item) => {
+            const active = item.activePages.includes(page);
+            const Icon = mobileNavigationIcon(item.target);
+            return <button key={item.target} type="button" className={active ? "active" : ""} aria-current={active ? "page" : undefined} onClick={() => change(item.target)}>
+              <Icon size={20}/><span>{item.label}</span>
+            </button>;
           })}
         </nav>}
       </main>
