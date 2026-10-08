@@ -91,6 +91,7 @@
 ./docs/PHASE-2.41.10.md
 ./docs/PHASE-2.41.11.md
 ./docs/PHASE-2.41.12.md
+./docs/PHASE-2.41.13.md
 ./docs/PHASE-2.41.2.md
 ./docs/PHASE-2.41.3.md
 ./docs/PHASE-2.41.4.md
@@ -196,6 +197,7 @@
 ./docs/UPGRADE-2.41.10.md
 ./docs/UPGRADE-2.41.11.md
 ./docs/UPGRADE-2.41.12.md
+./docs/UPGRADE-2.41.13.md
 ./docs/UPGRADE-2.41.2.md
 ./docs/UPGRADE-2.41.3.md
 ./docs/UPGRADE-2.41.4.md
@@ -288,6 +290,7 @@
 ./docs/VALIDATION-2.41.10.md
 ./docs/VALIDATION-2.41.11.md
 ./docs/VALIDATION-2.41.12.md
+./docs/VALIDATION-2.41.13.md
 ./docs/VALIDATION-2.41.2.md
 ./docs/VALIDATION-2.41.3.md
 ./docs/VALIDATION-2.41.4.md
@@ -308,6 +311,7 @@
 ./docs/VALIDATION-2.8.md
 ./docs/VALIDATION-2.9.md
 ./docs/VALIDATION.md
+./docs/WORKSPACE-REFRESH-2.41.13.md
 ./FILES.txt
 ./index.html
 ./package-lock.json
@@ -465,6 +469,7 @@
 ./scripts/test-wallet-capability2417.mjs
 ./scripts/test-workflow-ui2111.mjs
 ./scripts/test-workforce-marketplace2198.mjs
+./scripts/test-workspace-refresh24113.mjs
 ./src
 ./src/app
 ./src/app/App.tsx
@@ -473,6 +478,7 @@
 ./src/app/navigation.ts
 ./src/app/routes.ts
 ./src/app/version.ts
+./src/app/workspaceRefresh.ts
 ./src/assets
 ./src/assets/brand
 ./src/assets/brand/fieldlance-icon.png

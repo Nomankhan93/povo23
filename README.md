@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.12
+# Current release: FieldLance 2.41.13
+
+Workspace Bootstrap & Refresh Efficiency. Browser focus/tab-return now revalidates account/workspace/project access and notification/activity freshness without replaying the full workspace data load. Geography reference and account-directory data are demand-loaded, audit bootstrap uses a four-row preview, duplicate own-profile fetch is removed, and narrow notification/profile refresh callbacks avoid unnecessary global reloads. No database migration is added. See docs/PHASE-2.41.13.md, docs/UPGRADE-2.41.13.md, docs/VALIDATION-2.41.13.md and docs/WORKSPACE-REFRESH-2.41.13.md.
+
+# Historical release: FieldLance 2.41.12
 
 Auth Recovery & Session Boundary Hardening. The `/reset` pathname no longer authorizes password mutation by itself: the new-password form requires a Supabase `PASSWORD_RECOVERY` event for the same user, recovery identity is tab-scoped and cleared after use, redirect failures become actionable reset-request states, auth initialization is race-safe, and local Auth secure-password reauthentication is enabled. No database migration is added. See docs/PHASE-2.41.12.md, docs/UPGRADE-2.41.12.md, docs/VALIDATION-2.41.12.md and docs/AUTH-SESSION-2.41.12.md.
 

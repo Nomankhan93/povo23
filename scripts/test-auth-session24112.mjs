@@ -74,10 +74,10 @@ ok('local auth config enables secure password change reauthentication',()=>{
   assert.match(config,/secure_password_change\s*=\s*true/);
 });
 
-ok('2.41.12 release and targeted validation command are registered',()=>{
+ok('2.41.12 targeted validation command remains registered',()=>{
   const pkg=JSON.parse(readFileSync('package.json','utf8'));
-  assert.equal(pkg.version,'2.41.12');
   assert.equal(pkg.scripts['test:auth-session-24112'],'node scripts/test-auth-session24112.mjs');
+  assert.match(readFileSync('docs/PHASE-2.41.12.md','utf8'),/Auth Recovery & Session Boundary Hardening/);
 });
 
 console.log(`\n${passed} FieldLance 2.41.12 auth/session boundary scenarios passed.`);

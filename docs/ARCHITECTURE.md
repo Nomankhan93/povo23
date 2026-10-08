@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.12
+# Current architecture note — FieldLance 2.41.13
+
+Workspace shell data loading is split by freshness responsibility. Full bootstrap still loads broad navigation context, while foreground focus/visibility refreshes only account status, `my_workspace_access()`, notifications, active project assignments and recent activity. Geography and account-directory collections are demand-loaded and cached in memory. RLS and guarded RPCs remain authoritative; this is a frontend query-efficiency change only.
+
+# Historical architecture note — FieldLance 2.41.12
 
 Auth recovery is event-gated rather than pathname-gated. `/reset` is only a public recovery-request destination until Supabase emits `PASSWORD_RECOVERY`; the recovery user is bridged across same-tab reloads with sessionStorage and cleared after completion/sign-out. Auth events are subscribed before the initial session read so newer auth state cannot be overwritten by a stale initialization promise. Local Auth enables secure-password reauthentication. No database/RLS architecture changes.
 

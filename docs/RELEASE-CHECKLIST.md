@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.41.12
+# Current release checklist — FieldLance 2.41.13
+
+Workspace Bootstrap & Refresh Efficiency. No database migration is included.
+
+- [ ] `npm run test:workspace-refresh-24113` passes.
+- [ ] `npm run test:auth-session-24112` and `npm run test:routing-domain-24111` remain green.
+- [ ] Returning to a visible tab refreshes access/notifications/project assignments without resetting the whole workspace.
+- [ ] Geography-dependent pages populate reference data on demand; Overview does not block on geography pagination.
+- [ ] Memberships/Accounts/Activity populate the account directory on demand.
+- [ ] Activity upgrades from the four-row preview to the latest 100 authorized events.
+- [ ] Geography Manager invalidates and reloads geography reference data after changes.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Full historical `npm run preflight` remains deferred to security/database changes or final certification.
+
+See PHASE-2.41.13.md, UPGRADE-2.41.13.md, WORKSPACE-REFRESH-2.41.13.md and VALIDATION-2.41.13.md.
+
+# Historical release checklist — FieldLance 2.41.12
 
 Auth Recovery & Session Boundary Hardening. No database migration is included.
 

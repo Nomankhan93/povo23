@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.12
+# Current validation — FieldLance 2.41.13
+
+See [VALIDATION-2.41.13.md](VALIDATION-2.41.13.md) for narrow foreground access refresh, demand-loaded geography/account data, recent-activity sizing, duplicate-query removal and targeted compatibility checks.
+
+# Historical validation — FieldLance 2.41.12
 
 See [VALIDATION-2.41.12.md](VALIDATION-2.41.12.md) for recovery-event gating, invalid/expired reset handling, auth initialization ordering, local secure-password configuration and targeted compatibility checks.
 

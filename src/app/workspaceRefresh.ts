@@ -1,0 +1,44 @@
+export const FOREGROUND_REFRESH_DEDUP_MS = 1_500;
+
+const geographyPages = new Set([
+  "Reports & Analytics",
+  "My profile",
+  "Volunteers",
+  "Partner NGO application",
+  "NGO applications",
+  "Partner NGOs",
+  "Geography",
+  "My Field Map",
+  "Workforce marketplace",
+  "Available Opportunities",
+  "My Applications",
+  "My Assigned Surveys",
+  "Recruitment",
+  "Organization Settings",
+  "Invitations",
+  "Project team",
+  "Project workspace",
+  "Survey projects",
+]);
+
+const accountDirectoryPages = new Set(["Memberships", "Accounts", "Activity"]);
+
+export function shouldRunForegroundRefresh(
+  lastRunAt: number,
+  now: number,
+  visibilityState: DocumentVisibilityState | string,
+): boolean {
+  return visibilityState === "visible" && now - lastRunAt >= FOREGROUND_REFRESH_DEDUP_MS;
+}
+
+export function workspacePageNeedsGeographies(page: string): boolean {
+  return geographyPages.has(page);
+}
+
+export function workspacePageNeedsAccounts(page: string): boolean {
+  return accountDirectoryPages.has(page);
+}
+
+export function workspacePageNeedsFullActivity(page: string): boolean {
+  return page === "Activity";
+}

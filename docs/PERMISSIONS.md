@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.12
+# Current permissions note — FieldLance 2.41.13
+
+No role, RLS policy, RPC grant or database permission changes. Foreground refresh still re-reads the account, calls `my_workspace_access()` and refreshes active project assignments before applying workspace access. Cached geography/account-directory UI data never grants authority; existing workspace, project, RLS and RPC authorization remains unchanged.
+
+# Historical permissions note — FieldLance 2.41.12
 
 No role, RLS policy, RPC grant or database permission changes. Password recovery UI now requires a recovery-auth event for the same authenticated user instead of trusting `/reset`. Local Auth secure-password reauthentication is enabled; hosted current-password enforcement remains a separate deployment setting. Existing workspace, project, RLS and RPC authorization remains unchanged.
 

@@ -2,6 +2,7 @@ import {SurveyReviewQueue} from "../features/surveys/SurveyReviewQueue";
 import {AuthoringNavigationGuard,requestAuthoringNavigation,installAuthoringHistoryGuard} from '../shared/authoringNavigation';
 import type {ReportSelection} from "../features/analytics/model";
 import {isExplicitRoute, parseAppRoute, routePath, writeRoute, type RouteEntityKind, type RouteTarget} from "./routes";
+import {shouldRunForegroundRefresh, workspacePageNeedsAccounts, workspacePageNeedsFullActivity, workspacePageNeedsGeographies} from "./workspaceRefresh";
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
@@ -155,7 +156,11 @@ export function Workspace({ session, openField }: { session: Session; openField:
     browserPathRef.current=path;
     setBrowserRoute(parseAppRoute(path));
   }
-  function setPage(next:string,after?:()=>void){void requestAuthoringNavigation().then(async leave=>{if(!leave)return;await flushActiveDraft();setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
+  function setPage(next:string,after?:()=>void){void requestAuthoringNavigation().then(async leave=>{if(!leave)return;await flushActiveDraft();
+    if(workspacePageNeedsGeographies(next))await ensureGeographies();
+    if(workspacePageNeedsAccounts(next))await ensureAccounts();
+    if(workspacePageNeedsFullActivity(next))await ensureEvents(100);
+    setPageState(next);after?.()}).catch(e=>setError("Could not protect device draft: "+e.message))}
   const admin =
       account &&
       [
@@ -187,7 +192,18 @@ export function Workspace({ session, openField }: { session: Session; openField:
   const [access, setAccess] = useState<WorkspaceAccess | null>(null);
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
+  const accountRef = useRef(account);
+  accountRef.current = account;
+  const pageRef = useRef(page);
+  pageRef.current = page;
   const requestId = useRef(0);
+  const foregroundRefreshAt = useRef(0);
+  const geographiesLoaded = useRef(false);
+  const geographiesLoading = useRef(false);
+  const accountsLoaded = useRef(false);
+  const accountsLoading = useRef(false);
+  const eventLimitLoaded = useRef(0);
+  const eventsLoading = useRef(false);
   function applyAccess(next: WorkspaceAccess, preferred = scopeRef.current || readPreferredWorkspace(session.user.id), followApproval = false, respectRoute = true) {
     setAccess(next);
     const approvalCompleted = followApproval && preferred === 'onboarding' && next.applications?.some(a => a.status === 'approved') && !next.applications?.some(a => !['approved','withdrawn','rejected'].includes(a.status));
@@ -206,6 +222,106 @@ export function Workspace({ session, openField }: { session: Session; openField:
     }
     setPageState(nextPage);
     if (browserRoute.kind === "root") syncRoute({scope:resolved,page:nextPage},true);
+  }
+  async function refreshNotifications() {
+    const result = await db!
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (result.error) throw result.error;
+    setNotifications(result.data || []);
+  }
+  async function refreshOwnProfile() {
+    const result = await db!
+      .from("volunteer_profiles")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (result.error) throw result.error;
+    setProfiles(result.data ? [result.data as Row] : []);
+  }
+  async function ensureGeographies(force = false) {
+    if ((!force && geographiesLoaded.current) || geographiesLoading.current) return;
+    geographiesLoading.current = true;
+    try {
+      const rows: Geo[] = [];
+      for (let offset = 0; ; offset += 1000) {
+        const result = await db!
+          .from("geographies")
+          .select("*")
+          .order("id")
+          .range(offset, offset + 999);
+        if (result.error) throw result.error;
+        rows.push(...(result.data || []));
+        if ((result.data || []).length < 1000) break;
+      }
+      setGeographies(rows);
+      geographiesLoaded.current = true;
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      geographiesLoading.current = false;
+    }
+  }
+  async function ensureAccounts(force = false) {
+    if ((!force && accountsLoaded.current) || accountsLoading.current) return;
+    accountsLoading.current = true;
+    try {
+      const result = await db!.from("accounts").select("*").order("full_name").limit(500);
+      if (result.error) throw result.error;
+      setAccounts(result.data || []);
+      accountsLoaded.current = true;
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      accountsLoading.current = false;
+    }
+  }
+  async function ensureEvents(limit = 4, force = false) {
+    if ((!force && eventLimitLoaded.current >= limit) || eventsLoading.current) return;
+    eventsLoading.current = true;
+    try {
+      const result = await db!
+        .from("audit_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (result.error) throw result.error;
+      setEvents(result.data || []);
+      eventLimitLoaded.current = limit;
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      eventsLoading.current = false;
+    }
+  }
+  async function refreshProjectContext(assignments: Row[]) {
+    setProjectStaff(assignments);
+    const projectIds = [...new Set(assignments.map((item) => item.project_id).filter(Boolean))];
+    if (!projectIds.length) {
+      setStaffProjects([]);
+      return;
+    }
+    const projects = await db!
+      .from("survey_projects")
+      .select("*")
+      .in("id", projectIds)
+      .order("title");
+    if (projects.error) throw projects.error;
+    setStaffProjects((projects.data || []) as Row[]);
+  }
+  async function mergeOwnOrganizationContext(fresh: WorkspaceAccess) {
+    const ownOrgIds = fresh.workspaces.map(w => w.id).filter(id => /^[0-9a-f-]{36}$/i.test(id));
+    if (!ownOrgIds.length) return;
+    const [ownOrgs, ownMembers] = await Promise.all([
+      db!.from('organizations').select('*').in('id', ownOrgIds),
+      db!.from('organization_memberships').select('*').eq('user_id', session.user.id),
+    ]);
+    if (ownOrgs.error) throw ownOrgs.error;
+    if (ownMembers.error) throw ownMembers.error;
+    setOrgs(current => [...new Map([...current, ...(ownOrgs.data || [])].map(o => [o.id,o])).values()]);
+    setMembers(current => [...new Map([...current.filter(m => m.user_id !== session.user.id), ...(ownMembers.data || [])].map(m => [`${m.organization_id}:${m.user_id}`,m])).values()]);
   }
   async function openNotificationTarget(target: RouteTarget) {
     if(!(await requestAuthoringNavigation()))return;
@@ -259,109 +375,61 @@ export function Workspace({ session, openField }: { session: Session; openField:
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
   }
-  async function load() {
+  async function load(options: {forceGeographies?: boolean} = {}) {
     const request = ++requestId.current;
     setError("");
     try {
-      const a = await db!
-        .from("accounts")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-      if (a.error) throw a.error;
+      const [accountResult, fresh] = await Promise.all([
+        db!.from("accounts").select("*").eq("id", session.user.id).single(),
+        rpc("my_workspace_access", {}) as unknown as Promise<WorkspaceAccess>,
+      ]);
+      if (accountResult.error) throw accountResult.error;
       if (request !== requestId.current) return;
-      setAccount(a.data);
-      if (a.data.status === "suspended") {
+      setAccount(accountResult.data);
+      const refreshedAccount = accountResult.data;
+
+      if (!refreshedAccount) {
+        throw new Error("Unable to refresh account.");
+      }
+
+      if (refreshedAccount.status === "suspended") {
         setAccess(null);
         setProfiles([]);
         setOrgs([]);
+        setMembers([]);
+        setProjectStaff([]);
+        setStaffProjects([]);
         setLoading(false);
         return;
       }
-      const res = await Promise.all([
-        db!
-          .from("volunteer_profiles")
-          .select("*")
-          .eq("user_id", session.user.id),
+      const [profileResult, orgResult, memberResult, eventResult, notificationResult, staffAssignments] = await Promise.all([
+        db!.from("volunteer_profiles").select("*").eq("user_id", session.user.id).maybeSingle(),
         db!.from("organizations").select("*").order("name").limit(500),
         db!.from("organization_memberships").select("*").limit(1000),
-        db!
-          .from("audit_events")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(100),
-        db!.from("accounts").select("*").order("full_name").limit(500),
-        db!
-          .from("notifications")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(100),
-        db!
-          .from("volunteer_profiles")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle(),
+        db!.from("audit_events").select("*").order("created_at", { ascending: false }).limit(4),
+        db!.from("notifications").select("*").order("created_at", { ascending: false }).limit(100),
+        db!.from("project_staff_assignments").select("*").eq("user_id", session.user.id).eq("status", "active"),
       ]);
       if (request !== requestId.current) return;
-      for (const r of res) if (r.error) throw r.error;
-      setProfiles([
-        ...(res[6].data ? [res[6].data] : []),
-        ...(res[0].data || []).filter(
-          (p: Row) => p.user_id !== session.user.id,
-        ),
-      ]);
-      setOrgs(res[1].data || []);
-      setMembers(res[2].data || []);
-      setEvents(res[3].data || []);
-      setAccounts(res[4].data || []);
-      setNotifications(res[5].data || []);
-      setRevision((n) => n + 1);
-      const geoRows: Geo[] = [];
-      for (let offset = 0; ; offset += 1000) {
-        const g = await db!
-          .from("geographies")
-          .select("*")
-          .order("id")
-          .range(offset, offset + 999);
-        if (g.error) throw g.error;
-        geoRows.push(...(g.data || []));
-        if ((g.data || []).length < 1000) break;
+      for (const result of [profileResult, orgResult, memberResult, eventResult, notificationResult, staffAssignments]) {
+        if (result.error) throw result.error;
       }
-      setGeographies(geoRows);
-      const staffAssignments = await db!
-        .from("project_staff_assignments")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .eq("status", "active");
-      if (staffAssignments.error) throw staffAssignments.error;
-      const activeStaffAssignments = staffAssignments.data || [];
-      setProjectStaff(activeStaffAssignments as Row[]);
-      const staffProjectIds = [...new Set(activeStaffAssignments.map((item) => item.project_id))];
-      if (staffProjectIds.length) {
-        const projectRows = await db!
-          .from("survey_projects")
-          .select("*")
-          .in("id", staffProjectIds)
-          .order("title");
-        if (projectRows.error) throw projectRows.error;
-        setStaffProjects((projectRows.data || []) as Row[]);
-      } else {
-        setStaffProjects([]);
-      }
-      const fresh = await rpc("my_workspace_access", {}) as unknown as WorkspaceAccess;
+      setProfiles(profileResult.data ? [profileResult.data as Row] : []);
+      setOrgs(orgResult.data || []);
+      setMembers(memberResult.data || []);
+      setEvents(eventResult.data || []);
+      eventLimitLoaded.current = 4;
+      setNotifications(notificationResult.data || []);
+      await refreshProjectContext((staffAssignments.data || []) as Row[]);
       if (request !== requestId.current) return;
-      const ownOrgIds = fresh.workspaces.map(w => w.id).filter(id => /^[0-9a-f-]{36}$/i.test(id));
-      if (ownOrgIds.length) {
-        const ownOrgs = await db!.from('organizations').select('*').in('id', ownOrgIds);
-        const ownMembers = await db!.from('organization_memberships').select('*').eq('user_id', session.user.id);
-        if (ownOrgs.error) throw ownOrgs.error;
-        if (ownMembers.error) throw ownMembers.error;
-        if (request !== requestId.current) return;
-        setOrgs([...new Map([...(res[1].data || []), ...(ownOrgs.data || [])].map(o => [o.id,o])).values()]);
-        setMembers([...new Map([...(res[2].data || []), ...(ownMembers.data || [])].map(m => [`${m.organization_id}:${m.user_id}`,m])).values()]);
-      }
+      await mergeOwnOrganizationContext(fresh);
+      if (request !== requestId.current) return;
       applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
-
+      setRevision((n) => n + 1);
+      if (options.forceGeographies) geographiesLoaded.current = false;
+      if (workspacePageNeedsGeographies(pageRef.current) || options.forceGeographies) await ensureGeographies(Boolean(options.forceGeographies));
+      if (workspacePageNeedsAccounts(pageRef.current)) await ensureAccounts();
+      if (workspacePageNeedsFullActivity(pageRef.current)) await ensureEvents(100);
     } catch (e) {
       if (request !== requestId.current) return;
       setAccess(null);
@@ -370,13 +438,65 @@ export function Workspace({ session, openField }: { session: Session; openField:
       if (request === requestId.current) setLoading(false);
     }
   }
+  async function refreshForeground(force = false) {
+    const now = Date.now();
+    if (!force && !shouldRunForegroundRefresh(foregroundRefreshAt.current, now, document.visibilityState)) return;
+    foregroundRefreshAt.current = now;
+    const request = ++requestId.current;
+    try {
+      const eventLimit = workspacePageNeedsFullActivity(pageRef.current) ? 100 : 4;
+      const [accountResult, fresh, notificationResult, staffAssignments, eventResult] = await Promise.all([
+        db!.from("accounts").select("*").eq("id", session.user.id).single(),
+        rpc("my_workspace_access", {}) as unknown as Promise<WorkspaceAccess>,
+        db!.from("notifications").select("*").order("created_at", { ascending: false }).limit(100),
+        db!.from("project_staff_assignments").select("*").eq("user_id", session.user.id).eq("status", "active"),
+        db!.from("audit_events").select("*").order("created_at", { ascending: false }).limit(eventLimit),
+      ]);
+      if (request !== requestId.current) return;
+      for (const result of [accountResult, notificationResult, staffAssignments, eventResult]) if (result.error) throw result.error;
+      const previousRole = accountRef.current?.platform_role || null;
+      setAccount(accountResult.data);
+      const refreshedAccount = accountResult.data;
+
+      if (!refreshedAccount) {
+        throw new Error("Unable to refresh account.");
+      }
+
+      if (refreshedAccount.status === "suspended") {
+        setAccess(null);
+        setProjectStaff([]);
+        setStaffProjects([]);
+        return;
+      }
+      if (previousRole !== null && previousRole !== refreshedAccount.platform_role) {
+        await load();
+        return;
+      }
+      setNotifications(notificationResult.data || []);
+      setEvents(eventResult.data || []);
+      eventLimitLoaded.current = eventLimit;
+      await refreshProjectContext((staffAssignments.data || []) as Row[]);
+      if (request !== requestId.current) return;
+      await mergeOwnOrganizationContext(fresh);
+      if (request !== requestId.current) return;
+      applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
+    } catch (e) {
+      if (request !== requestId.current) return;
+      setError((e as Error).message);
+    }
+  }
   useEffect(() => {
     void load();
-    const refresh = () => { if (document.visibilityState === 'visible') void load(); };
+    const refresh = () => { void refreshForeground(); };
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);
     return () => { requestId.current++; window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [session.user.id]);
+  useEffect(() => {
+    if (workspacePageNeedsGeographies(page)) void ensureGeographies();
+    if (workspacePageNeedsAccounts(page)) void ensureAccounts();
+    if (workspacePageNeedsFullActivity(page)) void ensureEvents(100);
+  }, [page]);
   async function act(fn: () => Promise<unknown>, message: string) {
     setBusy(true);
     setError("");
@@ -384,6 +504,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     try {
       await fn();
       await load();
+      if (workspacePageNeedsAccounts(pageRef.current)) await ensureAccounts(true);
+      if (workspacePageNeedsFullActivity(pageRef.current)) await ensureEvents(100, true);
       setNotice(message);
       return true;
     } catch (e) {
@@ -649,7 +771,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {error ||
             "Account setup is incomplete. Check that database migrations have been applied."}
         </p>
-        <button className="primary" onClick={load}>
+        <button className="primary" onClick={() => void load()}>
           Retry
         </button>
         <button onClick={logout}>Sign out</button>
@@ -664,7 +786,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
         <button onClick={logout}>Sign out</button>
       </div>
     );
-  if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={load}>Retry</button><button onClick={logout}>Sign out</button></div>;
+  if (!access) return <div className="setup"><h2>Unable to verify workspace access</h2><p role="alert">{error || 'Reload to check your current permissions.'}</p><button onClick={() => void load()}>Retry</button><button onClick={logout}>Sign out</button></div>;
   if (browserRoute.kind === "unknown") return (
     <main className="setup">
       <h1>Page not found</h1>
@@ -767,7 +889,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {error && (
             <div className="notice error" role="alert">
               {error}
-              <button onClick={load}>Reload</button>
+              <button onClick={() => void load()}>Reload</button>
             </div>
           )}
           {notice && (
@@ -779,7 +901,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </div>
           )}
           {access.enrollment === 'legacy' && <div className="notice" role="status">Your existing Field Worker access has been preserved. Confirm if you want to use this workspace. <button disabled={busy} onClick={() => void beginOnboarding('worker')}>Confirm Field Worker enrollment</button></div>}
-          {accessWorkspace && <section className="panel"><h2>No operational workspace is currently available</h2><p>Your membership may be inactive or your onboarding may be incomplete. Organization members need an authorized admin or project assignment for operational access.</p><button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button><button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button><button onClick={load}>Refresh access</button></section>}
+          {accessWorkspace && <section className="panel"><h2>No operational workspace is currently available</h2><p>Your membership may be inactive or your onboarding may be incomplete. Organization members need an authorized admin or project assignment for operational access.</p><button disabled={busy} onClick={() => void beginOnboarding('organization')}>Register an Organization</button><button disabled={busy} onClick={() => void beginOnboarding('worker')}>Join as Field Worker</button><button onClick={() => void load()}>Refresh access</button></section>}
           {validScope && (nav.some(([name]) => name === page) || (page==="Project workspace" && Boolean(workspaceProjectId))) && <>
           {page === "Reports & Analytics" && validScope && (poem||organizationWorkspace||projectScope) && <ReportsWorkspace key={`${scope}-${reportSelection?.kind}-${reportSelection?.status}`} organization={organizationWorkspace?scope:null} projectId={projectScopeId} geographies={geographies} initial={reportSelection}/>}
           {page === "Overview" && (
@@ -855,7 +977,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
                   my.status === "draft" ? "Profile published." : "Profile changes saved.",
                 )
               }
-              onPhotoChanged={load}
+              onPhotoChanged={refreshOwnProfile}
             />
           )}
           {page === "Volunteers" &&
@@ -1092,7 +1214,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
             </section>
           )}
           {page === "Geography" && ngos && (
-            <GeographyManager rows={geographies} refresh={load} />
+            <GeographyManager rows={geographies} refresh={() => load({forceGeographies:true})} />
           )}
           {page === "Workforce payables" && !poem && scope === "personal" && validScope && <Suspense fallback={<p role="status">Loading earnings…</p>}><EarningsWorkspace key={`earnings-${session.user.id}`} userId={session.user.id} onNavigate={change}/></Suspense>}
           {page === "Workforce payables" && !poem && scope !== "personal" && !projectScope && validScope && <Suspense fallback={<p role="status">Loading payables…</p>}><PayablesWorkspace key={scope} userId={session.user.id} organization={scope}/></Suspense>}
@@ -1275,7 +1397,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {page === "Notifications" && (
             <Notifications
               rows={notifications}
-              refresh={load}
+              refresh={refreshNotifications}
               onOpenTarget={openNotificationTarget}
               currentScope={scope}
               mode={projectScope ? "project" : organizationWorkspace ? "organization" : poem ? "staff" : "personal"}
