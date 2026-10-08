@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.19
+# Current validation — FieldLance 2.41.20
+
+See [VALIDATION-2.41.20.md](VALIDATION-2.41.20.md) for dialog/focus containment, SPA/crash focus recovery, alert semantics, coarse-pointer touch targets, reduced-motion, contrast/forced-colors and RTL regressions.
+
+# Historical validation — FieldLance 2.41.19
 
 See [VALIDATION-2.41.19.md](VALIDATION-2.41.19.md) for React/global error containment, sensitive-data-safe diagnostics, RPC/Supabase transport instrumentation and offline/map/notification/service-worker observability regressions.
 

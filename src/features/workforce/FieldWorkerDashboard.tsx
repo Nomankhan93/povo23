@@ -336,7 +336,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         </div>
       </section>
 
-      {error && <p className="notice" role="status">{error}</p>}
+      {error && <p className="notice error" role="alert">{error}</p>}
 
       <div className="field-worker-metric-grid" aria-label="Field Worker workspace metrics">
         <Metric icon={<BriefcaseBusiness size={18} />} label="Open opportunities" value={openOpportunities} detail="Published work you can explore" />

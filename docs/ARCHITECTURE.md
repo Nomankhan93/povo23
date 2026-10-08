@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.19
+# Current architecture note — FieldLance 2.41.20
+
+Accessibility remains a frontend interaction contract rather than an authorization boundary. Shared modal focus containment, page-change focus recovery, assistive-technology labelling, coarse-pointer sizing and motion/contrast/RTL fallbacks are applied without changing backend data access or workflow state.
+
+# Historical architecture note — FieldLance 2.41.19
 
 Production observability is a frontend containment layer, not a new data plane. `src/lib/observability.ts` keeps a bounded, memory-only stream of aggressively redacted diagnostic records; `AppErrorBoundary` contains uncaught React failures; global window/promise handlers capture otherwise-unhandled failures; RPC and Supabase transport instrumentation records operation/status context without request payloads. No diagnostic record is persisted to browser storage, Supabase or a third-party telemetry service, and PostgreSQL RLS/RPC authorization remains authoritative.
 

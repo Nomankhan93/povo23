@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.19
+# Current permissions note — FieldLance 2.41.20
+
+2.41.20 changes accessibility and interaction behavior only. Focus movement, dialog semantics, touch sizing, contrast and RTL presentation do not grant access or replace RLS/guarded RPC authorization. No role, grant, policy, RPC or database migration changes.
+
+# Historical permissions note — FieldLance 2.41.19
 
 2.41.19 changes error containment and diagnostics only. Diagnostic capture cannot grant access, bypass workspace capability checks or replace RLS/guarded RPC authorization. RPC instrumentation records function names but never argument objects; diagnostic context intentionally excludes user/project/organization/assignment/response/case identifiers, auth tokens and field payloads. No role, grant, policy or database migration changes.
 

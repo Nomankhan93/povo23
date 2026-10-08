@@ -1,10 +1,10 @@
 export type DiagnosticArea =
   | "app"
   | "auth"
+  | "database"
   | "rpc"
   | "workspace"
   | "offline"
-  | "database"
   | "map"
   | "routing"
   | "notification"

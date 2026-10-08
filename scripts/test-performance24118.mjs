@@ -13,7 +13,7 @@ let passed=0;
 const ok=(name,fn)=>{fn();passed++;console.log('PASS '+name)};
 
 ok('2.41.18 release and targeted performance command are registered',()=>{
-  assert.ok(pkg.version==='2.41.18'||pkg.version==='2.41.19');
+  assert.ok(['2.41.18','2.41.19','2.41.20'].includes(pkg.version));
   assert.equal(pkg.scripts['test:performance-24118'],'node scripts/test-performance24118.mjs');
 });
 

@@ -228,7 +228,7 @@ export function FieldLanceStaffDashboard({
       <div className="staff-ops-hero-actions"><button className="primary" onClick={() => onNavigate(nextAction.page)}>Open priority queue <ArrowRight size={14} /></button><button className="staff-ops-refresh" disabled={loading} onClick={() => setRevision((value) => value + 1)}><RefreshCw size={15} className={loading ? "staff-ops-spin" : ""} /> Refresh</button></div>
     </section>
 
-    {error && <p className="notice" role="status">{error}</p>}
+    {error && <p className="notice error" role="alert">{error}</p>}
 
     <div className="staff-ops-metric-grid" aria-label="FieldLance network metrics">
       <Metric onClick={()=>onReport({kind:"organizations",status:"active"})} icon={<Building2 size={18} />} label="Active organizations" value={n("organizations","active")} detail={`${n("organizations")} organizations visible`} />

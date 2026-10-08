@@ -1,8 +1,12 @@
-# Current release: FieldLance 2.41.19
+# Current release: FieldLance 2.41.20
 
-Error Handling & Production Observability. FieldLance now contains uncaught React/window failures, emits bounded in-memory diagnostics with aggressive sensitive-data redaction, observes RPC/Supabase transport failures without logging request payloads, and adds production-safe context for auth/session, workspace refresh, offline sync, map renderer, notification target and service-worker failures. No database migration, remote telemetry dependency or persistent client diagnostic store is added. See docs/PHASE-2.41.19.md, docs/UPGRADE-2.41.19.md and docs/VALIDATION-2.41.19.md.
+Accessibility & UX Consistency. Shared modal focus/keyboard handling, SPA content focus, crash-recovery focus, assertive blocking errors, coarse-pointer touch targets, reduced-motion, high-contrast/forced-colors and RTL fallbacks are hardened without changing permissions, workflows or database behavior. See docs/PHASE-2.41.20.md, docs/UPGRADE-2.41.20.md and docs/VALIDATION-2.41.20.md.
 
-## Previous release: FieldLance 2.41.18
+## Previous release: FieldLance 2.41.19
+
+Error Handling & Production Observability. FieldLance contains uncaught React/window failures, bounded in-memory diagnostics with sensitive-data redaction, safe RPC/Supabase transport diagnostics and production context for auth/session, workspace refresh, offline sync, map renderer, notification target and service-worker failures. No database migration or remote telemetry dependency is added. See docs/PHASE-2.41.19.md.
+
+## Historical release: FieldLance 2.41.18
 
 Performance, Bundle & Query Efficiency. The production shell uses manifest-selected offline precaching, lazy role dashboard boundaries, demand-driven organization/member directories, a 30-second foreground refresh window and right-sized runtime branding. See docs/PHASE-2.41.18.md.
 

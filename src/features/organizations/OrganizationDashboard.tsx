@@ -256,7 +256,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
         </div>
       </section>
 
-      {error && <p className="notice" role="status">{error}</p>}
+      {error && <p className="notice error" role="alert">{error}</p>}
 
       <div className="organization-metric-grid" aria-label="Organization workspace metrics">
         <Metric onClick={()=>onReport({kind:"projects",status:"active"})} icon={<BriefcaseBusiness size={18} />} label="Active projects" value={n("projects","active")} detail={`${n("projects")} projects visible`} />

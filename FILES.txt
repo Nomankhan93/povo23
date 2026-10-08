@@ -99,6 +99,7 @@ docs/PHASE-2.41.17.md
 docs/PHASE-2.41.18.md
 docs/PHASE-2.41.19.md
 docs/PHASE-2.41.2.md
+docs/PHASE-2.41.20.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
 docs/PHASE-2.41.5.md
@@ -213,6 +214,7 @@ docs/UPGRADE-2.41.17.md
 docs/UPGRADE-2.41.18.md
 docs/UPGRADE-2.41.19.md
 docs/UPGRADE-2.41.2.md
+docs/UPGRADE-2.41.20.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
 docs/UPGRADE-2.41.5.md
@@ -312,6 +314,7 @@ docs/VALIDATION-2.41.17.md
 docs/VALIDATION-2.41.18.md
 docs/VALIDATION-2.41.19.md
 docs/VALIDATION-2.41.2.md
+docs/VALIDATION-2.41.20.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
 docs/VALIDATION-2.41.5.md
@@ -368,6 +371,7 @@ scripts/generate-project-metadata.mjs
 scripts/generate-types.mjs
 scripts/local-env.mjs
 scripts/schema-test-db.mjs
+scripts/test-accessibility24120.mjs
 scripts/test-analytics-client231.mjs
 scripts/test-area-operations.mjs
 scripts/test-area-picker.mjs
@@ -504,6 +508,7 @@ src/assets/brand/fieldlance-icon.png
 src/assets/brand/fieldlance-wordmark.png
 src/components/layout/SidebarNavigation.tsx
 src/components/system/AppErrorBoundary.tsx
+src/components/system/focusManagement.ts
 src/components/ui/ActionDialog.tsx
 src/components/ui/FieldLanceBrand.tsx
 src/components/ui/Pager.tsx

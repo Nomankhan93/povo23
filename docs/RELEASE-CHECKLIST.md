@@ -1,4 +1,22 @@
-# Current release checklist — FieldLance 2.41.19
+# Current release checklist — FieldLance 2.41.20
+
+Accessibility & UX Consistency. No database migration is included.
+
+- [ ] `npm run test:accessibility-24120` passes.
+- [ ] `npm run test:observability-24119`, `npm run test:performance-24118` and `npm run test:mobile-production-24117` remain green.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Keyboard-only navigation reaches sidebar groups, workspace content and modal actions without focus escape.
+- [ ] Unsaved-authoring confirmation exposes one modal boundary and returns focus correctly.
+- [ ] Partner Organization success modal supports Tab/Shift+Tab, Escape and focus restoration.
+- [ ] Blocking dashboard/moderation failures are announced as alerts.
+- [ ] Coarse-pointer controls remain at least 44px high where shared interaction CSS applies.
+- [ ] Reduced-motion and high-contrast/forced-colors preferences preserve usable states.
+- [ ] RTL shell fallback mirrors the sidebar active edge and mobile header alignment.
+- [ ] There is no 2.41.20 database push.
+
+See PHASE-2.41.20.md, UPGRADE-2.41.20.md and VALIDATION-2.41.20.md.
+
+# Historical release checklist — FieldLance 2.41.19
 
 Error Handling & Production Observability. No database migration or remote telemetry dependency is included.
 

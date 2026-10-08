@@ -202,6 +202,16 @@ export function Workspace({ session, openField }: { session: Session; openField:
   accountRef.current = account;
   const pageRef = useRef(page);
   pageRef.current = page;
+  const workspaceFocusKey = useRef(`${scope}:${page}`);
+  useEffect(() => {
+    const nextKey = `${scope}:${page}`;
+    if (workspaceFocusKey.current === nextKey) return;
+    workspaceFocusKey.current = nextKey;
+    requestAnimationFrame(() => {
+      if (document.querySelector('[role="dialog"][aria-modal="true"],dialog[open]')) return;
+      document.getElementById("workspace-content")?.focus({ preventScroll: true });
+    });
+  }, [scope, page]);
   const requestId = useRef(0);
   const foregroundRefreshAt = useRef(0);
   const geographiesLoaded = useRef(false);
@@ -800,7 +810,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       <a className="skip-link" href="#workspace-content">Skip to content</a>
       {menu&&<button className="nav-backdrop" aria-label="Close navigation" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}/>}
       <aside id="workspace-navigation" aria-label="Workspace navigation" className={menu ? "sidebar open" : "sidebar"}>
-        <button className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
+        <button type="button" className="drawer-close" onClick={()=>{setMenu(false);requestAnimationFrame(()=>document.getElementById('navigation-toggle')?.focus())}}>Close navigation ×</button>
         <button type="button" className="sidebar-collapse" aria-label={collapsed?'Expand sidebar':'Collapse sidebar'} aria-expanded={!collapsed} onClick={toggleSidebar} title={collapsed?'Expand sidebar':'Collapse sidebar'}>{collapsed?<PanelLeftOpen size={20}/>:<PanelLeftClose size={20}/>}</button>
         <FieldLanceBrand variant="wordmark" />
         <div className="sidebar-compact-brand"><FieldLanceBrand variant="icon" /></div>
@@ -862,18 +872,18 @@ export function Workspace({ session, openField }: { session: Session; openField:
           </div>
           <div className="header-tools">
             <button type="button" className="header-icon-button" aria-label={unreadNotifications ? `Notifications, ${unreadNotifications} unread` : "Notifications"} onClick={()=>change("Notifications")}>
-              <Bell size={18}/>{unreadNotifications>0&&<span className="header-notification-count">{unreadNotifications}</span>}
+              <Bell size={18}/>{unreadNotifications>0&&<span className="header-notification-count" aria-hidden="true">{unreadNotifications}</span>}
             </button>
             {access.worker && <button type="button" className="secondary header-offline-action" onClick={()=>void requestAuthoringNavigation().then(leave=>{if(leave)openField()})}>Offline field</button>}
             <SurveySyncStatus userId={session.user.id} />
             <span className="release">v{APP_VERSION}</span>
           </div>
         </header>
-        <div className="content" data-worker={personalWorkspace} id="workspace-content" tabIndex={-1} key={`${session.user.id}:${scope}`}>
+        <div className="content" data-worker={personalWorkspace} id="workspace-content" tabIndex={-1} aria-labelledby="workspace-page-title" key={`${session.user.id}:${scope}`}>
           <div className="heading">
             <div>
               <span className="eyebrow">{pageEyebrow}</span>
-              <h1>{pageTitle}</h1>
+              <h1 id="workspace-page-title">{pageTitle}</h1>
               <p>{pageDescription}</p>
             </div>
             {page === "Partner NGOs" && ngos && (
@@ -895,7 +905,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
           {notice && (
             <div className="notice success" role="status">
               {notice}
-              <button onClick={() => setNotice("")} aria-label="Dismiss">
+              <button type="button" onClick={() => setNotice("")} aria-label="Dismiss notification">
                 ×
               </button>
             </div>

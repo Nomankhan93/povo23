@@ -425,3 +425,24 @@ body{background:var(--fieldlance-canvas);color:var(--fieldlance-ink)}
  .survey-sync-card{top:calc(64px + env(safe-area-inset-top))}
  .mobile-filter-dialog,.recruitment-application-dialog{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 }
+
+/* FieldLance 2.41.20 — accessibility and interaction consistency. */
+@media(pointer:coarse){
+ button,summary{min-height:44px}
+ .header-icon-button,.drawer-close,.sidebar-collapse,.ngo-area-chip button,.ngo-program-chip button{min-width:44px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ html:focus-within{scroll-behavior:auto}
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+@media(prefers-contrast:more){
+ button,input,select,textarea,.panel,.notice,.action-dialog{border-width:2px}
+ .status-pill,.badge{outline:1px solid currentColor;outline-offset:1px}
+}
+@media(forced-colors:active){
+ .status-pill,.badge,.notice,.action-dialog{border:1px solid CanvasText}
+ .field-worker-bottom-nav button.active,.sidebar nav button.active{outline:2px solid Highlight;outline-offset:-2px}
+}
+[dir="rtl"] .skip-link{left:auto;right:16px}
+[dir="rtl"] .sidebar nav button.active{box-shadow:inset -3px 0 var(--fieldlance-emerald)}
+@media(max-width:800px){[dir="rtl"] .header-tools{margin-left:0;margin-right:auto}}

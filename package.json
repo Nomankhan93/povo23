@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.41.19",
+  "version": "2.41.20",
   "private": true,
   "type": "module",
   "engines": {
@@ -90,7 +90,8 @@
     "test:browser-mobile-production-24117": "npm run test:browser-mobile-2419 && npm run test:browser-attendance-2414 && npm run test:browser-network-2412 && npm run test:browser-map-2411",
     "check:mobile-production-24117": "node scripts/check-mobile-production24117.mjs",
     "test:performance-24118": "node scripts/test-performance24118.mjs",
-    "test:observability-24119": "node scripts/test-observability24119.mjs"
+    "test:observability-24119": "node scripts/test-observability24119.mjs",
+    "test:accessibility-24120": "node scripts/test-accessibility24120.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

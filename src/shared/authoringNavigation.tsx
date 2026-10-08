@@ -26,20 +26,8 @@ export function useDirtyAuthoring(dirty:boolean){
 }
 export function AuthoringNavigationGuard(){
  const open=useSyncExternalStore(fn=>{listeners.add(fn);return()=>{listeners.delete(fn)}},()=>Boolean(decision));
- const dialog=useRef<HTMLDialogElement>(null);
- useEffect(()=>{
-  const node=dialog.current;if(!node)return;
-  if(open&&!node.open)node.showModal();else if(!open&&node.open)node.close();
- },[open]);
  useEffect(()=>()=>finish(false),[]);
- return <dialog ref={dialog} aria-label="Unsaved authoring changes" onKeyDown={event=>{
-  if(event.key!=="Tab")return;
-  const buttons=Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)")),first=buttons[0],last=buttons.at(-1);
-  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus()}
-  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus()}
- }} onCancel={event=>{event.preventDefault();finish(false)}} style={{padding:0,border:0,background:'transparent',maxWidth:'100vw',maxHeight:'100vh'}}>
-  <ActionDialog open={open} title="Discard unsaved changes?" description="Your template or project draft has unsaved changes. Stay to continue editing or save it before leaving." cancelLabel="Stay / Continue editing" confirmLabel="Discard changes" danger onCancel={()=>finish(false)} onConfirm={()=>finish(true)}/>
- </dialog>;
+ return <ActionDialog open={open} title="Discard unsaved changes?" description="Your template or project draft has unsaved changes. Stay to continue editing or save it before leaving." cancelLabel="Stay / Continue editing" confirmLabel="Discard changes" danger onCancel={()=>finish(false)} onConfirm={()=>finish(true)}/>;
 }
 
 /** Keep the current entry while asking; Stay preserves the forward/back stack. */

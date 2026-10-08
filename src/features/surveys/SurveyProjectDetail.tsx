@@ -242,7 +242,7 @@ export function SurveyProjectDetail({
         </p>
       )}
       {project.moderation_status !== "allowed" && (
-        <p className="notice error" role="status">
+        <p className="notice error" role="alert">
           FieldLance moderation is active: {project.moderation_reason || "This project is restricted."} Historical records remain available, but new recruitment, assignments and field collection are paused.
         </p>
       )}

@@ -14,6 +14,7 @@ import {
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type DragEvent,
   type FormEvent,
@@ -30,6 +31,7 @@ import {
 import type { Geo } from "../geography/model";
 import { Badge, Field, human } from "../../shared/ui/FormFields";
 import { OrganizationLogoImage, PartnerNgoLogoEditor } from "./OrganizationLogo";
+import { trapFocus } from "../../components/system/focusManagement";
 
 type Application =
   import("../../lib/supabase/database.types").Database["public"]["Tables"]["partner_ngo_applications"]["Row"];
@@ -580,6 +582,14 @@ export function PartnerNgoApplication({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const successDialogRef = useRef<HTMLElement>(null);
+  const successPrimaryRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!submitSuccess) return;
+    const previous = document.activeElement as HTMLElement | null;
+    requestAnimationFrame(() => successPrimaryRef.current?.focus());
+    return () => previous?.focus?.();
+  }, [submitSuccess]);
 
   const editable = application ? ["draft", "changes_requested"].includes(application.status) : false;
   const canAddArea = Boolean(
@@ -1137,14 +1147,17 @@ export function PartnerNgoApplication({
 
       {submitSuccess && (
         <div className="ngo-success-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setSubmitSuccess(false); }}>
-          <section className="ngo-success-modal" role="dialog" aria-modal="true" aria-labelledby="ngo-submit-success-title">
+          <section ref={successDialogRef} className="ngo-success-modal" role="dialog" aria-modal="true" aria-labelledby="ngo-submit-success-title" aria-describedby="ngo-submit-success-description" tabIndex={-1} onKeyDown={(event) => {
+            if (event.key === "Escape") { event.preventDefault(); setSubmitSuccess(false); return; }
+            trapFocus(event, successDialogRef.current);
+          }}>
             <div className="ngo-success-icon"><Check size={28}/></div>
             <span className="eyebrow">SUBMITTED TO FieldLance</span>
             <h2 id="ngo-submit-success-title">Application submitted successfully</h2>
-            <p>Your Organization application has been submitted to FieldLance for review. We’ll notify you when it is reviewed or if changes are requested.</p>
+            <p id="ngo-submit-success-description">Your Organization application has been submitted to FieldLance for review. We’ll notify you when it is reviewed or if changes are requested.</p>
             <div className="ngo-modal-status"><span>Status</span><strong>Under review</strong></div>
             <div className="ngo-success-actions">
-              <button className="secondary" type="button" onClick={() => setSubmitSuccess(false)}>View application</button>
+              <button ref={successPrimaryRef} className="secondary" type="button" onClick={() => setSubmitSuccess(false)}>View application</button>
               <button className="primary" type="button" onClick={() => { setSubmitSuccess(false); onBackToDashboard?.(); }}>Back to dashboard</button>
             </div>
           </section>
