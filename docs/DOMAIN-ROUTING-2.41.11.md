@@ -34,7 +34,7 @@ The singular `/project` compatibility family is retained because current semanti
 
 ## Supabase Auth
 
-Source uses `location.origin`, so callback/reset links follow the active domain. Hosted Supabase Auth must independently allow the deployed origin. For the recommended origin:
+Historical 2.41.11 source used `location.origin`. As of 2.41.16, callback/reset/certificate links use the optional canonical `VITE_PUBLIC_APP_ORIGIN` when configured and fall back to the active browser origin otherwise. Hosted Supabase Auth must independently allow the deployed production origin. For the recommended origin:
 
 ```text
 Site URL: https://app.fieldlance.app

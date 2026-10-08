@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { db } from "../../lib/supabase/client";
+import { publicAppUrl } from "../../app/publicOrigin";
 import { Field } from "../../shared/ui/FormFields";
 type WorkspaceEntryIntent = "volunteer" | "ngo";
 
@@ -154,7 +155,7 @@ export function Auth({
           password,
           options: {
             data: { full_name: String(f.get("full_name")), onboarding_intent: signupEntry === "ngo" ? "organization" : "worker" },
-            emailRedirectTo: location.origin + "/auth/callback",
+            emailRedirectTo: publicAppUrl("/auth/callback"),
           },
         });
         if (r.error) throw r.error;
@@ -166,7 +167,7 @@ export function Auth({
       }
       if (mode === "forgot") {
         const r = await db!.auth.resetPasswordForEmail(email, {
-          redirectTo: location.origin + "/reset",
+          redirectTo: publicAppUrl("/reset"),
         });
         if (r.error) throw r.error;
         setMessage("If this email is registered, a reset link will arrive shortly.");

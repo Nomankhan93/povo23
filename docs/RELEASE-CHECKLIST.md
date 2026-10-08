@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.41.15
+# Current release checklist — FieldLance 2.41.16
+
+Production Web Security & Domain Launch. No database migration is included.
+
+- [ ] `npm run test:production-web-24116` passes.
+- [ ] `npm run test:routing-domain-24111` and `npm run test:auth-session-24112` remain green with canonical-origin helpers.
+- [ ] `npm run test:project-lifecycle-24115`, `npm run release:consistency`, `npm run check`, `npm run build`, `npm run check:release-secrets` and `git diff --check` pass.
+- [ ] Vercel Production has the exact HTTPS `VITE_PUBLIC_APP_ORIGIN` before custom-domain cutover.
+- [ ] Hosted Supabase Site URL and exact `/auth/callback` + `/reset` redirects match the production app origin.
+- [ ] Hosted Confirm Email, secure password-change/re-authentication, leaked-password protection where supported, SMTP and attack-protection settings are reviewed.
+- [ ] Deployed response headers include CSP, HSTS, frame denial, MIME sniffing protection, referrer policy, permissions policy and no-index policy.
+- [ ] Real signup confirmation, password recovery, certificate verification, direct route refresh and Field Operations Map/geolocation pass on the custom domain.
+- [ ] `npx supabase migration list` remains aligned through `20261013000580`; there is no 2.41.16 database push.
+
+See PHASE-2.41.16.md, UPGRADE-2.41.16.md, PRODUCTION-WEB-2.41.16.md and VALIDATION-2.41.16.md.
+
+# Historical release checklist — FieldLance 2.41.15
 Project Lifecycle E2E Integrity. One forward database migration is included.
 
 - [ ] `npm run test:project-lifecycle-24115` passes.

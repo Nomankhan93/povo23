@@ -27,6 +27,6 @@ https://app.fieldlance.app/auth/callback
 https://app.fieldlance.app/reset
 ```
 
-Keep the local-development redirect URLs as needed. If a different purchased domain is chosen, substitute the real app origin; source code intentionally uses `location.origin` instead of hard-coding a domain.
+Keep the local-development redirect URLs as needed. If a different purchased domain is chosen, substitute the real app origin. From 2.41.16 onward the production origin may be set explicitly with `VITE_PUBLIC_APP_ORIGIN`; local/preview builds retain active-origin fallback when it is unset.
 
 No Git push, Vercel deployment, DNS mutation, hosted Auth mutation or remote database push is performed by this patch package.

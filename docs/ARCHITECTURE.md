@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.41.15
+# Current architecture note — FieldLance 2.41.16
+
+The production web boundary is now explicit. `vercel.json` uses higher-level SPA rewrites with filesystem precedence and security/cache response headers. `src/app/publicOrigin.ts` centralizes an optional canonical production origin for email confirmation, password recovery and public certificate links while preserving `window.location.origin` fallback for local/preview use. Browser hardening does not replace PostgreSQL RLS/RPC authorization. No database schema change is introduced.
+
+# Historical architecture note — FieldLance 2.41.15
 Project lifecycle authority now uses one server contract for recruitment and assignment finalization. `app_private.can_manage_project(project_id)` remains the authoritative Project Manager / NGO Admin / FieldLance survey-management boundary; completion and cancellation no longer retain the older NGO-Admin-only check. Existing collection, attendance, response review and payable engines are unchanged.
 
 

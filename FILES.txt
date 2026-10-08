@@ -93,6 +93,7 @@ docs/PHASE-2.41.12.md
 docs/PHASE-2.41.13.md
 docs/PHASE-2.41.14.md
 docs/PHASE-2.41.15.md
+docs/PHASE-2.41.16.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -112,6 +113,7 @@ docs/PHASE-2.7.6.md
 docs/PHASE-2.7.md
 docs/PHASE-2.8.md
 docs/PHASE-2.9.md
+docs/PRODUCTION-WEB-2.41.16.md
 docs/PROJECT-LIFECYCLE-2.41.15.md
 docs/RELEASE-CHECKLIST.md
 docs/SECURITY-ADVISOR-2.41.10.md
@@ -202,6 +204,7 @@ docs/UPGRADE-2.41.12.md
 docs/UPGRADE-2.41.13.md
 docs/UPGRADE-2.41.14.md
 docs/UPGRADE-2.41.15.md
+docs/UPGRADE-2.41.16.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -297,6 +300,7 @@ docs/VALIDATION-2.41.12.md
 docs/VALIDATION-2.41.13.md
 docs/VALIDATION-2.41.14.md
 docs/VALIDATION-2.41.15.md
+docs/VALIDATION-2.41.16.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -334,6 +338,7 @@ scripts/bootstrap-admin.mjs
 scripts/browser-network2412.mjs
 scripts/build-field-worker.mjs
 scripts/check-env.mjs
+scripts/check-production-domain24116.mjs
 scripts/check-release-secrets.mjs
 scripts/fixtures/device241/client.js
 scripts/fixtures/device241/main.jsx
@@ -450,6 +455,7 @@ scripts/test-phase26.mjs
 scripts/test-phase27.mjs
 scripts/test-phase28.mjs
 scripts/test-phase29.mjs
+scripts/test-production-web24116.mjs
 scripts/test-profile-independence-photo.mjs
 scripts/test-profile-structured-ui.mjs
 scripts/test-project-lifecycle-db24115.mjs
@@ -475,6 +481,7 @@ src/app/AppShell.tsx
 src/app/brand.ts
 src/app/capabilityContract.ts
 src/app/navigation.ts
+src/app/publicOrigin.ts
 src/app/routes.ts
 src/app/version.ts
 src/app/workspaceRefresh.ts

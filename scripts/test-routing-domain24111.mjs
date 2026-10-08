@@ -15,8 +15,8 @@ ok('auth callback is a recognized transient public route',()=>{
   assert.match(app,/current\.session&&parseAppRoute\(\)\.kind==="auth_callback"/);
   assert.match(app,/history\.replaceState\(\{\},"","\/"\)/);
   const auth=readFileSync('src/features/auth/Auth.tsx','utf8');
-  assert.match(auth,/emailRedirectTo:\s*location\.origin \+ "\/auth\/callback"/);
-  assert.match(auth,/redirectTo:\s*location\.origin \+ "\/reset"/);
+  assert.match(auth,/emailRedirectTo:\s*publicAppUrl\("\/auth\/callback"\)/);
+  assert.match(auth,/redirectTo:\s*publicAppUrl\("\/reset"\)/);
 });
 
 ok('certificate verification has a canonical public path with legacy compatibility',()=>{
@@ -32,7 +32,7 @@ ok('certificate verification has a canonical public path with legacy compatibili
   const reputation=readFileSync('src/features/workforce/ReputationCertificates.tsx','utf8');
   assert.match(app,/legacyCertificate=new URLSearchParams\(location\.search\)\.get\('certificate'\)/);
   assert.match(app,/publicRoute\.kind==='verify'\|\|legacyCertificate/);
-  assert.match(reputation,/location\.origin\}\$\{certificatePath\(code\)\}/);
+  assert.match(reputation,/publicAppUrl\(certificatePath\(code\)\)/);
   assert.match(reputation,/history\.replaceState\(history\.state,'',certificatePath\(code\)\)/);
 });
 
@@ -97,8 +97,8 @@ ok('existing project-scoped tool prefix remains compatible',()=>{
 
 ok('Vercel serves real files first and falls back to the SPA shell',()=>{
   const vercel=JSON.parse(readFileSync('vercel.json','utf8'));
-  assert.deepEqual(vercel.routes?.[0],{handle:'filesystem'});
-  assert.deepEqual(vercel.routes?.[1],{src:'/.*',dest:'/index.html'});
+  assert.equal('routes' in vercel,false);
+  assert.deepEqual(vercel.rewrites?.[0],{source:'/(.*)',destination:'/index.html'});
 });
 
 console.log(`\n${passed} FieldLance 2.41.11 canonical routing/domain-readiness scenarios passed.`);

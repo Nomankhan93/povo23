@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.41.15
+# Current release: FieldLance 2.41.16
+
+Production Web Security & Domain Launch. Vercel now uses modern filesystem-first SPA rewrites plus CSP/HSTS/frame/MIME/referrer/permissions/no-index headers and explicit shell/asset cache policy. Auth confirmation, reset and certificate links can use one canonical HTTPS `VITE_PUBLIC_APP_ORIGIN` while local/preview origins remain compatible when it is unset. Hosted Supabase Site URL/redirect/password/SMTP settings remain separate deployment controls. No database migration is added. See docs/PHASE-2.41.16.md, docs/UPGRADE-2.41.16.md, docs/VALIDATION-2.41.16.md and docs/PRODUCTION-WEB-2.41.16.md.
+
+# Historical release: FieldLance 2.41.15
 
 Project Lifecycle E2E Integrity. Project Manager assignment-finalization authority now matches the existing project recruitment/management contract: project managers can complete or cancel formal assignments they are already authorized to recruit and manage. Completion/cancellation still revoke forward survey collection, preserve immutable history and emit entity-routable worker notifications. A cross-layer lifecycle regression covers publish → marketplace → apply → review → offer → accept → collection → attendance/response review → payable generation → assignment finalization. One forward migration is included. See docs/PHASE-2.41.15.md, docs/UPGRADE-2.41.15.md, docs/VALIDATION-2.41.15.md and docs/PROJECT-LIFECYCLE-2.41.15.md.
 

@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.41.15
+# Current permissions note — FieldLance 2.41.16
+
+2.41.16 changes browser/deployment security, not application authorization. CSP, frame denial, permissions policy and canonical-domain handling do not grant or remove workspace capabilities. Geolocation remains allowed only to the FieldLance origin for explicit attendance/map evidence; camera/microphone/payment/USB are denied by policy. RLS and guarded RPCs remain authoritative. No database migration is added.
+
+# Historical permissions note — FieldLance 2.41.15
 Project Managers already had server-side project recruitment authority through `app_private.can_manage_project()` / `app_private.can_review_survey()`. 2.41.15 aligns `complete_work_assignment` and `cancel_work_assignment` with that same boundary. Area Focal Persons and ordinary Organization members do not gain assignment-finalization authority. Finance/payable approval permissions are unchanged.
 
 

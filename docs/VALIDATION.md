@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.41.15
+# Current validation — FieldLance 2.41.16
+
+See [VALIDATION-2.41.16.md](VALIDATION-2.41.16.md) for CSP/Vercel/canonical-origin regression, production environment launch gating, auth/routing compatibility, build/security-secret checks and hosted custom-domain acceptance.
+
+# Historical validation — FieldLance 2.41.15
 
 See [VALIDATION-2.41.15.md](VALIDATION-2.41.15.md) for project-lifecycle cross-layer regression, migrated-schema Project Manager finalization checks, type/build checks and the forward migration gate.
 

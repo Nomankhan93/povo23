@@ -55,7 +55,7 @@ ok('App gates the reset form on PASSWORD_RECOVERY instead of pathname alone',()=
 ok('Auth refuses password mutation without an authorized recovery session',()=>{
   const auth=readFileSync('src/features/auth/Auth.tsx','utf8');
   assert.match(auth,/if \(!recovery \|\| !session\) throw Error\("Open the latest reset link from your email\."\)/);
-  assert.match(auth,/resetPasswordForEmail\(email,\s*\{\s*redirectTo: location\.origin \+ "\/reset"/s);
+  assert.match(auth,/resetPasswordForEmail\(email,\s*\{\s*redirectTo: publicAppUrl\("\/reset"\)/s);
   assert.match(auth,/recovery \? "reset" : recoveryRequested \? "forgot" : "login"/);
   assert.match(auth,/if \(recoveryRequested\) done\(\)/);
 });
