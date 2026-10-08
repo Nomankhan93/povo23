@@ -1,6 +1,14 @@
-# Current architecture note — FieldLance 2.41.17
+# Current architecture note — FieldLance 2.41.19
 
-The production web boundary is now explicit. `vercel.json` uses higher-level SPA rewrites with filesystem precedence and security/cache response headers. `src/app/publicOrigin.ts` centralizes an optional canonical production origin for email confirmation, password recovery and public certificate links while preserving `window.location.origin` fallback for local/preview use. Browser hardening does not replace PostgreSQL RLS/RPC authorization. No database schema change is introduced.
+Production observability is a frontend containment layer, not a new data plane. `src/lib/observability.ts` keeps a bounded, memory-only stream of aggressively redacted diagnostic records; `AppErrorBoundary` contains uncaught React failures; global window/promise handlers capture otherwise-unhandled failures; RPC and Supabase transport instrumentation records operation/status context without request payloads. No diagnostic record is persisted to browser storage, Supabase or a third-party telemetry service, and PostgreSQL RLS/RPC authorization remains authoritative.
+
+# Historical architecture note — FieldLance 2.41.18
+
+Frontend performance boundaries use Vite manifest-selected offline precaching, route/role lazy chunks, demand-loaded organization/member directories, a stale-aware foreground refresh window and right-sized production branding. API/Auth/Storage responses remain outside Cache Storage and authorization behavior is unchanged.
+
+# Historical architecture note — FieldLance 2.41.17
+
+The production web boundary is explicit. `vercel.json` uses higher-level SPA rewrites with filesystem precedence and security/cache response headers. `src/app/publicOrigin.ts` centralizes an optional canonical production origin for email confirmation, password recovery and public certificate links while preserving `window.location.origin` fallback for local/preview use. Browser hardening does not replace PostgreSQL RLS/RPC authorization. No database schema change is introduced.
 
 # Historical architecture note — FieldLance 2.41.15
 Project lifecycle authority now uses one server contract for recruitment and assignment finalization. `app_private.can_manage_project(project_id)` remains the authoritative Project Manager / NGO Admin / FieldLance survey-management boundary; completion and cancellation no longer retain the older NGO-Admin-only check. Existing collection, attendance, response review and payable engines are unchanged.

@@ -96,6 +96,8 @@ docs/PHASE-2.41.14.md
 docs/PHASE-2.41.15.md
 docs/PHASE-2.41.16.md
 docs/PHASE-2.41.17.md
+docs/PHASE-2.41.18.md
+docs/PHASE-2.41.19.md
 docs/PHASE-2.41.2.md
 docs/PHASE-2.41.3.md
 docs/PHASE-2.41.4.md
@@ -208,6 +210,8 @@ docs/UPGRADE-2.41.14.md
 docs/UPGRADE-2.41.15.md
 docs/UPGRADE-2.41.16.md
 docs/UPGRADE-2.41.17.md
+docs/UPGRADE-2.41.18.md
+docs/UPGRADE-2.41.19.md
 docs/UPGRADE-2.41.2.md
 docs/UPGRADE-2.41.3.md
 docs/UPGRADE-2.41.4.md
@@ -305,6 +309,8 @@ docs/VALIDATION-2.41.14.md
 docs/VALIDATION-2.41.15.md
 docs/VALIDATION-2.41.16.md
 docs/VALIDATION-2.41.17.md
+docs/VALIDATION-2.41.18.md
+docs/VALIDATION-2.41.19.md
 docs/VALIDATION-2.41.2.md
 docs/VALIDATION-2.41.3.md
 docs/VALIDATION-2.41.4.md
@@ -335,6 +341,7 @@ project-tree.txt
 public/apple-touch-icon.png
 public/fieldlance-icon-192.png
 public/fieldlance-icon-512.png
+public/fieldlance-wordmark.webp
 public/manifest.webmanifest
 README.md
 scripts/accepted-collection-fixture.mjs
@@ -406,9 +413,11 @@ scripts/test-navigation2252.mjs
 scripts/test-notification-center2240.mjs
 scripts/test-notification-client2414.mjs
 scripts/test-notification-routing2413.mjs
+scripts/test-observability24119.mjs
 scripts/test-offline-recovery276.mjs
 scripts/test-organization-workspace2210.mjs
 scripts/test-partner-ngo-application2197.mjs
+scripts/test-performance24118.mjs
 scripts/test-phase12.mjs
 scripts/test-phase13.mjs
 scripts/test-phase14.mjs
@@ -494,6 +503,7 @@ src/app/workspaceRefresh.ts
 src/assets/brand/fieldlance-icon.png
 src/assets/brand/fieldlance-wordmark.png
 src/components/layout/SidebarNavigation.tsx
+src/components/system/AppErrorBoundary.tsx
 src/components/ui/ActionDialog.tsx
 src/components/ui/FieldLanceBrand.tsx
 src/components/ui/Pager.tsx
@@ -604,6 +614,7 @@ src/features/workforce/WorkAvailabilitySchedule.tsx
 src/features/workforce/WorkforceMarketplace.tsx
 src/features/workspaces/access.ts
 src/lib/files/validateFile.ts
+src/lib/observability.ts
 src/lib/supabase/client.ts
 src/lib/supabase/database.types.ts
 src/main.tsx

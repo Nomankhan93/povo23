@@ -1,6 +1,10 @@
-# Current release: FieldLance 2.41.18
+# Current release: FieldLance 2.41.19
 
-Performance, Bundle & Query Efficiency. The production shell now uses manifest-selected offline precaching, lazy role dashboard boundaries, demand-driven organization/member directories, a 30-second foreground refresh window and right-sized runtime branding. No database migration or authorization change is added. See docs/PHASE-2.41.18.md, docs/UPGRADE-2.41.18.md and docs/VALIDATION-2.41.18.md.
+Error Handling & Production Observability. FieldLance now contains uncaught React/window failures, emits bounded in-memory diagnostics with aggressive sensitive-data redaction, observes RPC/Supabase transport failures without logging request payloads, and adds production-safe context for auth/session, workspace refresh, offline sync, map renderer, notification target and service-worker failures. No database migration, remote telemetry dependency or persistent client diagnostic store is added. See docs/PHASE-2.41.19.md, docs/UPGRADE-2.41.19.md and docs/VALIDATION-2.41.19.md.
+
+## Previous release: FieldLance 2.41.18
+
+Performance, Bundle & Query Efficiency. The production shell uses manifest-selected offline precaching, lazy role dashboard boundaries, demand-driven organization/member directories, a 30-second foreground refresh window and right-sized runtime branding. See docs/PHASE-2.41.18.md.
 
 # Historical release: FieldLance 2.41.16
 

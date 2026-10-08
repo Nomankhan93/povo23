@@ -1,4 +1,12 @@
-# Current validation — FieldLance 2.41.17
+# Current validation — FieldLance 2.41.19
+
+See [VALIDATION-2.41.19.md](VALIDATION-2.41.19.md) for React/global error containment, sensitive-data-safe diagnostics, RPC/Supabase transport instrumentation and offline/map/notification/service-worker observability regressions.
+
+# Historical validation — FieldLance 2.41.18
+
+See [VALIDATION-2.41.18.md](VALIDATION-2.41.18.md) for bundle/chunk, query-efficiency, runtime branding and manifest-selected offline precache regression.
+
+# Historical validation — FieldLance 2.41.17
 
 See [VALIDATION-2.41.17.md](VALIDATION-2.41.17.md) for mobile safe-area hardening, Field Worker mobile/offline/browser acceptance, deployed HTTPS/PWA shell verification and the physical production acceptance boundary.
 

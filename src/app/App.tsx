@@ -10,6 +10,7 @@ import {CertificateVerification} from "../features/workforce/ReputationCertifica
 import { Workspace } from "./AppShell";
 import {parseAppRoute} from "./routes";
 import {canUseRecoveryForm,clearRecoveryUser,recoveryRedirectError,recoveryUserId,rememberRecoveryUser} from "../features/auth/recoverySession";
+import { reportDiagnostic, userFacingError } from "../lib/observability";
 export function App() {
   const [connection,setConnection]=useState(navigator.onLine);
   const [field,setField]=useState(!navigator.onLine),[cachedOwner,setCachedOwner]=useState(offlineOwner());
@@ -22,6 +23,11 @@ export function App() {
     [error, setError] = useState(initialRedirectError);
   const authEventSeen=useRef(false);
   const recovery=canUseRecoveryForm(recoveryRequested,session?.user.id||null,recoveryUser);
+  useEffect(()=>{
+    const route=parseAppRoute();
+    if(route.kind==="unknown")reportDiagnostic("routing",new Error("Unknown application route"),{operation:"parse_route",routeKind:"unknown",online:navigator.onLine});
+    if(initialRedirectError)reportDiagnostic("auth",new Error(initialRedirectError),{operation:"auth_redirect",routeKind:route.kind,online:navigator.onLine});
+  },[initialRedirectError]);
   useEffect(() => {
     if (!recoveryRequested) { clearRecoveryUser(); setRecoveryUser(null); }
     else if(initialRedirectError) history.replaceState({},"","/reset");
@@ -52,11 +58,15 @@ export function App() {
         if(current.session&&parseAppRoute().kind==="auth_callback")history.replaceState({},"","/");
         if(current.session&&navigator.onLine&&localStorage.getItem("poem-field-locked")!=="yes"){rememberFieldOwner(current.session.user.id);setCachedOwner(current.session.user.id)}
         setReady(true);
-        if (sessionError) setError(sessionError.message);
+        if (sessionError) {
+          reportDiagnostic("auth", sessionError, { operation: "restore_session", phase: "getSession", online: navigator.onLine });
+          setError(userFacingError(sessionError, "Your session could not be restored. Check your connection and sign in again."));
+        }
       })
       .catch((e) => {
         if (alive) {
-          setError(e.message);
+          reportDiagnostic("auth", e, { operation: "restore_session", phase: "getSession_rejected", online: navigator.onLine });
+          setError(userFacingError(e, "Your session could not be restored. Check your connection and sign in again."));
           setReady(true);
         }
       });
@@ -92,7 +102,7 @@ export function App() {
       </div>
     );
   return session && !recoveryRequested && localStorage.getItem("poem-field-locked")!=="yes" ? (
-    <Workspace key={session.user.id} session={session} openField={()=>{void flushActiveDraft().then(()=>setField(true)).catch(e=>window.alert("Could not protect device draft: "+e.message))}} />
+    <Workspace key={session.user.id} session={session} openField={()=>{void flushActiveDraft().then(()=>setField(true)).catch(e=>{reportDiagnostic("offline",e,{operation:"protect_active_draft",phase:"open_field",online:navigator.onLine});window.alert("FieldLance could not protect the current device draft. Please retry before opening Offline field.")})}} />
   ) : (
     <Auth
       session={session}

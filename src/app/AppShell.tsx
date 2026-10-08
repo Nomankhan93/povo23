@@ -104,6 +104,7 @@ import type { FieldMapViewStore } from "../features/maps/fieldMapViewState";
 const FieldOperationsMap = lazy(() => import("../features/maps/FieldOperationsMap").then(m => ({default:m.FieldOperationsMap})));
 const FieldWorkerDashboard = lazy(() => import("../features/workforce/FieldWorkerDashboard").then(m => ({default:m.FieldWorkerDashboard})));
 import { db, rpc } from "../lib/supabase/client";
+import { reportDiagnostic, userFacingError } from "../lib/observability";
 import type { Database } from "../lib/supabase/database.types";
 import { Row } from "../shared/legacyTypes";
 import { Badge, human } from "../shared/ui/FormFields";
@@ -414,7 +415,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       setPageState(home);
       syncRoute({scope:resolved,page:home});
       setMenu(false);
-    } catch (e) { setAccess(null); setError((e as Error).message); }
+    } catch (e) { reportDiagnostic("workspace",e,{operation:"switch_workspace",online:navigator.onLine}); setAccess(null); setError(userFacingError(e,"FieldLance could not switch workspaces. Refresh and try again.")); }
   }
   async function beginOnboarding(kind: 'worker' | 'organization') {
     if(!(await requestAuthoringNavigation()))return;
@@ -424,7 +425,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       await rpc('begin_workspace_onboarding', {p_kind:kind});
       await load();
       await switchWorkspace(kind === 'worker' ? 'personal' : 'onboarding',true);
-    } catch (e) { setError((e as Error).message); }
+    } catch (e) { reportDiagnostic("workspace",e,{operation:"begin_onboarding",online:navigator.onLine}); setError(userFacingError(e,"FieldLance could not start this workspace setup. Refresh and try again.")); }
     finally { setBusy(false); }
   }
   async function load(options: {forceGeographies?: boolean} = {}) {
@@ -484,8 +485,9 @@ export function Workspace({ session, openField }: { session: Session; openField:
       if (workspacePageNeedsFullActivity(pageRef.current)) await ensureEvents(100);
     } catch (e) {
       if (request !== requestId.current) return;
+      reportDiagnostic("workspace", e, { operation: "bootstrap", phase: "load", online: navigator.onLine });
       setAccess(null);
-      setError((e as Error).message);
+      setError(userFacingError(e, "FieldLance could not load this workspace. Check your connection and retry."));
     } finally {
       if (request === requestId.current) setLoading(false);
     }
@@ -538,7 +540,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
       applyAccess(fresh, scopeRef.current || readPreferredWorkspace(session.user.id), true);
     } catch (e) {
       if (request !== requestId.current) return;
-      setError((e as Error).message);
+      reportDiagnostic("workspace", e, { operation: "foreground_refresh", phase: "refresh", online: navigator.onLine });
+      setError(userFacingError(e, "FieldLance could not refresh the current workspace. Your existing view is still available."));
     }
   }
   useEffect(() => {
@@ -569,6 +572,7 @@ export function Workspace({ session, openField }: { session: Session; openField:
       setNotice(message);
       return true;
     } catch (e) {
+      reportDiagnostic("workspace", e, { operation: "workspace_action", online: navigator.onLine });
       setError((e as Error).message);
       return false;
     } finally {

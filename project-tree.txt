@@ -98,6 +98,8 @@
 ./docs/PHASE-2.41.15.md
 ./docs/PHASE-2.41.16.md
 ./docs/PHASE-2.41.17.md
+./docs/PHASE-2.41.18.md
+./docs/PHASE-2.41.19.md
 ./docs/PHASE-2.41.2.md
 ./docs/PHASE-2.41.3.md
 ./docs/PHASE-2.41.4.md
@@ -210,6 +212,8 @@
 ./docs/UPGRADE-2.41.15.md
 ./docs/UPGRADE-2.41.16.md
 ./docs/UPGRADE-2.41.17.md
+./docs/UPGRADE-2.41.18.md
+./docs/UPGRADE-2.41.19.md
 ./docs/UPGRADE-2.41.2.md
 ./docs/UPGRADE-2.41.3.md
 ./docs/UPGRADE-2.41.4.md
@@ -307,6 +311,8 @@
 ./docs/VALIDATION-2.41.15.md
 ./docs/VALIDATION-2.41.16.md
 ./docs/VALIDATION-2.41.17.md
+./docs/VALIDATION-2.41.18.md
+./docs/VALIDATION-2.41.19.md
 ./docs/VALIDATION-2.41.2.md
 ./docs/VALIDATION-2.41.3.md
 ./docs/VALIDATION-2.41.4.md
@@ -338,6 +344,7 @@
 ./public/apple-touch-icon.png
 ./public/fieldlance-icon-192.png
 ./public/fieldlance-icon-512.png
+./public/fieldlance-wordmark.webp
 ./public/manifest.webmanifest
 ./README.md
 ./scripts
@@ -417,9 +424,11 @@
 ./scripts/test-notification-center2240.mjs
 ./scripts/test-notification-client2414.mjs
 ./scripts/test-notification-routing2413.mjs
+./scripts/test-observability24119.mjs
 ./scripts/test-offline-recovery276.mjs
 ./scripts/test-organization-workspace2210.mjs
 ./scripts/test-partner-ngo-application2197.mjs
+./scripts/test-performance24118.mjs
 ./scripts/test-phase12.mjs
 ./scripts/test-phase13.mjs
 ./scripts/test-phase14.mjs
@@ -511,6 +520,8 @@
 ./src/components
 ./src/components/layout
 ./src/components/layout/SidebarNavigation.tsx
+./src/components/system
+./src/components/system/AppErrorBoundary.tsx
 ./src/components/ui
 ./src/components/ui/ActionDialog.tsx
 ./src/components/ui/FieldLanceBrand.tsx
@@ -649,6 +660,7 @@
 ./src/lib
 ./src/lib/files
 ./src/lib/files/validateFile.ts
+./src/lib/observability.ts
 ./src/lib/supabase
 ./src/lib/supabase/client.ts
 ./src/lib/supabase/database.types.ts

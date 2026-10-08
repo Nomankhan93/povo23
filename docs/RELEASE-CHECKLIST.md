@@ -1,16 +1,39 @@
-# Current release checklist — FieldLance 2.41.17
+# Current release checklist — FieldLance 2.41.19
+
+Error Handling & Production Observability. No database migration or remote telemetry dependency is included.
+
+- [ ] `npm run test:observability-24119` passes.
+- [ ] `npm run test:performance-24118`, `npm run test:workspace-refresh-24113`, `npm run test:notification-routing-2413` and `npm run test:mobile-production-24117` remain green.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Browser smoke confirms a recoverable React/global failure presents a generic recovery state and diagnostic code instead of a blank screen.
+- [ ] Service-worker registration/install failures leave the app usable and emit sanitized diagnostic context.
+- [ ] Offline attendance/device failures retain local data and offer retry-safe messages.
+- [ ] Field Map renderer failure leaves the evidence list usable.
+- [ ] Stale notification/deep-link targets present safe access/availability messaging without raw database details.
+- [ ] Diagnostic context contains no auth tokens, survey answers, beneficiary payloads, coordinates or entity IDs.
+- [ ] `npx supabase migration list` remains aligned through `20261013000580`; there is no 2.41.19 database push.
+
+See PHASE-2.41.19.md, UPGRADE-2.41.19.md and VALIDATION-2.41.19.md.
+
+# Historical release checklist — FieldLance 2.41.18
+
+Performance, Bundle & Query Efficiency. No database migration is included.
+
+- [ ] `npm run test:performance-24118` passes.
+- [ ] `npm run check` and `npm run build` pass without a >500 kB Vite chunk warning.
+- [ ] Offline shell precaches only the core/offline-field dependency graph and essential install assets.
+- [ ] Role/admin chunks remain on-demand.
+- [ ] Global organization/member directories are not fetched during every workspace bootstrap.
+
+See PHASE-2.41.18.md, UPGRADE-2.41.18.md and VALIDATION-2.41.18.md.
+
+# Historical release checklist — FieldLance 2.41.17
 
 Mobile Field Worker Production Acceptance. No database migration is included.
 
 - [ ] `npm run test:mobile-production-24117` passes.
 - [ ] `npm run test:browser-mobile-production-24117` passes on the project-pinned Node/Playwright environment.
-- [ ] `npm run test:production-web-24116`, `npm run release:consistency`, `npm run check:release-secrets`, `npm run check`, `npm run build` and `git diff --check` pass.
-- [ ] After deployment, `FIELDLANCE_PRODUCTION_URL=https://<canonical-app-origin> npm run check:mobile-production-24117` passes.
-- [ ] Physical Android Chrome acceptance covers Work → assignment → attendance → field survey → offline/sync and bottom-nav/keyboard clearance.
-- [ ] iPhone Safari/WebKit is checked when available for notch/top-bar and home-indicator safe-area clearance.
-- [ ] Installed/standalone PWA is launched when installation is supported and uses the same canonical session/routes.
-- [ ] No continuous/background geolocation is introduced; location remains explicit check-in/check-out or existing explicit field evidence only.
-- [ ] `npx supabase migration list` remains aligned through `20261013000580`; there is no 2.41.17 database push.
+- [ ] Deployed/physical Android Chrome acceptance covers Work → assignment → attendance → field survey → offline/sync and mobile safe-area/keyboard behavior.
 
 See PHASE-2.41.17.md, UPGRADE-2.41.17.md, MOBILE-PRODUCTION-ACCEPTANCE-2.41.17.md and VALIDATION-2.41.17.md.
 

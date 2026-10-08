@@ -13,6 +13,7 @@ import { db, rpc } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
 import type { RouteTarget } from "../../app/routes";
 import { notificationActionTarget, notificationSourceVisible } from "./notificationAction";
+import { reportDiagnostic, userFacingError } from "../../lib/observability";
 
 type Row = Database["public"]["Tables"]["notifications"]["Row"];
 type Preference = Database["public"]["Tables"]["notification_preferences"]["Row"];
@@ -229,7 +230,8 @@ export function Notifications({
       await refresh();
       await onOpenTarget(target);
     } catch (e) {
-      setError((e as Error).message || "This notification target could not be opened.");
+      reportDiagnostic("notification", e, { operation: "open_target", workspaceMode: mode, sourceKind: row.source_kind || "none", online: navigator.onLine });
+      setError(userFacingError(e, "This notification target could not be opened. Refresh your workspace and try again."));
     } finally { setBusy(false); }
   }
 

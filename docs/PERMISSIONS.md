@@ -1,6 +1,14 @@
-# Current permissions note — FieldLance 2.41.17
+# Current permissions note — FieldLance 2.41.19
 
-2.41.16 changes browser/deployment security, not application authorization. CSP, frame denial, permissions policy and canonical-domain handling do not grant or remove workspace capabilities. Geolocation remains allowed only to the FieldLance origin for explicit attendance/map evidence; camera/microphone/payment/USB are denied by policy. RLS and guarded RPCs remain authoritative. No database migration is added.
+2.41.19 changes error containment and diagnostics only. Diagnostic capture cannot grant access, bypass workspace capability checks or replace RLS/guarded RPC authorization. RPC instrumentation records function names but never argument objects; diagnostic context intentionally excludes user/project/organization/assignment/response/case identifiers, auth tokens and field payloads. No role, grant, policy or database migration changes.
+
+# Historical permissions note — FieldLance 2.41.18
+
+Performance/query changes do not alter permissions. Lazy route boundaries, narrower bootstrap queries and service-worker precache selection remain presentation/network optimizations; current server-backed workspace access, project authority, RLS and guarded RPCs remain authoritative.
+
+# Historical permissions note — FieldLance 2.41.17
+
+Browser/deployment security does not grant or remove workspace capabilities. CSP, frame denial, permissions policy and canonical-domain handling remain independent of PostgreSQL authorization. Geolocation is limited to explicit first-party field evidence; camera/microphone/payment/USB remain denied by production policy.
 
 # Historical permissions note — FieldLance 2.41.15
 Project Managers already had server-side project recruitment authority through `app_private.can_manage_project()` / `app_private.can_review_survey()`. 2.41.15 aligns `complete_work_assignment` and `cancel_work_assignment` with that same boundary. Area Focal Persons and ordinary Organization members do not gain assignment-finalization authority. Finance/payable approval permissions are unchanged.

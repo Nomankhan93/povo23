@@ -4,6 +4,7 @@ import { rpc } from "../../lib/supabase/client";
 import type { FieldMapViewStore } from "./fieldMapViewState";
 import type { Geo } from "../geography/model";
 import { geographyPath } from "../geography/model";
+import { reportDiagnostic, userFacingError } from "../../lib/observability";
 
 type Quality = "within_assigned_area" | "outside_assigned_area" | "poor_accuracy" | "location_unavailable" | "unable_to_determine";
 type Layer = "survey" | "attendance_check_in" | "attendance_check_out" | "case_follow_up";
@@ -225,7 +226,8 @@ export function FieldOperationsMap({
       setBoundaries(current => append ? mergeBoundaries(current, result.boundaries) : result.boundaries);
       return result;
     } catch (cause) {
-      if (requestRef.current === token) setError((cause as Error).message);
+      reportDiagnostic("map", cause, { operation: "load_evidence", online: navigator.onLine });
+      if (requestRef.current === token) setError(userFacingError(cause, "Field evidence could not be loaded. Refresh to try again."));
     }
     return null;
   }
@@ -319,7 +321,10 @@ export function FieldOperationsMap({
         map.on("mouseleave", "fieldlance-points", () => { map.getCanvas().style.cursor = ""; });
         setMapReady(true);
       });
-    }).catch(cause => setMapError((cause as Error).message));
+    }).catch(cause => {
+      reportDiagnostic("map", cause, { operation: "renderer_load", online: navigator.onLine });
+      setMapError(userFacingError(cause, "The interactive map renderer could not load."));
+    });
     return () => { active = false; const map = mapRef.current; mapRef.current = null; libRef.current = null; if (map) map.remove(); };
   }, [mapAttempt]);
 
