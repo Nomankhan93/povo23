@@ -1,6 +1,10 @@
-# Current validation — FieldLance 2.42.0
+# Current validation — FieldLance 2.42.1
 
-See [VALIDATION-2.42.0.md](VALIDATION-2.42.0.md) for the design-system primitives, immutable route/capability boundary, workspace/mobile navigation grouping, Project Workspace grouped navigation, no-migration boundary and FAST validation record.
+See [VALIDATION-2.42.1.md](VALIDATION-2.42.1.md) for Project Workspace identity/header hierarchy, grouped desktop navigation, mobile Project Section bottom-sheet navigation, lifecycle context, immutable route/capability/tab boundaries, deep-link preservation and FAST validation.
+
+# Historical validation — FieldLance 2.42.0
+
+See [VALIDATION-2.42.0.md](VALIDATION-2.42.0.md) for the design-system primitives, workspace/mobile shell foundation, navigation grouping and no-migration boundary.
 
 # Historical validation — FieldLance 2.41.20
 

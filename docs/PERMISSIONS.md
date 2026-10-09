@@ -1,6 +1,10 @@
-# Current permissions note — FieldLance 2.42.0
+# Current permissions note — FieldLance 2.42.1
 
-2.42.0 changes presentation only. Navigation grouping and mobile primary navigation are derived from the same already-authorized page list; no page is added to `getAuthorizedNavigationPages`, no capability is changed, and Project Workspace still filters tabs using the same existing booleans. No role, grant, policy, RPC, RLS or database migration changes.
+2.42.1 changes Project Workspace presentation only. `routes.ts`, `capabilityContract.ts` and `navigation.ts` remain byte-identical to 2.42.0. Grouped desktop navigation and the mobile Project Section bottom sheet consume the already-filtered Project Workspace tab list, so no unauthorized tab is exposed. Project Manager / Area Focal Person boundaries and all RLS/RPC authorization remain unchanged.
+
+# Historical permissions note — FieldLance 2.42.0
+
+2.42.0 grouped already-authorized workspace destinations without changing page authorization, capabilities, roles, grants, policies, RPCs, RLS or migrations.
 
 # Historical permissions note — FieldLance 2.41.20
 

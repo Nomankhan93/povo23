@@ -108,6 +108,7 @@ docs/PHASE-2.41.7.md
 docs/PHASE-2.41.8.md
 docs/PHASE-2.41.9.md
 docs/PHASE-2.42.0.md
+docs/PHASE-2.42.1.md
 docs/PHASE-2.5.md
 docs/PHASE-2.6.md
 docs/PHASE-2.7.1.md
@@ -224,6 +225,7 @@ docs/UPGRADE-2.41.7.md
 docs/UPGRADE-2.41.8.md
 docs/UPGRADE-2.41.9.md
 docs/UPGRADE-2.42.0.md
+docs/UPGRADE-2.42.1.md
 docs/UPGRADE-2.5.md
 docs/UPGRADE-2.6.md
 docs/UPGRADE-2.7.1.md
@@ -325,6 +327,7 @@ docs/VALIDATION-2.41.7.md
 docs/VALIDATION-2.41.8.md
 docs/VALIDATION-2.41.9.md
 docs/VALIDATION-2.42.0.md
+docs/VALIDATION-2.42.1.md
 docs/VALIDATION-2.5.md
 docs/VALIDATION-2.6.md
 docs/VALIDATION-2.7.1.md
@@ -482,6 +485,7 @@ scripts/test-profile-independence-photo.mjs
 scripts/test-profile-structured-ui.mjs
 scripts/test-project-lifecycle-db24115.mjs
 scripts/test-project-lifecycle24115.mjs
+scripts/test-project-workspace2421.mjs
 scripts/test-recruitment-hardening2415.mjs
 scripts/test-release-consistency.mjs
 scripts/test-routing-domain24111.mjs
@@ -570,6 +574,7 @@ src/features/projects/projectNavigation.ts
 src/features/projects/ProjectOverview.tsx
 src/features/projects/ProjectTeamWorkspace.tsx
 src/features/projects/ProjectWorkspace.tsx
+src/features/projects/ProjectWorkspaceHeader.tsx
 src/features/projects/workspacePermissions.ts
 src/features/registry/canonical/canonical.css
 src/features/registry/canonical/CanonicalDetail.tsx

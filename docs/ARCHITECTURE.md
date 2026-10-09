@@ -1,6 +1,10 @@
-# Current architecture note — FieldLance 2.42.0
+# Current architecture note — FieldLance 2.42.1
 
-The 2.42.0 design-system layer is a presentation architecture only. `src/components/ui/FieldLanceUI.tsx` provides reusable UI primitives, `src/styles/fieldlance-2420.css` owns the new token/shell layer, and existing feature styles remain in place until later screen migrations. `AppShell` still consumes the same authorized page IDs and callbacks; `ProjectWorkspace` still consumes the same project tab IDs and feature components. RLS, RPCs and backend state remain authoritative.
+2.42.1 remains inside the 2.42.0 presentation architecture. `ProjectWorkspaceHeader` owns project identity, AppShell owns generic page context, `SectionNav` continues grouped desktop navigation, and `MobileSectionPicker` adds an opt-in bottom-sheet mode for the same authorized project tab IDs. Existing detailed project feature components remain mounted unchanged. RLS, RPCs and backend state remain authoritative.
+
+# Historical architecture note — FieldLance 2.42.0
+
+The 2.42.0 design-system layer introduced reusable UI primitives and the `fieldlance-2420.css` token/shell layer while leaving feature workflows and backend authorization unchanged.
 
 # Historical architecture note — FieldLance 2.41.20
 

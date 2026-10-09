@@ -6,7 +6,8 @@ import { ProjectTeamWorkspace } from "./ProjectTeamWorkspace";
 import { ProjectOverview } from "./ProjectOverview";
 import { ProjectDocuments } from "./ProjectDocuments";
 import { ProjectActivity } from "./ProjectActivity";
-import { Button, MobileSectionPicker, SectionNav } from "../../components/ui/FieldLanceUI";
+import { MobileSectionPicker, SectionNav } from "../../components/ui/FieldLanceUI";
+import { ProjectWorkspaceHeader, deriveProjectLifecycleStage, type ProjectWorkspaceIdentity } from "./ProjectWorkspaceHeader";
 const WorkforceMarketplace = lazy(() => import("../workforce/WorkforceMarketplace").then(m => ({default: m.WorkforceMarketplace})));
 const ProjectFundingWorkspace = lazy(() => import("../finance/ProjectFundingWorkspace").then(m => ({default: m.ProjectFundingWorkspace})));
 const SurveyProjects = lazy(() => import("../surveys/SurveyProjects").then(m => ({default: m.SurveyProjects})));
@@ -54,6 +55,8 @@ export function ProjectWorkspace({
   userId,
   projectId,
   organization,
+  project,
+  projectRole,
   geographies,
   orgs,
   canManageTeam,
@@ -75,6 +78,8 @@ export function ProjectWorkspace({
   userId: string;
   projectId: string;
   organization: string | null;
+  project: ProjectWorkspaceIdentity;
+  projectRole?: string | null;
   geographies: Geo[];
   orgs: Org[];
   canManageTeam: boolean;
@@ -111,8 +116,7 @@ export function ProjectWorkspace({
     if (next !== tab && tabs.some(item => item.id === next)) void navigate(() => {setTab(next);onRouteChange?.(next,null,null);});
     else if(next===tab) onRouteChange?.(next,null,null);
   }
-  const [projectTitle, setProjectTitle] = useState("Project workspace");
-
+  const [projectTitle, setProjectTitle] = useState(project.title || "Project workspace");
   const tabs = useMemo(() => allTabs.filter((item) => {
     if (item.id === "recruitment") return canManageRecruitment;
     if (item.id === "cases") return canManageCases;
@@ -138,26 +142,34 @@ export function ProjectWorkspace({
     return () => { live = false; };
   }, [projectId]);
 
+  useEffect(() => {
+    if (project.title) setProjectTitle(project.title);
+  }, [project.title]);
+
   const current = tabs.find((item) => item.id === tab) || tabs[0];
   const groupedTabs = projectTabGroups.map(group => ({
     label: group.label,
     items: group.ids.map(id => tabs.find(item => item.id === id)).filter((item): item is TabItem => Boolean(item)).map(item => ({ id: item.id, label: item.label, disabled: navigating })),
   })).filter(group => group.items.length > 0);
   const projectOrg = organization;
+  const organizationName = orgs.find((item) => item.id === (project.organizationId || projectOrg))?.name || null;
+  const lifecycleStage = deriveProjectLifecycleStage(project);
 
   return <section className="panel detail project-workspace" aria-label="Project workspace">
-    <div className="project-workspace-entity-bar">
-      <div className="project-workspace-entity-copy">
-        <span>Project</span><strong>{projectTitle}</strong>
-      </div>
-      <Button variant="secondary" disabled={navigating} onClick={() => void navigate(() => onNavigate("Survey projects"))}>Back to projects</Button>
-    </div>
+    <ProjectWorkspaceHeader
+      project={{...project, title: projectTitle}}
+      organizationName={organizationName}
+      projectRole={projectRole}
+      lifecycleStage={lifecycleStage}
+      navigating={navigating}
+      onBack={() => void navigate(() => onNavigate("Survey projects"))}
+    />
 
     <div className="project-workspace-navigation">
       <SectionNav groups={groupedTabs} activeId={tab} onChange={openTab} label="Project workspace sections" className="project-workspace-grouped-nav" />
     </div>
     <div className="project-workspace-mobile-navigation">
-      <MobileSectionPicker groups={groupedTabs.map(group => ({label:group.label,items:group.items.map(item => ({id:item.id,label:String(item.label),disabled:item.disabled}))}))} activeId={tab} onChange={openTab} label="Project section" disabled={navigating} />
+      <MobileSectionPicker groups={groupedTabs.map(group => ({label:group.label,items:group.items.map(item => ({id:item.id,label:String(item.label),disabled:item.disabled}))}))} activeId={tab} onChange={openTab} label="Project section" disabled={navigating} presentation="sheet" />
     </div>
     <p className="project-workspace-tab-hint">{current?.hint}</p>
 

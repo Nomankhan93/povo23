@@ -757,8 +757,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
         : poem
           ? page === "Overview" ? "FIELDLANCE STAFF OPERATIONS" : "FIELDLANCE OPERATIONS"
           : "PEOPLE AT THE HEART OF IMPACT";
-  const pageTitle = page === "Project workspace" && workspaceProject
-    ? workspaceProject.title || "Project workspace"
+  const pageTitle = page === "Project workspace"
+    ? "Project workspace"
     : onboardingWorkspace && page === 'Partner NGO application' ? 'Your organization application' : accessWorkspace ? 'Choose your next step' : page === "Overview"
     ? poem
       ? "Keep the FieldLance network accountable."
@@ -772,8 +772,8 @@ export function Workspace({ session, openField }: { session: Session; openField:
     ? "Create and submit your organization profile for FieldLance review. Worker enrollment is a separate, optional choice."
     : page === "Notifications"
       ? "Review actionable updates, open the linked workflow and manage communication preferences."
-    : page === "Project workspace" && workspaceProject
-      ? "Manage this project's delivery, people, evidence, governance, cases and financial readiness from one project-scoped workspace."
+    : page === "Project workspace"
+      ? "Navigate project-scoped delivery, evidence, people, impact and administration. Project identity and status remain visible inside the workspace."
     : poem
       ? "Review priority queues, govern access and coordinate trusted operations across the FieldLance network."
       : scope === "personal"
@@ -1334,6 +1334,19 @@ export function Workspace({ session, openField }: { session: Session; openField:
               userId={session.user.id}
               projectId={workspaceProjectId}
               organization={workspaceProjectOrganization}
+              project={{
+                title: workspaceProject?.title || "Project workspace",
+                status: workspaceProject?.status || null,
+                organizationId: workspaceProjectOrganization,
+                startDate: workspaceProject?.start_date || null,
+                endDate: workspaceProject?.end_date || null,
+                recruitmentStatus: workspaceProject?.recruitment_status || null,
+                projectClosureState: workspaceProject?.project_closure_state || null,
+                collectionClosedAt: workspaceProject?.collection_closed_at || null,
+                operationalCompletedAt: workspaceProject?.operational_completed_at || null,
+                fullyClosedAt: workspaceProject?.fully_closed_at || null,
+              }}
+              projectRole={projectScopeAssignment?.role || null}
               geographies={geographies}
               orgs={orgs as any}
               canManageTeam={canManageWorkspaceTeam}

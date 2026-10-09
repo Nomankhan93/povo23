@@ -2,6 +2,7 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type KeyboardEvent,
@@ -222,14 +223,31 @@ export function SectionNav<T extends string>({ groups, activeId, onChange, label
   </nav>;
 }
 
-export function MobileSectionPicker<T extends string>({ groups, activeId, onChange, label = "Section", disabled = false, className = "" }: {
+export function MobileSectionPicker<T extends string>({ groups, activeId, onChange, label = "Section", disabled = false, className = "", presentation = "select" }: {
   groups: readonly { label: string; items: readonly { id: T; label: string; disabled?: boolean }[] }[];
   activeId: T;
   onChange: (id: T) => void;
   label?: string;
   disabled?: boolean;
   className?: string;
+  presentation?: "select" | "sheet";
 }) {
+  const [open, setOpen] = useState(false);
+  const current = groups.flatMap(group => group.items).find(item => item.id === activeId);
+  if (presentation === "sheet") return <div className={`fl-mobile-section-picker fl-mobile-section-picker-sheet ${className}`.trim()}>
+    <span>{label}</span>
+    <button type="button" className="fl-mobile-section-trigger" disabled={disabled} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      <strong>{current?.label || activeId}</strong><ChevronDown size={17} aria-hidden="true" />
+    </button>
+    <BottomSheet open={open} title={label} onClose={() => setOpen(false)} className="fl-mobile-section-sheet">
+      <nav className="fl-mobile-section-sheet-nav" aria-label={label}>
+        {groups.map(group => <section key={group.label}>
+          <h3>{group.label}</h3>
+          <div>{group.items.map(item => <button key={item.id} type="button" disabled={disabled || item.disabled} aria-current={activeId === item.id ? "page" : undefined} className={activeId === item.id ? "active" : ""} onClick={() => { setOpen(false); onChange(item.id); }}>{item.label}</button>)}</div>
+        </section>)}
+      </nav>
+    </BottomSheet>
+  </div>;
   return <label className={`fl-mobile-section-picker ${className}`.trim()}><span>{label}</span><div><select value={activeId} disabled={disabled} onChange={event => onChange(event.target.value as T)}>{groups.map(group => <optgroup key={group.label} label={group.label}>{group.items.map(item => <option key={item.id} value={item.id} disabled={item.disabled}>{item.label}</option>)}</optgroup>)}</select><ChevronDown size={17} aria-hidden="true" /></div></label>;
 }
 

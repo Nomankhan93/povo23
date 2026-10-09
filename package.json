@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.42.0",
+  "version": "2.42.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -92,7 +92,8 @@
     "test:performance-24118": "node scripts/test-performance24118.mjs",
     "test:observability-24119": "node scripts/test-observability24119.mjs",
     "test:accessibility-24120": "node scripts/test-accessibility24120.mjs",
-    "test:ui-foundation-2420": "node --experimental-strip-types scripts/test-ui-foundation2420.mjs"
+    "test:ui-foundation-2420": "node --experimental-strip-types scripts/test-ui-foundation2420.mjs",
+    "test:project-workspace-2421": "node --experimental-strip-types scripts/test-project-workspace2421.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",
