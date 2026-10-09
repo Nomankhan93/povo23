@@ -15,7 +15,7 @@ const sha256 = (path) => createHash('sha256').update(readFileSync(path)).digest(
 
 await ok('2.42.0 release is registered without database migration', async () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.ok(['2.42.0', '2.42.1', '2.42.2', '2.42.3'].includes(pkg.version));
+  assert.ok(['2.42.0', '2.42.1', '2.42.2', '2.42.3', '2.42.4'].includes(pkg.version));
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
   assert.equal(migrations.length, 87);
   assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql');

@@ -36,9 +36,9 @@ await ok('automatic listing follows project recruitment state and compensation r
 
 await ok('workforce UX makes organization-first worker search optional',async()=>{
   assert.match(marketplace,/Available projects/);
-  assert.match(marketplace,/every published project already has an automatic all-Field-Workers marketplace listing/i);
+  assert.match(marketplace,/Every published project with open recruitment appears automatically/i);
   assert.match(marketplace,/OPTIONAL DIRECT RECRUITMENT/);
-  assert.match(marketplace,/Organizations do not need to search workers first/);
+  assert.match(marketplace,/This remains a secondary path\. Published projects are already discoverable in the marketplace/i);
 });
 
 await ok('2.38.1 migration follows the 2.38 permission hotfix',async()=>{

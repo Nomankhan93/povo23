@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.3
+# Current architecture note — FieldLance 2.42.4
+
+2.42.4 extends the feature-local presentation architecture to recruitment. `WorkforceMarketplace.module.css`, `InvitationsPanel.module.css` and `InviteVolunteer.module.css` own recruitment-specific structure and responsive layout while the shared 2.42.0 tokens/primitives continue to own visual-system behavior. `recruitmentQueries.ts` and `recruitmentState.ts` remain authoritative and unchanged; application-time recruitment snapshots, formal-offer compensation/conflict rules, invitation semantics and backend authorization remain unchanged.
+
+# Historical architecture note — FieldLance 2.42.3
 
 2.42.3 extends the feature-local presentation architecture to survey collection and response review. `SurveyForm.module.css`, `CaptureFields.module.css`, `SurveyResponses.module.css` and `SurveyReviewQueue.module.css` own only feature structure/responsive composition while the shared 2.42.0 tokens and primitives continue to own colors, typography and control visuals. Existing collection/save/retry logic, survey serialization, review queries/RPCs, authorization and offline engine boundaries remain authoritative and unchanged.
 

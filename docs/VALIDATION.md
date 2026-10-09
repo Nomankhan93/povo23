@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.3
+# Current validation — FieldLance 2.42.4
+
+See [VALIDATION-2.42.4.md](VALIDATION-2.42.4.md) for recruitment/marketplace presentation, protected recruitment query/state and authorization invariants, scoped CSS Modules, safe local UI debt retirement and FAST validation.
+
+# Historical validation — FieldLance 2.42.3
 
 See [VALIDATION-2.42.3.md](VALIDATION-2.42.3.md) for focused survey collection sections, capture-field presentation, response review list/detail behavior, review-queue presentation, protected survey-engine invariants, CSS Module isolation and FAST validation.
 

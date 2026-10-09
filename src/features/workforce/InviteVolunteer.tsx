@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+import { Button, Alert } from "../../components/ui/FieldLanceUI";
 import { db, rpc } from "../../lib/supabase/client";
 import { Opportunity, text } from "./model";
+import styles from "./InviteVolunteer.module.css";
+
 export function InviteVolunteer({
   organization,
   userId,
@@ -46,15 +49,20 @@ export function InviteVolunteer({
     };
   }, [open, organization, page]);
   return (
-    <div>
-      <button className="link" onClick={() => setOpen(!open)}>
+    <div className={styles.root}>
+      <Button variant="tertiary" type="button" onClick={() => setOpen(!open)} aria-expanded={open}>
         Invite to opportunity
-      </button>
+      </Button>
       {open && (
-        <div className="invite-inline">
-          {error && <p role="alert">{error}</p>}
-          {message && <p role="status">{message}</p>}
+        <section className={styles.panel} aria-label={`Invite ${name} to a project opportunity`}>
+          <div className={styles.heading}>
+            <h4>Invite {name}</h4>
+            <p>This invitation is a recruitment-interest step. It does not create an assignment or field access.</p>
+          </div>
+          {error && <Alert tone="danger" title="Invitation could not be sent">{error}</Alert>}
+          {message && <Alert tone="success" title={message} />}
           <form
+            className={styles.form}
             onSubmit={async (e) => {
               e.preventDefault();
               const f = new FormData(e.currentTarget);
@@ -75,7 +83,7 @@ export function InviteVolunteer({
             }}
           >
             <label className="field">
-              Invite {name}
+              Choose project opportunity
               <select name="op" required>
                 <option value="">Choose opportunity</option>
                 {rows.map((o) => (
@@ -85,30 +93,37 @@ export function InviteVolunteer({
                 ))}
               </select>
             </label>
-            <button className="secondary" disabled={busy || !rows.length}>
-              Send invitation
-            </button>
+            <div className={styles.actions}>
+              <Button variant="tertiary" type="button" disabled={busy} onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" disabled={busy || !rows.length}>
+                Send invitation
+              </Button>
+            </div>
           </form>
           {!busy && !rows.length && (
-            <p>Publish the project first; FieldLance creates its marketplace listing automatically.</p>
+            <p className={styles.helper}>Publish the project first; FieldLance creates its marketplace listing automatically.</p>
           )}
-          <div className="actions">
-            <button
-              className="secondary"
+          <div className={styles.pagination} aria-label="Opportunity pages">
+            <Button
+              variant="secondary"
+              type="button"
               disabled={busy || !page}
               onClick={() => setPage((n) => n - 1)}
             >
               Previous
-            </button>
-            <button
-              className="secondary"
+            </Button>
+            <Button
+              variant="secondary"
+              type="button"
               disabled={busy || !more}
               onClick={() => setPage((n) => n + 1)}
             >
               Next
-            </button>
+            </Button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

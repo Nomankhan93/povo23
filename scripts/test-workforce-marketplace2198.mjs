@@ -4,6 +4,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 const read = (path) => readFileSync(path, 'utf8');
 const marketplace = read('src/features/workforce/WorkforceMarketplace.tsx');
 const styles = read('src/styles/design-system.css');
+const marketplaceStyles = read('src/features/workforce/WorkforceMarketplace.module.css');
 const navigation = read('src/app/navigation.ts');
 const appShell = read('src/app/AppShell.tsx');
 const pkg = JSON.parse(read('package.json'));
@@ -37,15 +38,15 @@ await ok('Field Worker lifecycle remains discover → apply → selection → as
 await ok('published opportunities remain cross-organization discovery without permanent profile sharing', async () => {
   assert.match(marketplace, /All organizations/);
   assert.match(marketplace, /application-scoped recruitment snapshot/i);
-  assert.match(marketplace, /does not grant permanent full-profile access/i);
+  assert.match(marketplace, /No permanent Organization profile access is required/i);
   assert.doesNotMatch(marketplace, /grant_profile_share|create_profile_share|permanent profile-sharing grant/);
 });
 
 await ok('organization recruitment hub exposes the four recommended workspace views', async () => {
   for (const label of ['Opportunities', 'Applications', 'Find Field Workers', 'Assignments']) assert.match(marketplace, new RegExp(label));
-  assert.match(marketplace, /Active opportunities/);
-  assert.match(marketplace, /New applications/);
-  assert.match(marketplace, /Pending offers/);
+  assert.match(marketplace, /Open opportunities/);
+  assert.match(marketplace, /Applications/);
+  assert.match(marketplace, /Offers pending/);
   assert.match(marketplace, /Active assignments/);
 });
 
@@ -54,13 +55,13 @@ await ok('organization selection continues through existing recruitment RPC life
   assert.match(marketplace, /create_work_assignment/);
   assert.match(marketplace, /set_work_opportunity_state/);
   assert.match(marketplace, /project_workforce_candidates/);
-  assert.match(marketplace, /Send assignment offer/);
+  assert.match(marketplace, /Send formal offer/);
 });
 
 await ok('formal offers do not activate survey access until Field Worker acceptance', async () => {
-  assert.match(marketplace, /Accept to activate this assignment and its survey access/);
+  assert.match(marketplace, /Accepting activates the assignment under the existing rules/);
   assert.match(marketplace, /p_status: "accepted"/);
-  assert.match(marketplace, /Survey access is active/);
+  assert.match(marketplace, /Survey access is active only while the assignment and project are eligible/);
   assert.match(marketplace, /offeredAssignmentCount/);
 });
 
@@ -70,12 +71,13 @@ await ok('approved organization identity is reused on Field Worker opportunity a
   assert.match(marketplace, /logo_updated_at/);
 });
 
-await ok('marketplace UX is responsive and uses dedicated FieldLance classes', async () => {
-  for (const className of ['workforce-metric-grid','workforce-tabs','workforce-opportunity-card','workforce-application-card','workforce-assignment-card','workforce-journey']) {
-    assert.match(styles, new RegExp(`\\.${className}`));
+await ok('marketplace UX is responsive and uses scoped FieldLance presentation', async () => {
+  assert.match(marketplace, /WorkforceMarketplace\.module\.css/);
+  for (const className of ['summaryGrid','opportunityCard','applicationsWorkspace','assignmentCard','journey']) {
+    assert.match(marketplaceStyles, new RegExp(`\\.${className}\\b`));
   }
-  assert.match(styles, /@media\(max-width:800px\).*workforce-tabs/s);
-  assert.match(styles, /@media\(max-width:520px\).*workforce-metric-grid/s);
+  assert.match(marketplaceStyles, /@media \(max-width: 1023px\)/);
+  assert.match(marketplaceStyles, /@media \(max-width: 639px\)/);
 });
 
 await ok('central navigation still exposes the Field Worker marketplace pages', async () => {

@@ -1,3 +1,18 @@
+# Current release checklist — FieldLance 2.42.4
+
+Recruitment & Marketplace UX + Local UI Debt Retirement. No database migration.
+
+- [ ] `npm run test:recruitment-marketplace-2424` passes.
+- [ ] `npm run test:workforce-marketplace` passes.
+- [ ] Automatic marketplace and recruitment-hardening regressions pass in an environment with required test dependencies.
+- [ ] Project Workspace, UI foundation, navigation/capability, routing, mobile and accessibility targeted regressions pass.
+- [ ] `npm run check`, `npm run build`, `npm run release:consistency` and `git diff --check` pass.
+- [ ] Application-time snapshot remains immutable and formal offer acceptance remains required before active assignment.
+- [ ] Direct invitation acceptance remains a recruitment source only, not assignment activation.
+- [ ] Installer `--check`, real apply, mismatch rejection and post-install invariant checks pass.
+
+## Previous release
+
 # Current release checklist — FieldLance 2.42.3
 
 Survey Collection & Response Review UX. No database migration is included.

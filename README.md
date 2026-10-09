@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.3
+# Current release: FieldLance 2.42.4
+
+Recruitment & Marketplace UX + Local UI Debt Retirement. Field Worker opportunities now use clearer operational cards and mobile filters; organization recruitment uses focused application master/detail review with readable application-time snapshots; formal offer and assignment presentation makes lifecycle boundaries explicit; and Direct Invitations clearly remain a recruitment-interest step rather than assignment activation. Recruitment queries/state, eligibility, consent, compensation/conflict semantics, routes/capabilities and database migrations remain unchanged. See docs/PHASE-2.42.4.md, docs/UPGRADE-2.42.4.md and docs/VALIDATION-2.42.4.md.
+
+# Previous release: FieldLance 2.42.3
 
 Survey Collection & Response Review UX. Survey collection now presents one focused existing section at a time on desktop with a compact progress navigator and operational status context; capture fields use readable evidence/GPS/member layouts; response review uses a focused list/detail workspace with structured answers and preserved audit detail; and the review queue is a clearer inbox. Survey save/retry semantics, answer serialization, consent/representative rules, review RPCs, routes, authorization and database migrations remain unchanged. See docs/PHASE-2.42.3.md, docs/UPGRADE-2.42.3.md and docs/VALIDATION-2.42.3.md.
 
