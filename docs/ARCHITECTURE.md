@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.2
+# Current architecture note — FieldLance 2.42.3
+
+2.42.3 extends the feature-local presentation architecture to survey collection and response review. `SurveyForm.module.css`, `CaptureFields.module.css`, `SurveyResponses.module.css` and `SurveyReviewQueue.module.css` own only feature structure/responsive composition while the shared 2.42.0 tokens and primitives continue to own colors, typography and control visuals. Existing collection/save/retry logic, survey serialization, review queries/RPCs, authorization and offline engine boundaries remain authoritative and unchanged.
+
+# Historical architecture note — FieldLance 2.42.2
 
 2.42.2 begins the feature-local CSS architecture with `src/features/surveys/SurveyTemplates.module.css`. The Survey Template Builder consumes the shared 2.42.0 FieldLance tokens and UI primitives while owning only builder layout, Questions/Canvas/Settings structure and responsive rearrangement. `SurveyTemplates.tsx` keeps the existing draft/version/publish/moderation RPCs and authoring guard; Survey Form, Responses, Project Detail and Offline Field Workspace remain unchanged.
 

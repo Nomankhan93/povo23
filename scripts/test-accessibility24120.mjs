@@ -20,7 +20,7 @@ let passed=0;
 const ok=(name,fn)=>{fn();passed++;console.log('PASS '+name)};
 
 ok('2.41.20 release and targeted accessibility command are registered',()=>{
-  assert.ok(['2.41.20','2.42.0','2.42.1','2.42.2'].includes(pkg.version));
+  assert.ok(['2.41.20','2.42.0','2.42.1','2.42.2','2.42.3'].includes(pkg.version));
   assert.equal(pkg.scripts['test:accessibility-24120'],'node scripts/test-accessibility24120.mjs');
 });
 
@@ -64,7 +64,7 @@ ok('Partner NGO success modal traps focus, restores focus and exposes its descri
 
 ok('blocking dashboard and moderation errors use assertive alert semantics',()=>{
   for(const source of [worker,org,staff])assert.match(source,/className="notice error" role="alert">\{error\}/);
-  assert.match(project,/className="notice error" role="alert">\s*FieldLance moderation is active:/);
+  assert.match(project,/<Alert title="FieldLance moderation is active" tone="danger">/);
 });
 
 ok('mobile/coarse-pointer, reduced-motion, high-contrast and RTL fallbacks are explicit',()=>{

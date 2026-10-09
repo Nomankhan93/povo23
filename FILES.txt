@@ -110,6 +110,7 @@ docs/PHASE-2.41.9.md
 docs/PHASE-2.42.0.md
 docs/PHASE-2.42.1.md
 docs/PHASE-2.42.2.md
+docs/PHASE-2.42.3.md
 docs/PHASE-2.5.md
 docs/PHASE-2.6.md
 docs/PHASE-2.7.1.md
@@ -228,6 +229,7 @@ docs/UPGRADE-2.41.9.md
 docs/UPGRADE-2.42.0.md
 docs/UPGRADE-2.42.1.md
 docs/UPGRADE-2.42.2.md
+docs/UPGRADE-2.42.3.md
 docs/UPGRADE-2.5.md
 docs/UPGRADE-2.6.md
 docs/UPGRADE-2.7.1.md
@@ -331,6 +333,7 @@ docs/VALIDATION-2.41.9.md
 docs/VALIDATION-2.42.0.md
 docs/VALIDATION-2.42.1.md
 docs/VALIDATION-2.42.2.md
+docs/VALIDATION-2.42.3.md
 docs/VALIDATION-2.5.md
 docs/VALIDATION-2.6.md
 docs/VALIDATION-2.7.1.md
@@ -497,6 +500,7 @@ scripts/test-sidebar-profile-grouping.mjs
 scripts/test-sql-authorization.mjs
 scripts/test-stabilization.mjs
 scripts/test-staff-operations2220.mjs
+scripts/test-survey-collection-responses2423.mjs
 scripts/test-survey-save276.mjs
 scripts/test-survey-template-builder2422.mjs
 scripts/test-task-center2230.mjs
@@ -590,6 +594,7 @@ src/features/sharing/DataSharingWorkspace.tsx
 src/features/sharing/SharingRecoveryPanel.tsx
 src/features/surveys/activeDraft.ts
 src/features/surveys/capture.ts
+src/features/surveys/CaptureFields.module.css
 src/features/surveys/CaptureFields.tsx
 src/features/surveys/deviceFreshness.ts
 src/features/surveys/fieldAttachments.ts
@@ -598,11 +603,14 @@ src/features/surveys/model.tsx
 src/features/surveys/OfflineFieldWorkspace.tsx
 src/features/surveys/OfflineShellStatus.tsx
 src/features/surveys/offlineSurveyStore.ts
+src/features/surveys/SurveyForm.module.css
 src/features/surveys/SurveyForm.tsx
 src/features/surveys/surveyPresentation.ts
 src/features/surveys/SurveyProjectDetail.tsx
 src/features/surveys/SurveyProjectDrafts.tsx
 src/features/surveys/SurveyProjects.tsx
+src/features/surveys/SurveyResponses.module.css
+src/features/surveys/SurveyReviewQueue.module.css
 src/features/surveys/SurveyReviewQueue.tsx
 src/features/surveys/SurveySyncStatus.tsx
 src/features/surveys/SurveyTemplates.module.css

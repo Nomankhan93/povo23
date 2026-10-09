@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.2
+# Current release: FieldLance 2.42.3
+
+Survey Collection & Response Review UX. Survey collection now presents one focused existing section at a time on desktop with a compact progress navigator and operational status context; capture fields use readable evidence/GPS/member layouts; response review uses a focused list/detail workspace with structured answers and preserved audit detail; and the review queue is a clearer inbox. Survey save/retry semantics, answer serialization, consent/representative rules, review RPCs, routes, authorization and database migrations remain unchanged. See docs/PHASE-2.42.3.md, docs/UPGRADE-2.42.3.md and docs/VALIDATION-2.42.3.md.
+
+# Previous release: FieldLance 2.42.2
 
 Survey Template Builder Redesign. The builder now separates drafts, the starter library, authoring, preview, published versions and moderation into a focused workspace with desktop Questions / Canvas / Settings regions and mobile sheet/drawer presentation. Survey routes, permissions, question types, versioning, publish/moderation callbacks, RPC behavior and database migrations remain unchanged. See docs/PHASE-2.42.2.md, docs/UPGRADE-2.42.2.md and docs/VALIDATION-2.42.2.md.
 

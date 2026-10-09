@@ -1,0 +1,188 @@
+.captureField {
+  display: grid;
+  gap: var(--fl-space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface);
+}
+
+.captureField legend {
+  max-width: 100%;
+  padding: 0 var(--fl-space-1);
+  color: var(--fl-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 21px;
+}
+
+.helper,
+.message,
+.attachmentMeta,
+.choiceHint {
+  margin: 0;
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.controlStack,
+.attachmentActions,
+.choiceList,
+.memberList {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.fileControl {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--fl-space-2);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface);
+  color: var(--fl-text);
+  font-size: 13px;
+}
+
+.stateRow,
+.memberHeader,
+.gpsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-space-3);
+  flex-wrap: wrap;
+}
+
+.gpsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.gpsDatum {
+  display: grid;
+  gap: var(--fl-space-1);
+  padding: var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface-muted);
+}
+
+.gpsDatum span {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.gpsDatum strong {
+  min-width: 0;
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.memberCard {
+  display: grid;
+  gap: var(--fl-space-3);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface-muted);
+}
+
+.memberHeader strong {
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.memberFields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.choiceList {
+  gap: var(--fl-space-2);
+}
+
+.choiceRow {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: var(--fl-space-2);
+  padding: var(--fl-space-2) var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface);
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.choiceRow:hover {
+  background: var(--fl-surface-muted);
+}
+
+.choiceRow input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  accent-color: var(--fl-primary);
+}
+
+.attachmentView {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fl-space-2);
+  flex-wrap: wrap;
+}
+
+.attachmentView a {
+  color: var(--fl-primary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.error {
+  margin: 0;
+  color: var(--fl-danger);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 1023px) {
+  .memberFields,
+  .gpsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .captureField,
+  .memberCard {
+    padding: var(--fl-space-3);
+  }
+
+  .memberFields,
+  .gpsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stateRow,
+  .memberHeader,
+  .gpsHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .captureField :global(.fl-button),
+  .attachmentView :global(.fl-button) {
+    min-height: 48px;
+  }
+}

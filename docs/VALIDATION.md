@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.2
+# Current validation — FieldLance 2.42.3
+
+See [VALIDATION-2.42.3.md](VALIDATION-2.42.3.md) for focused survey collection sections, capture-field presentation, response review list/detail behavior, review-queue presentation, protected survey-engine invariants, CSS Module isolation and FAST validation.
+
+# Historical validation — FieldLance 2.42.2
 
 See [VALIDATION-2.42.2.md](VALIDATION-2.42.2.md) for Survey Template Builder information architecture, feature-local CSS isolation, preserved survey authoring callbacks, mobile/tablet builder behavior, unchanged route/capability/database boundaries and FAST validation.
 

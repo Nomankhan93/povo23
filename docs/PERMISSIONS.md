@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.42.2
+# Current permissions note — FieldLance 2.42.3
+
+2.42.3 changes survey collection, capture-field and response-review presentation only. Route/capability contracts, project/survey permissions, RLS, grants and RPC authorization remain unchanged. The review workspace and review queue consume the same already-authorized response queries and `review_survey_response` callback; no new person/subject lookup or presentation-only backend dependency is added.
+
+# Historical permissions note — FieldLance 2.42.2
 
 2.42.2 changes Survey Template Builder presentation only. Survey routes, `capabilityContract.ts`, the survey question model, template-library logic and unsaved-authoring guard remain unchanged. The builder still invokes the same save/publish/moderation RPCs and relies on the same server authorization, RLS and immutable version semantics. No role, grant, policy, RPC or migration change is included.
 

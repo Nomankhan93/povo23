@@ -1,4 +1,19 @@
-# Current release checklist — FieldLance 2.42.2
+# Current release checklist — FieldLance 2.42.3
+
+Survey Collection & Response Review UX. No database migration is included.
+
+- [ ] `npm run test:survey-collection-responses-2423` passes.
+- [ ] `npm run test:survey-template-builder-2422`, `npm run test:project-workspace-2421`, `npm run test:ui-foundation-2420`, `npm run test:navigation-capability-24114`, `npm run test:routing-236`, `npm run test:mobile-production-24117` and `npm run test:accessibility-24120` remain green.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass where dependencies are available.
+- [ ] Survey collection preserves existing section grouping/stepping, save/retry/submit callbacks, consent, representative handling and validation.
+- [ ] CaptureFields preserves attachment security/staging, GPS options/serialization, household limits/value shape and choice values.
+- [ ] Response review preserves response query/status/revision behavior, secure attachments, review note validation and `review_survey_response` wiring.
+- [ ] `workspaceMode="full"` retains standalone project context while Project Workspace field-work/responses modes avoid duplicate project context.
+- [ ] Review Queue keeps its existing query/pagination/routing and adds no person-name dependency.
+- [ ] New survey collection/review CSS Modules use shared `--fl-*` tokens, no hard-coded feature palette, no `!important`, no broad global selectors and no sub-12px operational typography.
+- [ ] SurveyTemplates, OfflineFieldWorkspace, offline store/save engine, routes/capabilities and migration inventory remain unchanged.
+
+# Historical release checklist — FieldLance 2.42.2
 
 Survey Template Builder Redesign. No database migration is included.
 

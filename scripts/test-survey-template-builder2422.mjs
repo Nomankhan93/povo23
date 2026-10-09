@@ -16,7 +16,7 @@ async function ok(name, fn) {
 
 await ok('2.42.2 is presentation-only and adds no database migration', async () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.equal(pkg.version, '2.42.2');
+  assert.ok(['2.42.2', '2.42.3'].includes(pkg.version));
   assert.equal(pkg.scripts['test:survey-template-builder-2422'], 'node --experimental-strip-types scripts/test-survey-template-builder2422.mjs');
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
   assert.equal(migrations.length, 87);
@@ -162,10 +162,9 @@ await ok('feature module does not introduce brand palette or generic shared-cont
   assert.doesNotMatch(css, /\.fl-status-badge\s*\{/);
 });
 
-await ok('Survey Form Responses and Offline field implementations remain byte-identical', async () => {
-  assert.equal(sha256('src/features/surveys/SurveyForm.tsx'), '76f8199c4748615eadaa5179fdb62f66fa1b7722a54a71c2599f76b9e2aa6c8c');
-  assert.equal(sha256('src/features/surveys/SurveyProjectDetail.tsx'), '78ddf3b5ccc327ef568b46c76f950b1d9a9a0098dd2910a6cef6fa75524ee828');
-  assert.equal(sha256('src/features/surveys/SurveyReviewQueue.tsx'), '9c612cdf3f20ba5d0620e8d8861ba0c54e25c804a4b4a88079df457ae35676cd');
+await ok('2.42.2 builder and Offline Field protected surfaces remain byte-identical in later UI patches', async () => {
+  assert.equal(sha256('src/features/surveys/SurveyTemplates.tsx'), '98b575818320d3ab1edadf5daab85b081aeff27863f71e14c60ba1a11d76130e');
+  assert.equal(sha256('src/features/surveys/SurveyTemplates.module.css'), '3c526a3b2ab87758fa6c5c4b0e6c216fba27bc3d9a4aef61f11608c94493d298');
   assert.equal(sha256('src/features/surveys/OfflineFieldWorkspace.tsx'), 'a6ad7bb54bdffc7c3e30456b9774dffb948aeb2f942530055c66546f4f4e4f38');
 });
 

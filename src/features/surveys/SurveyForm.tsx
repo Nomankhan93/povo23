@@ -1,4 +1,3 @@
-import {useNarrowScreen} from '../../shared/useNarrowScreen';
 import {surveyQuestionSections,representativeNeeded} from './surveyPresentation';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { type Json } from "../../lib/supabase/database.types";
@@ -15,6 +14,8 @@ import {registerActiveDraft} from "./activeDraft";
 import { reconsentAttachments } from "./fieldAttachments";
 import { CaptureField } from "./CaptureFields";
 import { visibleAnswers, isVisible, answerText, captureErrors } from "./capture";
+import { Alert, Button, StatusBadge } from "../../components/ui/FieldLanceUI";
+import styles from "./SurveyForm.module.css";
 
 const blankConsent = {
   agreed: false,
@@ -46,12 +47,13 @@ export function SurveyForm({
   onSaved: () => void;
   onQueued: () => void;
 }) {
-  const narrow=useNarrowScreen();
   const formRef=useRef<HTMLFormElement>(null);
   const [step,setStep]=useState('consent');
   const draftWrites=useRef<Promise<void>>(Promise.resolve());
   const finalizing=useRef(false);
   const [savedAt,setSavedAt]=useState<number|null>(null);
+  const [draftWriteState,setDraftWriteState]=useState<"ready"|"saving"|"saved"|"error">("ready");
+  const draftWriteRevision=useRef(0);
   const [validation,setValidation]=useState<string[]>([]);
   const [captureBusy,setCaptureBusy]=useState(0);
   const [reviewed,setReviewed]=useState(false);
@@ -141,6 +143,8 @@ export function SurveyForm({
     let live = true;
     setHydrated(false);
     setDraftError("");
+    setSavedAt(null);
+    setDraftWriteState("ready");
     loadSurveyDeviceDraft(userId, project.id, draftResponse)
       .then((draft) => {
         if (!live || !draft) return;
@@ -168,6 +172,8 @@ export function SurveyForm({
 
   useEffect(() => {
     if (!hydrated || !dirty || finalizing.current) return;
+    const writeRevision=++draftWriteRevision.current;
+    setDraftWriteState("saving");
     const payload: SurveyDeviceDraft = {
       person,
       household,
@@ -181,8 +187,15 @@ export function SurveyForm({
       if(finalizing.current)return;
       draftWrites.current=draftWrites.current.catch(()=>{}).then(()=>saveSurveyDeviceDraft(userId, project.id, draftResponse, payload));
       draftWrites.current
-        .then(() => {setDraftError("");setSavedAt(Date.now())})
-        .catch((e) => setDraftError((e as Error).message));
+        .then(() => {
+          setDraftError("");
+          setSavedAt(Date.now());
+          if(draftWriteRevision.current===writeRevision)setDraftWriteState("saved");
+        })
+        .catch((e) => {
+          if(draftWriteRevision.current===writeRevision)setDraftWriteState("error");
+          setDraftError((e as Error).message);
+        });
     }, 50);
     return () => window.clearTimeout(timer);
   }, [answers, birth, consent, dirty, draftResponse, household, householdLabel, hydrated, name, person, project.id, userId]);
@@ -248,6 +261,8 @@ export function SurveyForm({
     setAnswers(baselineAnswers);
     setConsent(blankConsent);
     setDirty(false);
+    setSavedAt(null);
+    setDraftWriteState("ready");
     finalizing.current=false;
   }
 
@@ -268,164 +283,294 @@ export function SurveyForm({
             />
           </label>
 </>);
+  const currentVisibleQuestions = qs.filter((q) => isVisible(q, visibleAnswers(qs, answers)));
+  const answeredVisibleQuestions = currentVisibleQuestions.filter((q) => {
+    const value = answers[q.id];
+    return value !== undefined && value !== null && value !== "" && (!Array.isArray(value) || value.length > 0);
+  });
+  const draftStatusText = draftWriteState === "saving"
+    ? "Saving device draft… keep this form open"
+    : draftWriteState === "saved" && savedAt
+      ? `Saved locally at ${new Date(savedAt).toLocaleTimeString()}`
+      : draftWriteState === "error"
+        ? "Device draft save needs attention"
+        : "Device draft ready";
+
   return (
-    <form ref={formRef} noValidate className="survey-question" onSubmit={submit} onChange={() => setDirty(true)}>
-      <div className="field-mode">
-        <strong>{online ? "Online field mode" : "Offline field mode"}</strong>
-        <span>
+    <form
+      ref={formRef}
+      noValidate
+      className={styles.form}
+      data-current-section={currentStep}
+      onSubmit={submit}
+      onChange={() => setDirty(true)}
+    >
+      <header className={styles.collectionHeader}>
+        <div className={styles.headerTop}>
+          <div className={styles.headerCopy}>
+            <h3>{response ? "Update response" : "Collect a survey"}</h3>
+            <p className={styles.contextLine}>{template.name} · {project.title}</p>
+          </div>
+          <div className={styles.headerStatus} aria-label="Collection status">
+            <StatusBadge tone={online ? "success" : "warning"}>{online ? "Online" : "Offline"}</StatusBadge>
+            <StatusBadge tone={draftWriteState === "saving" ? "warning" : draftWriteState === "saved" ? "success" : draftWriteState === "error" ? "danger" : "neutral"}>{draftStatusText}</StatusBadge>
+            <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {draftStatusText}
+            </span>
+          </div>
+        </div>
+        <div className={styles.progressBlock}>
+          <div className={styles.progressMeta}>
+            <span>Section {stepIndex + 1} of {sections.length} · {sections[stepIndex].title}</span>
+            <span>{answeredVisibleQuestions.length} / {currentVisibleQuestions.length} visible questions answered</span>
+          </div>
+          <progress
+            aria-label="Survey question progress"
+            max={Math.max(1, currentVisibleQuestions.length)}
+            value={answeredVisibleQuestions.length}
+          />
+          <p className={styles.progressHelp}>Progress shows questions with an answer. Consent, required fields and answer validity are checked separately before submission.</p>
+        </div>
+        <p className={styles.statusCopy}>
           {online
             ? "A write-ahead encrypted copy is kept until the server confirms the save."
             : "Keep collecting. Save or submit will remain encrypted on this device until connectivity returns."}
-        </span>
-      </div>
-      <p role="status">{dirty?"Saving device draft… keep this form open":savedAt?`Saved locally at ${new Date(savedAt).toLocaleTimeString()}`:"Device draft ready"}</p>
-      <h3>{response ? "Update response" : "Collect a survey"}</h3>
-      <div className="survey-progress"><label htmlFor="survey-question-progress">Survey questions: {qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).length} currently visible</label><progress id="survey-question-progress" max={Math.max(1,qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).length)} value={qs.filter(q=>isVisible(q,visibleAnswers(qs,answers)) && answers[q.id]!==undefined && answers[q.id]!==null && answers[q.id]!=='' && (!Array.isArray(answers[q.id]) || (answers[q.id] as unknown[]).length>0)).length}/><small>Progress shows questions with an answer. Consent, required fields and answer validity are checked separately before submission.</small></div>
+        </p>
+      </header>
+
       <p>{project.governance_notice || "Legacy project policy: purpose and consent below apply; no independent-verification collection gate configured."}</p>
       {restored && (
-        <div className="notice" role="status">
-          An encrypted device draft was restored after the form was reopened.
-          <button type="button" onClick={() => void discardDraft()}>
-            Discard draft
-          </button>
-        </div>
+        <Alert
+          title="Encrypted device draft restored"
+          tone="info"
+          action={<Button type="button" variant="tertiary" onClick={() => void discardDraft()}>Discard draft</Button>}
+        >
+          The protected local draft was restored after this form was reopened.
+        </Alert>
       )}
-      {draftError && (
-        <p className="notice error" role="alert">
-          Device draft protection: {draftError}
-        </p>
-      )}
-      {narrow&&<div className="survey-section-progress" role="status">Section {stepIndex+1} of {sections.length} · {sections[stepIndex].title}<progress aria-label="Survey section progress" max={sections.length} value={stepIndex+1}/></div>}
-      <fieldset className="survey-form-fields" disabled={busy || request.saving || request.uncertain || !hydrated}>
-        <div className="survey-section" data-survey-section="consent" hidden={narrow&&currentStep!=="consent"}>
-        <section className="consent-notice">
-          <h4 tabIndex={-1}>Consent before collection</h4>
-          <p className="preserve-lines">{project.consent_notice}</p>
-          <p>
-            Purpose: {project.purpose} · Version: {project.consent_version}
-          </p>
-          <label className="checklabel">
-            <input
-              type="checkbox"
-              checked={consent.agreed}
-              onChange={(e) => setConsent({ ...consent, agreed: e.target.checked })}
-              required
-            />
-            I explained this notice and obtained informed consent
-          </label>
-          <label className="field">
-            Method
-            <select
-              value={consent.method}
-              onChange={(e) => setConsent({ ...consent, method: e.target.value })}
-            >
-              <option value="verbal">Verbal consent</option>
-              <option value="written">Written consent</option>
-            </select>
-          </label>
-          {showRepresentative?<div className="representative-fields">{representativeFields}</div>:<details className="representative-fields"><summary>Add a guardian / representative if applicable</summary>{representativeFields}</details>}
-        </section>
-        </div>
-        {!response && (
-          <div className="survey-section" data-survey-section="person" hidden={narrow&&currentStep!=="person"}><h4 tabIndex={-1}>Person & household</h4>
-            <label className="field">
-              Person
-              <select value={person} onChange={(e) => setPerson(e.target.value)}>
-                <option value="">New person</option>
-                {people.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.full_name} · FL-BEN-{String(p.registry_no).padStart(8, "0")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {!person && (
-              <>
-                <label className="field">
-                  Person name
-                  <input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={200} />
+      {draftError && <Alert title="Device draft protection" tone="danger">{draftError}</Alert>}
+
+      <div className={styles.mobileProgress} role="status">
+        <span>Section {stepIndex + 1} of {sections.length} · {sections[stepIndex].title}</span>
+        <progress aria-label="Survey section progress" max={sections.length} value={stepIndex + 1} />
+      </div>
+
+      <div className={styles.workspace}>
+        <aside className={styles.sectionRail} aria-label="Survey progress">
+          <div>
+            <h4>Survey progress</h4>
+            <p>Work through the existing collection sections in order or return to a previous section.</p>
+          </div>
+          <nav className={styles.sectionNav} aria-label="Survey sections">
+            {sections.map((section, index) => (
+              <button
+                key={section.id}
+                type="button"
+                className={styles.sectionNavButton}
+                data-active={currentStep === section.id}
+                aria-current={currentStep === section.id ? "step" : undefined}
+                onClick={() => moveSection(section.id)}
+              >
+                <span className={styles.sectionNumber}>{index + 1}</span>
+                <span>{section.title}</span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <div className={styles.content}>
+          <fieldset className={styles.fieldset} disabled={busy || request.saving || request.uncertain || !hydrated}>
+            <div className={styles.section} data-survey-section="consent" hidden={currentStep !== "consent"}>
+              <section className="consent-notice">
+                <h4 tabIndex={-1}>Consent before collection</h4>
+                <p className="preserve-lines">{project.consent_notice}</p>
+                <p>Purpose: {project.purpose} · Version: {project.consent_version}</p>
+                <label className="checklabel">
+                  <input
+                    type="checkbox"
+                    checked={consent.agreed}
+                    onChange={(e) => setConsent({ ...consent, agreed: e.target.checked })}
+                    required
+                  />
+                  I explained this notice and obtained informed consent
                 </label>
                 <label className="field">
-                  Birth date (leave blank if unknown)
-                  <input value={birth} onChange={(e) => setBirth(e.target.value)} type="date" />
-                </label>
-                <label className="field">
-                  Household
-                  <select value={household} onChange={(e) => setHousehold(e.target.value)}>
-                    <option value="">New household</option>
-                    {households.map((h) => (
-                      <option key={h.id} value={h.id}>
-                        {h.label}
-                      </option>
-                    ))}
+                  Method
+                  <select value={consent.method} onChange={(e) => setConsent({ ...consent, method: e.target.value })}>
+                    <option value="verbal">Verbal consent</option>
+                    <option value="written">Written consent</option>
                   </select>
                 </label>
-                {!household && (
-                  <label className="field">
-                    Household label
-                    <input
-                      value={householdLabel}
-                      onChange={(e) => setHouseholdLabel(e.target.value)}
-                      minLength={2}
-                      maxLength={200}
-                      required
-                    />
-                  </label>
+                {showRepresentative ? (
+                  <div className="representative-fields">{representativeFields}</div>
+                ) : (
+                  <details className="representative-fields">
+                    <summary>Add a guardian / representative if applicable</summary>
+                    {representativeFields}
+                  </details>
                 )}
-              </>
+              </section>
+            </div>
+
+            {!response && (
+              <div className={styles.section} data-survey-section="person" hidden={currentStep !== "person"}>
+                <h4 tabIndex={-1}>Person & household</h4>
+                <div className={styles.sectionBody}>
+                  <label className="field">
+                    Person
+                    <select value={person} onChange={(e) => setPerson(e.target.value)}>
+                      <option value="">New person</option>
+                      {people.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.full_name} · FL-BEN-{String(p.registry_no).padStart(8, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {!person && (
+                    <>
+                      <label className="field">
+                        Person name
+                        <input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={200} />
+                      </label>
+                      <label className="field">
+                        Birth date (leave blank if unknown)
+                        <input value={birth} onChange={(e) => setBirth(e.target.value)} type="date" />
+                      </label>
+                      <label className="field">
+                        Household
+                        <select value={household} onChange={(e) => setHousehold(e.target.value)}>
+                          <option value="">New household</option>
+                          {households.map((h) => <option key={h.id} value={h.id}>{h.label}</option>)}
+                        </select>
+                      </label>
+                      {!household && (
+                        <label className="field">
+                          Household label
+                          <input value={householdLabel} onChange={(e) => setHouseholdLabel(e.target.value)} minLength={2} maxLength={200} required />
+                        </label>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             )}
-          </div>
+
+            {groups.map((group) => (
+              <div key={group.id} className={styles.section} data-survey-section={group.id} hidden={currentStep !== group.id}>
+                <h4 tabIndex={-1}>{group.title}</h4>
+                <div className={styles.questionList}>
+                  {group.questions.filter((q) => isVisible(q, visible)).map((q) => (
+                    <div className={styles.question} data-survey-question={q.id} key={q.id} tabIndex={-1}>
+                      <CaptureField
+                        q={q}
+                        ownerId={userId}
+                        value={answers[q.id]}
+                        projectId={project.id}
+                        consent={{ ...consent, governance_version: project.governance_version }}
+                        onBusy={(v) => setCaptureBusy((n) => n + (v ? 1 : -1))}
+                        onChange={(v) => {
+                          setAnswers((previous) => visibleAnswers(qs, { ...previous, [q.id]: v }));
+                          setDirty(true);
+                          setReviewed(false);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className={styles.section} data-survey-section="review" hidden={currentStep !== "review"}>
+              <h4 tabIndex={-1}>Review & submit</h4>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={!consent.agreed || captureBusy > 0}
+                onClick={() => {
+                  if (!window.confirm("Use current consent for retained device attachments? New evidence references will be created; the rejected original request remains unchanged.")) return;
+                  setCaptureBusy((n) => n + 1);
+                  void reconsentAttachments(userId, answers, { ...consent, governance_version: project.governance_version })
+                    .then((v) => {
+                      setAnswers(v);
+                      setDirty(true);
+                      setReviewed(false);
+                    })
+                    .catch((e) => setDraftError(e.message))
+                    .finally(() => setCaptureBusy((n) => n - 1));
+                }}
+              >
+                Renew device attachment consent after policy correction
+              </Button>
+              <details>
+                <summary>Review answers before submission</summary>
+                <div className={styles.reviewAnswers}>
+                  {qs.filter((q) => isVisible(q, visibleAnswers(qs, answers))).map((q) => (
+                    <div className={styles.reviewAnswer} key={q.id}>
+                      <strong>{q.label}</strong>
+                      <pre>{answerText(answers[q.id])}</pre>
+                    </div>
+                  ))}
+                </div>
+              </details>
+              <label className="checklabel">
+                <input type="checkbox" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />
+                I reviewed the answers with the respondent before submitting.
+              </label>
+              <p className={styles.reviewHelp}>* Required on submission. Drafts also require consent. Use the registry search above to locate existing people before creating another record.</p>
+            </div>
+
+            <div className={styles.mobileNavigation}>
+              <Button type="button" variant="secondary" disabled={stepIndex === 0 || captureBusy > 0} onClick={() => moveSection(sections[stepIndex - 1].id)}>
+                Previous section
+              </Button>
+              {stepIndex < sections.length - 1 && (
+                <Button type="button" variant="primary" disabled={captureBusy > 0} onClick={nextSection}>
+                  Next section
+                </Button>
+              )}
+            </div>
+
+            <div className={styles.formActions}>
+              <Button variant="secondary" value="draft" disabled={busy || captureBusy > 0}>Save draft</Button>
+              <Button className={styles.submitButton} variant="primary" value="submit" disabled={busy || captureBusy > 0 || !reviewed}>
+                Submit for review
+              </Button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div className={styles.formAlerts}>
+        {validation.length > 0 && (
+          <Alert title="Review the highlighted survey answers" tone="danger">
+            <ul className={styles.validationList}>{validation.map((v, i) => <li key={i}>{v}</li>)}</ul>
+          </Alert>
         )}
-        {groups.map(group=><div key={group.id} className="survey-section" data-survey-section={group.id} hidden={narrow&&currentStep!==group.id}><h4 className="survey-group-heading" tabIndex={-1}>{group.title}</h4>{group.questions.filter(q=>isVisible(q,visible)).map(q=><div data-survey-question={q.id} key={q.id} tabIndex={-1}><CaptureField key={q.id} q={q} ownerId={userId} value={answers[q.id]} projectId={project.id} consent={{...consent,governance_version:project.governance_version}} onBusy={v=>setCaptureBusy(n=>n+(v?1:-1))} onChange={v=>{setAnswers(previous=>visibleAnswers(qs,{...previous,[q.id]:v}));setDirty(true);setReviewed(false)}}/></div>)}</div>)}
-        <div className="survey-section" data-survey-section="review" hidden={narrow&&currentStep!=="review"}><h4 tabIndex={-1}>Review & submit</h4>
-        <button type="button" disabled={!consent.agreed || captureBusy>0} onClick={()=>{
-          if(!window.confirm("Use current consent for retained device attachments? New evidence references will be created; the rejected original request remains unchanged."))return;
-          setCaptureBusy(n=>n+1);void reconsentAttachments(userId,answers,{...consent,governance_version:project.governance_version}).then(v=>{setAnswers(v);setDirty(true);setReviewed(false)}).catch(e=>setDraftError(e.message)).finally(()=>setCaptureBusy(n=>n-1));
-        }}>Renew device attachment consent after policy correction</button>
-        <details><summary>Review answers before submission</summary>{qs.filter(q=>isVisible(q,visibleAnswers(qs,answers))).map(q=><div key={q.id}><strong>{q.label}</strong><pre>{answerText(answers[q.id])}</pre></div>)}</details>
-        <label className="checklabel"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>I reviewed the answers with the respondent before submitting.</label>
-        <p>
-          * Required on submission. Drafts also require consent. Use the registry search above to locate existing people before creating another record.
-        </p>
-        </div>
-        {narrow&&<div className="actions survey-section-navigation">
-          <button type="button" className="secondary" disabled={stepIndex===0||captureBusy>0} onClick={()=>moveSection(sections[stepIndex-1].id)}>Previous section</button>
-          {stepIndex<sections.length-1&&<button type="button" className="primary" disabled={captureBusy>0} onClick={nextSection}>Next section</button>}
-        </div>}
-        <div className="actions survey-actions">
-          <button className="secondary" value="draft" disabled={busy || captureBusy>0}>
-            Save draft
-          </button>
-          <button hidden={narrow&&currentStep!=="review"} className="primary" value="submit" disabled={busy || captureBusy>0 || !reviewed}>
-            Submit for review
-          </button>
-        </div>
-      </fieldset>
-      {validation.length>0&&<ul role="alert" className="notice error">{validation.map((v,i)=><li key={i}>{v}</li>)}</ul>}
-      {request.error && !request.queued && (
-        <p role="alert" className="notice error">
-          {request.error}
-        </p>
-      )}
-      {request.queued && (
-        <p role="status" className="notice success">
-          Survey saved to the encrypted device queue. It will sync with the same request ID when the connection is available.
-        </p>
-      )}
-      {request.uncertain && (
-        <p className="notice error">
-          Encrypted device storage was unavailable, so the server save is uncertain. Keep this form open and retry the unchanged request.
-        </p>
-      )}
-      {request.uncertain && (
-        <button type="button" disabled={request.saving} onClick={() => void request.send()}>
-          Retry unchanged request
-        </button>
-      )}
-      <button type="button" className="secondary" disabled={request.saving || request.uncertain || captureBusy>0} onClick={()=>void closeForm()}>
-        Close form
-      </button>
+        {request.error && !request.queued && <Alert title="Survey save failed" tone="danger">{request.error}</Alert>}
+        {request.queued && (
+          <Alert title="Survey queued on this device" tone="success">
+            Survey saved to the encrypted device queue. It will sync with the same request ID when the connection is available.
+          </Alert>
+        )}
+        {request.uncertain && (
+          <Alert title="Server save is uncertain" tone="danger">
+            Encrypted device storage was unavailable, so the server save is uncertain. Keep this form open and retry the unchanged request.
+          </Alert>
+        )}
+      </div>
+      <div className={styles.recoveryActions}>
+        {request.uncertain && (
+          <Button type="button" variant="secondary" disabled={request.saving} onClick={() => void request.send()}>
+            Retry unchanged request
+          </Button>
+        )}
+        <Button type="button" variant="tertiary" disabled={request.saving || request.uncertain || captureBusy > 0} onClick={() => void closeForm()}>
+          Close form
+        </Button>
+      </div>
       {request.saving && <p role="status">Protecting and confirming save…</p>}
     </form>
+
   );
 }

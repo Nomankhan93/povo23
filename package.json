@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.42.2",
+  "version": "2.42.3",
   "private": true,
   "type": "module",
   "engines": {
@@ -94,7 +94,8 @@
     "test:accessibility-24120": "node scripts/test-accessibility24120.mjs",
     "test:ui-foundation-2420": "node --experimental-strip-types scripts/test-ui-foundation2420.mjs",
     "test:project-workspace-2421": "node --experimental-strip-types scripts/test-project-workspace2421.mjs",
-    "test:survey-template-builder-2422": "node --experimental-strip-types scripts/test-survey-template-builder2422.mjs"
+    "test:survey-template-builder-2422": "node --experimental-strip-types scripts/test-survey-template-builder2422.mjs",
+    "test:survey-collection-responses-2423": "node --experimental-strip-types scripts/test-survey-collection-responses2423.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",
