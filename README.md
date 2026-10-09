@@ -1,6 +1,10 @@
-# Current release: FieldLance 2.42.1
+# Current release: FieldLance 2.42.2
 
-Project Workspace Navigation & Header. The 2.42.0 foundation now provides a compact project identity header, preserved grouped desktop project navigation, a mobile Project Section bottom sheet, conservative display-only lifecycle context, and corrected heading ownership. Routes, tab IDs, capabilities, backend behavior and feature workflows remain unchanged. See docs/PHASE-2.42.1.md, docs/UPGRADE-2.42.1.md and docs/VALIDATION-2.42.1.md.
+Survey Template Builder Redesign. The builder now separates drafts, the starter library, authoring, preview, published versions and moderation into a focused workspace with desktop Questions / Canvas / Settings regions and mobile sheet/drawer presentation. Survey routes, permissions, question types, versioning, publish/moderation callbacks, RPC behavior and database migrations remain unchanged. See docs/PHASE-2.42.2.md, docs/UPGRADE-2.42.2.md and docs/VALIDATION-2.42.2.md.
+
+## Previous release: FieldLance 2.42.1
+
+Project Workspace Navigation & Header. The 2.42.0 foundation provides a compact project identity header, grouped desktop project navigation, a mobile Project Section bottom sheet, conservative display-only lifecycle context, and corrected heading ownership.
 
 ## Previous release: FieldLance 2.42.0
 

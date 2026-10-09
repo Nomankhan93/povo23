@@ -1,10 +1,20 @@
-# Current release checklist — FieldLance 2.42.1
+# Current release checklist — FieldLance 2.42.2
+
+Survey Template Builder Redesign. No database migration is included.
+
+- [ ] `npm run test:survey-template-builder-2422` passes.
+- [ ] `npm run test:project-workspace-2421`, `npm run test:ui-foundation-2420`, `npm run test:navigation-capability-24114`, `npm run test:routing-236` and `npm run test:accessibility-24120` remain green.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Desktop builder clearly separates Questions, Canvas and Question settings.
+- [ ] Mobile uses Questions sheet and Question settings drawer without shrinking the three-column desktop layout.
+- [ ] Survey Template Builder feature CSS is scoped to `SurveyTemplates.module.css`, uses `--fl-*` tokens and introduces no hard-coded feature palette or sub-12px operational typography.
+- [ ] Survey Form, Responses, Offline Field Workspace and backend survey authorization remain unchanged.
+
+# Historical release checklist — FieldLance 2.42.1
 
 Project Workspace Navigation & Header. No database migration is included.
 
 - [ ] `npm run test:project-workspace-2421` passes.
-- [ ] `npm run test:ui-foundation-2420`, `npm run test:navigation-capability-24114`, `npm run test:routing-236` and `npm run test:mobile-production-24117` remain green.
-- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
 - [ ] Project identity metadata wraps cleanly on narrow layouts; grouped desktop tabs show only authorized destinations.
 - [ ] Mobile Project Section opens the grouped bottom sheet; direct deep links and browser back/forward keep the same tab URLs.
 

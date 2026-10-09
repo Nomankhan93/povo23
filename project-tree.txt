@@ -111,6 +111,7 @@
 ./docs/PHASE-2.41.9.md
 ./docs/PHASE-2.42.0.md
 ./docs/PHASE-2.42.1.md
+./docs/PHASE-2.42.2.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -228,6 +229,7 @@
 ./docs/UPGRADE-2.41.9.md
 ./docs/UPGRADE-2.42.0.md
 ./docs/UPGRADE-2.42.1.md
+./docs/UPGRADE-2.42.2.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -330,6 +332,7 @@
 ./docs/VALIDATION-2.41.9.md
 ./docs/VALIDATION-2.42.0.md
 ./docs/VALIDATION-2.42.1.md
+./docs/VALIDATION-2.42.2.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -506,6 +509,7 @@
 ./scripts/test-stabilization.mjs
 ./scripts/test-staff-operations2220.mjs
 ./scripts/test-survey-save276.mjs
+./scripts/test-survey-template-builder2422.mjs
 ./scripts/test-task-center2230.mjs
 ./scripts/test-template-library.mjs
 ./scripts/test-ui-foundation2420.mjs
@@ -641,6 +645,7 @@
 ./src/features/surveys/SurveyProjects.tsx
 ./src/features/surveys/SurveyReviewQueue.tsx
 ./src/features/surveys/SurveySyncStatus.tsx
+./src/features/surveys/SurveyTemplates.module.css
 ./src/features/surveys/SurveyTemplates.tsx
 ./src/features/surveys/templateLibrary.ts
 ./src/features/surveys/TemplatePreview.tsx

@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.42.1
+Release: 2.42.2
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -31,6 +31,7 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - 2.41.19 adds bounded memory-only production diagnostics, uncaught React/window containment, safe RPC/Supabase transport instrumentation and offline/map/notification/service-worker failure context without persisting sensitive client telemetry.
 - 2.42.0 establishes the FieldLance Operational SaaS token/component layer, consistent workspace shells and grouped Project Workspace navigation while preserving routes, capabilities, workflows and backend authorization.
 - 2.42.1 refines the Project Workspace identity/header hierarchy, grouped desktop navigation and mobile Project Section bottom sheet while preserving all project tab IDs, routes, capabilities, feature callbacks and backend behavior.
+- 2.42.2 redesigns the Survey Template Builder into separated library/drafts/builder/published views with desktop Questions/Canvas/Settings regions and scoped feature-local CSS while preserving survey routes, permissions, draft/version/publish semantics, callbacks and backend behavior.
 - 2.41.20 hardens shared keyboard/focus and modal semantics, SPA/crash focus recovery, assertive blocking-error announcements, coarse-pointer targets and reduced-motion/contrast/RTL presentation without changing authorization or persisted data.
 - 2.41.0 adds safe app-route offline shell fallback, combined survey/attendance device inventory, explicit owner erase, attendance sync receipts and expiring downloaded attendance access.
 - 2.40.1 stabilizes versioned case evidence, attendance policy refresh, encrypted attendance writes and boundary validation; see current upgrade and validation notes.
@@ -178,10 +179,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000580_project_lifecycle_e2e_integrity.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 126
+Test scripts (scripts/test-*.mjs): 127
 TypeScript/TSX source files: 131
-Markdown docs: 339
-Inventory files (excluding local/build/temp/backup state): 734
+Markdown docs: 342
+Inventory files (excluding local/build/temp/backup state): 739
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -227,9 +228,9 @@ npm run check:mobile-production-24117
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.42.0 establishes the reusable design-system and workspace-shell presentation boundary while preserving 2.41.20 accessibility, 2.41.19 observability, 2.41.18 performance and 2.41.17 mobile-production constraints.
-Future releases must use versions greater than 2.42.0. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
-Next UI/UX patches should migrate detailed feature screens onto the 2.42.0 primitives incrementally; do not combine those presentation migrations with database or workflow changes.
+FieldLance 2.42.2 extends the reusable 2.42.0 presentation boundary into the Survey Template Builder with feature-local CSS isolation while preserving 2.42.1 Project Workspace, 2.41.20 accessibility, 2.41.19 observability, 2.41.18 performance and 2.41.17 mobile-production constraints.
+Future releases must use versions greater than 2.42.2. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+Next UI/UX patches should continue migrating detailed feature screens onto the 2.42.0 primitives incrementally; do not combine those presentation migrations with database or workflow changes.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.
 Keep project funding/reservation, payable reconciliation and e-wallet settlement on constrained RPCs. Live JazzCash/Easypaisa adapters remain deferred until official provider credentials/documentation are available.

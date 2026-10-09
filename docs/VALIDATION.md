@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.1
+# Current validation — FieldLance 2.42.2
+
+See [VALIDATION-2.42.2.md](VALIDATION-2.42.2.md) for Survey Template Builder information architecture, feature-local CSS isolation, preserved survey authoring callbacks, mobile/tablet builder behavior, unchanged route/capability/database boundaries and FAST validation.
+
+# Historical validation — FieldLance 2.42.1
 
 See [VALIDATION-2.42.1.md](VALIDATION-2.42.1.md) for Project Workspace identity/header hierarchy, grouped desktop navigation, mobile Project Section bottom-sheet navigation, lifecycle context, immutable route/capability/tab boundaries, deep-link preservation and FAST validation.
 

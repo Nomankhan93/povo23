@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.42.1
+# Current permissions note — FieldLance 2.42.2
+
+2.42.2 changes Survey Template Builder presentation only. Survey routes, `capabilityContract.ts`, the survey question model, template-library logic and unsaved-authoring guard remain unchanged. The builder still invokes the same save/publish/moderation RPCs and relies on the same server authorization, RLS and immutable version semantics. No role, grant, policy, RPC or migration change is included.
+
+# Historical permissions note — FieldLance 2.42.1
 
 2.42.1 changes Project Workspace presentation only. `routes.ts`, `capabilityContract.ts` and `navigation.ts` remain byte-identical to 2.42.0. Grouped desktop navigation and the mobile Project Section bottom sheet consume the already-filtered Project Workspace tab list, so no unauthorized tab is exposed. Project Manager / Area Focal Person boundaries and all RLS/RPC authorization remain unchanged.
 

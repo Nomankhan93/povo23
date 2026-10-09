@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.1
+# Current architecture note — FieldLance 2.42.2
+
+2.42.2 begins the feature-local CSS architecture with `src/features/surveys/SurveyTemplates.module.css`. The Survey Template Builder consumes the shared 2.42.0 FieldLance tokens and UI primitives while owning only builder layout, Questions/Canvas/Settings structure and responsive rearrangement. `SurveyTemplates.tsx` keeps the existing draft/version/publish/moderation RPCs and authoring guard; Survey Form, Responses, Project Detail and Offline Field Workspace remain unchanged.
+
+# Historical architecture note — FieldLance 2.42.1
 
 2.42.1 remains inside the 2.42.0 presentation architecture. `ProjectWorkspaceHeader` owns project identity, AppShell owns generic page context, `SectionNav` continues grouped desktop navigation, and `MobileSectionPicker` adds an opt-in bottom-sheet mode for the same authorized project tab IDs. Existing detailed project feature components remain mounted unchanged. RLS, RPCs and backend state remain authoritative.
 
