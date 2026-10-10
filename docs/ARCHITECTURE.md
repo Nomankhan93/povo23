@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.6
+# Current architecture note — FieldLance 2.42.7
+
+2.42.7 extends the feature-local presentation architecture to Project Team. `ProjectTeamWorkspace.module.css` owns Team & Access layout/responsive structure while shared 2.42 primitives/tokens own controls, cards, metrics, tables, mobile records, statuses and reason dialogs. `project_staff_candidates`, `assign_project_staff`, `revoke_project_staff`, `project_staff_roster`, workspace permissions/capabilities and all migrations remain authoritative and unchanged.
+
+# Historical architecture note — FieldLance 2.42.6
 
 2.42.6 extends the feature-local presentation architecture to the Field Operations Map. `FieldOperationsMap.module.css` owns map/filter/list/detail responsive structure while shared 2.42 primitives/tokens own controls, cards, metrics, status and overlay behavior. `field_operations_map_page`, `fieldMapViewState.ts`, source routing, MapLibre/OpenFreeMap, authorization and all migrations remain authoritative and unchanged.
 

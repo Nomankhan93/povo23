@@ -1,4 +1,17 @@
-# Current release checklist — FieldLance 2.42.6
+# Current release checklist — FieldLance 2.42.7
+
+- [ ] Installer `--check` passes against the exact 2.42.6 baseline.
+- [ ] `npm run test:project-team-2427` passes.
+- [ ] `test-phase2141` and updated presentation-sensitive `test-phase2142` pass.
+- [ ] Project Workspace, UI foundation, mobile-production and accessibility targeted regressions pass.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Project Manager / Area Focal roles gain no team assignment/revocation authority.
+- [ ] Candidate lookup, assignment, area/date validation and reason-required revocation preserve existing RPC behavior.
+- [ ] Historical records still do not establish collection eligibility; accepted active contracts remain required.
+- [ ] Recruitment-capacity and compensation snapshot semantics remain unchanged.
+- [ ] Migration count remains 87 with head `20261013000580_project_lifecycle_e2e_integrity.sql`; no Supabase push is required.
+
+# Historical release checklist — FieldLance 2.42.6
 
 - [ ] Installer `--check` passes against the exact 2.42.5 baseline.
 - [ ] `npm run test:field-operations-map-2426` passes.

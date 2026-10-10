@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.42.6
+# Current permissions note — FieldLance 2.42.7
+
+2.42.7 changes Project Team presentation only. Existing `project_staff_*` guarded RPC authorization remains authoritative: Project Manager and Area Focal status alone do not grant team assignment/revocation authority, and frontend controls do not widen RLS/RPC scope. Recruitment and collection authorization remain separate; historical assignments/records do not establish current collection eligibility. No RLS, grant, RPC or migration change is included.
+
+# Historical permissions note — FieldLance 2.42.6
 
 2.42.6 changes Field Operations Map presentation only. Personal own-only evidence scope, Area Focal geography scope, project/organization management visibility and `source_openable` source access remain enforced by the existing server contract; frontend map/list/detail state does not grant access. No RLS, grant, RPC or migration change is included.
 

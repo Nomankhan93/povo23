@@ -9,6 +9,7 @@ const team=readFileSync('src/features/projects/ProjectTeamWorkspace.tsx','utf8')
 const projects=readFileSync('src/features/surveys/SurveyProjects.tsx','utf8');
 const detail=readFileSync('src/features/surveys/SurveyProjectDetail.tsx','utf8');
 const css=readFileSync('src/styles/design-system.css','utf8');
+const teamCss=readFileSync('src/features/projects/ProjectTeamWorkspace.module.css','utf8');
 
 await ok('project dashboard exposes RLS-filtered accepted-target and review metrics',async()=>{
  for(const token of ["Pending review","Approved","Corrections","Rejected","Approved response target completion","Latest visible responses"]) assert.match(team,new RegExp(token));
@@ -57,9 +58,12 @@ await ok('revoked workspace resolves an eligible scope instead of granting perso
    /syncRoute\(\{\s*scope:\s*resolved,\s*page:\s*home\s*\},\s*true\)/,
  );
 });
-await ok('mobile browser stabilization covers project cards filters and roster tables',async()=>{
- for(const token of ['project-operations-grid','response-toolbar','project-team-table td::before','project-quick-actions']) assert.match(css,new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
- assert.match(team,/data-label="Person"/);
+await ok('mobile browser stabilization covers scoped team cards and responsive roster presentation',async()=>{
+ assert.match(team,/ProjectTeamWorkspace\.module\.css/);
+ assert.match(team,/<DataTable caption="Project staff roster">/);
+ assert.match(team,/<MobileRecordCard/);
+ assert.match(teamCss,/@media \(max-width: 639px\)/);
+ assert.doesNotMatch(css,/project-team-table td::before/);
  assert.match(team,/detailRequest/);
  assert.match(team,/window\.setTimeout/);
 });

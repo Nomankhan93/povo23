@@ -1,9 +1,12 @@
+# Current validation — FieldLance 2.42.7
 
-# Current validation — FieldLance 2.42.6
+See [VALIDATION-2.42.7.md](VALIDATION-2.42.7.md) for the Team & Access dedicated regression, historical project-team compatibility checks, Project Workspace/UI/mobile/accessibility regressions, release consistency, TypeScript/build and diff gates.
+
+# Historical validation — FieldLance 2.42.6
 
 See [VALIDATION-2.42.6.md](VALIDATION-2.42.6.md) for the focused Field Operations Map UX regression, existing map/client/browser checks, shared UI/project/mobile/accessibility regressions, release consistency, TypeScript/build and diff gates.
 
-# Current validation — FieldLance 2.42.5
+# Historical validation — FieldLance 2.42.5
 
 See [VALIDATION-2.42.5.md](VALIDATION-2.42.5.md) for Attendance/Timesheets hierarchy, exact deep-link preservation, explicit-only GPS capture, protected offline/backend hashes, manager review UX, CSS Module isolation and focused FAST validation.
 

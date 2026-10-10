@@ -1,0 +1,408 @@
+.workspace {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--fl-space-6);
+  padding: var(--fl-space-6);
+}
+
+.projectSelector,
+.contextCard,
+.rosterCard,
+.assignmentCard,
+.secondaryCard,
+.operationsCard {
+  min-width: 0;
+}
+
+.projectSelector {
+  max-width: 560px;
+  padding: var(--fl-space-4);
+}
+
+.contextCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+  gap: var(--fl-space-5);
+  padding: var(--fl-space-5);
+  background: var(--fl-surface-muted);
+}
+
+.contextIdentity {
+  min-width: 0;
+}
+
+.contextLabel {
+  display: block;
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.contextIdentity strong {
+  display: block;
+  margin-top: var(--fl-space-1);
+  color: var(--fl-text);
+  font-size: 18px;
+  line-height: 26px;
+  overflow-wrap: anywhere;
+}
+
+.contextIdentity > span:last-child {
+  display: block;
+  margin-top: var(--fl-space-1);
+  color: var(--fl-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.contextFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fl-space-2);
+  margin: 0;
+}
+
+.contextFacts > div {
+  min-width: 0;
+  padding: var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface);
+}
+
+.contextFacts dt {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.contextFacts dd {
+  margin: var(--fl-space-1) 0 0;
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.teamSection,
+.operationalSection {
+  display: grid;
+  gap: var(--fl-space-4);
+}
+
+.summaryGrid,
+.policyMetrics,
+.operationsMetrics {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.summaryGrid,
+.policyMetrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.operationsMetrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.rosterCard,
+.assignmentCard,
+.secondaryCard,
+.operationsCard {
+  display: grid;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-5);
+}
+
+.rosterFilter {
+  min-width: 160px;
+}
+
+.desktopRoster {
+  min-width: 0;
+}
+
+.desktopRoster :global(.fl-data-table) {
+  min-width: 760px;
+}
+
+.desktopRoster td strong {
+  color: var(--fl-text);
+  font-size: 13px;
+}
+
+.mobileRoster {
+  display: none;
+  gap: var(--fl-space-3);
+}
+
+.emptyState,
+.helper {
+  margin: 0;
+  color: var(--fl-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.emptyState {
+  padding: var(--fl-space-5);
+  border: 1px dashed var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+  text-align: center;
+}
+
+.assignmentForm,
+.secondaryForm {
+  display: grid;
+  gap: var(--fl-space-4);
+}
+
+.areaAssignment {
+  display: grid;
+  gap: var(--fl-space-3);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+}
+
+.areaAssignment > button {
+  justify-self: start;
+}
+
+.areaChips {
+  display: flex;
+  gap: var(--fl-space-2);
+  flex-wrap: wrap;
+}
+
+.areaChip {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: var(--fl-space-2);
+  padding: var(--fl-space-1) var(--fl-space-2) var(--fl-space-1) var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-pill);
+  background: var(--fl-surface);
+  color: var(--fl-text);
+  font-size: 12px;
+}
+
+.areaChip button {
+  min-height: 30px;
+  padding: 0 var(--fl-space-2);
+  border: 0;
+  border-radius: var(--fl-radius-pill);
+  background: transparent;
+  color: var(--fl-primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.areaChip button:hover {
+  background: var(--fl-primary-soft);
+}
+
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-space-2);
+  flex-wrap: wrap;
+}
+
+.operationsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fl-space-4);
+}
+
+.areaRows,
+.responseRows {
+  display: grid;
+}
+
+.areaRow,
+.responseRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-3) 0;
+  border-top: 1px solid var(--fl-border);
+}
+
+.areaRow:first-child,
+.responseRow:first-child {
+  border-top: 0;
+}
+
+.areaRow span,
+.responseRow span,
+.responseRow small {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.areaRow strong,
+.responseRow strong {
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.responseRow > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fl-space-1);
+}
+
+.responseRow > div:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.progressBlock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, .7fr);
+  align-items: center;
+  gap: var(--fl-space-5);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+}
+
+.progressBlock > div:first-child {
+  display: grid;
+  gap: var(--fl-space-1);
+}
+
+.progressBlock strong {
+  color: var(--fl-text);
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.progressBlock span {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.progressMeter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--fl-space-3);
+}
+
+.progressMeter progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--fl-operational);
+}
+
+.progressMeter span {
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 1023px) {
+  .workspace {
+    padding: var(--fl-space-5);
+  }
+
+  .contextCard,
+  .progressBlock,
+  .operationsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryGrid,
+  .policyMetrics,
+  .operationsMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace {
+    gap: var(--fl-space-4);
+    padding: var(--fl-space-4);
+    padding-bottom: calc(var(--fl-space-5) + env(safe-area-inset-bottom));
+  }
+
+  .contextCard,
+  .rosterCard,
+  .assignmentCard,
+  .secondaryCard,
+  .operationsCard {
+    padding: var(--fl-space-4);
+  }
+
+  .contextFacts,
+  .summaryGrid,
+  .policyMetrics,
+  .operationsMetrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .desktopRoster {
+    display: none;
+  }
+
+  .mobileRoster {
+    display: grid;
+  }
+
+  .mobileRoster :global(.fl-button),
+  .quickActions :global(.fl-button),
+  .assignmentForm :global(.fl-form-actions .fl-button),
+  .secondaryForm :global(.fl-form-actions .fl-button) {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  .quickActions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .areaAssignment > button {
+    width: 100%;
+    min-height: 48px;
+    justify-self: stretch;
+  }
+
+  .areaChip {
+    min-height: 44px;
+  }
+
+  .areaChip button {
+    min-height: 44px;
+  }
+
+  .areaRow,
+  .responseRow {
+    flex-direction: column;
+  }
+
+  .responseRow > div:last-child {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

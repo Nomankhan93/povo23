@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.6
+# Current release: FieldLance 2.42.7
+
+Project Team / Team & Access UX. Project staff responsibilities now use a modern roster, role/scope context, summary metrics, authorized assignment/revocation flows, read-only operational context and secondary staffing-policy/compensation sections using the shared 2.42 design system. Staff RPCs, Project Manager/Area Focal authorization boundaries, recruitment/collection rules and all database contracts remain unchanged. See docs/PHASE-2.42.7.md, docs/UPGRADE-2.42.7.md and docs/VALIDATION-2.42.7.md.
+
+# Previous release: FieldLance 2.42.6
 
 Field Operations Map UX. Permission-scoped field evidence now uses an operational map + selected-evidence review workspace, clearer server-backed filters/full-result summaries, synchronized map/list/detail selection, mobile filter/detail BottomSheets and scoped 2.42 Map presentation. Map authorization, explicit-only location evidence, `source_openable`, keyset pagination, MapLibre/OpenFreeMap and all database contracts remain unchanged. See docs/PHASE-2.42.6.md, docs/UPGRADE-2.42.6.md and docs/VALIDATION-2.42.6.md.
 
