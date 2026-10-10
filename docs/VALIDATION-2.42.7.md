@@ -33,3 +33,7 @@ Full historical preflight is not required for normal 2.42.7 iteration because th
 `scripts/test-project-team2427.mjs` verifies package/migration invariants; all four staff RPCs; unchanged team-management permission boundaries; NGO and Project Workspace integration; role/scope presentation; roster summary/table/mobile-card behavior; candidate/area/date/revoke semantics; read-only operational metrics and collection-eligibility safety wording; recruitment-capacity and compensation snapshot semantics; absence of broad account lookup; CSS Module isolation/tokens/type/breakpoints; and byte-identical protected files.
 
 `scripts/test-phase2142.mjs` was intentionally updated to protect the new scoped CSS + DataTable/MobileRecordCard presentation instead of the retired `td::before` mobile-table implementation. Authorization and workflow assertions were not weakened.
+
+## 2.42.7-r1 control-size correction
+
+The r1 artifact keeps package version `2.42.7` and makes only a Project Team interaction-target/accessibility correction. The selected Area Focal remove action now uses the shared tertiary `Button` treatment while preserving `aria-label="Remove <area name>"` and the existing selected-area removal callback. Project Team-scoped interactive controls enforce a 44px desktop minimum target and a 48px mobile (`<=639px`) minimum target. Authorization, RPC, recruitment, compensation, routing, capability, database and migration behavior are unchanged.

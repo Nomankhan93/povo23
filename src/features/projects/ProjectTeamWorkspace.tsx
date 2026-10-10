@@ -434,7 +434,7 @@ export function ProjectTeamWorkspace({
             {areas.length > 0 && <div className={styles.areaChips} aria-label="Selected focal areas">
               {areas.map(id => {
                 const name = geographyPath(id, geographies).map(g => g.name).join(' / ') || id;
-                return <span className={styles.areaChip} key={id}>{name}<button type="button" aria-label={`Remove ${name}`} onClick={() => setAreas(value => value.filter(item => item !== id))}>Remove</button></span>;
+                return <span className={styles.areaChip} key={id}>{name}<Button type="button" variant="tertiary" className={styles.areaChipRemove} aria-label={`Remove ${name}`} onClick={() => setAreas(value => value.filter(item => item !== id))}>Remove</Button></span>;
               })}
             </div>}
           </div>}

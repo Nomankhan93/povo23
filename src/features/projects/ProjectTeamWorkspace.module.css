@@ -6,6 +6,13 @@
   padding: var(--fl-space-6);
 }
 
+.workspace :global(.fl-button),
+.workspace :global(.fl-control),
+.workspace :global(.fl-field select),
+.workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+  min-height: 44px;
+}
+
 .projectSelector,
 .contextCard,
 .rosterCard,
@@ -184,10 +191,10 @@
 
 .areaChip {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 44px;
   align-items: center;
   gap: var(--fl-space-2);
-  padding: var(--fl-space-1) var(--fl-space-2) var(--fl-space-1) var(--fl-space-3);
+  padding: 0 0 0 var(--fl-space-3);
   border: 1px solid var(--fl-border);
   border-radius: var(--fl-radius-pill);
   background: var(--fl-surface);
@@ -195,21 +202,11 @@
   font-size: 12px;
 }
 
-.areaChip button {
-  min-height: 30px;
-  padding: 0 var(--fl-space-2);
-  border: 0;
+.areaChipRemove {
+  min-height: 44px;
+  padding-inline: var(--fl-space-2);
   border-radius: var(--fl-radius-pill);
-  background: transparent;
-  color: var(--fl-primary);
-  font: inherit;
   font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.areaChip button:hover {
-  background: var(--fl-primary-soft);
 }
 
 .quickActions {
@@ -388,12 +385,16 @@
     justify-self: stretch;
   }
 
-  .areaChip {
-    min-height: 44px;
+  .workspace :global(.fl-button),
+  .workspace :global(.fl-control),
+  .workspace :global(.fl-field select),
+  .workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+    min-height: 48px;
   }
 
-  .areaChip button {
-    min-height: 44px;
+  .areaChip,
+  .areaChipRemove {
+    min-height: 48px;
   }
 
   .areaRow,

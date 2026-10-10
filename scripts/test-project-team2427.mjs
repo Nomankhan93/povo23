@@ -141,8 +141,48 @@ await ok('Project Team CSS module uses only approved responsive breakpoints', as
   const breakpoints = [...css.matchAll(/@media\s*\(max-width:\s*(\d+)px\)/g)].map(match => Number(match[1]));
   assert.deepEqual([...new Set(breakpoints)].sort((a, b) => a - b), [639, 1023]);
 });
+
+await ok('r1 Area Focal remove action uses the shared semantic Button', async () => {
+  assert.match(team, /<Button[^>]+variant="tertiary"[^>]+className=\{styles\.areaChipRemove\}[^>]+aria-label=\{`Remove \$\{name\}`\}/);
+  assert.doesNotMatch(team, /<button[^>]+aria-label=\{`Remove \$\{name\}`\}/);
+});
+await ok('r1 Area Focal remove action keeps area-specific accessible naming', async () => {
+  assert.match(team, /aria-label=\{`Remove \$\{name\}`\}/);
+  assert.match(team, /setAreas\(value => value\.filter\(item => item !== id\)\)/);
+});
+await ok('r1 Project Team desktop interaction targets enforce at least 44px', async () => {
+  assert.match(css, /\.workspace :global\(\.fl-button\)[\s\S]*?min-height:\s*44px;/);
+  assert.match(css, /\.areaChipRemove\s*\{[\s\S]*?min-height:\s*44px;/);
+  assert.match(css, /\.areaChip\s*\{[\s\S]*?min-height:\s*44px;/);
+});
+await ok('r1 Project Team mobile interaction targets enforce at least 48px', async () => {
+  const mobile = css.match(/@media \(max-width:\s*639px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? '';
+  assert.match(mobile, /\.workspace :global\(\.fl-button\)[\s\S]*?min-height:\s*48px;/);
+  assert.match(mobile, /\.areaChip,[\s\S]*?\.areaChipRemove\s*\{[\s\S]*?min-height:\s*48px;/);
+});
+await ok('r1 removes the undersized 30px Area Focal remove target', async () => {
+  assert.doesNotMatch(css, /\.areaChip(?:Remove|\s+button)[\s\S]{0,180}?min-height:\s*30px;/);
+});
+await ok('r1 does not retain a 44px mobile Area Focal remove target', async () => {
+  const mobile = css.match(/@media \(max-width:\s*639px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? '';
+  assert.doesNotMatch(mobile, /\.areaChipRemove[\s\S]{0,180}?min-height:\s*44px;/);
+  assert.doesNotMatch(mobile, /\.areaChip\s+button[\s\S]{0,180}?min-height:\s*44px;/);
+});
+await ok('r1 control-size correction introduces no arbitrary Project Team breakpoint', async () => {
+  const breakpoints = [...css.matchAll(/@media\s*\(max-width:\s*(\d+)px\)/g)].map(match => Number(match[1]));
+  assert.deepEqual([...new Set(breakpoints)].sort((a, b) => a - b), [639, 1023]);
+});
+await ok('r1 control-size correction introduces no hard-coded Project Team color', async () => {
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
+});
+await ok('r1 control-size correction introduces no important declaration', async () => {
+  assert.doesNotMatch(css, /!important/);
+});
+await ok('r1 keeps authorization and protected implementation files byte-identical', async () => {
+  for (const [path, expected] of Object.entries(protectedHashes)) assert.equal(hash(path), expected, path);
+});
 await ok('declared protected files remain byte-identical to 2.42.6 baseline', async () => {
   for (const [path, expected] of Object.entries(protectedHashes)) assert.equal(hash(path), expected, path);
 });
 
-console.log(`\n${passed}/34 FieldLance 2.42.7 Project Team scenarios passed.`);
+console.log(`\n${passed}/44 FieldLance 2.42.7-r1 Project Team scenarios passed.`);
