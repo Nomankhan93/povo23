@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.42.7
+Release: 2.42.8
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -182,10 +182,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000580_project_lifecycle_e2e_integrity.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 132
+Test scripts (scripts/test-*.mjs): 133
 TypeScript/TSX source files: 131
-Markdown docs: 357
-Inventory files (excluding local/build/temp/backup state): 769
+Markdown docs: 360
+Inventory files (excluding local/build/temp/backup state): 775
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check

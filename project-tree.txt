@@ -117,6 +117,7 @@
 ./docs/PHASE-2.42.5.md
 ./docs/PHASE-2.42.6.md
 ./docs/PHASE-2.42.7.md
+./docs/PHASE-2.42.8.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -240,6 +241,7 @@
 ./docs/UPGRADE-2.42.5.md
 ./docs/UPGRADE-2.42.6.md
 ./docs/UPGRADE-2.42.7.md
+./docs/UPGRADE-2.42.8.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -348,6 +350,7 @@
 ./docs/VALIDATION-2.42.5.md
 ./docs/VALIDATION-2.42.6.md
 ./docs/VALIDATION-2.42.7.md
+./docs/VALIDATION-2.42.8.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -437,6 +440,7 @@
 ./scripts/test-field-worker-workspace2200.mjs
 ./scripts/test-field-worker211.mjs
 ./scripts/test-field211.mjs
+./scripts/test-finance-payables2428.mjs
 ./scripts/test-frontend-foundation2194.mjs
 ./scripts/test-funding-retry2416.mjs
 ./scripts/test-geography-reference.mjs
@@ -585,6 +589,7 @@
 ./src/features/cases/DelegatedCasesWorkspace.tsx
 ./src/features/finance
 ./src/features/finance/fundingRequest.ts
+./src/features/finance/ProjectFundingWorkspace.module.css
 ./src/features/finance/ProjectFundingWorkspace.tsx
 ./src/features/geography
 ./src/features/geography/areaSelection.ts
@@ -620,6 +625,7 @@
 ./src/features/organizations/PartnerNgoApplication.tsx
 ./src/features/organizations/PartnerNgoApplicationsReview.tsx
 ./src/features/payables
+./src/features/payables/PayablesWorkspace.module.css
 ./src/features/payables/PayablesWorkspace.tsx
 ./src/features/payments
 ./src/features/payments/EarningsWorkspace.tsx

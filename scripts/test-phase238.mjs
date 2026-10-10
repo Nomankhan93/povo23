@@ -48,8 +48,8 @@ await ok('daily-rate payables require approved attendance while other compensati
   assert.match(migration,/w\.compensation_type='daily_rate'/);
   assert.match(migration,/unit_id:=app_private\.ensure_attendance_daily_payable/);
   assert.match(payables,/Attendance-backed daily rate/);
-  assert.match(payables,/selected\.compensation_type==='fixed_assignment'/);
-  assert.match(payables,/selected\.compensation_type==='per_verified_survey'/);
+  assert.match(payables,/selected\.compensation_type\s*===\s*['"]fixed_assignment['"]/);
+  assert.match(payables,/selected\.compensation_type\s*===\s*['"]per_verified_survey['"]/);
 });
 
 await ok('worker attendance and timesheet routes integrate with 2.36 deep-link navigation',async()=>{

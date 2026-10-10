@@ -1,0 +1,147 @@
+.workspace {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--fl-space-6);
+}
+
+.workspace :global(.fl-button),
+.workspace :global(.fl-control),
+.workspace :global(.fl-field select),
+.workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+  min-height: 44px;
+}
+
+.contextCard,
+.sectionCard,
+.operationCard,
+.historyCard {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-5);
+}
+
+.contextGrid,
+.operationGrid,
+.intakeGrid,
+.metricGrid {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.contextGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.operationGrid,
+.intakeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metricGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.section,
+.formStack,
+.pendingDetails {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.helper,
+.historyCount,
+.emptyState,
+.pendingDetails span {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.pendingDetails {
+  margin-bottom: var(--fl-space-2);
+}
+
+.operationCard {
+  background: var(--fl-surface-muted);
+}
+
+.desktopTable {
+  min-width: 0;
+}
+
+.desktopTable :global(.fl-data-table) {
+  min-width: 720px;
+}
+
+.mobileCards {
+  display: none;
+  gap: var(--fl-space-3);
+}
+
+.historyCount {
+  white-space: nowrap;
+}
+
+.emptyState {
+  margin: 0;
+  padding: var(--fl-space-5);
+  border: 1px dashed var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .contextGrid,
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .operationGrid,
+  .intakeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace {
+    gap: var(--fl-space-4);
+    padding-bottom: calc(var(--fl-space-5) + env(safe-area-inset-bottom));
+  }
+
+  .contextCard,
+  .sectionCard,
+  .operationCard,
+  .historyCard {
+    padding: var(--fl-space-4);
+  }
+
+  .contextGrid,
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+
+  .workspace :global(.fl-button),
+  .workspace :global(.fl-control),
+  .workspace :global(.fl-field select),
+  .workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+    min-height: 48px;
+  }
+
+  .workspace :global(.fl-form-actions .fl-button),
+  .mobileCards :global(.fl-button) {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+}

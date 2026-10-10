@@ -1,0 +1,278 @@
+.workspace {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--fl-space-6);
+  padding: var(--fl-space-6);
+}
+
+.embedded {
+  padding: 0;
+}
+
+.workspace :global(.fl-button),
+.workspace :global(.fl-control),
+.workspace :global(.fl-field select),
+.workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+  min-height: 44px;
+}
+
+.assignmentCard,
+.contractCard,
+.amendmentCard,
+.claimCard,
+.unitsCard,
+.accountingCard {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-5);
+}
+
+.inlineActions,
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--fl-space-2);
+  flex-wrap: wrap;
+}
+
+.pageLabel,
+.helper,
+.pagination span,
+.recordRow p,
+.recordRow small {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.desktopTable {
+  min-width: 0;
+}
+
+.desktopTable :global(.fl-data-table) {
+  min-width: 760px;
+}
+
+.desktopTable td strong,
+.desktopTable td small {
+  display: block;
+}
+
+.desktopTable td small {
+  margin-top: var(--fl-space-1);
+  color: var(--fl-text-muted);
+  font-size: 12px;
+}
+
+.mobileCards {
+  display: none;
+  gap: var(--fl-space-3);
+}
+
+.pagination {
+  justify-content: space-between;
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+  margin: 0;
+}
+
+.factGrid > div {
+  min-width: 0;
+  padding: var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface-muted);
+}
+
+.factGrid dt {
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.factGrid dd {
+  margin: var(--fl-space-1) 0 0;
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.summarySection {
+  display: grid;
+  gap: var(--fl-space-4);
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.stack,
+.formStack,
+.journalSection {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.recordRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+}
+
+.recordRow > div:first-child {
+  min-width: 0;
+}
+
+.recordRow strong {
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.recordRow p,
+.recordRow small {
+  display: block;
+  margin: var(--fl-space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.recordActions {
+  display: grid;
+  justify-items: end;
+  gap: var(--fl-space-2);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.snapshot {
+  min-width: 0;
+  padding: var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface-muted);
+}
+
+.snapshot summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.snapshot pre {
+  max-width: 100%;
+  overflow: auto;
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023px) {
+  .workspace {
+    padding: var(--fl-space-5);
+  }
+
+  .embedded {
+    padding: 0;
+  }
+
+  .factGrid,
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace {
+    gap: var(--fl-space-4);
+    padding: var(--fl-space-4);
+    padding-bottom: calc(var(--fl-space-5) + env(safe-area-inset-bottom));
+  }
+
+  .embedded {
+    padding: 0;
+  }
+
+  .assignmentCard,
+  .contractCard,
+  .amendmentCard,
+  .claimCard,
+  .unitsCard,
+  .accountingCard {
+    padding: var(--fl-space-4);
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+
+  .factGrid,
+  .metricGrid,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .recordRow {
+    flex-direction: column;
+  }
+
+  .recordActions {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .inlineActions,
+  .pagination {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workspace :global(.fl-button),
+  .workspace :global(.fl-control),
+  .workspace :global(.fl-field select),
+  .workspace :global(.fl-field input:not([type="checkbox"]):not([type="radio"])) {
+    min-height: 48px;
+  }
+
+  .mobileCards :global(.fl-button),
+  .recordActions :global(.fl-button),
+  .inlineActions :global(.fl-button),
+  .pagination :global(.fl-button) {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  .snapshot summary {
+    min-height: 48px;
+  }
+}

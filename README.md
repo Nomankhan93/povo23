@@ -1,6 +1,10 @@
-# Current release: FieldLance 2.42.7
+# Current release: FieldLance 2.42.8
 
-Project Team / Team & Access UX. Project staff responsibilities now use a modern roster, role/scope context, summary metrics, authorized assignment/revocation flows, read-only operational context and secondary staffing-policy/compensation sections using the shared 2.42 design system. Staff RPCs, Project Manager/Area Focal authorization boundaries, recruitment/collection rules and all database contracts remain unchanged. See docs/PHASE-2.42.7.md, docs/UPGRADE-2.42.7.md and docs/VALIDATION-2.42.7.md.
+Payables & Project Finance UX. Workforce Payables now use assignment-first desktop/mobile master-detail presentation while preserving amendments, claims, receipts, immutable journal accounting and safe retry identity. Project Funding now presents actual funding position, assurance, reserve/release operations, reconciliation, closure, verified intake and latest history with context-safe loading and confirmation-bound financial requests. No schema, migration, RLS, finance RPC, calculation, capability or Project Workspace integration change is included. See docs/PHASE-2.42.8.md, docs/UPGRADE-2.42.8.md and docs/VALIDATION-2.42.8.md.
+
+# Previous release: FieldLance 2.42.7
+
+Project Team / Team & Access UX. Project staff responsibilities use a modern roster, role/scope context, summary metrics, authorized assignment/revocation flows, read-only operational context and secondary staffing-policy/compensation sections using the shared 2.42 design system.
 
 # Previous release: FieldLance 2.42.6
 

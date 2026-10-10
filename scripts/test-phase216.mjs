@@ -238,7 +238,7 @@ try{
     const workforce=readFileSync('src/features/workforce/WorkforceMarketplace.tsx','utf8');
     const shell=readFileSync('src/app/AppShell.tsx','utf8');
     const migration=readFileSync('supabase/migrations/20261008000300_project_targets_recruitment_capacity.sql','utf8');
-    assert.match(workspace,/SOFT TARGET & RECRUITMENT CAPACITY/);
+    assert.match(workspace,/Soft target and recruitment capacity guide future marketplace and offer decisions/);
     assert.match(workspace,/Closing recruitment does not reject already-created\/offline survey submissions/);
     assert.match(workspace,/set_project_recruitment_plan/);
     assert.match(workforce,/"project"/);

@@ -178,7 +178,8 @@ try{
     const workforce=readFileSync('src/features/workforce/WorkforceMarketplace.tsx','utf8');
     assert.match(projectUi,/COMPENSATION DEFAULTS/);
     assert.match(projectUi,/set_project_compensation_defaults/);
-    assert.match(projectUi,/Defaults are snapshotted into the automatic project marketplace listing/);
+    assert.match(projectUi,/Defaults are snapshotted into automatic marketplace opportunities/);
+    assert.match(projectUi,/Existing assignments and payables retain their original terms/);
     assert.match(projectUi,/New compensation defaults apply only to future opportunity snapshots and do not rewrite existing assignments or payables/);
     assert.match(workforce,/<AssignmentOfferForm\b[^>]*compensation=\{offerCompensation\}/);
     const offerForm=workforce.slice(workforce.indexOf('function AssignmentOfferForm('));

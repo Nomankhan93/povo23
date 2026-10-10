@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.42.7
+# Current permissions note — FieldLance 2.42.8
+
+2.42.8 changes Payables/Project Finance presentation and narrow client correctness behavior only. Existing guarded payable and finance RPC authorization remains authoritative. Field Workers still cannot approve/pay their own work; NGO finance authority remains constrained to existing organization/project operations; Project Manager and Area Focal roles gain no finance authority from this redesign; platform-only verified external funding intake remains platform-gated.
+
+No capability, RLS, grant, RPC permission, Project Workspace permission, organization isolation or project isolation change is included.
+
+# Historical permissions note — FieldLance 2.42.7
 
 2.42.7 changes Project Team presentation only. Existing `project_staff_*` guarded RPC authorization remains authoritative: Project Manager and Area Focal status alone do not grant team assignment/revocation authority, and frontend controls do not widen RLS/RPC scope. Recruitment and collection authorization remain separate; historical assignments/records do not establish current collection eligibility. No RLS, grant, RPC or migration change is included.
 
