@@ -35,7 +35,7 @@ const protectedHashes = {
 };
 
 await ok('package and lockfile are FieldLance 2.42.7', async () => {
-  assert.ok(['2.42.7','2.42.8'].includes(pkg.version));
+  assert.ok(['2.42.7','2.42.8','2.42.9'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });

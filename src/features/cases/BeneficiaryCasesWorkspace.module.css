@@ -1,0 +1,246 @@
+.workspace {
+  display: grid;
+  min-width: 0;
+  max-width: 100%;
+  gap: var(--fl-space-6);
+  padding: var(--fl-space-6);
+}
+
+.workspace :global(.fl-button),
+.workspace :global(.fl-control),
+.workspace :global(.field select),
+.workspace :global(.field input:not([type="checkbox"]):not([type="radio"])),
+.workspace :global(.field textarea) {
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.workspace :global(.field) {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-2);
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.workspace :global(.field input),
+.workspace :global(.field select),
+.workspace :global(.field textarea) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.workspace :global(.field textarea) {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.workspace :global(.form-grid) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.workspace :global(.actions) {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fl-space-3);
+  flex-wrap: wrap;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--fl-space-3);
+}
+
+.queueCard,
+.createCard,
+.detailCard {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-4);
+  padding: var(--fl-space-5);
+}
+
+.desktopTable {
+  min-width: 0;
+}
+
+.desktopTable :global(.fl-data-table) {
+  min-width: 980px;
+}
+
+.desktopTable td strong,
+.desktopTable td span {
+  display: block;
+}
+
+.desktopTable td span {
+  margin-top: var(--fl-space-1);
+  color: var(--fl-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.mobileCards {
+  display: none;
+  gap: var(--fl-space-3);
+}
+
+.helper {
+  margin: 0;
+  color: var(--fl-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.detailCard > p,
+.recordCard p,
+.disclosure p,
+.detailCard details p {
+  margin: var(--fl-space-1) 0 0;
+  color: var(--fl-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.recordCard {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-3);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+}
+
+.disclosure {
+  min-width: 0;
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface);
+  overflow: hidden;
+}
+
+.disclosure > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: var(--fl-space-3) var(--fl-space-4);
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.disclosure > form,
+.disclosure > p,
+.disclosure > section,
+.disclosure > div {
+  margin: 0;
+  padding: 0 var(--fl-space-4) var(--fl-space-4);
+}
+
+.detailCard h4,
+.detailCard h5 {
+  margin: var(--fl-space-4) 0 0;
+  color: var(--fl-text);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.detailCard :global(.panel-title) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fl-space-3);
+}
+
+.detailCard :global(.notice),
+.recordCard :global(.notice) {
+  min-width: 0;
+  padding: var(--fl-space-3);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface-muted);
+  color: var(--fl-text);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.detailCard :global(.notice.success) {
+  border-color: var(--fl-success);
+  background: var(--fl-success-bg);
+}
+
+.detailCard :global(.notice.error),
+.recordCard :global(.notice.error) {
+  border-color: var(--fl-danger);
+  background: var(--fl-danger-bg);
+}
+
+@media (max-width: 1023px) {
+  .workspace {
+    padding: var(--fl-space-5);
+  }
+
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace {
+    gap: var(--fl-space-4);
+    padding: var(--fl-space-4);
+    padding-bottom: calc(var(--fl-space-5) + env(safe-area-inset-bottom));
+  }
+
+  .queueCard,
+  .createCard,
+  .detailCard {
+    padding: var(--fl-space-4);
+  }
+
+  .metricGrid,
+  .workspace :global(.form-grid) {
+    grid-template-columns: 1fr;
+  }
+
+  .desktopTable {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+
+  .workspace :global(.fl-button),
+  .workspace :global(.fl-control),
+  .workspace :global(.field select),
+  .workspace :global(.field input:not([type="checkbox"]):not([type="radio"])),
+  .workspace :global(.field textarea),
+  .disclosure > summary {
+    min-height: 48px;
+  }
+
+  .mobileCards :global(.fl-button),
+  .workspace :global(.actions) :global(.fl-button) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .workspace :global(.actions) {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detailCard :global(.panel-title) {
+    flex-direction: column;
+  }
+}

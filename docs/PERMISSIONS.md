@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.42.8
+# Current permissions note — FieldLance 2.42.9
+
+2.42.9 changes Beneficiary Cases presentation and client create-retry identity only. Existing guarded case, assistance, distribution, duplicate-support, ownership, follow-up and closure RPC authorization remains authoritative. Delegated Field Workers / Area Focal Persons continue to see only explicitly delegated case context allowed by current project/geography authority; assistance approvals, delivery recording, organization administration and finance remain outside the delegated workspace.
+
+No RLS, grant, RPC permission, route, capability or Project Workspace authorization change is included, and no new case or finance authority is granted by the redesigned UI.
+
+# Historical permissions note — FieldLance 2.42.8
 
 2.42.8 changes Payables/Project Finance presentation and narrow client correctness behavior only. Existing guarded payable and finance RPC authorization remains authoritative. Field Workers still cannot approve/pay their own work; NGO finance authority remains constrained to existing organization/project operations; Project Manager and Area Focal roles gain no finance authority from this redesign; platform-only verified external funding intake remains platform-gated.
 

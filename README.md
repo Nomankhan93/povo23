@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.8
+# Current release: FieldLance 2.42.9
+
+Beneficiary Cases UX. Manager case operations now separate Cases, Distribution and Follow-ups into focused desktop/mobile queues while preserving ownership, assessed needs, assistance requests, duplicate-support review, delivered-assistance ledger, follow-up outcomes and server-authoritative closure. Delegated Field Worker / Area Focal views use the same 2.42 presentation without widening case, assistance or finance access. Case/request/plan/follow-up creation now reuses one caller-generated identifier for an exact uncertain retry; no schema, migration, RLS, RPC, route or capability change is included. See docs/PHASE-2.42.9.md, docs/UPGRADE-2.42.9.md and docs/VALIDATION-2.42.9.md.
+
+# Previous release: FieldLance 2.42.8
 
 Payables & Project Finance UX. Workforce Payables now use assignment-first desktop/mobile master-detail presentation while preserving amendments, claims, receipts, immutable journal accounting and safe retry identity. Project Funding now presents actual funding position, assurance, reserve/release operations, reconciliation, closure, verified intake and latest history with context-safe loading and confirmation-bound financial requests. No schema, migration, RLS, finance RPC, calculation, capability or Project Workspace integration change is included. See docs/PHASE-2.42.8.md, docs/UPGRADE-2.42.8.md and docs/VALIDATION-2.42.8.md.
 

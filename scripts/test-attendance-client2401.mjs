@@ -90,6 +90,11 @@ const {FollowupLocationCapture}=load('src/features/cases/DelegatedCasesWorkspace
   '../../app/version':{APP_VERSION:'2.40.1'},
   '../../shared/ui/FormFields':{Badge:()=>null},
   '../../components/ui/WorkflowOverview':{EmptyState:()=>null},
+  '../../components/ui/FieldLanceUI':{
+    ...uiMocks,
+    MobileRecordCard:({children})=>React.createElement('article',null,children),
+  },
+  './DelegatedCasesWorkspace.module.css':new Proxy({},{get:(_,name)=>String(name)}),
 },'\nexport {FollowupLocationCapture};');
 await act(async()=>{view=create(React.createElement(FollowupLocationCapture,{followup:{id:'visit',version:3,followup_type:'field_visit'},busy:false,run:async task=>{try{return await task();}catch{return null;}}}));});
 await act(async()=>{view.root.findByType('input').props.onChange({target:{value:'Indoor location unavailable'}});});

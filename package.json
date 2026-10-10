@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.42.8",
+  "version": "2.42.9",
   "private": true,
   "type": "module",
   "engines": {
@@ -100,7 +100,8 @@
     "test:attendance-timesheets-2425": "node --experimental-strip-types scripts/test-attendance-timesheets2425.mjs",
     "test:field-operations-map-2426": "node scripts/test-field-operations-map2426.mjs",
     "test:project-team-2427": "node scripts/test-project-team2427.mjs",
-    "test:finance-payables-2428": "node scripts/test-finance-payables2428.mjs"
+    "test:finance-payables-2428": "node scripts/test-finance-payables2428.mjs",
+    "test:beneficiary-cases-2429": "node scripts/test-beneficiary-cases2429.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

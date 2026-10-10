@@ -36,7 +36,7 @@ async function ok(name, fn) {
 }
 
 await ok('2.42.5 release and dedicated attendance test are registered', async () => {
-  assert.ok(['2.42.5','2.42.6','2.42.7','2.42.8'].includes(pkg.version));
+  assert.ok(['2.42.5','2.42.6','2.42.7','2.42.8','2.42.9'].includes(pkg.version));
   assert.equal(pkg.scripts['test:attendance-timesheets-2425'], 'node --experimental-strip-types scripts/test-attendance-timesheets2425.mjs');
 });
 

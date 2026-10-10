@@ -37,10 +37,10 @@ function migrationAggregate() {
   return digest.digest('hex');
 }
 
-await ok('package and lockfile are FieldLance 2.42.8', async () => {
-  assert.equal(pkg.version, '2.42.8');
-  assert.equal(lock.version, '2.42.8');
-  assert.equal(lock.packages?.['']?.version, '2.42.8');
+await ok('package and lockfile remain compatible with the 2.42.8 finance contract', async () => {
+  assert.ok(['2.42.8','2.42.9'].includes(pkg.version));
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages?.['']?.version, pkg.version);
 });
 await ok('database migration inventory is unchanged', async () => {
   assert.equal(migrations.length, 87);
@@ -99,7 +99,7 @@ await ok('Payables keeps receipt privacy, currency isolation and payment-vs-tran
   assert.match(payables, /createSignedUrl\(path, 60/);
 });
 await ok('2.42.8 permissions note preserves historical wallet/provider safety documentation', async () => {
-  assert.match(permissions, /Current permissions note — FieldLance 2\.42\.8/);
+  assert.match(permissions, /Historical permissions note — FieldLance 2\.42\.8/);
   assert.match(permissions, /Historical permissions note — FieldLance 2\.42\.7/);
   assert.match(permissions, /mock.*JazzCash.*Easypaisa|JazzCash.*Easypaisa.*mock/is);
 });
