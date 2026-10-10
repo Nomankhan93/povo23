@@ -1,6 +1,10 @@
-# Current release: FieldLance 2.42.4
+# Current release: FieldLance 2.42.5
 
-Recruitment & Marketplace UX + Local UI Debt Retirement. Field Worker opportunities now use clearer operational cards and mobile filters; organization recruitment uses focused application master/detail review with readable application-time snapshots; formal offer and assignment presentation makes lifecycle boundaries explicit; and Direct Invitations clearly remain a recruitment-interest step rather than assignment activation. Recruitment queries/state, eligibility, consent, compensation/conflict semantics, routes/capabilities and database migrations remain unchanged. See docs/PHASE-2.42.4.md, docs/UPGRADE-2.42.4.md and docs/VALIDATION-2.42.4.md.
+Attendance + Timesheets UX. Field Worker Attendance now prioritizes field readiness, the current assignment/status and one explicit check-in/check-out action; My Timesheets separates historical workday summary/filtering from live attendance; and authorized project review uses a focused evidence/review drawer. Existing attendance RPCs, exact deep links, encrypted offline queue/download behavior, payables, routes, capabilities and database migrations remain unchanged. See docs/PHASE-2.42.5.md, docs/UPGRADE-2.42.5.md and docs/VALIDATION-2.42.5.md.
+
+# Previous release: FieldLance 2.42.4
+
+Recruitment & Marketplace UX + Local UI Debt Retirement. Field Worker opportunities use clearer operational cards and mobile filters; organization recruitment uses focused application master/detail review with readable application-time snapshots; formal offer and assignment presentation keeps lifecycle boundaries explicit; and Direct Invitations remain recruitment interest rather than assignment activation.
 
 # Previous release: FieldLance 2.42.3
 

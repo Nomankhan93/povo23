@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.42.4
+# Current permissions note — FieldLance 2.42.5
+
+2.42.5 changes Attendance/Timesheets presentation only. Routine review authority still depends on the existing server-backed project attendance policy/authorization result; Area Focal, platform staff and unrelated roles gain no new routine approval capability. `routes.ts`, `capabilityContract.ts`, attendance RPC implementation, RLS, grants and migrations remain unchanged.
+
+# Historical permissions note — FieldLance 2.42.4
 
 2.42.4 changes recruitment/marketplace presentation only. `routes.ts`, `capabilityContract.ts`, `recruitmentQueries.ts`, `recruitmentState.ts`, RLS, grants and RPC authorization remain unchanged. Application consent, immutable recruitment snapshots, formal-offer activation requirements and direct-invitation boundaries continue to rely on the existing server-authorized workflow.
 

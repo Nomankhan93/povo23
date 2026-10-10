@@ -40,7 +40,7 @@ await ok('worker check-in/out is explicit, idempotent and supports delayed encry
   assert.match(migration,/checkout_assignment_work_session/);
   assert.match(offline,/AES-GCM/);
   assert.match(offline,/syncAttendanceQueue/);
-  assert.match(ui,/No 24\/7 or background tracking is performed/);
+  assert.match(ui,/does not continuously or silently track your location/i);
 });
 
 await ok('daily-rate payables require approved attendance while other compensation semantics remain intact',async()=>{

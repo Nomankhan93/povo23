@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.4
+# Current architecture note — FieldLance 2.42.5
+
+2.42.5 extends the feature-local presentation architecture to Attendance and Timesheets. `AttendanceWorkspace.module.css` owns attendance layout/responsive structure while shared 2.42.0 primitives/tokens own controls, cards, status, alerts, metrics, tables and the focus-managed review Drawer. `attendanceOfflineStore.ts`, `attendanceDownload.ts`, routes/capabilities, guarded attendance RPCs, payables and all migrations remain unchanged.
+
+# Historical architecture note — FieldLance 2.42.4
 
 2.42.4 extends the feature-local presentation architecture to recruitment. `WorkforceMarketplace.module.css`, `InvitationsPanel.module.css` and `InviteVolunteer.module.css` own recruitment-specific structure and responsive layout while the shared 2.42.0 tokens/primitives continue to own visual-system behavior. `recruitmentQueries.ts` and `recruitmentState.ts` remain authoritative and unchanged; application-time recruitment snapshots, formal-offer compensation/conflict rules, invitation semantics and backend authorization remain unchanged.
 

@@ -43,6 +43,21 @@ await assert.rejects(()=>queue.pendingAttendance(owner),/could not be decrypted/
 console.log('PASS unreadable encrypted evidence is reported');
 
 globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+const uiMocks={
+  Alert:({title,children})=>React.createElement('div',null,React.createElement('strong',null,title),children),
+  Button:({children,...props})=>React.createElement('button',props,children),
+  Card:({children,...props})=>React.createElement('section',props,children),
+  DataTable:({children})=>React.createElement('table',null,children),
+  Drawer:({open,children})=>open?React.createElement('aside',null,children):null,
+  Field:({label,children,hint})=>React.createElement('label',null,label,children,hint?React.createElement('span',null,hint):null),
+  FilterBar:({children})=>React.createElement('div',null,children),
+  MetricCard:({label,value})=>React.createElement('div',null,label,React.createElement('strong',null,value)),
+  SectionHeader:({eyebrow,title,description,actions})=>React.createElement('div',null,eyebrow&&React.createElement('span',null,eyebrow),React.createElement('h2',null,title),description&&React.createElement('p',null,description),actions),
+  Select:({label,children,...props})=>React.createElement('label',null,label,React.createElement('select',props,children)),
+  StatusBadge:({children})=>React.createElement('span',null,children),
+  SyncStatus:({label,state,pending})=>React.createElement('span',null,label||state+(pending?` ${pending}`:'')),
+  Textarea:({label,hint,...props})=>React.createElement('label',null,label,React.createElement('textarea',props),hint?React.createElement('span',null,hint):null),
+};
 let rows=[],policyCalls=0,checkoutCalls=0,lateResolve=null;
 const assignments=[{id:'a',survey_project_id:'p',project_title:'Project P',organization_name:'NGO',status:'active',compensation_type:'none'},{id:'b',survey_project_id:'q',project_title:'Project Q',organization_name:'NGO',status:'active',compensation_type:'none'}];
 const policy=id=>({project_id:id,timezone:'UTC',location_policy:'not_required',max_accuracy_m:100,can_manage:false});
@@ -52,7 +67,7 @@ const client={db:{from:()=>{const query={select:()=>query,eq:()=>query,order:()=
   if(name==='start_assignment_work_session'){rows=[{id:'session',assignment_id:'a',status:'open',version:1,check_in_captured_at:start.p_captured_at,check_in_accuracy_m:null,check_out_accuracy_m:null,check_in_latitude:null,check_in_longitude:null,check_out_latitude:null,check_out_longitude:null,duration_minutes:null}];return{id:'session',version:1};}
   if(name==='checkout_assignment_work_session'){checkoutCalls++;rows=[];return{};}throw Error(name);
 }};
-const {AttendanceWorkspace}=load('src/features/workforce/AttendanceWorkspace.tsx',{'../../lib/supabase/client':client,'./attendanceDownload':{readAttendanceDownload:async()=>null,attendanceFreshness:()=>({usable:false,label:'Not downloaded'}),downloadAttendance:async()=>null,invalidateAttendanceDownload:async()=>{}},'./attendanceOfflineStore':{pendingAttendance:async()=>[],syncAttendanceQueue:async()=>({synced:0,failed:0,errors:[]})},'../../shared/ui/FormFields':{Badge:()=>null,human:v=>v||''},'lucide-react':new Proxy({},{get:()=>()=>null})});
+const {AttendanceWorkspace}=load('src/features/workforce/AttendanceWorkspace.tsx',{'../../lib/supabase/client':client,'./attendanceDownload':{readAttendanceDownload:async()=>null,attendanceFreshness:()=>({usable:false,label:'Not downloaded'}),downloadAttendance:async()=>null,invalidateAttendanceDownload:async()=>{}},'./attendanceOfflineStore':{pendingAttendance:async()=>[],syncAttendanceQueue:async()=>({synced:0,failed:0,errors:[]})},'../../components/ui/FieldLanceUI':uiMocks,'../../shared/ui/FormFields':{human:v=>v||''},'./AttendanceWorkspace.module.css':new Proxy({},{get:(_,name)=>String(name)}),'lucide-react':new Proxy({},{get:()=>()=>null})});
 let view;await act(async()=>{view=create(React.createElement(AttendanceWorkspace,{userId:'alice'}));});
 const text=node=>typeof node==='string'?node:(node?.children||[]).map(text).join('');
 const button=label=>view.root.findAllByType('button').find(n=>text(n).includes(label));

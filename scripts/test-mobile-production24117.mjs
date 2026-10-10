@@ -19,7 +19,7 @@ const manifest=JSON.parse(read('public/manifest.webmanifest'));
 const pass=(name,fn)=>{fn();console.log(`PASS ${name}`)};
 
 pass('2.41.17 release and mobile acceptance commands are registered',()=>{
-  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4'].includes(pkg.version));
+  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4','2.42.5'].includes(pkg.version));
   assert.match(pkg.scripts['test:mobile-production-24117']||'',/test-mobile-production24117\.mjs/);
   assert.match(pkg.scripts['test:browser-mobile-production-24117']||'',/browser-mobile-2419/);
   assert.match(pkg.scripts['check:mobile-production-24117']||'',/check-mobile-production24117\.mjs/);
@@ -55,7 +55,7 @@ pass('attendance location capture remains explicit, bounded and offline-safe',()
   assert.match(attendance,/permission:e\.code===1\?"denied":"unavailable"/);
   assert.match(attendance,/queueAttendanceStart/);
   assert.match(attendance,/queueAttendanceCheckout/);
-  assert.match(attendance,/This workday is queued on this device/);
+  assert.match(attendance,/queued on this device|waiting for server sync/i);
 });
 
 pass('offline field workspace preserves encrypted device sync and explicit erase controls',()=>{

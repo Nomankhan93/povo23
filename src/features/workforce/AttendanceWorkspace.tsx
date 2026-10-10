@@ -1,11 +1,27 @@
 import {useEffect,useMemo,useState,type FormEvent} from "react";
-import {CalendarClock,CheckCircle2,Clock3,MapPin,RefreshCw,ShieldCheck,WifiOff} from "lucide-react";
+import {CalendarClock,CheckCircle2,Clock3,Download,MapPin,RefreshCw,Wifi,WifiOff} from "lucide-react";
 import {db,rpc} from "../../lib/supabase/client";
 import type {Database} from "../../lib/supabase/database.types";
-import {Badge,human} from "../../shared/ui/FormFields";
+import {
+  Alert,
+  Button,
+  Card,
+  DataTable,
+  Drawer,
+  Field,
+  FilterBar,
+  MetricCard,
+  SectionHeader,
+  Select,
+  StatusBadge,
+  SyncStatus,
+  Textarea,
+  type SemanticTone,
+} from "../../components/ui/FieldLanceUI";
+import {human} from "../../shared/ui/FormFields";
 import {pendingAttendance,queueAttendanceCheckout,queueAttendanceStart,syncAttendanceQueue,type AttendanceCheckoutPayload,type AttendanceStartPayload} from "./attendanceOfflineStore";
-
 import {readAttendanceDownload,downloadAttendance,invalidateAttendanceDownload,attendanceFreshness,type AttendanceDownload} from "./attendanceDownload";
+import styles from "./AttendanceWorkspace.module.css";
 
 type Tables=Database["public"]["Tables"];
 export type Assignment=Tables["work_assignments"]["Row"];
@@ -27,10 +43,33 @@ type PendingSummary={id:string;assignmentId:string;hasStart:boolean;hasCheckout:
 const dateString=(d:Date)=>d.toISOString().slice(0,10);
 const today=()=>dateString(new Date());
 const fromDate=()=>dateString(new Date(Date.now()-29*86400000));
+function dateInTimezone(d:Date,timezone:string){
+  try{
+    const parts=new Intl.DateTimeFormat("en-US",{timeZone:timezone,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d);
+    const value=(type:"year"|"month"|"day")=>parts.find(part=>part.type===type)?.value||"";
+    const year=value("year"),month=value("month"),day=value("day");
+    if(year&&month&&day)return `${year}-${month}-${day}`;
+  }catch{}
+  return dateString(d);
+}
 const duration=(minutes:number|null)=>minutes===null?"—":`${Math.floor(minutes/60)}h ${minutes%60}m`;
 const networkError=(e:unknown)=>!navigator.onLine||/fetch|network|offline|connection/i.test((e as Error).message||"");
 function timestamp(value:string|null){return value?new Date(value).toLocaleString():"—";}
 function mapLink(lat:number|null,lng:number|null){return lat===null||lng===null?null:`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;}
+function statusTone(value:string):SemanticTone{
+  if(value==="approved")return "success";
+  if(value==="submitted"||value==="open")return "info";
+  if(value==="correction_required")return "warning";
+  if(value==="rejected")return "danger";
+  return "neutral";
+}
+function locationEvidence(quality:string|null,accuracy:number|null){
+  const state=quality?human(quality):"No location quality";
+  return accuracy===null?state:`${state} · ±${Math.round(accuracy)}m`;
+}
+function payableState(row:AttendanceRow){
+  return row.payable_unit_id?"Linked":row.compensation_type==="daily_rate"&&row.status==="approved"?"Pending link":"—";
+}
 
 async function captureLocation(policy:Policy):Promise<Capture>{
   if(policy.location_policy==="not_required")return{latitude:null,longitude:null,accuracy:null,permission:"not_requested"};
@@ -53,6 +92,7 @@ export function AttendanceWorkspace({
   const projectView=Boolean(projectId);
   const [workspace,setWorkspace]=useState<Workspace|null>(null),[assignments,setAssignments]=useState<Assignment[]>([]),[policyState,setPolicy]=useState<Policy|null>(null),[selectedAssignment,setSelectedAssignment]=useState(initialAssignmentId||""),[selected,setSelected]=useState<AttendanceRow|null>(null),[page,setPage]=useState(0),[status,setStatus]=useState(""),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[notice,setNotice]=useState(""),[locationNote,setLocationNote]=useState(""),[workNote,setWorkNote]=useState(""),[reviewNote,setReviewNote]=useState(""),[pending,setPending]=useState<PendingSummary[]>([]),[revision,setRevision]=useState(0);
   const [adjustIn,setAdjustIn]=useState(""),[adjustOut,setAdjustOut]=useState(""),[adjustReason,setAdjustReason]=useState("");
+  const [correctionSession,setCorrectionSession]=useState<AttendanceRow|null>(null),[correctionNote,setCorrectionNote]=useState("");
   const [linkedSession,setLinkedSession]=useState<AttendanceRow|null>(null),[linkedError,setLinkedError]=useState(""),[linkedLoading,setLinkedLoading]=useState(false);
   useEffect(()=>{
     let current=true;setLinkedSession(null);setLinkedError("");setLinkedLoading(Boolean(initialSessionId));
@@ -86,8 +126,9 @@ export function AttendanceWorkspace({
           return;
         }
       }
+      const attendanceMode=!projectId&&view==="attendance";
       const [w,a,q]=await Promise.all([
-        (rpc as any)("attendance_workspace",{p_project:projectId,p_from:fromDate(),p_to:today(),p_status:status||null,p_page:page}) as Promise<Workspace>,
+        (rpc as any)("attendance_workspace",{p_project:projectId,p_from:fromDate(),p_to:today(),p_status:attendanceMode?null:status||null,p_page:attendanceMode?0:page}) as Promise<Workspace>,
         !projectId?db!.from("work_assignments").select("*").eq("user_id",userId).eq("status","active").order("start_date").limit(100):Promise.resolve({data:[],error:null}),
         !projectId?pendingAttendance(userId):Promise.resolve([]),
       ]);
@@ -97,7 +138,12 @@ export function AttendanceWorkspace({
       if(!projectId&&!selectedAssignment){const first=initialAssignmentId||(((a as any).data||[])[0]?.id||"");if(first)setSelectedAssignment(first);}
     }catch(e){if(current())setError((e as Error).message);}finally{if(current())setLoading(false);}
   }
-  useEffect(()=>{let current=true;void load(()=>current);return()=>{current=false;};},[projectId,userId,page,status,revision,online]);
+  useEffect(()=>{let current=true;void load(()=>current);return()=>{current=false;};},[projectId,userId,view,page,status,revision,online]);
+  useEffect(()=>{
+    if(projectId||view!=="attendance")return;
+    setStatus("");
+    setPage(0);
+  },[projectId,view]);
   useEffect(()=>{
     let current=true;
     if(!policyProject){setPolicy(null);return;}
@@ -113,6 +159,7 @@ export function AttendanceWorkspace({
   async function syncPending(force=true){setBusy(true);setError("");try{const result=await syncAttendanceQueue(userId,force);if(result.synced)await refreshExistingDownload();setNotice(result.failed?`${result.synced} attendance record(s) synced; ${result.failed} still need attention. ${result.errors.join("; ")}`:`${result.synced} pending attendance record(s) synced.`);setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
 
   const offlineReady=Boolean(download&&download.ownerId===userId&&attendanceFreshness(download).usable);
+  const freshness=download?attendanceFreshness(download):null;
   async function refreshDownload(){setBusy(true);setError("");try{setDownload(await downloadAttendance(userId));setNotice("Attendance assignments and policy downloaded for up to 24 hours. Sync always rechecks server access.");setRevision(v=>v+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   async function refreshExistingDownload(){if(download&&navigator.onLine&&await readAttendanceDownload(userId)){try{setDownload(await downloadAttendance(userId));}catch{await invalidateAttendanceDownload(userId);setError("Action saved on server, but attendance download could not be refreshed. Refresh it before going offline.");setDownload(null);}}}
   async function start(){
@@ -147,59 +194,153 @@ export function AttendanceWorkspace({
     }catch(e){setError((e as Error).message);}finally{setBusy(false);}
   }
 
-  async function resubmit(row:AttendanceRow){if(workNote.trim().length<2){setError("Add an updated workday note.");return;}await run(()=> (rpc as any)("resubmit_attendance_session",{p_session:row.id,p_worker_note:workNote.trim(),p_version:row.version}),"Attendance correction resubmitted.");setWorkNote("");}
+  async function resubmit(row:AttendanceRow){if(correctionNote.trim().length<2){setError("Add an updated workday note.");return;}await run(()=> (rpc as any)("resubmit_attendance_session",{p_session:row.id,p_worker_note:correctionNote.trim(),p_version:row.version}),"Attendance correction resubmitted.");setCorrectionNote("");setCorrectionSession(null);}
   async function review(action:"approve"|"correction_required"|"reject"){if(!selected)return;if(action!=="approve"&&reviewNote.trim().length<5){setError("Add a review reason of at least 5 characters.");return;}await run(()=> (rpc as any)("review_attendance_session",{p_session:selected.id,p_action:action,p_note:reviewNote.trim(),p_version:selected.version}),action==="approve"?"Attendance approved.":action==="correction_required"?"Correction requested.":"Attendance rejected.");setSelected(null);setReviewNote("");}
   async function adjust(e:FormEvent){e.preventDefault();if(!selected)return;await run(()=> (rpc as any)("adjust_attendance_times",{p_session:selected.id,p_check_in:adjustIn,p_check_out:adjustOut,p_reason:adjustReason,p_version:selected.version}),"Effective times adjusted with immutable history.");setAdjustReason("");setSelected(null);}
   async function savePolicy(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!projectId)return;const f=new FormData(e.currentTarget);await run(()=> (rpc as any)("set_project_attendance_policy",{p_project:projectId,p_timezone:String(f.get("timezone")),p_location_policy:String(f.get("location_policy")),p_max_accuracy_m:Number(f.get("max_accuracy_m"))}),"Attendance policy updated.");}
 
+  function openReview(row:AttendanceRow){setSelected(row);setReviewNote("");setAdjustIn(row.effective_check_in_at);setAdjustOut(row.effective_check_out_at||"");}
+  function openCorrection(row:AttendanceRow){setCorrectionSession(row);setCorrectionNote(row.worker_note||"");setError("");}
   const activeRows=useMemo(()=>workspace?.rows||[],[workspace]);
-  return <section className="attendance-workspace">
-    <header className="attendance-hero">
-      <div><span className="eyebrow">{projectView?"PROJECT ATTENDANCE":view==="timesheets"?"MY TIMESHEETS":"MY ATTENDANCE"}</span><h2>{projectView?(manageAttendance?"Attendance & workday review":"Attendance oversight"):view==="timesheets"?"Work session history":"Start and end field work explicitly"}</h2><p>{projectView?(manageAttendance?"Review assignment-bound work sessions. Location evidence is explicit at check-in/out only; FieldLance does not continuously track workers.":"Read-only project attendance oversight. Routine approval remains with the Organization Admin or active Project Manager."):"Check-in/out location is captured only when you explicitly use these controls. No 24/7 or background tracking is performed."}</p></div>
-      <button className="secondary" disabled={busy||loading} onClick={()=>setRevision(v=>v+1)}><RefreshCw size={15}/> Refresh</button>
-    </header>
-    {error&&<p className="notice error" role="alert">{error}</p>}{notice&&<p className="notice success" role="status">{notice}</p>}
-    {!projectId&&<div className="notice attendance-download-notice"><strong>Attendance on this device</strong><p>{download?attendanceFreshness(download).label:"No attendance download. Connect and download before field use."}</p><p>Includes up to 100 active assignments and open work sessions. Offline saves remain pending until server acceptance.</p><button className="secondary" disabled={busy||!online} onClick={()=>void refreshDownload()}>Download / refresh attendance</button></div>}
-    {!projectId&&pending.length>0&&<div className="notice warning"><WifiOff size={16}/><span>{pending.length} attendance record(s) are waiting on encrypted device sync.</span><button className="secondary" disabled={busy||!navigator.onLine} onClick={()=>void syncPending()}>Sync now</button></div>}
+  const displayRows=useMemo(()=>linkedSession?.id===initialSessionId?[linkedSession,...activeRows.filter(row=>row.id!==initialSessionId)]:activeRows.filter(row=>row.id!==initialSessionId),[activeRows,initialSessionId,linkedSession]);
+  const showFilters=projectView||view==="timesheets";
+  const workerSyncState=pending.length>0?"pending":online?"synced":"offline";
 
-    {manageAttendance&&policy&&<form className="attendance-policy" onSubmit={savePolicy}><div><strong>Attendance policy</strong><p>Project timezone defines the workday. Location can be required, preferred, or not required.</p></div><label>Timezone<input name="timezone" defaultValue={policy.timezone} required/></label><label>Location<select name="location_policy" defaultValue={policy.location_policy}><option value="required">Required</option><option value="preferred">Preferred</option><option value="not_required">Not required</option></select></label><label>Accuracy warning (m)<input name="max_accuracy_m" type="number" min="5" max="5000" step="1" defaultValue={policy.max_accuracy_m}/></label><button className="secondary" disabled={busy}>Save policy</button></form>}
+  return <section className={styles.workspace} aria-labelledby="attendance-workspace-heading">
+    <div className={styles.header} data-attendance-surface="header">
+      <div>
+        <span className="fl-eyebrow">{projectView?"PROJECT ATTENDANCE":view==="timesheets"?"MY TIMESHEETS":"MY ATTENDANCE"}</span>
+        <h2 id="attendance-workspace-heading">{projectView?(manageAttendance?"Attendance & workday review":"Attendance oversight"):view==="timesheets"?"Work session history":"Today’s field work"}</h2>
+        <p>{projectView?(manageAttendance?"Review assignment-bound work sessions. Location evidence is captured only at explicit check-in and checkout actions.":"Read-only project attendance oversight. Routine approval remains with the authorized Organization Admin or active Project Manager."):view==="timesheets"?"Review submitted, approved and corrected workdays without changing the underlying attendance record model.":"Start and end field work explicitly. FieldLance does not continuously or silently track your location."}</p>
+      </div>
+      <Button type="button" disabled={busy||loading} onClick={()=>setRevision(v=>v+1)}><RefreshCw size={16}/> Refresh</Button>
+    </div>
 
-    {!projectId&&view==="attendance"&&<section className="attendance-checkin-panel">
-      <div className="attendance-section-heading"><div><span className="eyebrow">ACTIVE ASSIGNMENT</span><h3>Today&apos;s field session</h3></div><Clock3 size={20}/></div>
-      {!assignments.length&&!loading&&<p className="notice">No active formal assignment is available for attendance.</p>}
-      {assignments.length>0&&<label className="field">Assignment<select value={selectedAssignment} onChange={e=>{setSelectedAssignment(e.target.value);setLocationNote("");setWorkNote("")}}>{assignments.map(a=><option key={a.id} value={a.id}>{a.project_title} · {a.organization_name}</option>)}</select></label>}
-      {assignment&&policy&&<div className="attendance-assignment-card"><div><strong>{assignment.project_title}</strong><p>{assignment.organization_name} · {assignment.start_date} → {assignment.end_date} · {human(assignment.compensation_type)}</p><small>Timezone: {policy.timezone} · Location: {human(policy.location_policy)} · Accuracy warning: ±{policy.max_accuracy_m}m</small></div><Badge value={assignment.status}/></div>}
-      {assignment&&policy&&!openSession&&!pendingForAssignment&&<><label className="field">Reason if location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder={policy.location_policy==="preferred"?"Required only if permission/GPS is unavailable":"Optional"}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void start()}><MapPin size={18}/> Start field work</button></>}
-      {openSession&&<div className="attendance-live"><span className="attendance-live-dot"/><div><strong>Field session active</strong><p>Started {timestamp(openSession.check_in_captured_at)} · {openSession.check_in_quality?human(openSession.check_in_quality):"location pending"}</p></div></div>}
-      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<><label className="field">Workday note<textarea value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/></label><label className="field">Reason if checkout location is unavailable<input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)}/></label><button className="primary attendance-main-action" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</button></>}
-      {pendingForAssignment?.hasCheckout&&<p className="notice warning">This workday is queued on this device and will be submitted when connectivity returns.</p>}
-    </section>}
+    {error&&<Alert tone="danger" title="Attendance action needs attention">{error}</Alert>}
+    {notice&&<Alert tone="success" title="Attendance updated">{notice}</Alert>}
 
-    <section className="attendance-ledger">
-      <div className="attendance-section-heading"><div><span className="eyebrow">{projectView?"ATTENDANCE RECORDS":"TIMESHEET"}</span><h3>{projectView?"Work sessions":"Recent workdays"}</h3><p>Raw capture evidence is retained separately from any reviewed effective-time adjustment.</p></div><CalendarClock size={20}/></div>
-      <div className="attendance-filters"><label>Status<select value={status} onChange={e=>{setStatus(e.target.value);setPage(0)}}><option value="">All statuses</option>{["open","submitted","approved","correction_required","rejected"].map(v=><option key={v} value={v}>{human(v)}</option>)}</select></label></div>
-      {workspace&&<div className="attendance-metrics">{Object.entries(workspace.summary).map(([k,v])=><div key={k}><small>{human(k)}</small><strong>{v}</strong></div>)}</div>}
-      {loading&&<p role="status">Loading attendance…</p>}
-      {linkedLoading&&<p role="status">Loading linked workday…</p>}
-      {linkedError&&<p role="alert" className="notice error">{linkedError}</p>}
-      <div className="attendance-list">{(linkedSession?.id===initialSessionId?[linkedSession,...activeRows.filter(row=>row.id!==initialSessionId)]:activeRows.filter(row=>row.id!==initialSessionId)).map(row=>{
-        const checkInMap=mapLink(row.check_in_latitude,row.check_in_longitude),checkOutMap=mapLink(row.check_out_latitude,row.check_out_longitude);
-        return <article id={`attendance-${row.id}`} className={`attendance-row ${selected?.id===row.id?"selected":""} ${initialSessionId===row.id?"route-focus":""}`} key={row.id}>
-          {initialSessionId===row.id&&<p className="notice">Linked workday · shown independently of recent-workday filters</p>}
-          <div className="attendance-row-main"><div><strong>{row.project_title}</strong><p>{projectView?row.volunteer_name:row.organization_name} · {row.work_date}</p></div><Badge value={row.status}/></div>
-          <div className="attendance-time-grid"><span><small>Check in</small><strong>{timestamp(row.effective_check_in_at)}</strong></span><span><small>Check out</small><strong>{timestamp(row.effective_check_out_at)}</strong></span><span><small>Duration</small><strong>{duration(row.duration_minutes)}</strong></span><span><small>Payable</small><strong>{row.payable_unit_id?"Linked":row.compensation_type==="daily_rate"&&row.status==="approved"?"Pending link":"—"}</strong></span></div>
-          <div className="attendance-location-summary"><span><MapPin size={13}/> In: {row.check_in_quality?human(row.check_in_quality):"—"}{row.check_in_accuracy_m!==null?` ±${Math.round(row.check_in_accuracy_m)}m`:""}{checkInMap&&<a href={checkInMap} target="_blank" rel="noopener noreferrer">Map</a>}</span><span><MapPin size={13}/> Out: {row.check_out_quality?human(row.check_out_quality):"—"}{row.check_out_accuracy_m!==null?` ±${Math.round(row.check_out_accuracy_m)}m`:""}{checkOutMap&&<a href={checkOutMap} target="_blank" rel="noopener noreferrer">Map</a>}</span></div>
-          {row.worker_note&&<p className="attendance-note">{row.worker_note}</p>}{row.review_note&&<p className="notice">Review: {row.review_note}</p>}
-          {!projectView&&row.status==="correction_required"&&<div className="attendance-correction"><label className="field">Updated workday note<textarea value={workNote} onChange={e=>setWorkNote(e.target.value)} maxLength={2000}/></label><button className="secondary" disabled={busy} onClick={()=>void resubmit(row)}>Resubmit correction</button></div>}
-          {manageAttendance&&row.status==="submitted"&&<button className="secondary" onClick={()=>{setSelected(row);setReviewNote("");setAdjustIn(row.effective_check_in_at);setAdjustOut(row.effective_check_out_at||"")}}>Review attendance</button>}
-        </article>;
-      })}</div>
-      {!loading&&!activeRows.length&&!linkedSession&&<p className="notice">No attendance records match this view.</p>}
-      {workspace&&<div className="actions"><button className="secondary" disabled={page===0||busy} onClick={()=>setPage(p=>p-1)}>Previous</button><span>Page {page+1} · {workspace.count} records</span><button className="secondary" disabled={(page+1)*50>=workspace.count||busy} onClick={()=>setPage(p=>p+1)}>Next</button></div>}
+    {!projectId&&<Card className={styles.syncCard} data-attendance-surface="readiness">
+      <div className={styles.syncHeading}>
+        <div><span className="fl-eyebrow">FIELD READINESS</span><strong>Attendance on this device</strong></div>
+        <div className={styles.statusCluster}>
+          <StatusBadge tone={online?"success":"warning"}>{online?<><Wifi size={14}/> Online</>:<><WifiOff size={14}/> Offline</>}</StatusBadge>
+          <SyncStatus state={workerSyncState} pending={pending.length}/>
+          <StatusBadge tone={offlineReady?"success":download?"warning":"neutral"}>{download?(freshness?.label||"Downloaded"):"Download missing"}</StatusBadge>
+        </div>
+      </div>
+      <p>Download stores up to 100 active assignments, attendance policy and open work sessions for up to 24 hours. Offline evidence stays encrypted and pending until the server accepts it.</p>
+      <div className={styles.syncActions}>
+        <Button type="button" disabled={busy||!online} onClick={()=>void refreshDownload()}><Download size={16}/> Download / refresh attendance</Button>
+        {pending.length>0&&<Button type="button" variant="secondary" disabled={busy||!online} onClick={()=>void syncPending()}>Sync {pending.length} pending record{pending.length===1?"":"s"}</Button>}
+      </div>
+    </Card>}
+
+    {manageAttendance&&policy&&<Card>
+      <form className={styles.policyForm} onSubmit={savePolicy}>
+        <SectionHeader eyebrow="PROJECT POLICY" title="Attendance policy" description="Project timezone defines the workday. Location can be required, preferred, or not required; saving keeps the existing backend policy semantics." />
+        <div className={styles.policyFields}>
+          <Field label="Timezone"><input name="timezone" defaultValue={policy.timezone} required/></Field>
+          <Select label="Location policy" name="location_policy" defaultValue={policy.location_policy}>
+            <option value="required">Required</option><option value="preferred">Preferred</option><option value="not_required">Not required</option>
+          </Select>
+          <Field label="Accuracy warning (m)"><input name="max_accuracy_m" type="number" min="5" max="5000" step="1" defaultValue={policy.max_accuracy_m}/></Field>
+        </div>
+        <div className={styles.formActions}><Button type="submit" disabled={busy}>Save policy</Button></div>
+      </form>
+    </Card>}
+
+    {!projectId&&view==="attendance"&&<Card className={styles.currentWorkCard}>
+      <SectionHeader eyebrow="ACTIVE ASSIGNMENT" title="Current workday" description="Choose the assignment you are working on, confirm the field-readiness state, then use the single primary attendance action." actions={<Clock3 size={20} aria-hidden="true"/>}/>
+      {!assignments.length&&!loading&&<Alert tone="neutral" title="No active assignment">No active formal assignment is available for attendance.</Alert>}
+      {assignments.length>0&&<Select label="Assignment" value={selectedAssignment} onChange={e=>{setSelectedAssignment(e.target.value);setLocationNote("");setWorkNote("")}}>{assignments.map(a=><option key={a.id} value={a.id}>{a.project_title} · {a.organization_name}</option>)}</Select>}
+      {assignment&&policy&&<div className={styles.assignmentSummary}>
+        <div className={styles.assignmentIdentity}><span>{assignment.organization_name}</span><strong>{assignment.project_title}</strong><p>{assignment.start_date} → {assignment.end_date} · {human(assignment.compensation_type)}</p></div>
+        <StatusBadge tone={openSession||pendingForAssignment?.hasStart?"success":"info"}>{openSession?"Checked in":pendingForAssignment?.hasCheckout?"Queued to submit":pendingForAssignment?.hasStart?"Check-in pending sync":"Ready to start"}</StatusBadge>
+        <dl className={styles.assignmentFacts}>
+          <div><dt>Work date</dt><dd>{dateInTimezone(new Date(),policy.timezone)}</dd></div>
+          <div><dt>Timezone</dt><dd>{policy.timezone}</dd></div>
+          <div><dt>Location</dt><dd>{human(policy.location_policy)}</dd></div>
+          <div><dt>Accuracy warning</dt><dd>±{policy.max_accuracy_m}m</dd></div>
+        </dl>
+      </div>}
+      {openSession&&<div className={styles.activeSession} role="status"><span className={styles.liveDot} aria-hidden="true"/><div><strong>Field session active</strong><p>Started {timestamp(openSession.check_in_captured_at)} · {locationEvidence(openSession.check_in_quality,openSession.check_in_accuracy_m)}</p></div></div>}
+      {pendingForAssignment?.hasStart&&!openSession&&!pendingForAssignment.hasCheckout&&<Alert tone="warning" title="Check-in saved locally">Your encrypted check-in is waiting for server sync. You can still end the workday from this downloaded attendance state.</Alert>}
+      {pendingForAssignment?.hasCheckout&&<Alert tone="warning" title="Workday waiting to sync">Checkout and submission are queued on this device and will be submitted when connectivity returns.</Alert>}
+      {assignment&&policy&&!openSession&&!pendingForAssignment&&<div className={styles.actionStack}>
+        <Field label="Reason if location is unavailable" hint={policy.location_policy==="preferred"?"Required only when preferred location permission/GPS is unavailable.":"Optional unless the current policy requires an explanation."}><input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder="Add a short reason if needed"/></Field>
+        <Button className={styles.primaryAction} type="button" variant="primary" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void start()}><MapPin size={18}/> Start field work</Button>
+      </div>}
+      {(openSession||(pendingForAssignment?.hasStart&&!pendingForAssignment.hasCheckout))&&<div className={styles.actionStack}>
+        <Textarea label="Workday note" value={workNote} minLength={2} maxLength={2000} onChange={e=>setWorkNote(e.target.value)} placeholder="What work did you complete today?"/>
+        <Field label="Reason if checkout location is unavailable"><input value={locationNote} maxLength={500} onChange={e=>setLocationNote(e.target.value)} placeholder="Add a short reason if needed"/></Field>
+        <Button className={styles.primaryAction} type="button" variant="primary" disabled={busy||loading||!policy||(!online&&!offlineReady)} onClick={()=>void finish(openSession,Boolean(!openSession&&pendingForAssignment?.hasStart))}><CheckCircle2 size={18}/> End & submit workday</Button>
+      </div>}
+    </Card>}
+
+    <section className={styles.historySection}>
+      <SectionHeader eyebrow={projectView?"ATTENDANCE RECORDS":view==="timesheets"?"TIMESHEET HISTORY":"RECENT WORKDAYS"} title={projectView?"Work sessions":view==="timesheets"?"My Timesheets":"Recent workdays"} description="Effective times are shown for operations; raw captured timestamps remain separately retained for review and audit." actions={<CalendarClock size={20} aria-hidden="true"/>}/>
+
+      {workspace&&<div className={styles.metrics} aria-label="Attendance summary">
+        {projectView&&<MetricCard label="Open" value={workspace.summary.open}/>}<MetricCard label="Submitted" value={workspace.summary.submitted}/><MetricCard label="Approved" value={workspace.summary.approved}/><MetricCard label="Needs correction" value={workspace.summary.correction_required}/><MetricCard label="Rejected" value={workspace.summary.rejected}/>
+      </div>}
+
+      {showFilters&&<FilterBar className={styles.filters}>
+        <Select label="Status" value={status} onChange={e=>{setStatus(e.target.value);setPage(0)}}>
+          <option value="">All statuses</option>{["open","submitted","approved","correction_required","rejected"].map(v=><option key={v} value={v}>{human(v)}</option>)}
+        </Select>
+      </FilterBar>}
+
+      {loading&&<p role="status" className={styles.loading}>Loading attendance…</p>}
+      {linkedLoading&&<p role="status" className={styles.loading}>Loading linked workday…</p>}
+      {linkedError&&<Alert tone="danger" title="Linked workday unavailable">{linkedError}</Alert>}
+
+      {!loading&&displayRows.length>0&&<>
+        <div className={styles.desktopRecords}>
+          <DataTable caption={projectView?"Authorized project attendance records":"Your attendance workdays"}>
+            <thead><tr><th>{projectView?"Worker / project":"Project"}</th><th>Status</th><th>Work date</th><th>Check in</th><th>Check out</th><th>Duration</th><th>Payable</th><th>Location</th><th>Action</th></tr></thead>
+            <tbody>{displayRows.map(row=><tr key={row.id} className={initialSessionId===row.id?styles.routeFocusedRow:undefined}>
+              <td><strong className={styles.tablePrimary}>{projectView?row.volunteer_name:row.project_title}</strong><span className={styles.tableSecondary}>{projectView?row.project_title:row.organization_name}{initialSessionId===row.id?" · Linked workday":""}</span></td>
+              <td><StatusBadge tone={statusTone(row.status)}>{human(row.status)}</StatusBadge></td><td>{row.work_date}</td><td>{timestamp(row.effective_check_in_at)}</td><td>{timestamp(row.effective_check_out_at)}</td><td>{duration(row.duration_minutes)}</td><td>{payableState(row)}</td>
+              <td><span className={styles.locationCell}>In: {locationEvidence(row.check_in_quality,row.check_in_accuracy_m)}<br/>Out: {locationEvidence(row.check_out_quality,row.check_out_accuracy_m)}</span></td>
+              <td>{manageAttendance&&row.status==="submitted"?<Button type="button" onClick={()=>openReview(row)}>Review</Button>:!projectView&&row.status==="correction_required"?<Button type="button" onClick={()=>openCorrection(row)}>Review correction</Button>:<span className={styles.muted}>—</span>}</td>
+            </tr>)}</tbody>
+          </DataTable>
+        </div>
+
+        <div className={styles.mobileRecords}>{displayRows.map(row=>{
+          const checkInMap=mapLink(row.check_in_latitude,row.check_in_longitude),checkOutMap=mapLink(row.check_out_latitude,row.check_out_longitude);
+          return <article id={`attendance-${row.id}`} className={`${styles.recordCard} ${initialSessionId===row.id?styles.routeFocus:""}`} key={row.id}>
+            {initialSessionId===row.id&&<StatusBadge tone="info">Linked workday · exact record</StatusBadge>}
+            <div className={styles.recordHeading}><div><span>{projectView?row.volunteer_name:row.organization_name}</span><strong>{row.project_title}</strong><p>{row.work_date}</p></div><StatusBadge tone={statusTone(row.status)}>{human(row.status)}</StatusBadge></div>
+            <dl className={styles.recordFacts}><div><dt>Check in</dt><dd>{timestamp(row.effective_check_in_at)}</dd></div><div><dt>Check out</dt><dd>{timestamp(row.effective_check_out_at)}</dd></div><div><dt>Duration</dt><dd>{duration(row.duration_minutes)}</dd></div><div><dt>Payable</dt><dd>{payableState(row)}</dd></div></dl>
+            <div className={styles.locationGrid}><span><MapPin size={15} aria-hidden="true"/> Check-in: {locationEvidence(row.check_in_quality,row.check_in_accuracy_m)} {checkInMap&&<a href={checkInMap} target="_blank" rel="noopener noreferrer">Map</a>}</span><span><MapPin size={15} aria-hidden="true"/> Checkout: {locationEvidence(row.check_out_quality,row.check_out_accuracy_m)} {checkOutMap&&<a href={checkOutMap} target="_blank" rel="noopener noreferrer">Map</a>}</span></div>
+            {row.worker_note&&<div className={styles.note}><strong>Workday note</strong><p>{row.worker_note}</p></div>}
+            {row.review_note&&<Alert tone={row.status==="rejected"?"danger":row.status==="correction_required"?"warning":"info"} title="Review note">{row.review_note}</Alert>}
+            {!projectView&&row.status==="correction_required"&&<Button type="button" disabled={busy} onClick={()=>openCorrection(row)}>Review correction</Button>}
+            {manageAttendance&&row.status==="submitted"&&<Button type="button" onClick={()=>openReview(row)}>Review attendance</Button>}
+          </article>;
+        })}</div>
+      </>}
+
+      {!loading&&!displayRows.length&&<Alert tone="neutral" title="No workdays in this view">No attendance records match the current view.</Alert>}
+      {workspace&&(projectView||view==="timesheets")&&<div className={styles.pagination}><Button type="button" disabled={page===0||busy} onClick={()=>setPage(p=>p-1)}>Previous</Button><span>Page {page+1} · {workspace.count} records</span><Button type="button" disabled={(page+1)*50>=workspace.count||busy} onClick={()=>setPage(p=>p+1)}>Next</Button></div>}
     </section>
 
-    {manageAttendance&&selected&&<section className="attendance-review-panel"><div className="attendance-section-heading"><div><span className="eyebrow">REVIEW ATTENDANCE</span><h3>{selected.volunteer_name} · {selected.work_date}</h3></div><ShieldCheck size={20}/></div><p>Raw captured evidence: {timestamp(selected.check_in_captured_at)} → {timestamp(selected.check_out_captured_at)}. Effective times can be adjusted before approval only; every adjustment is retained.</p><label className="field">Review note<textarea value={reviewNote} onChange={e=>setReviewNote(e.target.value)} maxLength={2000} placeholder="Required for correction or rejection"/></label><div className="actions"><button className="primary" disabled={busy} onClick={()=>void review("approve")}>Approve</button><button className="secondary" disabled={busy} onClick={()=>void review("correction_required")}>Request correction</button><button className="danger" disabled={busy} onClick={()=>void review("reject")}>Reject</button><button className="link" type="button" onClick={()=>setSelected(null)}>Close</button></div>
-      <form className="attendance-adjust-form" onSubmit={adjust}><h4>Adjust effective times</h4><p>Use ISO timestamps with an explicit offset/Z. Raw captured evidence is never overwritten.</p><label>Effective check-in<input value={adjustIn} onChange={e=>setAdjustIn(e.target.value)} required/></label><label>Effective checkout<input value={adjustOut} onChange={e=>setAdjustOut(e.target.value)} required/></label><label>Reason<textarea value={adjustReason} onChange={e=>setAdjustReason(e.target.value)} minLength={5} maxLength={2000} required/></label><button className="secondary" disabled={busy}>Record adjustment</button></form>
-    </section>}
+    <Drawer open={Boolean(!projectView&&correctionSession)} title={correctionSession?`Correct workday · ${correctionSession.work_date}`:"Correct workday"} onClose={()=>{setCorrectionSession(null);setCorrectionNote("")}} side="right" className={styles.reviewDrawer}>
+      {correctionSession&&<div className={styles.reviewContent}>
+        <div className={styles.reviewHeading}><StatusBadge tone="warning">Needs correction</StatusBadge><span>{correctionSession.project_title}</span></div>
+        <section className={styles.reviewSection} aria-labelledby="worker-correction-context-heading"><h3 id="worker-correction-context-heading">Reviewer feedback</h3>{correctionSession.review_note?<Alert tone="warning" title="Review note">{correctionSession.review_note}</Alert>:<p className={styles.helper}>No reviewer note was provided. Update your workday note and resubmit the existing attendance record.</p>}<div className={styles.note}><strong>Previous workday note</strong><p>{correctionSession.worker_note||"No previous workday note."}</p></div></section>
+        <section className={styles.reviewSection} aria-labelledby="worker-correction-action-heading"><h3 id="worker-correction-action-heading">Update and resubmit</h3><Textarea label="Updated workday note" value={correctionNote} onChange={e=>setCorrectionNote(e.target.value)} minLength={2} maxLength={2000} required/><Button type="button" variant="primary" disabled={busy} onClick={()=>void resubmit(correctionSession)}>Resubmit correction</Button></section>
+      </div>}
+    </Drawer>
+
+    <Drawer open={Boolean(manageAttendance&&selected)} title={selected?`${selected.volunteer_name} · ${selected.work_date}`:"Attendance review"} onClose={()=>setSelected(null)} side="right" className={styles.reviewDrawer}>
+      {selected&&<div className={styles.reviewContent}>
+        <div className={styles.reviewHeading}><StatusBadge tone={statusTone(selected.status)}>{human(selected.status)}</StatusBadge><span>{selected.project_title}</span></div>
+        <section className={styles.reviewSection} aria-labelledby="review-evidence-heading"><h3 id="review-evidence-heading">Workday evidence</h3><dl className={styles.reviewFacts}><div><dt>Raw check-in</dt><dd>{timestamp(selected.check_in_captured_at)}</dd></div><div><dt>Raw checkout</dt><dd>{timestamp(selected.check_out_captured_at)}</dd></div><div><dt>Effective check-in</dt><dd>{timestamp(selected.effective_check_in_at)}</dd></div><div><dt>Effective checkout</dt><dd>{timestamp(selected.effective_check_out_at)}</dd></div><div><dt>Check-in location</dt><dd>{locationEvidence(selected.check_in_quality,selected.check_in_accuracy_m)}</dd></div><div><dt>Checkout location</dt><dd>{locationEvidence(selected.check_out_quality,selected.check_out_accuracy_m)}</dd></div><div><dt>Payable</dt><dd>{payableState(selected)}</dd></div><div><dt>Duration</dt><dd>{duration(selected.duration_minutes)}</dd></div></dl>{selected.worker_note&&<div className={styles.note}><strong>Worker note</strong><p>{selected.worker_note}</p></div>}</section>
+        <section className={styles.reviewSection} aria-labelledby="review-action-heading"><h3 id="review-action-heading">Review decision</h3><Textarea label="Review note" value={reviewNote} onChange={e=>setReviewNote(e.target.value)} maxLength={2000} hint="Required for correction requests and rejection." placeholder="Add a clear review note"/><div className={styles.reviewActions}><Button type="button" variant="primary" disabled={busy} onClick={()=>void review("approve")}>Approve</Button><Button type="button" disabled={busy} onClick={()=>void review("correction_required")}>Request correction</Button><Button type="button" variant="danger" disabled={busy} onClick={()=>void review("reject")}>Reject</Button></div></section>
+        <form className={styles.reviewSection} onSubmit={adjust}><h3>Adjust effective times</h3><p className={styles.helper}>Use ISO timestamps with an explicit offset/Z. Raw captured evidence is never overwritten; adjustment history remains immutable.</p><Field label="Effective check-in"><input value={adjustIn} onChange={e=>setAdjustIn(e.target.value)} required/></Field><Field label="Effective checkout"><input value={adjustOut} onChange={e=>setAdjustOut(e.target.value)} required/></Field><Textarea label="Reason" value={adjustReason} onChange={e=>setAdjustReason(e.target.value)} minLength={5} maxLength={2000} required/><Button type="submit" disabled={busy}>Record adjustment</Button></form>
+      </div>}
+    </Drawer>
   </section>;
 }

@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.42.4
+# Current release checklist — FieldLance 2.42.5
+
+Attendance + Timesheets UX. No database migration.
+
+- [ ] `npm run test:attendance-timesheets-2425` passes.
+- [ ] Attendance/client and field-evidence regressions pass where their normal dependencies are available.
+- [ ] Project Workspace, UI foundation, mobile-production and accessibility regressions pass.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Explicit Check-in/Check-out and explicit-only location capture remain unchanged; no background tracking is introduced.
+- [ ] Offline attendance download/queue/reconnect behavior remains unchanged and protected files are byte-identical.
+- [ ] Organization/Project Manager review authority remains unchanged; Area Focal/platform staff receive no new routine approval rights.
+- [ ] Migration count/head remain 87 / `20261013000580_project_lifecycle_e2e_integrity.sql`.
+- [ ] Installer `--check`, real apply, mismatch rejection, rollback and post-install invariant checks pass.
+
+## Previous release
+
+# Historical release checklist — FieldLance 2.42.4
 
 Recruitment & Marketplace UX + Local UI Debt Retirement. No database migration.
 

@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.4
+# Current validation — FieldLance 2.42.5
+
+See [VALIDATION-2.42.5.md](VALIDATION-2.42.5.md) for Attendance/Timesheets hierarchy, exact deep-link preservation, explicit-only GPS capture, protected offline/backend hashes, manager review UX, CSS Module isolation and focused FAST validation.
+
+# Historical validation — FieldLance 2.42.4
 
 See [VALIDATION-2.42.4.md](VALIDATION-2.42.4.md) for recruitment/marketplace presentation, protected recruitment query/state and authorization invariants, scoped CSS Modules, safe local UI debt retirement and FAST validation.
 

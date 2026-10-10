@@ -146,7 +146,7 @@ try{
   await page.getByRole('button',{name:'Start field work',exact:true}).waitFor();
   const boxes=await page.evaluate(()=>{
    const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
-   return {hero:rect(document.querySelector('.attendance-hero')),copy:rect(document.querySelector('.attendance-hero>div')),refresh:rect(document.querySelector('.attendance-hero>button')),download:rect(document.querySelector('.attendance-download-notice')),button:rect(document.querySelector('.attendance-download-notice>button')),paragraphs:[...document.querySelectorAll('.attendance-download-notice p')].map(rect),scroll:document.documentElement.scrollWidth,width:innerWidth,gps:window.gpsRequests};
+   return {hero:rect(document.querySelector('[data-attendance-surface="header"]')),copy:rect(document.querySelector('[data-attendance-surface="header"]>div')),refresh:rect(document.querySelector('[data-attendance-surface="header"]>button')),download:rect(document.querySelector('[data-attendance-surface="readiness"]')),button:rect(document.querySelector('[data-attendance-surface="readiness"] button')),paragraphs:[...document.querySelectorAll('[data-attendance-surface="readiness"] p')].map(rect),scroll:document.documentElement.scrollWidth,width:innerWidth,gps:window.gpsRequests};
   });
   assert.ok(boxes.copy.width>=200);assert.ok(boxes.refresh.top>=boxes.copy.bottom);
   assert.ok(boxes.hero.bottom<=boxes.download.top);assert.ok(boxes.button.bottom<=boxes.download.bottom);

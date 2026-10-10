@@ -3,7 +3,7 @@ Generated deterministically by scripts/generate-project-metadata.mjs.
 Do not hand-edit this file; run npm run metadata:generate.
 
 ===== RELEASE =====
-Release: 2.42.4
+Release: 2.42.5
 Package: fieldlance-platform
 Node engine: >=22.13.0
 NVM version: 24
@@ -33,6 +33,8 @@ Current domains: auth/workspaces, organizations/onboarding, volunteers, surveys/
 - 2.42.1 refines the Project Workspace identity/header hierarchy, grouped desktop navigation and mobile Project Section bottom sheet while preserving all project tab IDs, routes, capabilities, feature callbacks and backend behavior.
 - 2.42.2 redesigns the Survey Template Builder into separated library/drafts/builder/published views with desktop Questions/Canvas/Settings regions and scoped feature-local CSS while preserving survey routes, permissions, draft/version/publish semantics, callbacks and backend behavior.
 - 2.42.3 redesigns Survey Collection, Capture Fields, Response Review and the Review Queue presentation with focused section/list-detail layouts and scoped CSS Modules while preserving save/retry/serialization, review RPC/query, routes, permissions, offline behavior and database authorization.
+- 2.42.4 redesigns Recruitment & Marketplace presentation with scoped CSS Modules, application master/detail review and explicit formal-offer lifecycle presentation while preserving recruitment queries/state, consent snapshots, deep links and backend authorization.
+- 2.42.5 redesigns Attendance & Timesheets presentation with current-workday priority, field-readiness/sync visibility, historical timesheets and focused manager review while preserving explicit-only location capture, offline queue/download behavior, payables, routes and attendance authorization.
 - 2.41.20 hardens shared keyboard/focus and modal semantics, SPA/crash focus recovery, assertive blocking-error announcements, coarse-pointer targets and reduced-motion/contrast/RTL presentation without changing authorization or persisted data.
 - 2.41.0 adds safe app-route offline shell fallback, combined survey/attendance device inventory, explicit owner erase, attendance sync receipts and expiring downloaded attendance access.
 - 2.40.1 stabilizes versioned case evidence, attendance policy refresh, encrypted attendance writes and boundary validation; see current upgrade and validation notes.
@@ -180,10 +182,10 @@ Existing migration filenames are immutable historical ordering identifiers. New 
 - 20261013000580_project_lifecycle_e2e_integrity.sql
 
 ===== TEST / SOURCE INVENTORY =====
-Test scripts (scripts/test-*.mjs): 129
+Test scripts (scripts/test-*.mjs): 130
 TypeScript/TSX source files: 131
-Markdown docs: 348
-Inventory files (excluding local/build/temp/backup state): 754
+Markdown docs: 351
+Inventory files (excluding local/build/temp/backup state): 760
 
 ===== RELEASE COMMANDS =====
 npm run metadata:check
@@ -229,8 +231,8 @@ npm run check:mobile-production-24117
 - Large-scale production readiness still requires browser/mobile E2E, load tests, backup/restore drills, monitoring and cloud parity checks.
 
 ===== NEXT DEVELOPMENT BOUNDARY =====
-FieldLance 2.42.3 extends the reusable 2.42.0 presentation boundary into Survey Collection and Response Review with feature-local CSS isolation while preserving the 2.42.2 Survey Template Builder, 2.42.1 Project Workspace and established accessibility/mobile-production constraints.
-Future releases must use versions greater than 2.42.3. The previously planned 2.32-2.35 scopes remain deferred and should be renumbered when implemented.
+FieldLance 2.42.5 extends the reusable 2.42.0 presentation boundary into Attendance and Timesheets with feature-local CSS isolation while preserving 2.42.4 recruitment, prior survey/project presentation layers and established accessibility/mobile-production constraints.
+Future releases must use versions greater than 2.42.5. The next planned UI modernization scope is Field Operations Map (2.42.6); do not mix that presentation work into this attendance release.
 Next UI/UX patches should continue migrating detailed feature screens onto the 2.42.0 primitives incrementally; do not combine those presentation migrations with database or workflow changes.
 Keep the validated beneficiary assistance lifecycle stable; do not silently expand case closure into inventory, beneficiary cash-transfer execution, automated eligibility or finance.
 Keep 2.14 project staff / collection-geography authorization as the operational boundary. Area Focal case/map access exists only through explicit 2.39 delegation and project+geography-scoped authority; do not broaden it into organization-wide beneficiary access.
