@@ -686,7 +686,7 @@ try {
     assert(workforce.includes('if (ok) setApplying(null)'));
     assert(workforce.includes('Existing applications remain reviewable'));
     assert(workforce.includes('{mode === "personal" ? ('));
-    assert(workforce.includes('automatic all-Field-Workers marketplace listing'));
+    assert.match(workforce, /marketplace_origin\s*===\s*"project_auto"\s*\?\s*"Automatic[^"\n]*all[- ]Field[- ]Workers[^"\n]*listing"/i);
     assert(!workforce.includes('// ...existing code...'));
     assert.equal((workforce.match(/<h3>Find Field Workers<\/h3>/g) || []).length, 1);
     assert(invitations.includes('.is("survey_project_id", null)'));

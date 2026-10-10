@@ -29,7 +29,7 @@ await ok('2.21.0 Organization Workspace regression contract is active', async ()
 });
 
 await ok('Organization Overview remains dedicated alongside Field Worker and FieldLance Staff homes', async () => {
-  assert.match(shell, /import \{ OrganizationDashboard \}/);
+  assert.match(shell, /(?:from\s*|import\s*\(\s*)["']\.\.\/features\/organizations\/OrganizationDashboard["']/);
   assert.match(shell, /organizationWorkspace \? \(/);
   assert.match(shell, /<OrganizationDashboard/);
   assert.match(shell, /<FieldWorkerDashboard/);

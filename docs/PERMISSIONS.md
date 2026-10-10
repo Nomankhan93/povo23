@@ -1,4 +1,8 @@
-# Current permissions note — FieldLance 2.42.5
+# Current permissions note — FieldLance 2.42.6
+
+2.42.6 changes Field Operations Map presentation only. Personal own-only evidence scope, Area Focal geography scope, project/organization management visibility and `source_openable` source access remain enforced by the existing server contract; frontend map/list/detail state does not grant access. No RLS, grant, RPC or migration change is included.
+
+# Historical permissions note — FieldLance 2.42.5
 
 2.42.5 changes Attendance/Timesheets presentation only. Routine review authority still depends on the existing server-backed project attendance policy/authorization result; Area Focal, platform staff and unrelated roles gain no new routine approval capability. `routes.ts`, `capabilityContract.ts`, attendance RPC implementation, RLS, grants and migrations remain unchanged.
 

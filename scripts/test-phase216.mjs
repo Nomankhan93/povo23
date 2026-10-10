@@ -2,6 +2,7 @@ import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { schemaDb } from './schema-test-db.mjs';
+import { getAuthorizedNavigationPages, getCapabilityContract } from '../src/app/capabilityContract.ts';
 
 const db = await schemaDb();
 let passed = 0;
@@ -242,8 +243,14 @@ try{
     assert.match(workspace,/set_project_recruitment_plan/);
     assert.match(workforce,/"project"/);
     assert.match(workforce,/projectScopeId/);
-    assert.match(shell,/projectScopeAssignment\?\.role === "project_manager"/);
-    assert.match(shell,/\["Recruitment", Users\]/);
+    assert.match(shell,/projectRole:\s*projectScopeAssignment\?\.role/);
+    assert.match(shell,/manageWorkspaceProject:\s*canManageWorkspaceProject/);
+    assert.match(shell,/canManageRecruitment=\{canManageWorkspaceProject\}/);
+    for (const projectRole of ['project_manager','area_focal_person']) {
+      const capabilities=getCapabilityContract({platformRole:null,staffWorkspace:false,organizationWorkspace:false,projectWorkspace:true,projectRole,ownsWorkspaceProject:false});
+      assert.equal(capabilities.manageWorkspaceProject,projectRole==='project_manager');
+      assert.equal(getAuthorizedNavigationPages({kind:'project',capabilities,projectRole}).includes('Recruitment'),projectRole==='project_manager');
+    }
     assert.doesNotMatch(migration,/create or replace function public\.save_survey_response/i);
     assert.doesNotMatch(migration,/drop function public\.save_survey_response/i);
   });

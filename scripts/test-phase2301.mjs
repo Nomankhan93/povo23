@@ -29,7 +29,8 @@ for (const [staff,owner,expected] of [[false,false,false],[true,false,true],[fal
 console.log('PASS team management permission combinations');
 const workspace=readFileSync('src/features/projects/ProjectWorkspace.tsx','utf8');
 assert.match(workspace,/await protectProjectNavigation\(commit\)/);
-assert.match(workspace,/onClick=\{\(\) => openTab\(item.id\)\}/);
+assert.match(workspace,/<SectionNav[^>]*onChange=\{openTab\}/s);
+assert.match(workspace,/<MobileSectionPicker[\s\S]{0,600}onChange=\{openTab\}/);
 assert.match(workspace,/onOpenTab=\{openTab\}/);
 assert.match(workspace,/navigate\(\(\) => \{setTab\(next\);onRouteChange/);
 for (const name of ['ProjectFundingWorkspace','SurveyProjects','ProjectGovernance','WorkforceMarketplace']) {

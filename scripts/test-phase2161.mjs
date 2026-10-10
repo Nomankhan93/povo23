@@ -180,8 +180,10 @@ try{
     assert.match(projectUi,/set_project_compensation_defaults/);
     assert.match(projectUi,/Defaults are snapshotted into the automatic project marketplace listing/);
     assert.match(projectUi,/New compensation defaults apply only to future opportunity snapshots and do not rewrite existing assignments or payables/);
-    assert.match(workforce,/Compensation is inherited from the recruitment opportunity snapshot/);
-    assert.match(workforce,/Contract compensation:/);
+    assert.match(workforce,/<AssignmentOfferForm\b[^>]*compensation=\{offerCompensation\}/);
+    const offerForm=workforce.slice(workforce.indexOf('function AssignmentOfferForm('));
+    assert.match(offerForm,/<Alert\b[^>]*>\{compensation\}[^<]*inherited[^<]*snapshot[^<]*immutable/i);
+    assert.match(workforce,/<WorkforceMeta\b[^>]*(?:\/>)[^>]*label="Compensation"\s+value=\{money\(a\)\}/);
     assert.doesNotMatch(workforce,/name="compensation"/);
     assert.doesNotMatch(workforce,/name="rate"/);
     assert.match(workforce,/compensation_source_version/);

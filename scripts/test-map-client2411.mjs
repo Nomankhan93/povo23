@@ -12,6 +12,8 @@ function MapFixture(){return null;}
 const emptyQuery={select(){return this},eq(){return this},maybeSingle:async()=>({data:{title:'Project'},error:null})};
 const mocks={
  '../../lib/supabase/client':{db:{from:()=>emptyQuery}},
+ '../../components/ui/FieldLanceUI':{MobileSectionPicker:Null,SectionNav:Null},
+ './ProjectWorkspaceHeader':{ProjectWorkspaceHeader:Null,deriveProjectLifecycleStage:()=>null},
  './ProjectTeamWorkspace':{ProjectTeamWorkspace:Null},'./ProjectOverview':{ProjectOverview:Null},'./ProjectDocuments':{ProjectDocuments:Null},'./ProjectActivity':{ProjectActivity:Null},
  './projectNavigation':{protectProjectNavigation:async commit=>commit()},
  '../maps/FieldOperationsMap':{FieldOperationsMap:MapFixture},
@@ -19,7 +21,7 @@ const mocks={
  'lucide-react':new Proxy({},{get:()=>Null})
 };
 const {ProjectWorkspace}=load('src/features/projects/ProjectWorkspace.tsx',mocks);
-const props={userId:'alice',projectId:'project',organization:null,geographies:[],orgs:[],canManageTeam:false,canManageRecruitment:false,canManageProject:false,canManageFinance:false,canManageCases:false,platformFinance:false,surveyManage:false,routeTab:'map'};
+const props={userId:'alice',projectId:'project',organization:null,project:{title:'Project',status:'active',organizationId:null},geographies:[],orgs:[],canManageTeam:false,canManageRecruitment:false,canManageProject:false,canManageFinance:false,canManageCases:false,platformFinance:false,surveyManage:false,routeTab:'map'};
 let selected=null,route=null,view;
 await act(async()=>{view=create(React.createElement(ProjectWorkspace,{...props,onNavigate:()=>{throw Error('Generic navigation must not lose case identity')},onOpenDelegatedCase:id=>selected=id,onRouteChange:(...args)=>route=args}));});
 await act(async()=>{view.root.findByType(MapFixture).props.onOpenSource({source_kind:'case',source_context_id:'case-exact'});});

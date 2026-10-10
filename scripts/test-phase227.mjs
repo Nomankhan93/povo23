@@ -17,7 +17,7 @@ assert.match(shell, /page === "Project workspace"/);
 assert.match(navigation, /project: \[/);
 assert.match(navigation, /'Recruitment'/);
 const organizationBlock = navigation.slice(navigation.indexOf("organization: ["), navigation.indexOf("staff: ["));
-assert.doesNotMatch(organizationBlock, /pages:\[[^\]]*'Invitations'/, "direct invitations must be consolidated into recruitment");
+assert.match(organizationBlock, /pages:\[[^\]]*'Invitations'/, "organization workforce navigation must preserve direct invitations");
 assert.match(workspace, /mode="project"/);
 assert.match(workspace, /ProjectFundingWorkspace/);
 console.log("phase 2.27 project workspace checks passed");

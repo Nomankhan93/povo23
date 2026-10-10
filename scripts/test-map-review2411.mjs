@@ -55,8 +55,9 @@ export async function mapReviewStatic(ok){
 
   await ok('2.41.1 UI distinguishes matched totals from loaded evidence and removes the twelve-row review slice',async()=>{
     assert.match(mapUi,/matching evidence/i);
-    assert.match(mapUi,/currently loaded/i);
-    assert.match(mapUi,/Partial map view/i);
+    assert.match(mapUi,/evidence records loaded/i);
+    assert.match(mapUi,/loaded records plottable/i);
+    assert.match(mapUi,/summary totals cover the full authorized filtered result/i);
     assert.match(mapUi,/Load more evidence/);
     assert.doesNotMatch(mapUi,/\.slice\(0,\s*12\)/);
     assert.match(mapUi,/Needs review only/);
@@ -66,7 +67,7 @@ export async function mapReviewStatic(ok){
     assert.match(mapUi,/Basemap unavailable/);
     assert.match(mapUi,/evidence list remains available/i);
     assert.match(mapUi,/map\.on\("error"/);
-    assert.match(mapUi,/field-map-evidence-list/);
+    assert.match(mapUi,/className=\{styles\.evidenceList\} role="list"/);
     assert.match(mapUi,/getClusterExpansionZoom/);
   });
 

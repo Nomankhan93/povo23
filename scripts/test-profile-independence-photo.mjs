@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
+import {getNavigationGroups} from '../src/app/navigation.ts';
 
 let passed=0;
 async function ok(name,fn){await fn();passed++;console.log('PASS '+name)}
@@ -14,8 +15,11 @@ try{
  const app=readFileSync('src/app/AppShell.tsx','utf8');
  const form=readFileSync('src/features/volunteers/ProfileForm.tsx','utf8');
  await ok('profile page keeps work experience and private documents as separate sidebar destinations',async()=>{
-   assert.match(app,/\["Work experience", Users\]/);
-   assert.match(app,/\["Private documents", ShieldCheck\]/);
+   const pages=getNavigationGroups('personal',['My profile','Work experience','Private documents']).flatMap(group=>group.pages);
+   assert.equal(pages.filter(page=>page==='Work experience').length,1);
+   assert.equal(pages.filter(page=>page==='Private documents').length,1);
+   assert.match(app,/page === "Work experience"[^<]+<ExperiencePanel\b/);
+   assert.match(app,/page === "Private documents"[^<]+<Documents\b/);
    const profileBlock=app.slice(app.indexOf('page === "My profile"'),app.indexOf('page === "Volunteers"'));
    assert(!profileBlock.includes('<ExperiencePanel'));
    assert(!profileBlock.includes('<Documents'));

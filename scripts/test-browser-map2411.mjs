@@ -32,7 +32,7 @@ try{
  await page.getByText('Selected source: response-2',{exact:true}).waitFor();
  await page.evaluate(()=>window.mapCalls=[]);
  await page.getByRole('button',{name:'Back to map',exact:true}).click();
- await page.getByText('Evidence 2',{exact:true}).waitFor();
+ await page.locator('[data-selected="true"]').filter({hasText:'Evidence 2'}).waitFor();
  assert.equal(await page.getByRole('combobox',{name:/^Field Worker/}).inputValue(),'alice');
  assert.equal(await page.getByRole('combobox',{name:/^Status/}).inputValue(),'submitted');
  assert.equal(await page.getByLabel('Check-outs',{exact:true}).isChecked(),false);
@@ -45,7 +45,7 @@ try{
  await page.getByRole('button',{name:'Open survey response',exact:true}).first().click();
  await page.evaluate(()=>window.denyMap=true);
  await page.getByRole('button',{name:'Back to map',exact:true}).click();
- await page.getByRole('alert').filter({hasText:'Project field map access required'}).waitFor();
+ await page.getByRole('alert').filter({hasText:'Your access has changed or this action is no longer available'}).waitFor();
  assert.equal(await page.getByRole('listitem').count(),0);
  console.log('PASS Chromium revoked access on return shows error without stale cached evidence');
  await page.evaluate(()=>window.denyMap=false);

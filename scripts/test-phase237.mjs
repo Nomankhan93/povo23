@@ -29,7 +29,7 @@ await ok('assignment conflict summaries preserve cross-organization privacy',asy
   assert.match(migration,/overlapping_commitments/);
   assert.match(migration,/capacity_pct/);
   assert.doesNotMatch(migration,/jsonb_build_object\([^)]*organization_name[^)]*project_title/);
-  assert.match(marketplace,/Privacy: FieldLance does not reveal the names or details of this worker's other organization commitments/);
+  assert.match(marketplace,/Privacy: FieldLance does not reveal the names or details of this worker(?:'|&apos;)s other organization commitments/);
 });
 
 await ok('hard conflicts are enforced below the offer UI',async()=>{

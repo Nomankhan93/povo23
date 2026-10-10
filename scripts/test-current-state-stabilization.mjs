@@ -173,7 +173,7 @@ try {
       'My applications',
       'My assigned surveys',
       '{mode === "personal" ? (',
-      'automatic all-Field-Workers marketplace listing',
+      'Automatic all-Field-Workers listing',
     ]) {
       assert(source.includes(marker), `missing marketplace UI marker: ${marker}`);
     }

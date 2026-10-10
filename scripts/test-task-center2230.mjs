@@ -7,6 +7,7 @@ const migration = read('supabase/migrations/20261009000700_tasks_sla_escalation_
 const taskCenter = read('src/features/operations/TaskCenter.tsx');
 const shell = read('src/app/AppShell.tsx');
 const nav = read('src/app/navigation.ts');
+const capabilityContract = read('src/app/capabilityContract.ts');
 const styles = read('src/styles/design-system.css');
 const types = read('src/lib/supabase/database.types.ts');
 
@@ -83,8 +84,9 @@ await ok('Task Center exposes My, Team, Due Today, Overdue, Escalated and Comple
 });
 
 await ok('Task Center is available in Field Worker, Organization, Staff and Project navigation', async () => {
-  assert.match(shell, /\["Task Center", ClipboardList\]/);
-  assert.ok((shell.match(/\["Task Center", ClipboardList\]/g) || []).length >= 4);
+  assert.match(shell, /if \(\["Task Center", "Survey review"\]\.includes\(page\)\) return ClipboardList/);
+  assert.match(shell, /const nav = authorizedPages\.map\(\(name\) => \[name, navigationIcon\(name\)\] as const\)/);
+  assert.ok((capabilityContract.match(/'Task Center'/g) || []).length >= 4);
   assert.match(shell, /<TaskCenter/);
   assert.match(shell, /mode=\{projectScope \? "project" : organizationWorkspace \? "organization" : poem \? "staff" : "personal"\}/);
   assert.match(nav, /"Task Center": "Tasks"/);

@@ -46,8 +46,8 @@ await ok('rendered navigation has accessible names active indication and notific
  }finally{await server.close()}
 });
 await ok('production sandbox rendering and import are dev-gated; unavailable channels are not shown',()=>{
- const shell=readFileSync('src/app/AppShell.tsx','utf8'),notifications=readFileSync('src/features/notifications/Notifications.tsx','utf8');
- assert.match(shell,/const MockEWalletSandbox = import.meta.env.DEV \? lazy/);assert.match(shell,/name !== "E-Wallet sandbox" \|\| import.meta.env.DEV/);assert.match(shell,/page === "E-Wallet sandbox" && import.meta.env.DEV/);
+ const shell=readFileSync('src/app/AppShell.tsx','utf8'),notifications=readFileSync('src/features/notifications/Notifications.tsx','utf8'),capabilityContract=readFileSync('src/app/capabilityContract.ts','utf8');
+ assert.match(shell,/const MockEWalletSandbox = import\.meta\.env\.DEV \? lazy/);assert.match(shell,/dev: import\.meta\.env\.DEV/);assert.match(capabilityContract,/if \(input\.dev\) pages\.push\('E-Wallet sandbox'\)/);assert.match(shell,/page === "E-Wallet sandbox" && import\.meta\.env\.DEV/);
  assert.doesNotMatch(notifications,/<strong>Email alerts<\/strong>|<strong>Push alerts<\/strong>/);
  assert.match(notifications,/p_email: preferences.email_enabled/);assert.match(notifications,/p_push: preferences.push_enabled/);
 });

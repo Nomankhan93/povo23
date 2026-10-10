@@ -21,8 +21,11 @@ ok('release retains the FieldLance 2.19.6 visual-system contract and dedicated t
 });
 
 ok('approved wordmark is used for full brand surfaces while the supplied FL icon remains the compact identity',()=>{
-  assert.match(brand,/fieldlance-wordmark\.png/);
-  assert.match(brand,/fieldlance-icon\.png/);
+  const wordmark=brand.match(/const wordmark\s*=\s*['"](\/fieldlance-wordmark\.(?:png|webp))['"]/);
+  const icon=brand.match(/const icon\s*=\s*['"](\/fieldlance-icon(?:-\d+)?\.png)['"]/);
+  assert.ok(wordmark,'full brand surface references the FieldLance wordmark');
+  assert.ok(icon,'compact identity references the FieldLance icon');
+  for(const asset of [wordmark[1],icon[1]]) assert.ok(existsSync(`public${asset}`),`brand asset exists: ${asset}`);
   assert.match(brand,/variant='wordmark'/);
   assert.match(brand,/fieldlance-brand-wordmark/);
   assert.match(brand,/fieldlance-brand-compact/);

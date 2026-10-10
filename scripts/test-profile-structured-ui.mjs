@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import ts from "typescript";
+import * as icons from "lucide-react";
 
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 const profile = fs.readFileSync("src/features/volunteers/ProfileForm.tsx", "utf8");
@@ -52,7 +54,14 @@ ok("references are repeatable structured records with bounded JSON compatibility
 ok("work experience reuses the NGO-confirmable workflow from its separate sidebar page", () => {
   const myProfile = shell.slice(shell.indexOf('page === "My profile"'), shell.indexOf('page === "Volunteers"'));
   assert.doesNotMatch(myProfile, /<ExperiencePanel/);
-  assert.match(shell, /\["Work experience", Users\]/);
+  const source = ts.createSourceFile("AppShell.tsx", shell, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const iconFunction = source.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "navigationIcon");
+  assert.ok(iconFunction, "navigation icon resolver exists");
+  const { outputText } = ts.transpileModule(iconFunction.getText(source), { compilerOptions: { target: ts.ScriptTarget.ES2022 } });
+  const iconNames = source.statements.filter(node => ts.isImportDeclaration(node) && node.moduleSpecifier.text === "lucide-react")
+    .flatMap(node => node.importClause.namedBindings.elements.map(binding => binding.name.text));
+  const resolveIcon = new Function(...iconNames, `${outputText}; return navigationIcon;`)(...iconNames.map(name => icons[name]));
+  assert.equal(resolveIcon("Work experience"), icons.Users);
   assert.match(experience, /Choose role/);
   assert.match(experience, /Other role/);
   assert.match(experience, /Work performed/);

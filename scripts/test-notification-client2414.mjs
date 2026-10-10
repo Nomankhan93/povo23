@@ -32,6 +32,7 @@ caseError=new Error('Failed to fetch');await assert.rejects(()=>deniedCase.notif
 console.log('PASS executed notification targets preserve exact IDs and legacy attendance/page links');
 const row={id:'notification1',user_id:'alice',source_kind:'attendance_session',source_ref:'old-session',action_page:'My Attendance',category:'assignment',priority:'normal',created_at:new Date().toISOString(),read_at:null,archived_at:null,title:'Workday reviewed',body:'test'};
 const {Notifications}=load('src/features/notifications/Notifications.tsx',{
+ '../../lib/observability':load('src/lib/observability.ts'),
  '../../lib/supabase/client':{db:null,rpc:async(name,args)=>{calls.push({name,args});return name==='notification_center'?{items:[row],total:1,unread:0}:null;}},
  './notificationAction':action,'lucide-react':icons
 });
@@ -66,7 +67,15 @@ console.log('PASS linked task renders outside the queue, permits filter changes 
 
 const oldSession={id:'old-session',worker_id:'alice',assignment_id:'old-assignment',project_title:'Historic project',organization_name:'NGO',work_date:'2025-01-01',status:'approved',effective_check_in_at:'2025-01-01T08:00:00Z',effective_check_out_at:'2025-01-01T09:00:00Z',duration_minutes:60,check_in_accuracy_m:null,check_out_accuracy_m:null,check_in_latitude:null,check_in_longitude:null,check_out_latitude:null,check_out_longitude:null};
 const attendanceCalls=[];
+const focusManagement=load('src/components/system/focusManagement.ts');
+const fieldLanceUI=load('src/components/ui/FieldLanceUI.tsx',{
+ '../system/focusManagement':focusManagement,
+ './ActionDialog':load('src/components/ui/ActionDialog.tsx',{'../system/focusManagement':focusManagement}),
+ 'lucide-react':icons,
+});
 const {AttendanceWorkspace}=load('src/features/workforce/AttendanceWorkspace.tsx',{
+ '../../components/ui/FieldLanceUI':fieldLanceUI,
+ './AttendanceWorkspace.module.css':{__esModule:true,default:new Proxy({},{get:(_,name)=>String(name)})},
  '../../lib/supabase/client':{db:{from:()=>({select(){return this},eq(){return this},order(){return this},limit:async()=>({data:[],error:null})})},rpc:async(name)=>{attendanceCalls.push(name);return name==='attendance_session_detail'?oldSession:{rows:[],count:0,summary:{},page:0};}},
  '../../shared/ui/FormFields':{Badge:Null,human:s=>s},'lucide-react':icons,
  './attendanceOfflineStore':{pendingAttendance:async()=>[]},'./attendanceDownload':{readAttendanceDownload:async()=>null}

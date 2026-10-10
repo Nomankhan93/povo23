@@ -28,7 +28,7 @@ await ok('2.20.0 Field Worker Workspace regression contract remains available', 
 });
 
 await ok('personal Overview uses the dedicated Field Worker dashboard alongside dedicated Organization and Staff homes', async () => {
-  assert.match(shell, /import \{ FieldWorkerDashboard \}/);
+  assert.match(shell, /(?:from\s*|import\s*\(\s*)["']\.\.\/features\/workforce\/FieldWorkerDashboard["']/);
   assert.match(shell, /personalWorkspace \? \(/);
   assert.match(shell, /<FieldWorkerDashboard/);
   assert.match(shell, /<FieldLanceStaffDashboard/);

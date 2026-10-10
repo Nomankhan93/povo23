@@ -1,3 +1,17 @@
+# Current release checklist — FieldLance 2.42.6
+
+- [ ] Installer `--check` passes against the exact 2.42.5 baseline.
+- [ ] `npm run test:field-operations-map-2426` passes.
+- [ ] Existing field-map/map-review regressions pass with PGlite dependencies available.
+- [ ] Browser Map regression passes where Vite/Playwright are available, or any historical harness block is recorded separately.
+- [ ] Project Workspace, UI foundation, mobile-production and accessibility targeted regressions pass.
+- [ ] `npm run release:consistency`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Personal own-only, Area Focal geography scope and `source_openable` behavior remain server-authoritative.
+- [ ] No continuous/background location tracking exists.
+- [ ] Full matched totals remain server totals and keyset Load more remains intact.
+- [ ] Basemap failure leaves the evidence review list usable.
+- [ ] Migration count remains 87 with head `20261013000580_project_lifecycle_e2e_integrity.sql`; no Supabase push is required.
+
 # Current release checklist — FieldLance 2.42.5
 
 Attendance + Timesheets UX. No database migration.

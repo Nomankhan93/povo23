@@ -29,7 +29,7 @@ await ok('2.22.0 FieldLance Staff Operations regression contract is active', asy
 });
 
 await ok('Staff Overview uses a dedicated dashboard while Field Worker and Organization homes remain intact', async () => {
-  assert.match(shell, /import \{ FieldLanceStaffDashboard \}/);
+  assert.match(shell, /const FieldLanceStaffDashboard = lazy\(\(\) => import\("\.\.\/features\/operations\/FieldLanceStaffDashboard"\)/);
   assert.match(shell, /<FieldWorkerDashboard/);
   assert.match(shell, /<OrganizationDashboard/);
   assert.match(shell, /<FieldLanceStaffDashboard/);

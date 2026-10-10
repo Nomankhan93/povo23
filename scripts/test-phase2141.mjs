@@ -21,7 +21,9 @@ await ok('NGO workspace exposes project-team management while project workspace 
  assert.match(app,/canManageTeam=\{true\}/);
  assert.match(app,/page === "Project workspace"/);
  assert.match(app,/canManageTeam=\{canManageWorkspaceTeam\}/);
- assert.match(app,/workspaceTeamPermission\(surveyManage, ownsWorkspaceProject\)/);
+ assert.match(app,/getCapabilityContract\(\{/);
+ assert.match(app,/manageWorkspaceTeam: canManageWorkspaceTeam/);
+ assert.match(app,/canManageTeam=\{canManageWorkspaceTeam\}/);
  assert.equal(workspaceTeamPermission(false,false),false,'Project staff alone cannot manage team');
  assert.equal(workspaceTeamPermission(true,false),true,'Authorized staff can manage team');
  assert.equal(workspaceTeamPermission(false,true),true,'Owning organization admin can manage team');

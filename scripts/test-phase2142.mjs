@@ -37,7 +37,9 @@ await ok('response queue supports server-side status filtering without widening 
  assert.match(detail,/No responses match this filter in your current scope/);
 });
 await ok('focal review UI is separated from assignment-management controls',async()=>{
- assert.match(app,/projectScopeAssignment\?\.role === "project_manager"/);
+ assert.match(app,/projectRole:\s*projectScopeAssignment\?\.role/);
+assert.match(app,/manageWorkspaceProject:\s*canManageWorkspaceProject/);
+assert.match(app,/canManageRecruitment=\{canManageWorkspaceProject\}/);
  assert.match(app,/manageAssignments=\{canManageProjectAssignments\}/);
  assert.match(detail,/\{showFieldWork && manageAssignments && project\.moderation_status === "allowed" && \(/);
  assert.doesNotMatch(detail,/\{review && \(\s*<details className="survey-question">/);

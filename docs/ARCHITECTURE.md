@@ -1,4 +1,8 @@
-# Current architecture note — FieldLance 2.42.5
+# Current architecture note — FieldLance 2.42.6
+
+2.42.6 extends the feature-local presentation architecture to the Field Operations Map. `FieldOperationsMap.module.css` owns map/filter/list/detail responsive structure while shared 2.42 primitives/tokens own controls, cards, metrics, status and overlay behavior. `field_operations_map_page`, `fieldMapViewState.ts`, source routing, MapLibre/OpenFreeMap, authorization and all migrations remain authoritative and unchanged.
+
+# Historical architecture note — FieldLance 2.42.5
 
 2.42.5 extends the feature-local presentation architecture to Attendance and Timesheets. `AttendanceWorkspace.module.css` owns attendance layout/responsive structure while shared 2.42.0 primitives/tokens own controls, cards, status, alerts, metrics, tables and the focus-managed review Drawer. `attendanceOfflineStore.ts`, `attendanceDownload.ts`, routes/capabilities, guarded attendance RPCs, payables and all migrations remain unchanged.
 
@@ -551,3 +555,7 @@ The review list and markers use the same returned page, while summary counters d
 ## FieldLance 2.41.17 mobile production boundary
 
 The Field Worker client remains the same responsive web/PWA application. `viewport-fit=cover` activates CSS safe-area insets for notched/home-indicator devices; no native Android/iOS client or background tracking service is introduced. Production acceptance composes existing browser suites and a deployed-shell check, while physical permission/offline/keyboard behavior remains a post-deployment browser gate.
+
+## FieldLance 2.42.6 Field Operations Map presentation boundary
+
+The Field Operations Map continues to use `field_operations_map_page` as the authoritative server-filtered/keyset-paginated evidence contract and MapLibre/OpenFreeMap only as a renderer. The 2.42.6 UI adds synchronized map/list/selected-detail presentation and mobile filter/detail overlays without persisting evidence payloads in session state. `fieldMapViewState.ts` remains transient-only, source navigation remains gated by `source_openable`, and renderer failure leaves the authorized evidence records usable. No continuous/background geolocation, authorization, RPC, RLS or schema change is introduced.

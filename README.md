@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.5
+# Current release: FieldLance 2.42.6
+
+Field Operations Map UX. Permission-scoped field evidence now uses an operational map + selected-evidence review workspace, clearer server-backed filters/full-result summaries, synchronized map/list/detail selection, mobile filter/detail BottomSheets and scoped 2.42 Map presentation. Map authorization, explicit-only location evidence, `source_openable`, keyset pagination, MapLibre/OpenFreeMap and all database contracts remain unchanged. See docs/PHASE-2.42.6.md, docs/UPGRADE-2.42.6.md and docs/VALIDATION-2.42.6.md.
+
+# Previous release: FieldLance 2.42.5
 
 Attendance + Timesheets UX. Field Worker Attendance now prioritizes field readiness, the current assignment/status and one explicit check-in/check-out action; My Timesheets separates historical workday summary/filtering from live attendance; and authorized project review uses a focused evidence/review drawer. Existing attendance RPCs, exact deep links, encrypted offline queue/download behavior, payables, routes, capabilities and database migrations remain unchanged. See docs/PHASE-2.42.5.md, docs/UPGRADE-2.42.5.md and docs/VALIDATION-2.42.5.md.
 

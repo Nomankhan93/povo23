@@ -28,7 +28,8 @@ await ok('application review and formal offers use project-management authority'
 
 await ok('worker acceptance atomically activates the collection assignment',async()=>{
   assert.match(recruitment,/respond_work_assignment[\s\S]*status='active'[\s\S]*insert into public\.survey_assignments\(project_id,user_id,active\)/);
-  assert.match(workforce,/Accept to activate this assignment and its survey access/);
+  assert.match(workforce,/Accepting activates the assignment under the existing rules/);
+  assert.match(workforce,/Survey access is active only while the assignment and project are eligible/);
 });
 
 await ok('collection requires accepted contract, active survey assignment and current project dates',async()=>{

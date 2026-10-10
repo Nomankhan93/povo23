@@ -30,7 +30,8 @@ function capabilities(platformRole, overrides = {}) {
 }
 
 await ok('2.41.14 release and targeted test are registered', async () => {
-  assert.match(pkg.version, /^(?:2\.41\.(?:1[4-9]|[2-9]\d)|2\.42\.[0-4])$/);
+  const [major, minor, patch] = pkg.version.split('-')[0].split('.').map(Number);
+  assert.ok(major > 2 || (major === 2 && (minor > 41 || (minor === 41 && patch >= 14))), `Expected FieldLance >= 2.41.14, received ${pkg.version}`);
   assert.equal(pkg.scripts['test:navigation-capability-24114'], 'node --experimental-strip-types scripts/test-navigation-capability24114.mjs');
 });
 

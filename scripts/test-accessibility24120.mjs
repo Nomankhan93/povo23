@@ -20,7 +20,7 @@ let passed=0;
 const ok=(name,fn)=>{fn();passed++;console.log('PASS '+name)};
 
 ok('2.41.20 release and targeted accessibility command are registered',()=>{
-  assert.ok(['2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4','2.42.5'].includes(pkg.version));
+  assert.ok(['2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4','2.42.5','2.42.6'].includes(pkg.version));
   assert.equal(pkg.scripts['test:accessibility-24120'],'node scripts/test-accessibility24120.mjs');
 });
 

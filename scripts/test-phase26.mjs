@@ -46,7 +46,9 @@ ok("server conflicts are held for human attention, not silently overwritten", ()
 ok("form restores and autosaves encrypted device drafts", () => {
   assert.match(form, /loadSurveyDeviceDraft/);
   assert.match(form, /saveSurveyDeviceDraft/);
-  assert.match(form, /An encrypted device draft was restored/);
+  assert.match(form, /setRestored\(true\)/);
+  assert.match(form, /Encrypted device draft restored/);
+  assert.match(form, /protected local draft was restored after this form was reopened/i);
 });
 ok("workspace exposes persistent survey sync status", () => {
   assert.match(shell, /SurveySyncStatus/);
