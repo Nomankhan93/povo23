@@ -20,7 +20,7 @@ const protectedHashes = {
   'src/app/routes.ts': 'b54c0da60b4acb4f7f1b84cb8a9b2d090583e790435402632b6a9c5b34c87879',
   'src/app/capabilityContract.ts': '05ac924820b40484141eb6915f9e9f42de17e93175c279463e531a33e5ba2d62',
   'src/app/navigation.ts': '675b6634c864237aa97ed2726de2c0586f0757aa6a8c75ba6351a03166aae132',
-  'src/app/AppShell.tsx': '428e73f7de2df65b423c9acc819ad2237d048396be292557aec048cfd1b89397',
+  'src/app/AppShell.tsx': 'ddbcb177ef0aaad4b103a1010640aaa6fc0393189ed4141da48662c46a977f46',
   'src/features/projects/ProjectWorkspace.tsx': 'f1edb171031d1d2e2d1f5c240470914384e0731ba317fbbe586f8ceaf9dbfdd8',
   'src/lib/supabase/client.ts': '1105a65770beb2f4cc954c09ae901707859c16389d21872f2adb41208a4fa6cc',
   'src/lib/supabase/database.types.ts': 'e29703de0d84d0335ca185a20e155ff1d96d2558ac7e7a8e413b9c36c29a3761',
@@ -35,7 +35,7 @@ function migrationAggregate() {
 }
 
 await ok('package and lockfile remain compatible with the 2.42.9 Cases contract', async () => {
-  assert.ok(['2.42.9','2.42.10'].includes(pkg.version));
+  assert.ok(['2.42.9','2.42.10','2.42.11'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });

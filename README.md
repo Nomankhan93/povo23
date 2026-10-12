@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.10
+# Current release: FieldLance 2.42.11
+
+Dashboards + Dialogs / Tables / Forms Consistency. Field Worker, Organization and Staff dashboards now use the shared 2.42 metric/status/alert system with scoped responsive styling; Reports, Geography, Organization application review, Volunteer Directory and Memberships use shared desktop/mobile records and touched-form primitives; selected confirmations capture their action context; and ActionDialog presentation is aligned to current tokens and target sizes. Backend workflows, routes, capabilities, RLS, RPCs and migrations remain unchanged. See docs/PHASE-2.42.11.md, docs/UPGRADE-2.42.11.md and docs/VALIDATION-2.42.11.md.
+
+# Previous release: FieldLance 2.42.10
 
 Offline / Mobile Field Workspace UX. Field work now separates Surveys, Attendance and Device operations, presents downloaded survey projects in desktop/mobile 2.42 patterns, centralizes encrypted device inventory/cleanup, and replaces Offline Field browser confirmations with accessible shared dialogs including typed ERASE. Survey/attendance stores, request identity, recovery rules, service worker, routes, capabilities, RPCs, RLS and migrations remain unchanged. See docs/PHASE-2.42.10.md, docs/UPGRADE-2.42.10.md and docs/VALIDATION-2.42.10.md.
 

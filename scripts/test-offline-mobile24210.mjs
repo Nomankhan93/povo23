@@ -15,6 +15,7 @@ const shell=read('src/features/surveys/OfflineShellStatus.tsx');
 const offlineCss=read('src/features/surveys/OfflineFieldWorkspace.module.css');
 const syncCss=read('src/features/surveys/SurveySyncStatus.module.css');
 const permissions=read('docs/PERMISSIONS.md');
+const appShell=read('src/app/AppShell.tsx');
 const attendanceClient=read('scripts/test-attendance-client2401.mjs');
 const migrations=readdirSync('supabase/migrations').filter(name=>name.endsWith('.sql')).sort();
 
@@ -33,21 +34,21 @@ const protectedHashes={
   'src/app/routes.ts':'b54c0da60b4acb4f7f1b84cb8a9b2d090583e790435402632b6a9c5b34c87879',
   'src/app/capabilityContract.ts':'05ac924820b40484141eb6915f9e9f42de17e93175c279463e531a33e5ba2d62',
   'src/app/navigation.ts':'675b6634c864237aa97ed2726de2c0586f0757aa6a8c75ba6351a03166aae132',
-  'src/app/AppShell.tsx':'428e73f7de2df65b423c9acc819ad2237d048396be292557aec048cfd1b89397',
   'src/lib/supabase/client.ts':'1105a65770beb2f4cc954c09ae901707859c16389d21872f2adb41208a4fa6cc',
   'src/lib/supabase/database.types.ts':'e29703de0d84d0335ca185a20e155ff1d96d2558ac7e7a8e413b9c36c29a3761',
 };
 
 function migrationAggregate(){const digest=createHash('sha256');for(const name of migrations){digest.update(name);digest.update('\0');digest.update(readFileSync(`supabase/migrations/${name}`));digest.update('\0');}return digest.digest('hex');}
 
-await ok('package and lockfile are FieldLance 2.42.10',async()=>{
-  assert.equal(pkg.version,'2.42.10');assert.equal(lock.version,'2.42.10');assert.equal(lock.packages?.['']?.version,'2.42.10');
+await ok('2.42.10 Offline / Mobile contract remains active in later UI releases',async()=>{
+  assert.ok(['2.42.10','2.42.11'].includes(pkg.version));assert.equal(lock.version,pkg.version);assert.equal(lock.packages?.['']?.version,pkg.version);
 });
 await ok('database migration inventory is unchanged',async()=>{
   assert.equal(migrations.length,87);assert.equal(migrations.at(-1),'20261013000580_project_lifecycle_e2e_integrity.sql');assert.equal(migrationAggregate(),'a652ce1f61f4e8f3f63b5be83599b36ed716c05c6bcaea811454368af0e80f16');
 });
 await ok('offline stores, SurveyForm, Attendance and routing/security integration remain byte-identical',async()=>{
   for(const [path,expected] of Object.entries(protectedHashes))assert.equal(hash(path),expected,`${path} changed unexpectedly`);
+  assert.match(appShell,/deviceInventory\(session\.user\.id\)/);assert.match(appShell,/onClick=\{\(\)=>void requestAuthoringNavigation\(\)\.then\(leave=>\{if\(leave\)openField\(\)\}\)\}/);
 });
 await ok('Offline Field separates Surveys, Attendance and Device without inventing offline capabilities',async()=>{
   assert.match(offline,/type View='surveys'\|'attendance'\|'device'/);
@@ -93,7 +94,7 @@ await ok('Offline Field and Survey Sync CSS use 2.42 tokens, approved breakpoint
   assert.match(offlineCss,/@media \(max-width: 1023px\)/);
 });
 await ok('2.42.10 permissions note preserves owner-bound offline scope and denies new background/case/finance authority',async()=>{
-  assert.match(permissions,/Current permissions note — FieldLance 2\.42\.10/);assert.match(permissions,/owner-bound/i);assert.match(permissions,/server RLS\/RPC authorization remains authoritative/i);assert.match(permissions,/does not add offline case operations, finance authority, basemap access, background tracking or background synchronization/i);assert.match(permissions,/server records remain unchanged/i);
+  assert.match(permissions,/Historical permissions note — FieldLance 2\.42\.10/);assert.match(permissions,/owner-bound/i);assert.match(permissions,/server RLS\/RPC authorization remains authoritative/i);assert.match(permissions,/does not add offline case operations, finance authority, basemap access, background tracking or background synchronization/i);assert.match(permissions,/server records remain unchanged/i);
 });
 
 console.log(`\n${passed} FieldLance 2.42.10 Offline / Mobile Field Workspace scenarios passed.`);

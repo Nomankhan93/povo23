@@ -3,6 +3,8 @@ import { rpc } from "../../lib/supabase/client";
 import { type Database } from "../../lib/supabase/database.types";
 import { geographyPath, type Geo } from "../geography/model";
 import { InviteVolunteer } from "../workforce/InviteVolunteer";
+import { Alert, Button, DataTable, Field, FieldGroup, FormActions, MobileRecordCard, Select, StatusBadge, Textarea, type SemanticTone } from "../../components/ui/FieldLanceUI";
+import styles from "./Directory.module.css";
 export type Profile = Database["public"]["Tables"]["volunteer_profiles"]["Row"];
 export type DirectoryRow = Profile & {
   shortlist_status: string | null;
@@ -107,320 +109,46 @@ export function Directory({
       setSaving(false);
     }
   }
+  const statusTone = (status: string): SemanticTone => status === "verified" ? "success" : status === "pending" || status === "correction_required" ? "warning" : status === "suspended" ? "danger" : "neutral";
+  const location = (p: DirectoryRow) => geographyPath(p.geography_id, geographies).map(g => g.name).join(" / ") || (p.details as Record<string, string>).area || "—";
+  const clearFilters = () => {
+    const empty = { query: "", geography: "", skill: "", language: "", availability: "", status: reviewQueue ? "pending" : "", shortlist: "" };
+    setFilters(empty); setApplied(empty); setPage(0); onSelect(null);
+  };
   return (
-    <section className="panel detail">
+    <section className={`panel detail ${styles.root}`}>
       <div className="panel-title">
-        <h2>
-          {reviewQueue ? "Pending profile reviews" : "Volunteer directory"}
-        </h2>
-        <button
-          className="secondary"
-          disabled={busy}
-          onClick={() => {
-            onSelect(null);
-            setRefresh((n) => n + 1);
-          }}
-        >
-          Refresh
-        </button>
+        <h2>{reviewQueue ? "Pending profile reviews" : "Volunteer directory"}</h2>
+        <Button disabled={busy} onClick={() => { onSelect(null); setRefresh(n => n + 1); }}>Refresh</Button>
       </div>
-      <p>
-        {organization
-          ? "Only volunteers currently sharing with this NGO appear here. Selection does not create a contract or assignment."
-          : "Search the authorized FieldLance volunteer network."}
-      </p>
-      <form onSubmit={apply}>
-        <div className="form-grid">
-          {[
-            ["query", "Name"],
-            ["skill", "Skill contains"],
-            ["language", "Language contains"],
-          ].map(([key, label]) => (
-            <label className="field" key={key}>
-              {label}
-              <input
-                maxLength={100}
-                value={filters[key as keyof typeof filters]}
-                onChange={(e) =>
-                  setFilters({ ...filters, [key]: e.target.value })
-                }
-              />
-            </label>
-          ))}
-          <label className="field">
-            Geography (includes descendants)
-            <select
-              value={filters.geography}
-              onChange={(e) =>
-                setFilters({ ...filters, geography: e.target.value })
-              }
-            >
-              <option value="">All areas</option>
-              {geographies.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {geographyPath(g.id, geographies)
-                    .map((a) => a.name)
-                    .join(" / ")}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            Availability
-            <select
-              value={filters.availability}
-              onChange={(e) =>
-                setFilters({ ...filters, availability: e.target.value })
-              }
-            >
-              {["", "Part-time", "Full-time", "Weekends", "Unavailable"].map(
-                (s) => (
-                  <option key={s} value={s}>
-                    {s || "Any availability"}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
-          {!reviewQueue && (
-            <label className="field">
-              Verification
-              <select
-                value={filters.status}
-                onChange={(e) =>
-                  setFilters({ ...filters, status: e.target.value })
-                }
-              >
-                {[
-                  "",
-                  "draft",
-                  "pending",
-                  "verified",
-                  "correction_required",
-                  "suspended",
-                ].map((s) => (
-                  <option key={s} value={s}>
-                    {s === "verified" ? "Active profile" : human(s) || "All statuses"}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          {organization && (
-            <label className="field">
-              Shortlist
-              <select
-                value={filters.shortlist}
-                onChange={(e) =>
-                  setFilters({ ...filters, shortlist: e.target.value })
-                }
-              >
-                {[
-                  "",
-                  "any",
-                  "shortlisted",
-                  "considering",
-                  "selected",
-                  "not_selected",
-                ].map((s) => (
-                  <option key={s} value={s}>
-                    {s === "any"
-                      ? "Any shortlisted profile"
-                      : human(s) || "All shared profiles"}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-        <div className="actions">
-          <button
-            className="secondary"
-            type="button"
-            onClick={() => {
-              const empty = {
-                query: "",
-                geography: "",
-                skill: "",
-                language: "",
-                availability: "",
-                status: reviewQueue ? "pending" : "",
-                shortlist: "",
-              };
-              setFilters(empty);
-              setApplied(empty);
-              setPage(0);
-              onSelect(null);
-            }}
-          >
-            Clear filters
-          </button>
-          <button className="primary" disabled={busy}>
-            Apply filters
-          </button>
-        </div>
+      <p>{organization ? "Only volunteers currently sharing with this NGO appear here. Selection does not create a contract or assignment." : "Search the authorized FieldLance volunteer network."}</p>
+      <form onSubmit={apply} className={styles.filters}>
+        <FieldGroup columns={2}>
+          <Field label="Name"><input maxLength={100} value={filters.query} onChange={e => setFilters({ ...filters, query: e.target.value })} /></Field>
+          <Field label="Skill contains"><input maxLength={100} value={filters.skill} onChange={e => setFilters({ ...filters, skill: e.target.value })} /></Field>
+          <Field label="Language contains"><input maxLength={100} value={filters.language} onChange={e => setFilters({ ...filters, language: e.target.value })} /></Field>
+          <Select label="Geography (includes descendants)" value={filters.geography} onChange={e => setFilters({ ...filters, geography: e.target.value })} options={[{ value: "", label: "All areas" }, ...geographies.map(g => ({ value: g.id, label: geographyPath(g.id, geographies).map(a => a.name).join(" / ") }))]} />
+          <Select label="Availability" value={filters.availability} onChange={e => setFilters({ ...filters, availability: e.target.value })} options={["", "Part-time", "Full-time", "Weekends", "Unavailable"].map(value => ({ value, label: value || "Any availability" }))} />
+          {!reviewQueue && <Select label="Verification" value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })} options={["", "draft", "pending", "verified", "correction_required", "suspended"].map(value => ({ value, label: value === "verified" ? "Active profile" : human(value) || "All statuses" }))} />}
+          {organization && <Select label="Shortlist" value={filters.shortlist} onChange={e => setFilters({ ...filters, shortlist: e.target.value })} options={["", "any", "shortlisted", "considering", "selected", "not_selected"].map(value => ({ value, label: value === "any" ? "Any shortlisted profile" : human(value) || "All shared profiles" }))} />}
+        </FieldGroup>
+        <FormActions><Button type="button" onClick={clearFilters}>Clear filters</Button><Button variant="primary" disabled={busy}>Apply filters</Button></FormActions>
       </form>
-      {error && (
-        <p className="notice error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="danger" title="Volunteer directory unavailable">{error}</Alert>}
       {busy && <p role="status">Loading volunteers…</p>}
-      {data && (
-        <>
-          <p role="status">
-            {data.total} matching profiles · page {page + 1} of{" "}
-            {Math.max(1, Math.ceil(data.total / 50))}
-          </p>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Volunteer</th>
-                  <th>Location</th>
-                  <th>Skills / languages</th>
-                  <th>Status</th>
-                  {organization && <th>Selection</th>}
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.rows.map((p) => {
-                  const d = p.details as Record<string, string>;
-                  return (
-                    <tr key={p.user_id}>
-                      <td>
-                        <strong>{d.full_name || "Unnamed volunteer"}</strong>
-                        <p>{d.availability || "Not specified"}</p>
-                      </td>
-                      <td>
-                        {geographyPath(p.geography_id, geographies)
-                          .map((g) => g.name)
-                          .join(" / ") ||
-                          d.area ||
-                          "—"}
-                      </td>
-                      <td>
-                        {d.skills || "—"}
-                        <p>{d.languages || "—"}</p>
-                      </td>
-                      <td>
-                        <span className={"badge " + p.status}>
-                          {p.status === "verified" ? "active" : human(p.status)}
-                        </span>
-                      </td>
-                      {organization && (
-                        <td>
-                          {human(p.shortlist_status || "Not shortlisted")}
-                        </td>
-                      )}
-                      <td>
-                        <button className="link" onClick={() => onSelect(p)}>
-                          View profile
-                        </button>
-                        {organization && (
-                          <button
-                            className="link"
-                            onClick={() => setEditing(p)}
-                          >
-                            Manage shortlist
-                          </button>
-                        )}
-                        {organization &&
-                          p.shortlist_status &&
-                          p.shortlist_status !== "not_selected" && (
-                            <InviteVolunteer
-                              organization={organization}
-                              userId={p.user_id}
-                              name={d.full_name || "Volunteer"}
-                            />
-                          )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {!data.rows.length && (
-            <p className="empty">
-              No matching profiles. Change filters or return to the first page.
-            </p>
-          )}
-          <div className="actions">
-            <button
-              className="secondary"
-              disabled={page === 0 || busy}
-              onClick={() => {
-                onSelect(null);
-                setPage((p) => p - 1);
-              }}
-            >
-              Previous 50
-            </button>
-            <button
-              className="secondary"
-              disabled={(page + 1) * 50 >= data.total || busy}
-              onClick={() => {
-                onSelect(null);
-                setPage((p) => p + 1);
-              }}
-            >
-              Next 50
-            </button>
-          </div>
-        </>
-      )}
-      {editing && (
-        <form
-          className="review"
-          key={editing.user_id + String(editing.shortlist_version)}
-          onSubmit={shortlist}
-        >
-          <h3>NGO shortlist decision</h3>
-          <p>
-            {(editing.details as Record<string, string>).full_name}. Notes are
-            private to this NGO's authorized admins.
-          </p>
-          <label className="field">
-            Status
-            <select
-              name="status"
-              defaultValue={editing.shortlist_status || "shortlisted"}
-            >
-              {[
-                "shortlisted",
-                "considering",
-                "selected",
-                "not_selected",
-                "remove",
-              ].map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            Internal selection note
-            <textarea
-              name="note"
-              defaultValue={editing.shortlist_note || ""}
-              maxLength={2000}
-            />
-          </label>
-          <div className="actions">
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setEditing(null)}
-            >
-              Cancel
-            </button>
-            <button className="primary" disabled={saving}>
-              {saving ? "Saving…" : "Save decision"}
-            </button>
-          </div>
-        </form>
-      )}
+      {data && <>
+        <p role="status">{data.total} matching profiles · page {page + 1} of {Math.max(1, Math.ceil(data.total / 50))}</p>
+        <div className={styles.desktopRecords}><DataTable caption="Authorized volunteer profiles"><thead><tr><th>Volunteer</th><th>Location</th><th>Skills / languages</th><th>Status</th>{organization && <th>Selection</th>}<th>Actions</th></tr></thead><tbody>{data.rows.map(p => { const d = p.details as Record<string, string>; return <tr key={p.user_id}><td><strong>{d.full_name || "Unnamed volunteer"}</strong><p>{d.availability || "Not specified"}</p></td><td>{location(p)}</td><td>{d.skills || "—"}<p>{d.languages || "—"}</p></td><td><StatusBadge tone={statusTone(p.status)}>{p.status === "verified" ? "active" : human(p.status)}</StatusBadge></td>{organization && <td>{human(p.shortlist_status || "Not shortlisted")}</td>}<td><div className={styles.rowActions}><Button variant="tertiary" onClick={() => onSelect(p)}>View profile</Button>{organization && <Button variant="tertiary" onClick={() => setEditing(p)}>Manage shortlist</Button>}{organization && p.shortlist_status && p.shortlist_status !== "not_selected" && <InviteVolunteer organization={organization} userId={p.user_id} name={d.full_name || "Volunteer"} />}</div></td></tr>; })}</tbody></DataTable></div>
+        <div className={styles.mobileRecords}>{data.rows.map(p => { const d = p.details as Record<string, string>; return <MobileRecordCard key={p.user_id} title={d.full_name || "Unnamed volunteer"} status={<StatusBadge tone={statusTone(p.status)}>{p.status === "verified" ? "active" : human(p.status)}</StatusBadge>} meta={d.availability || "Availability not specified"} rows={[{ label: "Location", value: location(p) }, { label: "Skills", value: d.skills || "—" }, { label: "Languages", value: d.languages || "—" }, ...(organization ? [{ label: "Selection", value: human(p.shortlist_status || "Not shortlisted") }] : [])]} action={<div className={styles.rowActions}><Button onClick={() => onSelect(p)}>View profile</Button>{organization && <Button onClick={() => setEditing(p)}>Manage shortlist</Button>}{organization && p.shortlist_status && p.shortlist_status !== "not_selected" && <InviteVolunteer organization={organization} userId={p.user_id} name={d.full_name || "Volunteer"} />}</div>} />; })}</div>
+        {!data.rows.length && <p className="empty">No matching profiles. Change filters or return to the first page.</p>}
+        <div className={styles.pagination}><Button disabled={page === 0 || busy} onClick={() => { onSelect(null); setPage(p => p - 1); }}>Previous 50</Button><Button disabled={(page + 1) * 50 >= data.total || busy} onClick={() => { onSelect(null); setPage(p => p + 1); }}>Next 50</Button></div>
+      </>}
+      {editing && <form className={`review ${styles.shortlistForm}`} key={editing.user_id + String(editing.shortlist_version)} onSubmit={shortlist}>
+        <h3>NGO shortlist decision</h3><p>{(editing.details as Record<string, string>).full_name}. Notes are private to this NGO's authorized admins.</p>
+        <Select label="Status" name="status" defaultValue={editing.shortlist_status || "shortlisted"} options={["shortlisted", "considering", "selected", "not_selected", "remove"].map(value => ({ value, label: human(value) }))} />
+        <Textarea label="Internal selection note" name="note" defaultValue={editing.shortlist_note || ""} maxLength={2000} />
+        <FormActions><Button type="button" onClick={() => setEditing(null)}>Cancel</Button><Button variant="primary" disabled={saving}>{saving ? "Saving…" : "Save decision"}</Button></FormActions>
+      </form>}
     </section>
   );
 }

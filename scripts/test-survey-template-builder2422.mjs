@@ -16,7 +16,7 @@ async function ok(name, fn) {
 
 await ok('2.42.2 is presentation-only and adds no database migration', async () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.ok(['2.42.2','2.42.3','2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10'].includes(pkg.version));
+  assert.ok(['2.42.2','2.42.3','2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
   assert.equal(pkg.scripts['test:survey-template-builder-2422'], 'node --experimental-strip-types scripts/test-survey-template-builder2422.mjs');
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
   assert.equal(migrations.length, 87);

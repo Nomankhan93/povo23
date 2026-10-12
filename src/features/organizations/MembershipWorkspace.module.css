@@ -1,0 +1,2 @@
+.desktopRecords{display:block}.mobileRecords{display:none}.mobileRecords>article{margin-top:10px}
+@media(max-width:639px){.desktopRecords{display:none}.mobileRecords{display:grid;gap:10px}.mobileRecords button{min-height:48px}}

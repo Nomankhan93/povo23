@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.10
+# Current validation — FieldLance 2.42.11
+
+See [VALIDATION-2.42.11.md](VALIDATION-2.42.11.md) for the dedicated dashboard/table/form/dialog consistency contract, targeted workspace/analytics/identity/accessibility/mobile regressions, TypeScript/build gates and final preflight guidance.
+
+# Historical validation — FieldLance 2.42.10
 
 See [VALIDATION-2.42.10.md](VALIDATION-2.42.10.md) for the dedicated Offline / Mobile Field contract, device/sync/mobile regressions, TypeScript/build gates and final preflight guidance.
 

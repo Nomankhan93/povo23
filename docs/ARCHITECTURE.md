@@ -1,4 +1,10 @@
-# Current architecture note — FieldLance 2.42.10
+# Current architecture note — FieldLance 2.42.11
+
+2.42.11 extends the feature-local 2.42 presentation architecture to the three role dashboards and the remaining audited operational record surfaces. Dashboard CSS is scoped per feature, shared `MetricCard`/`StatusBadge`/`Alert` primitives own repeated presentation, and Reports/Geography/Organization review/Volunteer Directory/Memberships use shared desktop `DataTable` plus mobile `MobileRecordCard` patterns. Only forms adjacent to those surfaces are migrated.
+
+`ActionDialog` keeps its behavioral API and focus contract while its presentation moves to the current token/target-size contract. Organization-review and membership confirmations capture the selected entity/action payload before confirmation. Existing data sources, pagination, RPC argument shapes, routes, capability rules and backend authorization remain authoritative.
+
+# Historical architecture note — FieldLance 2.42.10
 
 2.42.10 extends the feature-local 2.42 presentation architecture to Offline / Mobile Field. `OfflineFieldWorkspace.module.css` and `SurveySyncStatus.module.css` own field-workspace layout while shared 2.42 primitives own tabs, metrics, tables/mobile records, statuses, alerts, buttons and dialogs. SurveyForm and AttendanceWorkspace remain separate existing feature workspaces and are embedded without redesign.
 

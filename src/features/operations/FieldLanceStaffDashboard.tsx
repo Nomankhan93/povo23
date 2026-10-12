@@ -22,6 +22,8 @@ import {
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
 import { human } from "../../shared/ui/FormFields";
+import { Alert, MetricCard, StatusBadge, type SemanticTone } from "../../components/ui/FieldLanceUI";
+import styles from "./FieldLanceStaffDashboard.module.css";
 
 type Tables = Database["public"]["Tables"];
 type Organization = Tables["organizations"]["Row"];
@@ -57,16 +59,14 @@ const dateLabel = (value: string | null | undefined) => value
   : "—";
 
 function Metric({ icon, label, value, detail, onClick }: { icon: ReactNode; label: string; value: string | number; detail: string; onClick:()=>void }) {
-  return <button type="button" className="staff-ops-metric" onClick={onClick}><span className="staff-ops-metric-icon">{icon}</span><div><small>{label}</small><strong>{value}</strong><p>{detail}</p></div></button>;
+  return <MetricCard className="staff-ops-metric" icon={icon} label={label} value={value} detail={detail} onClick={onClick} />;
 }
 
 function State({ value }: { value: string }) {
-  const tone = ["active", "approved", "verified", "completed", "succeeded", "recorded"].includes(value)
+  const tone: SemanticTone = ["active", "approved", "verified", "completed", "succeeded", "recorded"].includes(value)
     ? "success"
-    : ["pending", "submitted", "requested", "processing", "offered"].includes(value)
-      ? "warning"
-      : "neutral";
-  return <span className={`staff-ops-state ${tone}`}>{human(value)}</span>;
+    : ["pending", "submitted", "requested", "processing", "offered"].includes(value) ? "warning" : "neutral";
+  return <StatusBadge className="staff-ops-state" tone={tone}>{human(value)}</StatusBadge>;
 }
 
 function Empty({ children }: { children: ReactNode }) {
@@ -222,13 +222,13 @@ export function FieldLanceStaffDashboard({
 
   if (analytics.loading) return <section className="panel" role="status">Loading accurate operational totals…</section>;
   if (analytics.error) return <section className="panel"><p className="notice error" role="alert">{analytics.error}</p><button onClick={()=>setRevision(v=>v+1)}>Retry dashboard</button></section>;
-  return <section className="staff-ops-dashboard" aria-label="FieldLance Staff Operations dashboard">
+  return <section className={`${styles.root} staff-ops-dashboard`} aria-label="FieldLance Staff Operations dashboard">
     <section className="staff-ops-hero">
       <div><span className="eyebrow">FIELDLANCE STAFF OPERATIONS</span><h2>Keep the field network accountable.</h2><p>Review queues, monitor delivery and route action to the existing guarded workspaces. Dashboard visibility never replaces RLS, RPC authority or role-specific review controls.</p><div className="staff-ops-role"><ShieldCheck size={15} /><strong>{human(platformRole)}</strong><span>{unread} unread update{unread === 1 ? "" : "s"}</span></div></div>
       <div className="staff-ops-hero-actions"><button className="primary" onClick={() => onNavigate(nextAction.page)}>Open priority queue <ArrowRight size={14} /></button><button className="staff-ops-refresh" disabled={loading} onClick={() => setRevision((value) => value + 1)}><RefreshCw size={15} className={loading ? "staff-ops-spin" : ""} /> Refresh</button></div>
     </section>
 
-    {error && <p className="notice error" role="alert">{error}</p>}
+    {error && <Alert tone="danger" title="Staff Operations refresh incomplete">{error}</Alert>}
 
     <div className="staff-ops-metric-grid" aria-label="FieldLance network metrics">
       <Metric onClick={()=>onReport({kind:"organizations",status:"active"})} icon={<Building2 size={18} />} label="Active organizations" value={n("organizations","active")} detail={`${n("organizations")} organizations visible`} />
@@ -262,7 +262,7 @@ export function FieldLanceStaffDashboard({
         <div className="staff-ops-compact-list">
           {canManageSurveys && surveyReviewQueue.slice(0, 2).map((row) => <article key={row.id}><div><strong>Survey response {row.id.slice(0, 8)}</strong><p>Project {row.project_id.slice(0, 8)} · {dateLabel(row.updated_at)}</p></div><State value={row.status} /></article>)}
           {canManageSurveys && overdueCases.slice(0, 2).map((row) => <article key={row.id}><div><strong>{row.title}</strong><p>Follow-up due {dateLabel(row.follow_up_on)}</p></div><State value={row.status} /></article>)}
-          {canManageFinance && withdrawalAttention.slice(0, 2).map((row) => <article key={row.id}><div><strong>{row.currency} {Number(row.amount || 0).toLocaleString("en-PK")} · {human(row.provider)}</strong><p>{row.user_name || "Field Worker"} · {dateLabel(row.requested_at)}</p></div><State value={row.status} /></article>)}
+          {canManageFinance && withdrawalAttention.slice(0, 2).map((row) => <article key={row.id}><div><strong>{row.amount === null || row.amount === undefined || row.amount === "" || !Number.isFinite(Number(row.amount)) ? "Amount unavailable" : `${row.currency} ${Number(row.amount).toLocaleString("en-PK")}`} · {human(row.provider)}</strong><p>{row.user_name || "Field Worker"} · {dateLabel(row.requested_at)}</p></div><State value={row.status} /></article>)}
           {!(canManageSurveys && ((n("responses","submitted")+n("responses","correction_required")) || (analytics.data?.due_cases||0))) && !(canManageFinance && (analytics.data?.withdrawal_attention||0)) && <Empty>No visible operational queue needs immediate attention.</Empty>}
         </div>
         <div className="staff-ops-card-actions">{canManageSurveys && <button className="secondary" onClick={() => onNavigate("Survey review")}>Survey review</button>}{canManageFinance && <button className="secondary" onClick={() => onNavigate("Withdrawal operations")}>Finance operations</button>}</div>

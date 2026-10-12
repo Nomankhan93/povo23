@@ -7,7 +7,7 @@ const dashboard = read('src/features/operations/FieldLanceStaffDashboard.tsx');
 const shell = read('src/app/AppShell.tsx');
 const navigation = read('src/app/navigation.ts');
 const capabilityContract = read('src/app/capabilityContract.ts');
-const styles = read('src/styles/design-system.css');
+const styles = read('src/features/operations/FieldLanceStaffDashboard.module.css');
 
 let passed = 0;
 async function ok(name, fn) {
@@ -120,16 +120,16 @@ await ok('Staff sidebar does not mix personal-only Field Worker pages into the S
 
 await ok('Staff Operations styles are responsive and isolated', async () => {
   for (const className of [
-    'staff-ops-dashboard',
     'staff-ops-hero',
     'staff-ops-metric-grid',
     'staff-ops-next-action',
     'staff-ops-grid',
     'staff-ops-action-grid',
   ]) assert.match(styles, new RegExp(`\\.${className}`));
-  assert.match(styles, /@media\(max-width:900px\).*staff-ops-grid/s);
-  assert.match(styles, /@media\(max-width:620px\).*staff-ops-metric-grid/s);
-  assert.match(styles, /@media\(max-width:420px\).*staff-ops-metric-grid/s);
+  assert.match(dashboard, /staff-ops-dashboard/);
+  assert.match(styles, /@media\(max-width:1023px\)/);
+  assert.match(styles, /@media\(max-width:639px\)/);
+  assert.doesNotMatch(styles, /@media\(max-width:(?:900|760|620|420)px\)/);
 });
 
 await ok('2.22.0 is UX-only and adds no Supabase migration', async () => {

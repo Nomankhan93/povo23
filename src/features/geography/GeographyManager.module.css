@@ -1,0 +1,2 @@
+.root{display:grid;gap:var(--fl-space-5)}.form{display:grid;gap:var(--fl-space-4)}.check{display:flex;align-items:center;gap:8px;min-height:44px;color:var(--fl-text);font-size:13px;font-weight:600}.check input{width:18px;height:18px}.mobileRecords{display:none}
+@media(max-width:639px){.desktopRecords{display:none}.mobileRecords{display:grid;gap:10px}.check{min-height:48px}.form button{min-height:48px}}

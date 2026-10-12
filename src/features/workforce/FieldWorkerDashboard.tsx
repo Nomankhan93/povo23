@@ -22,6 +22,8 @@ import {
 import { db, rpc } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
 import { Badge, human } from "../../shared/ui/FormFields";
+import { Alert, MetricCard, StatusBadge, type SemanticTone } from "../../components/ui/FieldLanceUI";
+import styles from "./FieldWorkerDashboard.module.css";
 
 type Tables = Database["public"]["Tables"];
 type Profile = Tables["volunteer_profiles"]["Row"];
@@ -71,11 +73,16 @@ type DashboardProps = {
   onOpenField?: (projectId:string) => void;
 };
 
-const money = (value: string | number | undefined) =>
-  new Intl.NumberFormat("en-PK", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value || 0));
+const money = (value: string | number | null | undefined) => {
+  if (value === null || value === undefined || value === "") return null;
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return null;
+  return new Intl.NumberFormat("en-PK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+};
+const moneyLabel = (value: string | number | null | undefined) => {
+  const formatted = money(value);
+  return formatted === null ? "—" : `PKR ${formatted}`;
+};
 
 const dateLabel = (value: string | null | undefined) => {
   if (!value) return "—";
@@ -83,7 +90,7 @@ const dateLabel = (value: string | null | undefined) => {
   return new Intl.DateTimeFormat("en-PK", { day: "numeric", month: "short", year: "numeric" }).format(new Date(normalized));
 };
 
-const statusTone = (status: string) => {
+const statusTone = (status: string): SemanticTone => {
   if (["active", "completed", "selected", "verified"].includes(status)) return "success";
   if (["offered", "pending", "shortlisted"].includes(status)) return "warning";
   if (["rejected", "declined", "cancelled", "withdrawn"].includes(status)) return "neutral";
@@ -109,16 +116,7 @@ function profileCompleteness(profile: Profile | null) {
 }
 
 function Metric({ icon, label, value, detail }: { icon: ReactNode; label: string; value: string | number; detail: string }) {
-  return (
-    <article className="field-worker-metric">
-      <span className="field-worker-metric-icon">{icon}</span>
-      <div>
-        <small>{label}</small>
-        <strong>{value}</strong>
-        <p>{detail}</p>
-      </div>
-    </article>
-  );
+  return <MetricCard className="field-worker-metric" icon={icon} label={label} value={value} detail={detail} />;
 }
 
 export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onField, onOpenField }: DashboardProps) {
@@ -302,7 +300,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         </div>
       </section>);
   return (
-    <section className="field-worker-dashboard" aria-label="Field Worker daily workspace">
+    <section className={`${styles.root} field-worker-dashboard`} aria-label="Field Worker daily workspace">
       {narrow&&priority}
       <section className="field-worker-hero">
         <div className="field-worker-hero-copy">
@@ -336,7 +334,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         </div>
       </section>
 
-      {error && <p className="notice error" role="alert">{error}</p>}
+      {error && <Alert tone="danger" title="Dashboard refresh incomplete">{error}</Alert>}
 
       <div className="field-worker-metric-grid" aria-label="Field Worker workspace metrics">
         <Metric icon={<BriefcaseBusiness size={18} />} label="Open opportunities" value={openOpportunities} detail="Published work you can explore" />
@@ -344,7 +342,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
         <Metric icon={<Send size={18} />} label="Offers waiting" value={counts?.offered??"—"} detail="Accept before survey access activates" />
         <Metric icon={<Clock3 size={18} />} label="Active assignments" value={counts?.active??"—"} detail="Current accepted field work" />
         <Metric icon={<CheckCircle2 size={18} />} label="Completed work" value={counts?.completed??"—"} detail={`${historyTotal} FieldLance work-history records`} />
-        <Metric icon={<CircleDollarSign size={18} />} label="Available earnings" value={`PKR ${money(summary?.available)}`} detail={`${summary?.verified_wallets || 0} verified payout wallet${summary?.verified_wallets === 1 ? "" : "s"}`} />
+        <Metric icon={<CircleDollarSign size={18} />} label="Available earnings" value={summary ? moneyLabel(summary.available) : "—"} detail={summary ? `${summary.verified_wallets} verified payout wallet${summary.verified_wallets === 1 ? "" : "s"}` : "Earnings data unavailable"} />
       </div>
 
       {!narrow&&priority}
@@ -396,7 +394,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
                   <strong>{application.opportunity_title || application.project_title}</strong>
                   <p>{application.organization_name} · {dateLabel(application.created_at)}</p>
                 </div>
-                <span className={`field-worker-state ${statusTone(application.status)}`}>{human(application.status)}</span>
+                <StatusBadge className="field-worker-state" tone={statusTone(application.status)}>{human(application.status)}</StatusBadge>
               </article>
             ))}
             {!applications.length && <div className="field-worker-empty compact"><FileCheck2 size={20} /><p>No applications yet. Your application history will appear here.</p></div>}
@@ -409,10 +407,10 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
             <WalletCards size={20} />
           </div>
           <div className="field-worker-money-grid">
-            <div><small>Approved</small><strong>PKR {money(summary?.approved)}</strong></div>
-            <div><small>Available</small><strong>PKR {money(summary?.available)}</strong></div>
-            <div><small>Paid</small><strong>PKR {money(summary?.paid)}</strong></div>
-            <div><small>Pending withdrawal</small><strong>PKR {money(summary?.pending_withdrawals)}</strong></div>
+            <div><small>Approved</small><strong>{summary ? moneyLabel(summary.approved) : "—"}</strong></div>
+            <div><small>Available</small><strong>{summary ? moneyLabel(summary.available) : "—"}</strong></div>
+            <div><small>Paid</small><strong>{summary ? moneyLabel(summary.paid) : "—"}</strong></div>
+            <div><small>Pending withdrawal</small><strong>{summary ? moneyLabel(summary.pending_withdrawals) : "—"}</strong></div>
           </div>
           <div className="field-worker-card-actions">
             <button className="secondary" onClick={() => onNavigate("Workforce payables")}>Earnings detail</button>
@@ -432,7 +430,7 @@ export function FieldWorkerDashboard({ userId, profile, unread, onNavigate, onFi
                   <strong>{item.project_title}</strong>
                   <p>{item.organization_name} · {item.role_title || "Field Surveyor"}</p>
                 </div>
-                <span className={`field-worker-state ${item.verified ? "success" : "info"}`}>{item.verified ? "Verified" : human(item.workflow_status)}</span>
+                <StatusBadge className="field-worker-state" tone={item.verified ? "success" : "info"}>{item.verified ? "Verified" : human(item.workflow_status)}</StatusBadge>
               </article>
             ))}
             {!history.length && <div className="field-worker-empty compact"><History size={20} /><p>Completed and reviewed FieldLance work will build your verified history automatically.</p></div>}

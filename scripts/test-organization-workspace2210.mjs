@@ -7,7 +7,7 @@ const dashboard = read('src/features/organizations/OrganizationDashboard.tsx');
 const shell = read('src/app/AppShell.tsx');
 const navigation = read('src/app/navigation.ts');
 const capabilityContract = read('src/app/capabilityContract.ts');
-const styles = read('src/styles/design-system.css');
+const styles = read('src/features/organizations/OrganizationDashboard.module.css');
 
 let passed = 0;
 async function ok(name, fn) {
@@ -116,16 +116,16 @@ await ok('approved organization identity is reused without exposing onboarding d
 
 await ok('Organization workspace styles are responsive and isolated', async () => {
   for (const className of [
-    'organization-dashboard',
     'organization-hero',
     'organization-metric-grid',
     'organization-next-action',
     'organization-dashboard-grid',
     'organization-action-grid',
   ]) assert.match(styles, new RegExp(`\\.${className}`));
-  assert.match(styles, /@media\(max-width:900px\).*organization-dashboard-grid/s);
-  assert.match(styles, /@media\(max-width:620px\).*organization-metric-grid/s);
-  assert.match(styles, /@media\(max-width:420px\).*organization-metric-grid/s);
+  assert.match(dashboard, /organization-dashboard/);
+  assert.match(styles, /@media\(max-width:1023px\)/);
+  assert.match(styles, /@media\(max-width:639px\)/);
+  assert.doesNotMatch(styles, /@media\(max-width:(?:900|760|620|420)px\)/);
 });
 
 await ok('2.21.0 is UX-only and adds no Supabase migration', async () => {

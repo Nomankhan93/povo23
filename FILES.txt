@@ -110,6 +110,7 @@ docs/PHASE-2.41.9.md
 docs/PHASE-2.42.0.md
 docs/PHASE-2.42.1.md
 docs/PHASE-2.42.10.md
+docs/PHASE-2.42.11.md
 docs/PHASE-2.42.2.md
 docs/PHASE-2.42.3.md
 docs/PHASE-2.42.4.md
@@ -236,6 +237,7 @@ docs/UPGRADE-2.41.9.md
 docs/UPGRADE-2.42.0.md
 docs/UPGRADE-2.42.1.md
 docs/UPGRADE-2.42.10.md
+docs/UPGRADE-2.42.11.md
 docs/UPGRADE-2.42.2.md
 docs/UPGRADE-2.42.3.md
 docs/UPGRADE-2.42.4.md
@@ -347,6 +349,7 @@ docs/VALIDATION-2.41.9.md
 docs/VALIDATION-2.42.0.md
 docs/VALIDATION-2.42.1.md
 docs/VALIDATION-2.42.10.md
+docs/VALIDATION-2.42.11.md
 docs/VALIDATION-2.42.2.md
 docs/VALIDATION-2.42.3.md
 docs/VALIDATION-2.42.4.md
@@ -533,6 +536,7 @@ scripts/test-survey-save276.mjs
 scripts/test-survey-template-builder2422.mjs
 scripts/test-task-center2230.mjs
 scripts/test-template-library.mjs
+scripts/test-ui-consistency24211.mjs
 scripts/test-ui-foundation2420.mjs
 scripts/test-visual-system2196.mjs
 scripts/test-wallet-capability2417.mjs
@@ -559,6 +563,7 @@ src/components/ui/FieldLanceUI.tsx
 src/components/ui/Pager.tsx
 src/components/ui/WorkflowOverview.tsx
 src/features/analytics/model.ts
+src/features/analytics/ReportsWorkspace.module.css
 src/features/analytics/ReportsWorkspace.tsx
 src/features/analytics/useOperationalSummary.ts
 src/features/assistance/AssistanceLedgerWorkspace.tsx
@@ -578,6 +583,7 @@ src/features/finance/ProjectFundingWorkspace.tsx
 src/features/geography/areaSelection.ts
 src/features/geography/AreaSelector.tsx
 src/features/geography/GeographyBoundaryManager.tsx
+src/features/geography/GeographyManager.module.css
 src/features/geography/GeographyManager.tsx
 src/features/geography/GeographyPicker.tsx
 src/features/geography/model.tsx
@@ -590,16 +596,20 @@ src/features/needs/NeedDetail.tsx
 src/features/needs/NeedsPanel.tsx
 src/features/notifications/notificationAction.ts
 src/features/notifications/Notifications.tsx
+src/features/operations/FieldLanceStaffDashboard.module.css
 src/features/operations/FieldLanceStaffDashboard.tsx
 src/features/operations/TaskCenter.tsx
 src/features/organizations/MembershipActions.tsx
 src/features/organizations/MembershipForm.tsx
+src/features/organizations/MembershipWorkspace.module.css
 src/features/organizations/NgoOperations.tsx
+src/features/organizations/OrganizationDashboard.module.css
 src/features/organizations/OrganizationDashboard.tsx
 src/features/organizations/OrganizationLogo.tsx
 src/features/organizations/OrganizationSettings.tsx
 src/features/organizations/OrgForm.tsx
 src/features/organizations/PartnerNgoApplication.tsx
+src/features/organizations/PartnerNgoApplicationsReview.module.css
 src/features/organizations/PartnerNgoApplicationsReview.tsx
 src/features/payables/PayablesWorkspace.module.css
 src/features/payables/PayablesWorkspace.tsx
@@ -656,6 +666,7 @@ src/features/surveys/TemplatePreview.tsx
 src/features/surveys/tusUpload.ts
 src/features/surveys/useSurveySave.ts
 src/features/verification/VerificationWorkspace.tsx
+src/features/volunteers/Directory.module.css
 src/features/volunteers/Directory.tsx
 src/features/volunteers/Documents.tsx
 src/features/volunteers/ExperiencePanel.tsx
@@ -668,6 +679,7 @@ src/features/workforce/attendanceDownload.ts
 src/features/workforce/attendanceOfflineStore.ts
 src/features/workforce/AttendanceWorkspace.module.css
 src/features/workforce/AttendanceWorkspace.tsx
+src/features/workforce/FieldWorkerDashboard.module.css
 src/features/workforce/FieldWorkerDashboard.tsx
 src/features/workforce/InvitationsPanel.module.css
 src/features/workforce/InvitationsPanel.tsx

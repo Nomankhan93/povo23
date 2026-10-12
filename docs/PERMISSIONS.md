@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.42.10
+# Current permissions note — FieldLance 2.42.11
+
+2.42.11 changes dashboard, table/card, touched-form and selected confirmation presentation only. Existing dashboard queries and Staff capability gates remain authoritative; Volunteer Directory sharing/search boundaries, Organization application review authority, membership mutation authority, reporting authorization and geography RPC authorization are unchanged. Shared `DataTable`, `MobileRecordCard`, `MetricCard` and dialog presentation do not grant access.
+
+No RLS, grant, RPC permission, route, capability, schema or migration change is included.
+
+# Historical permissions note — FieldLance 2.42.10
 
 2.42.10 changes Offline / Mobile Field presentation and confirmation UX only. Downloaded survey and attendance data remains owner-bound and encrypted by the existing local-store contract; server RLS/RPC authorization remains authoritative whenever data is downloaded or synchronized. The UI does not add offline case operations, finance authority, basemap access, background tracking or background synchronization.
 

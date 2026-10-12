@@ -131,10 +131,21 @@ export function Card({ children, className = "", ...props }: HTMLAttributes<HTML
   return <section {...props} className={`fl-card ${className}`.trim()}>{children}</section>;
 }
 
-export function MetricCard({ label, value, detail, className = "" }: { label: ReactNode; value: ReactNode; detail?: ReactNode; className?: string }) {
-  return <Card className={`fl-metric-card ${className}`.trim()}>
-    <span className="fl-metric-label">{label}</span><strong>{value}</strong>{detail && <span className="fl-metric-detail">{detail}</span>}
-  </Card>;
+export function MetricCard({ label, value, detail, icon, onClick, className = "" }: {
+  label: ReactNode;
+  value: ReactNode;
+  detail?: ReactNode;
+  icon?: ReactNode;
+  onClick?: () => void;
+  className?: string;
+}) {
+  const content = <>
+    {icon && <span className="fl-metric-icon" aria-hidden="true">{icon}</span>}
+    <span className="fl-metric-copy"><span className="fl-metric-label">{label}</span><strong>{value}</strong>{detail && <span className="fl-metric-detail">{detail}</span>}</span>
+  </>;
+  const metricClass = `fl-metric-card ${icon ? "fl-metric-card-has-icon" : ""} ${className}`.trim();
+  if (onClick) return <button type="button" className={`fl-card fl-metric-card-action ${metricClass}`.trim()} onClick={onClick}>{content}</button>;
+  return <Card className={metricClass}>{content}</Card>;
 }
 
 export function EntityCard({ title, meta, status, children, actions, className = "" }: {

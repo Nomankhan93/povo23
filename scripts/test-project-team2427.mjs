@@ -18,7 +18,7 @@ const permissions = read('src/features/projects/workspacePermissions.ts');
 const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
 
 const protectedHashes = {
-  'src/app/AppShell.tsx': '428e73f7de2df65b423c9acc819ad2237d048396be292557aec048cfd1b89397',
+  'src/app/AppShell.tsx': 'ddbcb177ef0aaad4b103a1010640aaa6fc0393189ed4141da48662c46a977f46',
   'src/app/routes.ts': 'b54c0da60b4acb4f7f1b84cb8a9b2d090583e790435402632b6a9c5b34c87879',
   'src/app/navigation.ts': '675b6634c864237aa97ed2726de2c0586f0757aa6a8c75ba6351a03166aae132',
   'src/app/capabilityContract.ts': '05ac924820b40484141eb6915f9e9f42de17e93175c279463e531a33e5ba2d62',
@@ -35,7 +35,7 @@ const protectedHashes = {
 };
 
 await ok('package and lockfile are FieldLance 2.42.7', async () => {
-  assert.ok(['2.42.7','2.42.8','2.42.9','2.42.10'].includes(pkg.version));
+  assert.ok(['2.42.7','2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });

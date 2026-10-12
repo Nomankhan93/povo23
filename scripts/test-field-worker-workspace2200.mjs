@@ -6,7 +6,7 @@ const pkg = JSON.parse(read('package.json'));
 const dashboard = read('src/features/workforce/FieldWorkerDashboard.tsx');
 const shell = read('src/app/AppShell.tsx');
 const navigation = read('src/app/navigation.ts');
-const styles = read('src/styles/design-system.css');
+const styles = read('src/features/workforce/FieldWorkerDashboard.module.css');
 
 let passed = 0;
 async function ok(name, fn) {
@@ -97,7 +97,6 @@ await ok('dashboard includes profile readiness, account readiness and offline fi
 
 await ok('Field Worker dashboard styles are responsive and isolated', async () => {
   for (const className of [
-    'field-worker-dashboard',
     'field-worker-hero',
     'field-worker-metric-grid',
     'field-worker-next-action',
@@ -105,9 +104,10 @@ await ok('Field Worker dashboard styles are responsive and isolated', async () =
     'field-worker-dashboard-grid',
     'field-worker-readiness-list',
   ]) assert.match(styles, new RegExp(`\\.${className}`));
-  assert.match(styles, /@media\(max-width:900px\).*field-worker-dashboard-grid/s);
-  assert.match(styles, /@media\(max-width:620px\).*field-worker-metric-grid/s);
-  assert.match(styles, /@media\(max-width:420px\).*field-worker-metric-grid/s);
+  assert.match(dashboard, /field-worker-dashboard/);
+  assert.match(styles, /@media\(max-width:1023px\)/);
+  assert.match(styles, /@media\(max-width:639px\)/);
+  assert.doesNotMatch(styles, /@media\(max-width:(?:900|760|620|420)px\)/);
 });
 
 await ok('2.20.0 is UX-only and adds no Supabase migration', async () => {

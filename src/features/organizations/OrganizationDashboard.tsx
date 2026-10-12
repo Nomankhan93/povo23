@@ -20,6 +20,8 @@ import {
 import { db } from "../../lib/supabase/client";
 import type { Database } from "../../lib/supabase/database.types";
 import { Badge, human } from "../../shared/ui/FormFields";
+import { Alert, MetricCard, StatusBadge, type SemanticTone } from "../../components/ui/FieldLanceUI";
+import styles from "./OrganizationDashboard.module.css";
 import { OrganizationLogoImage } from "./OrganizationLogo";
 
 type Tables = Database["public"]["Tables"];
@@ -47,25 +49,14 @@ const dateLabel = (value: string | null | undefined) => {
 };
 
 function Metric({ icon, label, value, detail, onClick }: { icon: ReactNode; label: string; value: string | number; detail: string; onClick:()=>void }) {
-  return (
-    <button type="button" className="organization-metric" onClick={onClick}>
-      <span className="organization-metric-icon">{icon}</span>
-      <div>
-        <small>{label}</small>
-        <strong>{value}</strong>
-        <p>{detail}</p>
-      </div>
-    </button>
-  );
+  return <MetricCard className="organization-metric" icon={icon} label={label} value={value} detail={detail} onClick={onClick} />;
 }
 
 function CompactState({ value }: { value: string }) {
-  const tone = ["active", "completed", "approved", "recorded", "published"].includes(value)
+  const tone: SemanticTone = ["active", "completed", "approved", "recorded", "published"].includes(value)
     ? "success"
-    : ["pending", "submitted", "shortlisted", "selected", "offered"].includes(value)
-      ? "warning"
-      : "neutral";
-  return <span className={`organization-state ${tone}`}>{human(value)}</span>;
+    : ["pending", "submitted", "shortlisted", "selected", "offered"].includes(value) ? "warning" : "neutral";
+  return <StatusBadge className="organization-state" tone={tone}>{human(value)}</StatusBadge>;
 }
 
 export function OrganizationDashboard({ organization, unread, onNavigate, onReport }: OrganizationDashboardProps) {
@@ -234,7 +225,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
   if (analytics.loading) return <section className="panel" role="status">Loading accurate operational totals…</section>;
   if (analytics.error) return <section className="panel"><p className="notice error" role="alert">{analytics.error}</p><button onClick={()=>setRevision(v=>v+1)}>Retry dashboard</button></section>;
   return (
-    <section className="organization-dashboard" aria-label="Organization daily workspace">
+    <section className={`${styles.root} organization-dashboard`} aria-label="Organization daily workspace">
       <section className="organization-hero">
         <div className="organization-hero-identity">
           <OrganizationLogoImage name={organization.name} path={organization.logo_path || null} updatedAt={organization.logo_updated_at || null} size="review" />
@@ -256,7 +247,7 @@ export function OrganizationDashboard({ organization, unread, onNavigate, onRepo
         </div>
       </section>
 
-      {error && <p className="notice error" role="alert">{error}</p>}
+      {error && <Alert tone="danger" title="Dashboard refresh incomplete">{error}</Alert>}
 
       <div className="organization-metric-grid" aria-label="Organization workspace metrics">
         <Metric onClick={()=>onReport({kind:"projects",status:"active"})} icon={<BriefcaseBusiness size={18} />} label="Active projects" value={n("projects","active")} detail={`${n("projects")} projects visible`} />

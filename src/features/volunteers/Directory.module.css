@@ -1,0 +1,2 @@
+.root{display:grid;gap:var(--fl-space-4)}.filters,.shortlistForm{display:grid;gap:var(--fl-space-4)}.mobileRecords{display:none}.rowActions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.pagination{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+@media(max-width:639px){.desktopRecords{display:none}.mobileRecords{display:grid;gap:10px}.rowActions{align-items:stretch;flex-direction:column}.rowActions button,.pagination button,.shortlistForm button{min-height:48px}.pagination{justify-content:stretch}.pagination button{flex:1}}

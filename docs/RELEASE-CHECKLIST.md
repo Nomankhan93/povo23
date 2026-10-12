@@ -1,4 +1,19 @@
-# Current release checklist — FieldLance 2.42.10
+# Current release checklist — FieldLance 2.42.11
+
+- [ ] `npm ci` completed in the normal development environment.
+- [ ] `npm run test:ui-consistency-24211` passes.
+- [ ] Field Worker, Organization and Staff dashboard regressions pass with existing data sources/navigation/capability gates.
+- [ ] Missing/malformed finance display is unavailable rather than fabricated zero; valid zero remains zero.
+- [ ] Reports, Geography, Organization application review, Volunteer Directory and Memberships use desktop tables plus mobile record cards without changing RPC/filter/pagination contracts.
+- [ ] Touched forms preserve field names and RPC argument shapes.
+- [ ] Organization-review and membership confirmations use captured context and focus-managed shared dialogs.
+- [ ] ActionDialog focus/Escape/reason/busy semantics remain intact with 44px desktop / 48px mobile actions.
+- [ ] New feature modules use FieldLance tokens, >=12px operational type and only 1023px/639px breakpoints.
+- [ ] Browser/mobile acceptance passes at 360/390/430px without horizontal overflow.
+- [ ] `npm run check`, `npm run build`, `git diff --check`, `npm run release:consistency` and final `npm run preflight` pass.
+- [ ] No database migration, RLS, grant, RPC, route, capability or unrelated workflow change is present.
+
+# Historical release checklist — FieldLance 2.42.10
 
 - [ ] `npm ci` completed in the normal development environment.
 - [ ] `npm run test:offline-mobile-24210` passes.

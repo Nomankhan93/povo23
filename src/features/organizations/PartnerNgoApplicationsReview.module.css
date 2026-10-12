@@ -1,0 +1,2 @@
+.root{display:grid;gap:var(--fl-space-4)}.mobileRecords{display:none}.decisionForm{display:grid;gap:var(--fl-space-4);max-width:760px}
+@media(max-width:639px){.desktopRecords{display:none}.mobileRecords{display:grid;gap:10px}.decisionForm button{min-height:48px}}

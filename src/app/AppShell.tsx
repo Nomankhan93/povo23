@@ -13,7 +13,7 @@ import {
 import {SidebarNavigation} from "../components/layout/SidebarNavigation";
 import {FieldLanceBrand} from "../components/ui/FieldLanceBrand";
 import {WorkflowOverview} from "../components/ui/WorkflowOverview";
-import {Button, PageHeader} from "../components/ui/FieldLanceUI";
+import {Button, DataTable, MobileRecordCard, PageHeader} from "../components/ui/FieldLanceUI";
 import {getMobileNavigation, getNavigationGroups, readSidebarCollapsed, saveSidebarCollapsed, organizationPageLabel, staffPageLabel, workspaceLabels, workspacePageLabel} from "./navigation";
 import type { Session } from "@supabase/supabase-js";
 import {
@@ -48,6 +48,7 @@ const Notifications = lazy(() => import("../features/notifications/Notifications
 const DataSharingWorkspace = lazy(() => import("../features/sharing/DataSharingWorkspace").then(m => ({default:m.DataSharingWorkspace})));
 import { MembershipActions } from "../features/organizations/MembershipActions";
 import { MembershipForm } from "../features/organizations/MembershipForm";
+import membershipStyles from "../features/organizations/MembershipWorkspace.module.css";
 import { NgoOperations } from "../features/organizations/NgoOperations";
 import { OrgForm } from "../features/organizations/OrgForm";
 const PartnerNgoApplication = lazy(() => import("../features/organizations/PartnerNgoApplication").then(m => ({default:m.PartnerNgoApplication})));
@@ -1171,36 +1172,13 @@ export function Workspace({ session, openField }: { session: Session; openField:
                     )
                   }
                 />
-                <div className="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Organization</th>
-                        <th>Account</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {members.map((m) => (
-                        <tr key={m.organization_id + m.user_id}>
-                          <td>
-                            {orgs.find((o) => o.id === m.organization_id)?.name}
-                          </td>
-                          <td>
-                            {accounts.find((a) => a.id === m.user_id)?.email}
-                          </td>
-                          <td>{human(m.role)}</td>
-                          <td>
-                            <Badge value={m.status} />
-                          </td>
-                          <td><MembershipActions key={`${m.organization_id}:${m.user_id}:${m.role}:${m.status}`} role={m.role} status={m.status} label={`${accounts.find(a=>a.id===m.user_id)?.email||m.user_id} at ${orgs.find(o=>o.id===m.organization_id)?.name||m.organization_id}`} busy={busy} save={(role,status)=>act(()=>rpc('set_membership',{p_org:m.organization_id,p_user:m.user_id,p_role:role,p_status:status}),'Membership updated. Separate project assignments and platform roles are unchanged.')}/></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className={membershipStyles.desktopRecords}>
+                  <DataTable caption="Organization memberships">
+                    <thead><tr><th>Organization</th><th>Account</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>{members.map((m) => <tr key={m.organization_id + m.user_id}><td>{orgs.find((o) => o.id === m.organization_id)?.name}</td><td>{accounts.find((a) => a.id === m.user_id)?.email}</td><td>{human(m.role)}</td><td><Badge value={m.status} /></td><td><MembershipActions key={`${m.organization_id}:${m.user_id}:${m.role}:${m.status}`} role={m.role} status={m.status} label={`${accounts.find(a=>a.id===m.user_id)?.email||m.user_id} at ${orgs.find(o=>o.id===m.organization_id)?.name||m.organization_id}`} busy={busy} save={(role,status)=>act(()=>rpc('set_membership',{p_org:m.organization_id,p_user:m.user_id,p_role:role,p_status:status}),'Membership updated. Separate project assignments and platform roles are unchanged.')}/></td></tr>)}</tbody>
+                  </DataTable>
                 </div>
+                <div className={membershipStyles.mobileRecords}>{members.map((m) => { const orgName=orgs.find(o=>o.id===m.organization_id)?.name||m.organization_id; const email=accounts.find(a=>a.id===m.user_id)?.email||m.user_id; return <MobileRecordCard key={m.organization_id+m.user_id} title={email} status={<Badge value={m.status}/>} meta={orgName} rows={[{label:'Role',value:human(m.role)}]} action={<MembershipActions key={`${m.organization_id}:${m.user_id}:${m.role}:${m.status}:mobile`} role={m.role} status={m.status} label={`${email} at ${orgName}`} busy={busy} save={(role,status)=>act(()=>rpc('set_membership',{p_org:m.organization_id,p_user:m.user_id,p_role:role,p_status:status}),'Membership updated. Separate project assignments and platform roles are unchanged.')}/>} />; })}</div>
               </section>
             )}
           {page === "Accounts" && superAdmin && (
