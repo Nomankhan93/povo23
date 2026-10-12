@@ -36,14 +36,14 @@ async function ok(name, fn) {
 }
 
 await ok('2.42.5 release and dedicated attendance test are registered', async () => {
-  assert.ok(['2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
+  assert.ok(['2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11','2.43.0'].includes(pkg.version));
   assert.equal(pkg.scripts['test:attendance-timesheets-2425'], 'node --experimental-strip-types scripts/test-attendance-timesheets2425.mjs');
 });
 
 await ok('database migration inventory and head remain unchanged', async () => {
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.length, 87);
-  assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.length, 88);
+  assert.equal(migrations.at(-1), '20261013000590_data_integrity_reporting_consistency.sql');
 });
 
 await ok('protected attendance, authorization and recruitment files remain byte-identical', async () => {

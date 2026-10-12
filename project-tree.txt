@@ -1,5 +1,4 @@
 .
-./.env.example
 ./.gitignore
 ./.nvmrc
 ./docs
@@ -121,6 +120,7 @@
 ./docs/PHASE-2.42.7.md
 ./docs/PHASE-2.42.8.md
 ./docs/PHASE-2.42.9.md
+./docs/PHASE-2.43.0.md
 ./docs/PHASE-2.5.md
 ./docs/PHASE-2.6.md
 ./docs/PHASE-2.7.1.md
@@ -248,6 +248,7 @@
 ./docs/UPGRADE-2.42.7.md
 ./docs/UPGRADE-2.42.8.md
 ./docs/UPGRADE-2.42.9.md
+./docs/UPGRADE-2.43.0.md
 ./docs/UPGRADE-2.5.md
 ./docs/UPGRADE-2.6.md
 ./docs/UPGRADE-2.7.1.md
@@ -360,6 +361,7 @@
 ./docs/VALIDATION-2.42.7.md
 ./docs/VALIDATION-2.42.8.md
 ./docs/VALIDATION-2.42.9.md
+./docs/VALIDATION-2.43.0.md
 ./docs/VALIDATION-2.5.md
 ./docs/VALIDATION-2.6.md
 ./docs/VALIDATION-2.7.1.md
@@ -441,6 +443,7 @@
 ./scripts/test-correctness2414.mjs
 ./scripts/test-correctness276.mjs
 ./scripts/test-current-state-stabilization.mjs
+./scripts/test-data-integrity2430.mjs
 ./scripts/test-database.mjs
 ./scripts/test-device241.mjs
 ./scripts/test-earnings-wallet2250.mjs
@@ -845,6 +848,7 @@
 ./supabase/migrations/20261013000560_private_helper_and_anonymous_grants.sql
 ./supabase/migrations/20261013000570_security_advisor_rpc_surface_hardening.sql
 ./supabase/migrations/20261013000580_project_lifecycle_e2e_integrity.sql
+./supabase/migrations/20261013000590_data_integrity_reporting_consistency.sql
 ./supabase/snippets
 ./supabase/snippets/.gitkeep
 ./tsconfig.json

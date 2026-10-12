@@ -60,9 +60,9 @@ ok('app shell is explicitly excluded from search indexing',()=>{
   assert.equal(securityHeaders['X-Robots-Tag'],'noindex, nofollow, noarchive');
 });
 
-ok('2.41.16 adds no database migration',()=>{
+ok('2.41.16 production contract remains intact under the 2.43.0 integrity migration',()=>{
   const migrations=readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
 });
 
 ok('2.41.16 release and production launch commands are registered',()=>{

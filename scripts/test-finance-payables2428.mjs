@@ -38,14 +38,14 @@ function migrationAggregate() {
 }
 
 await ok('package and lockfile remain compatible with the 2.42.8 finance contract', async () => {
-  assert.ok(['2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
+  assert.ok(['2.42.8','2.42.9','2.42.10','2.42.11','2.43.0'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });
 await ok('database migration inventory is unchanged', async () => {
-  assert.equal(migrations.length, 87);
-  assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql');
-  assert.equal(migrationAggregate(), 'a652ce1f61f4e8f3f63b5be83599b36ed716c05c6bcaea811454368af0e80f16');
+  assert.equal(migrations.length, 88);
+  assert.equal(migrations.at(-1), '20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrationAggregate(), '1cb121a446b0da1f7ec031c8b8f56431e2237e75fdbd011aaf9a520574b16f6d');
 });
 await ok('protected routing, capability, funding helper and integration files remain byte-identical', async () => {
   for (const [path, expected] of Object.entries(protectedHashes)) assert.equal(hash(path), expected, `${path} changed unexpectedly`);

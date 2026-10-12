@@ -35,12 +35,12 @@ const protectedHashes = {
 };
 
 await ok('package and lockfile are FieldLance 2.42.7', async () => {
-  assert.ok(['2.42.7','2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
+  assert.ok(['2.42.7','2.42.8','2.42.9','2.42.10','2.42.11','2.43.0'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });
-await ok('migration inventory remains 87', async () => assert.equal(migrations.length, 87));
-await ok('migration head remains project lifecycle integrity', async () => assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql'));
+await ok('migration inventory includes the 2.43.0 integrity migration', async () => assert.equal(migrations.length, 87));
+await ok('migration head is the 2.43.0 integrity migration', async () => assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql'));
 await ok('2.42.7 adds no migration surface', async () => assert.equal(migrations.some(name => /2427|project_team.*2427/i.test(name)), false));
 await ok('project_staff_candidates is preserved', async () => assert.match(team, /project_staff_candidates/));
 await ok('assign_project_staff is preserved', async () => assert.match(team, /assign_project_staff/));

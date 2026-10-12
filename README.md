@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.11
+# Current release: FieldLance 2.43.0
+
+Data Integrity & Reporting Consistency. Survey responses in `correction_required` now remain actionable in Task Center; operational case due reporting follows canonical scheduled case follow-ups before the legacy case-level fallback; and direct-assignment work history respects staged project closure so collection closure is not misreported as operational completion. Attendance/payables, finance calculations, recruitment, routes/capabilities and UI workflows are unchanged. See docs/PHASE-2.43.0.md, docs/UPGRADE-2.43.0.md and docs/VALIDATION-2.43.0.md.
+
+# Previous release: FieldLance 2.42.11
 
 Dashboards + Dialogs / Tables / Forms Consistency. Field Worker, Organization and Staff dashboards now use the shared 2.42 metric/status/alert system with scoped responsive styling; Reports, Geography, Organization application review, Volunteer Directory and Memberships use shared desktop/mobile records and touched-form primitives; selected confirmations capture their action context; and ActionDialog presentation is aligned to current tokens and target sizes. Backend workflows, routes, capabilities, RLS, RPCs and migrations remain unchanged. See docs/PHASE-2.42.11.md, docs/UPGRADE-2.42.11.md and docs/VALIDATION-2.42.11.md.
 

@@ -41,10 +41,10 @@ const protectedHashes={
 function migrationAggregate(){const digest=createHash('sha256');for(const name of migrations){digest.update(name);digest.update('\0');digest.update(readFileSync(`supabase/migrations/${name}`));digest.update('\0');}return digest.digest('hex');}
 
 await ok('2.42.10 Offline / Mobile contract remains active in later UI releases',async()=>{
-  assert.ok(['2.42.10','2.42.11'].includes(pkg.version));assert.equal(lock.version,pkg.version);assert.equal(lock.packages?.['']?.version,pkg.version);
+  assert.ok(['2.42.10','2.42.11','2.43.0'].includes(pkg.version));assert.equal(lock.version,pkg.version);assert.equal(lock.packages?.['']?.version,pkg.version);
 });
 await ok('database migration inventory is unchanged',async()=>{
-  assert.equal(migrations.length,87);assert.equal(migrations.at(-1),'20261013000580_project_lifecycle_e2e_integrity.sql');assert.equal(migrationAggregate(),'a652ce1f61f4e8f3f63b5be83599b36ed716c05c6bcaea811454368af0e80f16');
+  assert.equal(migrations.length,88);assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');assert.equal(migrationAggregate(),'1cb121a446b0da1f7ec031c8b8f56431e2237e75fdbd011aaf9a520574b16f6d');
 });
 await ok('offline stores, SurveyForm, Attendance and routing/security integration remain byte-identical',async()=>{
   for(const [path,expected] of Object.entries(protectedHashes))assert.equal(hash(path),expected,`${path} changed unexpectedly`);

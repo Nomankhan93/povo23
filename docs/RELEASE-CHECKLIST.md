@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.42.11
+# Current release checklist — FieldLance 2.43.0
+
+- [ ] `npm ci` completed under Node 24.
+- [ ] `npm run test:data-integrity-2430` passes.
+- [ ] `correction_required` responses retain/repair an actionable survey-review task.
+- [ ] Task Center authority is unchanged.
+- [ ] Case `__due` reporting follows scheduled structured follow-ups and uses the legacy case date only as fallback.
+- [ ] Direct-assignment work remains recorded (not completed) at `collection_closed` and becomes completed at operational completion.
+- [ ] Closed-project historical response/case reporting remains readable to already-authorized users.
+- [ ] Attendance/payable generation, finance reconciliation and project-closure transition RPCs are unchanged.
+- [ ] Targeted Task Center, analytics, cases, project-lifecycle, attendance/payables and dashboard regressions pass.
+- [ ] `npm run types:check`, `npm run check`, `npm run build`, `git diff --check` and `npm run release:consistency` pass.
+- [ ] Migration lint / linked migration verification passes.
+- [ ] Final certification: `npm run preflight` passes.
+- [ ] Migration inventory is 88 with `20261013000590_data_integrity_reporting_consistency.sql` as head.
+
+# Historical release checklist — FieldLance 2.42.11
 
 - [ ] `npm ci` completed in the normal development environment.
 - [ ] `npm run test:ui-consistency-24211` passes.

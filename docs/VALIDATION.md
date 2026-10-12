@@ -1,4 +1,8 @@
-# Current validation — FieldLance 2.42.11
+# Current validation — FieldLance 2.43.0
+
+See [VALIDATION-2.43.0.md](VALIDATION-2.43.0.md) for the dedicated data-integrity regression, Task Center/analytics/cases/project-lifecycle/attendance-finance regressions, build gates and database-release certification guidance.
+
+# Historical validation — FieldLance 2.42.11
 
 See [VALIDATION-2.42.11.md](VALIDATION-2.42.11.md) for the dedicated dashboard/table/form/dialog consistency contract, targeted workspace/analytics/identity/accessibility/mobile regressions, TypeScript/build gates and final preflight guidance.
 

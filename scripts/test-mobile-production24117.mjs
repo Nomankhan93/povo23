@@ -19,7 +19,7 @@ const manifest=JSON.parse(read('public/manifest.webmanifest'));
 const pass=(name,fn)=>{fn();console.log(`PASS ${name}`)};
 
 pass('2.41.17 release and mobile acceptance commands are registered',()=>{
-  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11'].includes(pkg.version));
+  assert.ok(['2.41.17','2.41.18','2.41.19','2.41.20','2.42.0','2.42.1','2.42.2','2.42.3','2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11','2.43.0'].includes(pkg.version));
   assert.match(pkg.scripts['test:mobile-production-24117']||'',/test-mobile-production24117\.mjs/);
   assert.match(pkg.scripts['test:browser-mobile-production-24117']||'',/browser-mobile-2419/);
   assert.match(pkg.scripts['check:mobile-production-24117']||'',/check-mobile-production24117\.mjs/);
@@ -89,9 +89,9 @@ pass('production headers allow first-party geolocation while denying unrelated s
   assert.match(headers['content-security-policy'],/upgrade-insecure-requests/);
 });
 
-pass('2.41.17 adds no database migration',()=>{
+pass('2.41.17 production contract remains intact under the 2.43.0 integrity migration',()=>{
   const migrations=readdirSync(path.join(root,'supabase/migrations')).filter(x=>x.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
 });
 
 console.log('\n10 FieldLance 2.41.17 mobile production acceptance scenarios passed.');

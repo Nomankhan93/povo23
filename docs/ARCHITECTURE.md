@@ -1,4 +1,10 @@
-# Current architecture note — FieldLance 2.42.11
+# Current architecture note — FieldLance 2.43.0
+
+2.43.0 aligns three derived/read-model surfaces with their already-authoritative workflow records. Operational tasks continue to be derived from survey-response state, but `correction_required` now matches the actual response vocabulary. Operational case reporting derives due dates from scheduled `beneficiary_case_followups` before using the older case-level fallback. Work history continues to aggregate assignment/response evidence, but direct-assignment completion now follows staged `project_closure_state` rather than treating collection closure as full operational completion.
+
+No table shape, RLS, grant, route, capability, attendance/payable engine or finance-calculation architecture changes are included.
+
+# Historical architecture note — FieldLance 2.42.11
 
 2.42.11 extends the feature-local 2.42 presentation architecture to the three role dashboards and the remaining audited operational record surfaces. Dashboard CSS is scoped per feature, shared `MetricCard`/`StatusBadge`/`Alert` primitives own repeated presentation, and Reports/Geography/Organization review/Volunteer Directory/Memberships use shared desktop `DataTable` plus mobile `MobileRecordCard` patterns. Only forms adjacent to those surfaces are migrated.
 

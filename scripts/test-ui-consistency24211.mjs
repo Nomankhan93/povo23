@@ -34,15 +34,15 @@ const modules = [
 let passed = 0;
 const ok = (name, fn) => { fn(); passed += 1; console.log(`PASS ${name}`); };
 
-ok('2.42.11 release is registered without database expansion', () => {
-  assert.equal(pkg.version, '2.42.11');
-  assert.equal(lock.version, '2.42.11');
-  assert.equal(lock.packages[''].version, '2.42.11');
+ok('2.42.11 UI contract remains registered under later integrity releases', () => {
+  assert.ok(['2.42.11','2.43.0'].includes(pkg.version));
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[''].version, pkg.version);
   assert.equal(pkg.scripts['test:ui-consistency-24211'], 'node scripts/test-ui-consistency24211.mjs');
   assert.match(pkg.scripts.test, /test:ui-consistency-24211/);
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.length, 87);
-  assert.equal(migrations.at(-1), '20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.length, pkg.version === '2.43.0' ? 88 : 87);
+  assert.equal(migrations.at(-1), pkg.version === '2.43.0' ? '20261013000590_data_integrity_reporting_consistency.sql' : '20261013000580_project_lifecycle_e2e_integrity.sql');
 });
 
 ok('routing capability navigation and protected field contracts remain byte-identical', () => {

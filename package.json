@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.42.11",
+  "version": "2.43.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -103,7 +103,8 @@
     "test:finance-payables-2428": "node scripts/test-finance-payables2428.mjs",
     "test:beneficiary-cases-2429": "node scripts/test-beneficiary-cases2429.mjs",
     "test:offline-mobile-24210": "node scripts/test-offline-mobile24210.mjs",
-    "test:ui-consistency-24211": "node scripts/test-ui-consistency24211.mjs"
+    "test:ui-consistency-24211": "node scripts/test-ui-consistency24211.mjs",
+    "test:data-integrity-2430": "node scripts/test-data-integrity2430.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.42.11
+# Current permissions note — FieldLance 2.43.0
+
+2.43.0 changes derived task/report/work-history correctness only. Existing response-review authority, Task Center read/manage rules, case/follow-up authorization, project reporting scope, attendance/payable authority, finance permissions and project-closure mutation authority remain unchanged. The repair migration does not grant a role access to any source record it could not already access.
+
+No RLS, grant, route or capability change is included.
+
+# Historical permissions note — FieldLance 2.42.11
 
 2.42.11 changes dashboard, table/card, touched-form and selected confirmation presentation only. Existing dashboard queries and Staff capability gates remain authoritative; Volunteer Directory sharing/search boundaries, Organization application review authority, membership mutation authority, reporting authorization and geography RPC authorization are unchanged. Shared `DataTable`, `MobileRecordCard`, `MetricCard` and dialog presentation do not grant access.
 
