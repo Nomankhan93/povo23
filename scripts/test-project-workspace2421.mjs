@@ -17,8 +17,8 @@ await ok('2.42.1 is presentation-only and adds no database migration', async () 
   const pkg = JSON.parse(read('package.json'));
   assert.ok(['2.42.1', '2.42.2', '2.42.3', '2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10','2.42.11','2.43.0'].includes(pkg.version));
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.length, 88);
-  assert.equal(migrations.at(-1), '20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.length, 89);
+  assert.equal(migrations.at(-1), '20261013000600_data_integrity_reporting_security_fix.sql');
   assert.equal(sha256('supabase/migrations/20261013000580_project_lifecycle_e2e_integrity.sql'), '7c46de397a816df58450c22f51a5259608331de8e2fdd9b58e85a19c3b3b24c5');
 });
 

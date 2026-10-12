@@ -88,9 +88,10 @@ await ok('assignment outcome notifications carry exact action context',async()=>
 
 await ok('2.41.15 lifecycle migration remains immutable before the 2.43.0 integrity head',async()=>{
   const migrations=readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-3),'20261013000570_security_advisor_rpc_surface_hardening.sql');
-  assert.equal(migrations.at(-2),'20261013000580_project_lifecycle_e2e_integrity.sql');
-  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.at(-4),'20261013000570_security_advisor_rpc_surface_hardening.sql');
+  assert.equal(migrations.at(-3),'20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.at(-2),'20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.at(-1),'20261013000600_data_integrity_reporting_security_fix.sql');
 });
 
 console.log(`\n${passed} FieldLance 2.41.15 project lifecycle integrity scenarios passed.`);

@@ -91,7 +91,7 @@ pass('production headers allow first-party geolocation while denying unrelated s
 
 pass('2.41.17 production contract remains intact under the 2.43.0 integrity migration',()=>{
   const migrations=readdirSync(path.join(root,'supabase/migrations')).filter(x=>x.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.at(-1),'20261013000600_data_integrity_reporting_security_fix.sql');
 });
 
 console.log('\n10 FieldLance 2.41.17 mobile production acceptance scenarios passed.');

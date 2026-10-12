@@ -640,3 +640,8 @@ Direct application/document table writes are not granted to authenticated client
 ## 2.41.17 mobile acceptance boundary
 
 Mobile layout and PWA acceptance do not change authorization. Field Worker GPS remains explicit and action-bound; browser geolocation permission does not grant broader project, attendance, survey, case or finance access. Existing RLS/guarded RPCs remain authoritative.
+
+
+### 2.43.0-r1 analytics case due-date boundary
+
+Operational case reporting does not grant `authenticated` direct access to `beneficiary_case_followups`. `app_private.analytics_rows(...)` remains `SECURITY INVOKER`. The private `app_private.analytics_case_due_on(uuid)` helper is `SECURITY DEFINER`, but returns a due date only when `app_private.can_manage_project(...)` is true for the current caller; unauthorized callers receive `NULL`. This preserves the existing case/follow-up authority boundary while allowing authorized operational reports to use the canonical scheduled follow-up date.

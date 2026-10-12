@@ -62,7 +62,7 @@ ok('app shell is explicitly excluded from search indexing',()=>{
 
 ok('2.41.16 production contract remains intact under the 2.43.0 integrity migration',()=>{
   const migrations=readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.at(-1),'20261013000600_data_integrity_reporting_security_fix.sql');
 });
 
 ok('2.41.16 release and production launch commands are registered',()=>{

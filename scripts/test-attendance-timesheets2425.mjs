@@ -42,8 +42,8 @@ await ok('2.42.5 release and dedicated attendance test are registered', async ()
 
 await ok('database migration inventory and head remain unchanged', async () => {
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.length, 88);
-  assert.equal(migrations.at(-1), '20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.length, 89);
+  assert.equal(migrations.at(-1), '20261013000600_data_integrity_reporting_security_fix.sql');
 });
 
 await ok('protected attendance, authorization and recruitment files remain byte-identical', async () => {

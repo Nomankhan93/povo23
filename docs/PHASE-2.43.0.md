@@ -34,4 +34,17 @@ Historical direct-assignment work history treated any project with `status='clos
 
 Forward migration: `20261013000590_data_integrity_reporting_consistency.sql`.
 
-Migration inventory: 88.
+Migration inventory before r1: 88.
+
+
+## r1 security correction
+
+2.43.0-r1 keeps the original integrity fixes and adds a forward security correction after regression testing exposed that `analytics_rows()` is intentionally `SECURITY INVOKER` while `beneficiary_case_followups` intentionally has no direct `authenticated` SELECT grant.
+
+The correction introduces `app_private.analytics_case_due_on(uuid)` as a narrowly scoped `SECURITY DEFINER` helper. It returns a canonical structured-follow-up due date only when the current caller can manage the case project, otherwise `NULL`. `analytics_rows()` remains `SECURITY INVOKER`, and raw follow-up-table privileges remain unchanged.
+
+The dedicated integrity fixture now establishes collection access through the canonical application → offer → accepted assignment path instead of directly inserting `survey_assignments`, and it changes reviewed survey/follow-up state through the versioned public RPCs rather than direct SQL updates that bypass revision version increments.
+
+Forward correction migration: `20261013000600_data_integrity_reporting_security_fix.sql`.
+
+Migration inventory: 89.

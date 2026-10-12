@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
 import {schemaDb} from './schema-test-db.mjs';
+import {acceptCollectionFixture} from './accepted-collection-fixture.mjs';
 
 let passed=0;
 async function ok(name,fn){await fn();passed++;console.log(`PASS ${name}`)}
 const read=p=>readFileSync(p,'utf8');
 const migrationName='20261013000590_data_integrity_reporting_consistency.sql';
+const correctionMigrationName='20261013000600_data_integrity_reporting_security_fix.sql';
 const migration=read(`supabase/migrations/${migrationName}`);
+const correctionMigration=read(`supabase/migrations/${correctionMigrationName}`);
 const packageJson=JSON.parse(read('package.json'));
 const lock=JSON.parse(read('package-lock.json'));
 
@@ -16,8 +19,8 @@ await ok('2.43.0 release and migration are registered',async()=>{
   assert.equal(lock.packages[''].version,'2.43.0');
   assert.equal(packageJson.scripts['test:data-integrity-2430'],'node scripts/test-data-integrity2430.mjs');
   const migrations=readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort();
-  assert.equal(migrations.length,88);
-  assert.equal(migrations.at(-1),migrationName);
+  assert.equal(migrations.length,89);
+  assert.equal(migrations.at(-1),correctionMigrationName);
 });
 
 await ok('migration repairs survey review task vocabulary without widening task authority',async()=>{
@@ -27,9 +30,14 @@ await ok('migration repairs survey review task vocabulary without widening task 
   assert.doesNotMatch(migration,/can_read_operational_task|can_manage_operational_task/);
 });
 
-await ok('case reporting derives due date from scheduled follow-ups with legacy fallback',async()=>{
-  assert.match(migration,/select min\(f\.due_on\)[\s\S]*f\.case_id=a\.id and f\.status='scheduled'/);
-  assert.match(migration,/a\.follow_up_on/);
+await ok('case reporting derives due date through a permission-safe helper with legacy fallback',async()=>{
+  assert.match(correctionMigration,/create or replace function app_private\.analytics_case_due_on\(p_case uuid\)/);
+  assert.match(correctionMigration,/security definer/);
+  assert.match(correctionMigration,/if v_project is null or not app_private\.can_manage_project\(v_project\) then[\s\S]*return null/);
+  assert.match(correctionMigration,/select min\(f\.due_on\)[\s\S]*f\.case_id=p_case[\s\S]*f\.status='scheduled'/);
+  assert.match(correctionMigration,/c\.follow_up_on/);
+  assert.match(correctionMigration,/language sql stable security invoker[\s\S]*app_private\.analytics_case_due_on\(a\.id\)/);
+  assert.doesNotMatch(correctionMigration,/grant\s+select[\s\S]*beneficiary_case_followups/i);
 });
 
 await ok('work history waits for operational completion instead of collection closure',async()=>{
@@ -66,8 +74,8 @@ try{
   const dates=(await rows("select ((now() at time zone 'UTC')::date-2)::text start,((now() at time zone 'UTC')::date+20)::text finish,((now() at time zone 'UTC')::date)::text today,((now() at time zone 'UTC')::date+30)::text later"))[0];
   const project=await call('create_survey_project',[org,'2.43 Integrity Project',template,geo,10,dates.start,dates.finish,'Validate reporting and work-history integrity','v430','Consent notice for integrity regression fixture.']);
 
+  await acceptCollectionFixture(db,project,ids.worker);
   await db.exec('RESET ROLE');
-  await db.query('insert into public.survey_assignments(project_id,user_id,active) values($1,$2,true)',[project,ids.worker]);
   const household=(await rows('insert into public.registry_households(project_id,label,geography_id,created_by) values($1,$2,$3,$4) returning id',[project,'Integrity household',geo,ids.worker]))[0].id;
   const person=(await rows('insert into public.registry_persons(project_id,household_id,full_name,birth_date,created_by) values($1,$2,$3,$4,$5) returning id',[project,household,'Integrity Person','1990-01-01',ids.worker]))[0].id;
   const approved=(await rows("insert into public.survey_responses(project_id,person_id,collector_id,answers,consent,status,review_note,reviewed_by,reviewed_at,collection_geography_id) values($1,$2,$3,$4::jsonb,$5::jsonb,'approved','Reviewed',$6,now(),$7) returning id",[project,person,ids.worker,JSON.stringify({q:'approved'}),JSON.stringify({agreed:true,method:'verbal'}),ids.super,geo]))[0].id;
@@ -76,7 +84,8 @@ try{
   await ok('correction-required survey response keeps an actionable review task',async()=>{
     let active=(await rows("select * from public.operational_tasks where task_type='survey_response_review' and source_ref=$1 and status in ('open','in_progress')",[review]))[0];
     assert.ok(active);
-    await db.query("update public.survey_responses set status='correction_required',updated_at=now() where id=$1",[review]);
+    await as('super');
+    await call('review_survey_response',[review,'correction_required','Integrity fixture correction required',1]);
     active=(await rows("select * from public.operational_tasks where task_type='survey_response_review' and source_ref=$1 and status in ('open','in_progress') order by created_at desc limit 1",[review]))[0];
     assert.ok(active);
     assert.equal(active.metadata.response_status,'correction_required');
@@ -90,23 +99,40 @@ try{
   await db.query(`insert into public.beneficiary_case_followups(id,case_id,organization_id,project_id,person_id,followup_type,due_on,status,last_reason,created_by,updated_by)
     values($1,$2,$3,$4,$5,'phone',$6,'scheduled','Integrity scheduled follow-up',$7,$7)`,[followupId,caseId,org,project,person,dates.today,ids.super]);
 
+  await ok('case due helper preserves protected follow-up-table authority',async()=>{
+    await db.exec('RESET ROLE');
+    const privilege=(await rows("select has_table_privilege('authenticated','public.beneficiary_case_followups','SELECT') allowed"))[0];
+    assert.equal(privilege.allowed,false);
+    const helper=(await rows("select p.prosecdef,c.relrowsecurity from pg_proc p join pg_namespace n on n.oid=p.pronamespace cross join pg_class c where n.nspname='app_private' and p.proname='analytics_case_due_on' and c.oid='public.beneficiary_case_followups'::regclass"))[0];
+    assert.equal(helper.prosecdef,true);
+    assert.equal(helper.relrowsecurity,true);
+    const analytics=(await rows("select p.prosecdef from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='app_private' and p.proname='analytics_rows' and pg_get_function_identity_arguments(p.oid)='p_org uuid, p_project uuid, p_geo uuid, p_from date, p_to date'"))[0];
+    assert.equal(analytics.prosecdef,false);
+    await as('worker');
+    const hidden=(await rows('select app_private.analytics_case_due_on($1) due',[caseId]))[0];
+    assert.equal(hidden.due,null);
+    await as('super');
+    const visible=(await rows('select app_private.analytics_case_due_on($1)::text due',[caseId]))[0];
+    assert.equal(visible.due,dates.today);
+  });
+
   await ok('operational due-case reporting follows structured scheduled follow-up dates',async()=>{
     await as('super');
     const due=await call('operational_report',[org,project,null,null,null,'cases','__due',0,false]);
     assert.equal(due.total,1);
     assert.equal(due.rows[0].id,caseId);
     assert.equal(String(due.rows[0].due_on).slice(0,10),dates.today);
-    await db.exec('RESET ROLE');
-    await db.query("update public.beneficiary_case_followups set status='cancelled',cancelled_by=$2,cancelled_at=now(),cancellation_reason='Cancelled integrity fixture follow-up' where id=$1",[followupId,ids.super]);
     await as('super');
+    await call('cancel_beneficiary_case_followup',[followupId,'Cancelled integrity fixture follow-up',1]);
     const after=await call('operational_report',[org,project,null,null,null,'cases','__due',0,false]);
     assert.equal(after.total,0);
   });
 
-  await ok('collection closure preserves recorded work without claiming operational completion',async()=>{
+  await ok('collection closure does not fabricate completion before operational completion',async()=>{
     await as('worker');
     let history=await call('work_experience_history',[ids.worker,0]);
     let item=history.rows.find(row=>row.id===project);
+    assert.equal(item.source_kind,'workforce_assignment');
     assert.equal(item.workflow_status,'in_progress');
     assert.equal(item.verified,true);
     await db.exec('RESET ROLE');
@@ -114,9 +140,12 @@ try{
     await as('worker');
     history=await call('work_experience_history',[ids.worker,0]);
     item=history.rows.find(row=>row.id===project);
-    assert.equal(item.workflow_status,'recorded');
+    // The existing project-close trigger cancels active workforce assignments.
+    // The 2.43.0 contract is that collection closure must not promote this to completed.
+    assert.equal(item.workflow_status,'cancelled');
+    assert.notEqual(item.workflow_status,'completed');
     assert.equal(item.verified,true);
-    assert.equal(item.end_date,null);
+    assert.ok(item.end_date);
     await db.exec('RESET ROLE');
     await db.query("update public.survey_projects set project_closure_state='operational_completed',operational_completed_at=now() where id=$1",[project]);
     await as('worker');

@@ -40,9 +40,9 @@ await ok('package and lockfile remain compatible with the 2.42.9 Cases contract'
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });
 await ok('database migration inventory is unchanged', async () => {
-  assert.equal(migrations.length, 88);
-  assert.equal(migrations.at(-1), '20261013000590_data_integrity_reporting_consistency.sql');
-  assert.equal(migrationAggregate(), '1cb121a446b0da1f7ec031c8b8f56431e2237e75fdbd011aaf9a520574b16f6d');
+  assert.equal(migrations.length, 89);
+  assert.equal(migrations.at(-1), '20261013000600_data_integrity_reporting_security_fix.sql');
+  assert.equal(migrationAggregate(), 'df2a20f19e409bb355181379aa1dbf5a0f1ec1eaa7b919f83e16ae98a6536472');
 });
 await ok('routing, capability and project integration files remain byte-identical', async () => {
   for (const [path, expected] of Object.entries(protectedHashes)) assert.equal(hash(path), expected, `${path} changed unexpectedly`);

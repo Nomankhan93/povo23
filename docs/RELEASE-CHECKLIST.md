@@ -1,6 +1,8 @@
 # Current release checklist — FieldLance 2.43.0
 
 - [ ] `npm ci` completed under Node 24.
+- [ ] Local Supabase is running and `npx supabase migration up --local` applies pending 2.43.0/r1 migrations successfully.
+- [ ] `npx supabase migration list` shows `20261013000600_data_integrity_reporting_security_fix.sql` as the local head before hosted deployment.
 - [ ] `npm run test:data-integrity-2430` passes.
 - [ ] `correction_required` responses retain/repair an actionable survey-review task.
 - [ ] Task Center authority is unchanged.
@@ -12,7 +14,9 @@
 - [ ] `npm run types:check`, `npm run check`, `npm run build`, `git diff --check` and `npm run release:consistency` pass.
 - [ ] Migration lint / linked migration verification passes.
 - [ ] Final certification: `npm run preflight` passes.
-- [ ] Migration inventory is 88 with `20261013000590_data_integrity_reporting_consistency.sql` as head.
+- [ ] Migration inventory is 89 with `20261013000600_data_integrity_reporting_security_fix.sql` as head.
+- [ ] `authenticated` retains no direct SELECT privilege on `beneficiary_case_followups`.
+- [ ] `app_private.analytics_rows(...)` remains `SECURITY INVOKER`; the r1 case-due helper is authorization-gated.
 
 # Historical release checklist — FieldLance 2.42.11
 

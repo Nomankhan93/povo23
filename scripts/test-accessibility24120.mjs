@@ -85,7 +85,7 @@ ok('navigation notification count avoids duplicate screen-reader announcement',(
 
 ok('2.41.20 adds no database migration or accessibility runtime dependency',()=>{
   const migrations=readdirSync(path.join(process.cwd(),'supabase/migrations')).filter(x=>x.endsWith('.sql')).sort();
-  assert.equal(migrations.at(-1),'20261013000590_data_integrity_reporting_consistency.sql');
+  assert.equal(migrations.at(-1),'20261013000600_data_integrity_reporting_security_fix.sql');
   const dependencies={...(pkg.dependencies||{}),...(pkg.devDependencies||{})};
   for(const name of Object.keys(dependencies))assert.doesNotMatch(name,/axe-core|react-aria|reach-ui|radix/i);
 });

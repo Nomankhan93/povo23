@@ -41,8 +41,8 @@ ok('2.42.11 UI contract remains registered under later integrity releases', () =
   assert.equal(pkg.scripts['test:ui-consistency-24211'], 'node scripts/test-ui-consistency24211.mjs');
   assert.match(pkg.scripts.test, /test:ui-consistency-24211/);
   const migrations = readdirSync('supabase/migrations').filter(name => name.endsWith('.sql')).sort();
-  assert.equal(migrations.length, pkg.version === '2.43.0' ? 88 : 87);
-  assert.equal(migrations.at(-1), pkg.version === '2.43.0' ? '20261013000590_data_integrity_reporting_consistency.sql' : '20261013000580_project_lifecycle_e2e_integrity.sql');
+  assert.equal(migrations.length, pkg.version === '2.43.0' ? 89 : 87);
+  assert.equal(migrations.at(-1), pkg.version === '2.43.0' ? '20261013000600_data_integrity_reporting_security_fix.sql' : '20261013000580_project_lifecycle_e2e_integrity.sql');
 });
 
 ok('routing capability navigation and protected field contracts remain byte-identical', () => {

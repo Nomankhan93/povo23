@@ -1,4 +1,5 @@
 .
+./.env.example
 ./.gitignore
 ./.nvmrc
 ./docs
@@ -849,6 +850,7 @@
 ./supabase/migrations/20261013000570_security_advisor_rpc_surface_hardening.sql
 ./supabase/migrations/20261013000580_project_lifecycle_e2e_integrity.sql
 ./supabase/migrations/20261013000590_data_integrity_reporting_consistency.sql
+./supabase/migrations/20261013000600_data_integrity_reporting_security_fix.sql
 ./supabase/snippets
 ./supabase/snippets/.gitkeep
 ./tsconfig.json
