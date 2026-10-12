@@ -1,4 +1,20 @@
-# Current release checklist — FieldLance 2.42.9
+# Current release checklist — FieldLance 2.42.10
+
+- [ ] `npm ci` completed in the normal development environment.
+- [ ] `npm run test:offline-mobile-24210` passes.
+- [ ] Device recovery, corrective/offline network, mobile-browser, survey collection and attendance regressions pass.
+- [ ] Surveys / Attendance / Device navigation verified on desktop and deployed mobile browser.
+- [ ] Survey queue retry preserves the original request identity and rejected-copy recovery semantics.
+- [ ] Attendance offline queue/download behavior remains unchanged.
+- [ ] Financial actions, case operations and basemaps remain unavailable offline.
+- [ ] No background GPS or Background Sync dependency is introduced.
+- [ ] Device erase requires exact `ERASE`, reports unsynchronized inventory and states that server records remain unchanged.
+- [ ] Desktop controls are at least 44px; mobile controls at least 48px; feature CSS uses only 1023px/639px breakpoints and 2.42 tokens.
+- [ ] `npm run release:consistency`, `npm run types:check`, `npm run check`, `npm run build` and `git diff --check` pass.
+- [ ] Final certification: `npm run preflight` passes.
+- [ ] No database migration, RLS, grant, RPC, capability, route, offline-store format or service-worker policy change is present.
+
+# Historical release checklist — FieldLance 2.42.9
 
 - [ ] `npm ci` completed in the normal development environment.
 - [ ] `npm run test:beneficiary-cases-2429` passes.

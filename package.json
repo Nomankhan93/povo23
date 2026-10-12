@@ -1,6 +1,6 @@
 {
   "name": "fieldlance-platform",
-  "version": "2.42.9",
+  "version": "2.42.10",
   "private": true,
   "type": "module",
   "engines": {
@@ -101,7 +101,8 @@
     "test:field-operations-map-2426": "node scripts/test-field-operations-map2426.mjs",
     "test:project-team-2427": "node scripts/test-project-team2427.mjs",
     "test:finance-payables-2428": "node scripts/test-finance-payables2428.mjs",
-    "test:beneficiary-cases-2429": "node scripts/test-beneficiary-cases2429.mjs"
+    "test:beneficiary-cases-2429": "node scripts/test-beneficiary-cases2429.mjs",
+    "test:offline-mobile-24210": "node scripts/test-offline-mobile24210.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.106.0",

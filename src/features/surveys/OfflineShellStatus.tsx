@@ -1,4 +1,6 @@
 import {useEffect,useState} from 'react';
+import {Alert} from '../../components/ui/FieldLanceUI';
+
 export function OfflineShellStatus(){
  const [text,setText]=useState(import.meta.env.DEV?'Development mode: offline reload requires a production build/preview on the same origin.':'Checking offline app files…');
  useEffect(()=>{
@@ -12,5 +14,5 @@ export function OfflineShellStatus(){
    void check();const timer=window.setInterval(()=>void check(),5000);
    return()=>{live=false;window.clearInterval(timer)};
  },[]);
- return <p role="status">{text}</p>;
+ return <Alert title="Offline app files">{text}</Alert>;
 }

@@ -34,10 +34,10 @@ function migrationAggregate() {
   return digest.digest('hex');
 }
 
-await ok('package and lockfile are FieldLance 2.42.9', async () => {
-  assert.equal(pkg.version, '2.42.9');
-  assert.equal(lock.version, '2.42.9');
-  assert.equal(lock.packages?.['']?.version, '2.42.9');
+await ok('package and lockfile remain compatible with the 2.42.9 Cases contract', async () => {
+  assert.ok(['2.42.9','2.42.10'].includes(pkg.version));
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages?.['']?.version, pkg.version);
 });
 await ok('database migration inventory is unchanged', async () => {
   assert.equal(migrations.length, 87);
@@ -138,7 +138,7 @@ await ok('case CSS modules use tokens, approved breakpoints and interaction size
   }
 });
 await ok('2.42.9 permissions note explicitly preserves delegated and server authorization boundaries', async () => {
-  assert.match(permissions, /Current permissions note — FieldLance 2\.42\.9/);
+  assert.match(permissions, /(?:Current|Historical) permissions note — FieldLance 2\.42\.9/);
   assert.match(permissions, /delegated/i);
   assert.match(permissions, /RLS/i);
   assert.match(permissions, /no new.*finance authority/i);

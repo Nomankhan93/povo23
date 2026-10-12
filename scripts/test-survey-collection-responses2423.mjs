@@ -23,7 +23,7 @@ async function ok(name, fn) {
 
 await ok('2.42.3 is registered and adds no database migration', async () => {
   const pkg = JSON.parse(read('package.json'));
-  assert.equal(pkg.version, '2.42.3');
+  assert.ok(['2.42.3','2.42.4','2.42.5','2.42.6','2.42.7','2.42.8','2.42.9','2.42.10'].includes(pkg.version));
   assert.equal(pkg.scripts['test:survey-collection-responses-2423'], 'node --experimental-strip-types scripts/test-survey-collection-responses2423.mjs');
   const migrations = readdirSync('supabase/migrations').filter((name) => name.endsWith('.sql')).sort();
   assert.equal(migrations.length, 87);
@@ -31,13 +31,12 @@ await ok('2.42.3 is registered and adds no database migration', async () => {
   assert.equal(sha256('supabase/migrations/20261013000580_project_lifecycle_e2e_integrity.sql'), '7c46de397a816df58450c22f51a5259608331de8e2fdd9b58e85a19c3b3b24c5');
 });
 
-await ok('protected 2.42.2 survey and offline/save files remain byte-identical', async () => {
+await ok('protected 2.42.2 survey save/storage files remain byte-identical', async () => {
   const expected = {
     'src/features/surveys/SurveyTemplates.tsx': '98b575818320d3ab1edadf5daab85b081aeff27863f71e14c60ba1a11d76130e',
     'src/features/surveys/SurveyTemplates.module.css': '3c526a3b2ab87758fa6c5c4b0e6c216fba27bc3d9a4aef61f11608c94493d298',
     'src/features/surveys/offlineSurveyStore.ts': '3e3cbe89250434b7be6ab831293bbe915895f2d09b09e875fbd59da7a2151204',
     'src/features/surveys/useSurveySave.ts': 'e0ab44f52b602bf4eabb33eca05e07fa8a5ca6f2598a76bb4468fbceffcda2c3',
-    'src/features/surveys/OfflineFieldWorkspace.tsx': 'a6ad7bb54bdffc7c3e30456b9774dffb948aeb2f942530055c66546f4f4e4f38',
     'src/features/surveys/fieldDeviceLifecycle.ts': '03b181ad006db51397cdc959a60bd2a93325918fe584e7065bcdbad7597df28b',
     'src/features/surveys/fieldAttachments.ts': 'b24b18f64b5fc7c2a42ce01b1de038b346e1bcd397e3ab433243eaaf12469037',
     'src/features/surveys/capture.ts': '5ae517c88f70b95e84b11ea5e4df33b78511a30d3c6be112d3592fecf579b3c7',
@@ -273,10 +272,9 @@ await ok('new feature modules use FieldLance tokens with no palette important ru
   }
 });
 
-await ok('SurveyTemplates and Offline Field styling remain isolated from the new modules', async () => {
+await ok('SurveyTemplates and 2.42.3 feature styling remain isolated from later workspace modules', async () => {
   assert.doesNotMatch(formCss + captureCss + responsesCss + queueCss, /SurveyTemplates|OfflineFieldWorkspace|offline-field|survey-template-builder/);
   assert.equal(sha256('src/features/surveys/SurveyTemplates.module.css'), '3c526a3b2ab87758fa6c5c4b0e6c216fba27bc3d9a4aef61f11608c94493d298');
-  assert.equal(sha256('src/features/surveys/OfflineFieldWorkspace.tsx'), 'a6ad7bb54bdffc7c3e30456b9774dffb948aeb2f942530055c66546f4f4e4f38');
 });
 
 console.log(`\n${passed} FieldLance 2.42.3 Survey Collection & Response Review scenarios passed.`);

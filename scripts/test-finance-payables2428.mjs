@@ -38,7 +38,7 @@ function migrationAggregate() {
 }
 
 await ok('package and lockfile remain compatible with the 2.42.8 finance contract', async () => {
-  assert.ok(['2.42.8','2.42.9'].includes(pkg.version));
+  assert.ok(['2.42.8','2.42.9','2.42.10'].includes(pkg.version));
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages?.['']?.version, pkg.version);
 });

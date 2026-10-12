@@ -1,4 +1,8 @@
-# Current release: FieldLance 2.42.9
+# Current release: FieldLance 2.42.10
+
+Offline / Mobile Field Workspace UX. Field work now separates Surveys, Attendance and Device operations, presents downloaded survey projects in desktop/mobile 2.42 patterns, centralizes encrypted device inventory/cleanup, and replaces Offline Field browser confirmations with accessible shared dialogs including typed ERASE. Survey/attendance stores, request identity, recovery rules, service worker, routes, capabilities, RPCs, RLS and migrations remain unchanged. See docs/PHASE-2.42.10.md, docs/UPGRADE-2.42.10.md and docs/VALIDATION-2.42.10.md.
+
+# Previous release: FieldLance 2.42.9
 
 Beneficiary Cases UX. Manager case operations now separate Cases, Distribution and Follow-ups into focused desktop/mobile queues while preserving ownership, assessed needs, assistance requests, duplicate-support review, delivered-assistance ledger, follow-up outcomes and server-authoritative closure. Delegated Field Worker / Area Focal views use the same 2.42 presentation without widening case, assistance or finance access. Case/request/plan/follow-up creation now reuses one caller-generated identifier for an exact uncertain retry; no schema, migration, RLS, RPC, route or capability change is included. See docs/PHASE-2.42.9.md, docs/UPGRADE-2.42.9.md and docs/VALIDATION-2.42.9.md.
 

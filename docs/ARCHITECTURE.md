@@ -1,4 +1,10 @@
-# Current architecture note — FieldLance 2.42.9
+# Current architecture note — FieldLance 2.42.10
+
+2.42.10 extends the feature-local 2.42 presentation architecture to Offline / Mobile Field. `OfflineFieldWorkspace.module.css` and `SurveySyncStatus.module.css` own field-workspace layout while shared 2.42 primitives own tabs, metrics, tables/mobile records, statuses, alerts, buttons and dialogs. SurveyForm and AttendanceWorkspace remain separate existing feature workspaces and are embedded without redesign.
+
+Encrypted survey/attendance stores, owner/generation guards, attachment resume state, stable request IDs, recovery-copy rules, service-worker shell and backend authorization remain unchanged. Device erase still clears local copies only and explicitly leaves server records unchanged; case operations, finance and basemaps remain unavailable offline.
+
+# Historical architecture note — FieldLance 2.42.9
 
 2.42.9 extends the feature-local 2.42 presentation architecture to Beneficiary Cases. `BeneficiaryCasesWorkspace.module.css` and `DelegatedCasesWorkspace.module.css` own case-surface layout/responsive presentation while shared 2.42 primitives own metrics, tabs, tables, mobile records, statuses, alerts, filters and buttons. Existing case-detail workflows continue to call the same guarded RPCs.
 

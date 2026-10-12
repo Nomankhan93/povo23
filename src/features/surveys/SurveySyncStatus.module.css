@@ -1,0 +1,107 @@
+.syncPanel {
+  min-width: 0;
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface);
+  overflow: hidden;
+}
+
+.syncPanel > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fl-space-3);
+  padding: var(--fl-space-3) var(--fl-space-4);
+  color: var(--fl-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.syncBody {
+  display: grid;
+  gap: var(--fl-space-4);
+  padding: 0 var(--fl-space-4) var(--fl-space-4);
+}
+
+.syncHeading,
+.copyHeading,
+.copyActions,
+.syncActions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fl-space-3);
+  flex-wrap: wrap;
+}
+
+.syncHeading p,
+.copyHeading p,
+.copyCard > p,
+.invariant {
+  margin: var(--fl-space-1) 0 0;
+  color: var(--fl-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.copyList {
+  display: grid;
+  gap: var(--fl-space-3);
+}
+
+.copyCard {
+  min-width: 0;
+  display: grid;
+  gap: var(--fl-space-3);
+  padding: var(--fl-space-4);
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-md);
+  background: var(--fl-surface-muted);
+}
+
+.copyActions {
+  justify-content: flex-start;
+}
+
+.preview {
+  max-height: 320px;
+  margin: 0;
+  padding: var(--fl-space-3);
+  overflow: auto;
+  border: 1px solid var(--fl-border);
+  border-radius: var(--fl-radius-sm);
+  background: var(--fl-surface);
+  color: var(--fl-text);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.invariant {
+  margin: 0;
+}
+
+@media (max-width: 639px) {
+  .syncPanel > summary,
+  .syncPanel :global(.fl-button) {
+    min-height: 48px;
+  }
+
+  .syncHeading,
+  .copyActions,
+  .syncActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copyActions :global(.fl-button),
+  .syncHeading :global(.fl-button) {
+    width: 100%;
+    justify-content: center;
+  }
+}

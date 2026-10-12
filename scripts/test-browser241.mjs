@@ -14,7 +14,22 @@ let stage='build fixture';
 const errors=[],failedRequests=[];
 try{
  await writeFile(path.join(temp,'index.html'),'<html><body><div id="root"></div><script type="module" src="'+path.join(root,'scripts/fixtures/device241/main.jsx')+'"></script></body></html>');
- await build({configFile:false,root:temp,publicDir:path.join(root,'public'),plugins:[{name:'fixture-transport',enforce:'pre',resolveId(id){if(id.endsWith('/supabase/client'))return path.join(root,'scripts/fixtures/device241/client.js');}},react()],resolve:{dedupe:['react','react-dom']},build:{outDir:dist,emptyOutDir:true},logLevel:'error'});
+ await build({configFile:false,root:temp,publicDir:path.join(root,'public'),plugins:[{name:'fixture-transport',enforce:'pre',resolveId(id){if(id.endsWith('/supabase/client'))return path.join(root,'scripts/fixtures/device241/client.js');}},react()],resolve:{dedupe:['react','react-dom']},build:{outDir:dist,emptyOutDir:true,manifest:true},logLevel:'error'});
+ // This fixture builds from a temporary Vite root, so source keys in the generated
+ // manifest may be relative to that root instead of the repository root used in
+ // production. Normalize only the required offline-field source key before running
+ // the unchanged production service-worker builder.
+ const manifestPath=path.join(dist,'.vite/manifest.json');
+ const fixtureManifest=JSON.parse(await readFile(manifestPath,'utf8'));
+ const offlineSource='src/features/surveys/OfflineFieldWorkspace.tsx';
+ if(!fixtureManifest[offlineSource]){
+   const offlineEntry=Object.entries(fixtureManifest).find(([key,value])=>
+     key.endsWith('/'+offlineSource)||value?.src?.endsWith('/'+offlineSource)
+   );
+   if(!offlineEntry)throw new Error('Browser fixture manifest is missing the OfflineFieldWorkspace chunk.');
+   fixtureManifest[offlineSource]=offlineEntry[1];
+   await writeFile(manifestPath,JSON.stringify(fixtureManifest,null,2));
+ }
  execFileSync(process.execPath,[path.join(root,'scripts/build-field-worker.mjs')],{cwd:temp});
  server=createServer(async(req,res)=>{const url=new URL(req.url,'http://localhost');if(url.pathname==='/fixture-network-probe'){res.setHeader('Cache-Control','no-store');res.end('online');return;}let file=url.pathname==='/'||url.pathname.startsWith('/app')?'/index.html':url.pathname;try{const body=await readFile(path.join(dist,file));res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.html')?'text/html':'application/octet-stream');res.end(body);}catch{res.writeHead(404);res.end('missing');}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
@@ -58,7 +73,7 @@ try{
  stage='offline checkout';await network.verify(stage);await page.getByRole('button',{name:'End & submit workday',exact:true}).click();
  await page.waitForFunction(async()=>Boolean((await window.deviceTest.attendance.pendingAttendance('alice'))[0]?.hasCheckout));
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('fixture-server')||'{"requests":[]}').requests.length),0,'Offline capture must not reach the simulated server');
- await page.getByText('This workday is queued on this device').waitFor();stage='offline reload';await page.reload();await network.verify(stage);await page.getByText('This workday is queued on this device').waitFor();
+ await page.getByText('Workday waiting to sync',{exact:true}).waitFor();stage='offline reload';await page.reload();await network.verify(stage);await page.getByText('Workday waiting to sync',{exact:true}).waitFor();
  assert.equal(await page.evaluate(async()=>(await window.deviceTest.attendance.pendingAttendance('alice'))[0].hasCheckout),true);
  console.log('PASS Chromium deep-link offline boot, check-in/checkout and reload retain encrypted evidence');
  stage='reconnect rejection';await page.evaluate(()=>localStorage.setItem('fixture-reject','yes'));await network.set(false);
@@ -90,10 +105,15 @@ try{
  await page.evaluate(()=>{localStorage.setItem('fixture-owner','bob');window.deviceTest.survey.rememberFieldOwner('bob');});
  await page.getByText('No projects downloaded yet.',{exact:false}).waitFor();assert.equal(await page.getByText('alice downloaded survey',{exact:true}).count(),0);
  await page.evaluate(()=>{localStorage.setItem('fixture-owner','alice');window.deviceTest.survey.rememberFieldOwner('alice');});await page.getByText('alice downloaded survey',{exact:true}).waitFor();
- page.once('dialog',dialog=>dialog.accept('ERASE'));await page.getByRole('button',{name:'Erase my device data',exact:true}).click();
+ await page.getByRole('tab',{name:'Device',exact:true}).click();
+ await page.getByRole('button',{name:'Erase my device data',exact:true}).click();
+ const eraseDialog=page.getByRole('dialog',{name:'Erase device data'});await eraseDialog.waitFor();
+ await eraseDialog.getByLabel('Type ERASE to confirm').fill('ERASE');
+ await eraseDialog.getByRole('button',{name:'Erase device data',exact:true}).click();
  await page.waitForFunction(async()=>{try{const i=await window.deviceTest.lifecycle.deviceInventory('alice');return i.downloads===0&&i.attendance.length===0;}catch{return false;}});
- page.once('dialog',dialog=>dialog.accept());
- await page.getByRole('button',{name:'Lock and sign out',exact:true}).click();
+ await page.getByRole('button',{name:'Lock & sign out',exact:true}).click();
+ const logoutDialog=page.getByRole('dialog',{name:'Lock device and sign out?'});await logoutDialog.waitFor();
+ await logoutDialog.getByRole('button',{name:'Lock & sign out',exact:true}).click();
  await page.waitForFunction(()=>localStorage.getItem('poem-field-locked')==='yes'&&window.deviceTest.survey.offlineOwner()===null);
  assert.equal(await page.evaluate(async()=>{
    try{

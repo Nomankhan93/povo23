@@ -1,4 +1,10 @@
-# Current permissions note — FieldLance 2.42.9
+# Current permissions note — FieldLance 2.42.10
+
+2.42.10 changes Offline / Mobile Field presentation and confirmation UX only. Downloaded survey and attendance data remains owner-bound and encrypted by the existing local-store contract; server RLS/RPC authorization remains authoritative whenever data is downloaded or synchronized. The UI does not add offline case operations, finance authority, basemap access, background tracking or background synchronization.
+
+No RLS, grant, RPC permission, route, capability, schema or migration change is included. Device erase removes this account's local browser copies only; server records remain unchanged.
+
+# Historical permissions note — FieldLance 2.42.9
 
 2.42.9 changes Beneficiary Cases presentation and client create-retry identity only. Existing guarded case, assistance, distribution, duplicate-support, ownership, follow-up and closure RPC authorization remains authoritative. Delegated Field Workers / Area Focal Persons continue to see only explicitly delegated case context allowed by current project/geography authority; assistance approvals, delivery recording, organization administration and finance remain outside the delegated workspace.
 

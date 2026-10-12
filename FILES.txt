@@ -109,6 +109,7 @@ docs/PHASE-2.41.8.md
 docs/PHASE-2.41.9.md
 docs/PHASE-2.42.0.md
 docs/PHASE-2.42.1.md
+docs/PHASE-2.42.10.md
 docs/PHASE-2.42.2.md
 docs/PHASE-2.42.3.md
 docs/PHASE-2.42.4.md
@@ -234,6 +235,7 @@ docs/UPGRADE-2.41.8.md
 docs/UPGRADE-2.41.9.md
 docs/UPGRADE-2.42.0.md
 docs/UPGRADE-2.42.1.md
+docs/UPGRADE-2.42.10.md
 docs/UPGRADE-2.42.2.md
 docs/UPGRADE-2.42.3.md
 docs/UPGRADE-2.42.4.md
@@ -344,6 +346,7 @@ docs/VALIDATION-2.41.8.md
 docs/VALIDATION-2.41.9.md
 docs/VALIDATION-2.42.0.md
 docs/VALIDATION-2.42.1.md
+docs/VALIDATION-2.42.10.md
 docs/VALIDATION-2.42.2.md
 docs/VALIDATION-2.42.3.md
 docs/VALIDATION-2.42.4.md
@@ -406,7 +409,6 @@ scripts/test-analytics-client231.mjs
 scripts/test-area-operations.mjs
 scripts/test-area-picker.mjs
 scripts/test-attendance-client2401.mjs
-scripts/test-attendance-client2401.mjs.bak-2429
 scripts/test-attendance-timesheets2425.mjs
 scripts/test-auth-session24112.mjs
 scripts/test-beneficiary-cases2429.mjs
@@ -453,6 +455,7 @@ scripts/test-notification-center2240.mjs
 scripts/test-notification-client2414.mjs
 scripts/test-notification-routing2413.mjs
 scripts/test-observability24119.mjs
+scripts/test-offline-mobile24210.mjs
 scripts/test-offline-recovery276.mjs
 scripts/test-organization-workspace2210.mjs
 scripts/test-partner-ngo-application2197.mjs
@@ -631,6 +634,7 @@ src/features/surveys/deviceFreshness.ts
 src/features/surveys/fieldAttachments.ts
 src/features/surveys/fieldDeviceLifecycle.ts
 src/features/surveys/model.tsx
+src/features/surveys/OfflineFieldWorkspace.module.css
 src/features/surveys/OfflineFieldWorkspace.tsx
 src/features/surveys/OfflineShellStatus.tsx
 src/features/surveys/offlineSurveyStore.ts
@@ -643,6 +647,7 @@ src/features/surveys/SurveyProjects.tsx
 src/features/surveys/SurveyResponses.module.css
 src/features/surveys/SurveyReviewQueue.module.css
 src/features/surveys/SurveyReviewQueue.tsx
+src/features/surveys/SurveySyncStatus.module.css
 src/features/surveys/SurveySyncStatus.tsx
 src/features/surveys/SurveyTemplates.module.css
 src/features/surveys/SurveyTemplates.tsx

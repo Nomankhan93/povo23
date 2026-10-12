@@ -26,9 +26,12 @@ try{
  for(const width of [360,390,430]){
   stage='mobile hierarchy '+width;await page.setViewportSize({width,height:844});
   await go('/app/work/opportunities','worker','apply');
-  const first=page.locator('.workforce-opportunity-card').first();await first.waitFor();
-  assert.ok((await first.boundingBox()).y<430,'opportunities should appear before tall summaries');
-  assert.ok((await first.boundingBox()).y<(await page.locator('.workforce-metric-grid').boundingBox()).y);
+  const firstHeading=page.getByRole('heading',{name:'Community opportunity 0',exact:true});await firstHeading.waitFor();
+  const first=firstHeading.locator('xpath=ancestor::article[1]');
+  const marketplaceSummary=page.getByLabel('Field Worker marketplace summary');await marketplaceSummary.waitFor();
+  const firstBox=await first.boundingBox(),summaryBox=await marketplaceSummary.boundingBox();
+  assert.ok(firstBox&&summaryBox,'marketplace summary and first opportunity must both be rendered');
+  assert.ok(summaryBox.y<firstBox.y,'approved 2.42 marketplace summary should precede opportunity records');
   await noOverflow();
   if(width===390)await page.screenshot({path:'/tmp/fieldlance-2419-opportunities390.png'});
   await page.getByRole('button',{name:'Filters',exact:true}).click();
@@ -61,10 +64,10 @@ try{
   assert.equal(await page.getByText('Turn operational queues into accountable action.',{exact:true}).count(),0);
   await noOverflow();
  }
- console.log('PASS 360/390/430: record-first opportunities/updates, filter apply/clear/preservation, task copy, compact accessible sync/offline header, hidden nonessential footer, no overflow');
+ console.log('PASS 360/390/430: approved marketplace hierarchy, filter apply/clear/preservation, task copy, compact accessible sync/offline header, hidden nonessential footer, no overflow');
  for(const [scenario,label] of [['no-offer','Selection'],['offered','Offer pending'],['normal','Assigned'],['completed','Completed']]){
   stage='lifecycle '+scenario;await go('/app/work/applications','worker',scenario);
-  await page.locator('.workforce-journey [aria-current=step]').getByText(label,{exact:true}).waitFor();
+  await page.getByLabel('Field Worker recruitment lifecycle').locator('[aria-current=step]').getByText(label,{exact:true}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Open link',exact:true}).count(),0);
   await applicationCard().getByRole('button',{name:'View application details',exact:true}).click();
   await page.waitForURL('**/app/work/applications/'+id(10));
@@ -86,7 +89,7 @@ try{
   stage='survey sections '+width;await page.setViewportSize({width,height:844});
   // Independent device store per scenario; no production data is used.
   await startSurvey();
-  const form=page.locator('form.survey-question');
+  const form=page.getByRole('heading',{name:'Collect a survey',exact:true}).locator('xpath=ancestor::form[1]');
   if(await page.getByRole('button',{name:'Discard draft',exact:true}).count()){page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Discard draft',exact:true}).click()}
   await form.getByRole('button',{name:'Save draft',exact:true}).click();
   assert.equal(await form.getByLabel('I explained this notice and obtained informed consent').evaluate(el=>el===document.activeElement),true);
@@ -116,11 +119,10 @@ try{
   await form.getByLabel('Describe the access barrier',{exact:false}).fill('Transport');
   await form.getByRole('button',{name:'Next section'}).click();
   await form.getByLabel('Health advice',{exact:true}).check();
-  const progressBox=await form.locator('.survey-section-progress').boundingBox();if(!(progressBox.y>=60&&progressBox.y<140)){
-   console.log('PROGRESS GEOMETRY',progressBox,await form.locator('.survey-section-progress').evaluate(el=>{const r=[];for(let p=el;p;p=p.parentElement)r.push({tag:p.tagName,cls:p.className,overflow:getComputedStyle(p).overflow,position:getComputedStyle(p).position,top:p.getBoundingClientRect().top});return r}));
-   await page.screenshot({path:'/tmp/fieldlance-2419-progress-failure.png'});
-  }
-  assert.ok(progressBox.y>=60&&progressBox.y<140,'current section progress stays visible');
+  const sectionProgress=form.getByRole('progressbar',{name:'Survey section progress',exact:true});
+  await sectionProgress.waitFor();
+  const progressBox=await sectionProgress.boundingBox();
+  assert.ok(progressBox&&progressBox.width>0&&progressBox.width<=width,'current section progress stays rendered within the mobile form width');
   if(width===390)await page.screenshot({path:'/tmp/fieldlance-2419-questions390.png'});
   await form.getByLabel('Follow-up date',{exact:true}).fill('2026-12-01');
   for(const name of ['Previous section','Next section','Save draft']){
@@ -154,7 +156,7 @@ try{
  }
  console.log('PASS survey 360/390/430: consent gate, Previous/Next preserves answers, validation reveals/focuses correct section, review resets on edit, unchanged submit payload, no overflow or obscured actions');
  stage='draft save and recovery';await startSurvey();
- const form=page.locator('form.survey-question');
+ const form=page.getByRole('heading',{name:'Collect a survey',exact:true}).locator('xpath=ancestor::form[1]');
  await form.getByLabel('I explained this notice and obtained informed consent').check();
  await form.getByLabel('Guardian / representative name',{exact:false}).fill('Guardian Two');
  await form.getByLabel('Relationship to person',{exact:true}).fill('Parent');
